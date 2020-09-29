@@ -73,7 +73,7 @@ class EPGhandler():
             if epg_method == "empty":
                 sub_el(c_out, 'icon', src=("http://" + str(base_url) + str(epgdict[channel]['thumbnail'])))
             elif epg_method == "proxy":
-                sub_el(c_out, 'icon', src=("http://" + str(base_url) + str(epgdict[channel]['thumbnail'])))
+                sub_el(c_out, 'icon', src=(str(epgdict[channel]['thumbnail'])))
             elif epg_method == "zap2it":
                 sub_el(c_out, 'icon', src=(str(epgdict[channel]['thumbnail'])))
             else:
@@ -107,7 +107,7 @@ class EPGhandler():
                     if epg_method == "empty":
                         sub_el(prog_out, 'icon', src=("http://" + str(base_url) + str(program['thumbnail'])))
                     elif epg_method == "proxy":
-                        sub_el(prog_out, 'icon', src=("http://" + str(base_url) + str(program['thumbnail'])))
+                        sub_el(prog_out, 'icon', src=(str(program['thumbnail'])))
                     elif epg_method == "zap2it":
                         sub_el(prog_out, 'icon', src=(str(program['thumbnail'])))
                     else:
