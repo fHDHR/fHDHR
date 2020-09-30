@@ -263,12 +263,16 @@ class HDHR_HTTP_Server():
                     req = requests.get(channelUri, stream=True)
 
                     def generate():
-                        yield ''
-                        for chunk in req.iter_content(chunk_size=hdhr.config["direct_stream"]['chunksize']):
-                            if not duration == 0 and not time.time() < duration:
-                                req.close()
-                                break
-                            yield chunk
+                        try:
+                            yield ''
+                            for chunk in req.iter_content(chunk_size=hdhr.config["direct_stream"]['chunksize']):
+                                if not duration == 0 and not time.time() < duration:
+                                    req.close()
+                                    break
+                                yield chunk
+                        except GeneratorExit:
+                            req.close()
+                            print("Connection Closed.")
 
                     return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
 
