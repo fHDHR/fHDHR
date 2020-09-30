@@ -7,7 +7,6 @@ import json
 import time
 import requests
 import subprocess
-import errno
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
@@ -111,7 +110,7 @@ class HDHR_Hub():
                             "TunerCount": self.config["fakehdhr"]["tuner_count"],
                             "FirmwareVersion": self.config["dev"]["reporting_firmware_ver"],
                             "DeviceID": self.config["main"]["uuid"],
-                            "DeviceAuth": "locastproxy",
+                            "DeviceAuth": "fHDHR",
                             "BaseURL": "http://" + base_url,
                             "LineupURL": "http://" + base_url + "/lineup.json"
                         }
@@ -247,12 +246,11 @@ class HDHR_HTTP_Server():
         return Response(image, content_type='image/png', direct_passthrough=True)
 
     @app.route('/watch', methods=['GET'])
-    def watch_nothing():
+    def watch():
         if 'method' in list(request.args.keys()):
             if 'channel' in list(request.args.keys()):
 
-                station_list = hdhr.serviceproxy.get_channel_streams()
-                channelUri = station_list[str(request.args["channel"])]
+                channelUri = hdhr.serviceproxy.get_channel_stream(str(request.args["channel"]))
                 if not channelUri:
                     abort(404)
 
@@ -284,39 +282,25 @@ class HDHR_HTTP_Server():
                                       "-loglevel", "warning",
                                       "pipe:stdout"
                                       ]
+
                     ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
 
                     def generate():
-
-                        videoData = ffmpeg_proc.stdout.read(int(hdhr.config["ffmpeg"]["bytes_per_read"]))
-
-                        while True:
-                            if not videoData:
-                                break
-                            else:
-                                # from https://stackoverflow.com/questions/9932332
+                        try:
+                            while True:
+                                videoData = ffmpeg_proc.stdout.read(int(hdhr.config["ffmpeg"]["bytes_per_read"]))
+                                if not videoData:
+                                    break
                                 try:
                                     yield videoData
-                                    time.sleep(0.1)
-                                except IOError as e:
-                                    # Check we hit a broken pipe when trying to write back to the client
-                                    if e.errno == errno.EPIPE:
-                                        # Send SIGTERM to shutdown ffmpeg
-                                        ffmpeg_proc.terminate()
-                                        # ffmpeg writes a bit of data out to stderr after it terminates,
-                                        # need to read any hanging data to prevent a zombie process.
-                                        ffmpeg_proc.communicate()
-                                        break
-                                    else:
-                                        raise
-
-                            videoData = ffmpeg_proc.stdout.read(int(hdhr.config["ffmpeg"]["bytes_per_read"]))
-
-                    ffmpeg_proc.terminate()
-                    try:
-                        ffmpeg_proc.communicate()
-                    except ValueError:
-                        print("Connection Closed")
+                                except Exception as e:
+                                    ffmpeg_proc.terminate()
+                                    ffmpeg_proc.communicate()
+                                    print("Connection Closed: " + str(e))
+                        except GeneratorExit:
+                            ffmpeg_proc.terminate()
+                            ffmpeg_proc.communicate()
+                            print("Connection Closed.")
 
                     return Response(stream_with_context(generate()), mimetype="audio/mpeg")
         abort(404)

@@ -1,12 +1,12 @@
 import os
 import sys
 import time
-import datetime
 from io import BytesIO
 import json
 import xml.etree.ElementTree as ET
 
 from . import zap2it
+from . import emptyepg
 
 
 def sub_el(parent, name, text=None, **kwargs):
@@ -28,15 +28,13 @@ class EPGhandler():
         self.config = config.config
         self.serviceproxy = serviceproxy
         self.zapepg = zap2it.ZapEPG(config)
+        self.emptyepg = emptyepg.EmptyEPG(config)
 
         self.epg_cache = None
 
-        self.empty_cache_dir = config.config["main"]["empty_cache"]
-        self.empty_cache_file = config.config["main"]["empty_cache_file"]
-
     def get_epg(self):
         if self.config["fakehdhr"]["epg_method"] == "empty":
-            epgdict = self.epg_cache_open()
+            epgdict = self.emptyepg.EmptyEPG()
         elif self.config["fakehdhr"]["epg_method"] == "proxy":
             epgdict = self.serviceproxy.epg_cache_open()
         elif self.config["fakehdhr"]["epg_method"] == "zap2it":
@@ -63,45 +61,66 @@ class EPGhandler():
         out.set('generator-info-name', 'FAKEHDHR')
         out.set('generator-info-url', 'FAKEHDHR/FakeHDHR_Locast')
 
-        for channel in list(epgdict.keys()):
-            c_out = sub_el(out, 'channel', id=epgdict[channel]['id'])
+        for c in list(epgdict.keys()):
+
+            c_out = sub_el(out, 'channel', id=str(epgdict[c]['number']))
             sub_el(c_out, 'display-name',
-                          text='%s %s' % (epgdict[channel]['number'], epgdict[channel]['callsign']))
-            sub_el(c_out, 'display-name', text=epgdict[channel]['number'])
-            sub_el(c_out, 'display-name', text=epgdict[channel]['callsign'])
+                          text='%s %s' % (epgdict[c]['number'], epgdict[c]['callsign']))
+            sub_el(c_out, 'display-name',
+                          text='%s %s %s' % (epgdict[c]['number'], epgdict[c]['callsign'], str(epgdict[c]['id'])))
+            sub_el(c_out, 'display-name', text=epgdict[c]['number'])
+            sub_el(c_out, 'display-name',
+                          text='%s %s fcc' % (epgdict[c]['number'], epgdict[c]['callsign']))
+            sub_el(c_out, 'display-name', text=epgdict[c]['callsign'])
+            sub_el(c_out, 'display-name', text=epgdict[c]['callsign'])
+            sub_el(c_out, 'display-name', text=epgdict[c]['name'])
 
-            if epg_method == "empty":
-                sub_el(c_out, 'icon', src=("http://" + str(base_url) + str(epgdict[channel]['thumbnail'])))
-            elif epg_method == "proxy":
-                sub_el(c_out, 'icon', src=(str(epgdict[channel]['thumbnail'])))
-            elif epg_method == "zap2it":
-                sub_el(c_out, 'icon', src=(str(epgdict[channel]['thumbnail'])))
+            if epgdict[c]["thumbnail"] is not None:
+                if epg_method == "empty":
+                    sub_el(c_out, 'icon', src=("http://" + str(base_url) + str(epgdict[c]['thumbnail'])))
+                elif epg_method == "proxy":
+                    sub_el(c_out, 'icon', src=(str(epgdict[c]['thumbnail'])))
+                elif epg_method == "zap2it":
+                    sub_el(c_out, 'icon', src=(str(epgdict[c]['thumbnail'])))
+                else:
+                    sub_el(c_out, 'icon', src=(str(epgdict[c]['thumbnail'])))
             else:
-                sub_el(c_out, 'icon', src=(str(epgdict[channel]['thumbnail'])))
+                sub_el(c_out, 'icon', src=("http://" + str(base_url) + "/images?source=empty&type=channel&id=empty"))
 
-        for channel in list(epgdict.keys()):
-            channel_listing = epgdict[channel]['listing']
+        for progitem in list(epgdict.keys()):
+
+            channel_listing = epgdict[progitem]['listing']
 
             for program in channel_listing:
 
                 prog_out = sub_el(out, 'programme',
                                   start=program['time_start'],
                                   stop=program['time_end'],
-                                  channel=epgdict[channel]["id"])
+                                  channel=str(progitem))
 
-                if program['title']:
-                    sub_el(prog_out, 'title', lang='en', text=program['title'])
+                sub_el(prog_out, 'title', lang='en', text=program['title'])
 
-                if 'movie' in program['genres'] and program['releaseyear']:
-                    sub_el(prog_out, 'sub-title', lang='en', text='Movie: ' + program['releaseyear'])
-                elif program['episodetitle']:
-                    sub_el(prog_out, 'sub-title', lang='en', text=program['episodetitle'])
+                sub_el(prog_out, 'desc', lang='en', text=program['description'])
+
+                sub_el(prog_out, 'sub-title', lang='en', text='Movie: ' + program['sub-title'])
 
                 sub_el(prog_out, 'length', units='minutes', text=str(int(program['duration_minutes'])))
 
                 for f in program['genres']:
                     sub_el(prog_out, 'category', lang='en', text=f)
                     sub_el(prog_out, 'genre', lang='en', text=f)
+
+                if program['seasonnumber'] and program['episodenumber']:
+                    s_ = int(str(program['seasonnumber']), 10)
+                    e_ = int(str(program['episodenumber']), 10)
+                    sub_el(prog_out, 'episode-num', system='dd_progid',
+                           text=str(program['id']))
+                    sub_el(prog_out, 'episode-num', system='common',
+                           text='S%02dE%02d' % (s_, e_))
+                    sub_el(prog_out, 'episode-num', system='xmltv_ns',
+                           text='%d.%d.' % (int(s_)-1, int(e_)-1))
+                    sub_el(prog_out, 'episode-num', system='SxxExx">S',
+                           text='S%02dE%02d' % (s_, e_))
 
                 if program["thumbnail"] is not None:
                     if epg_method == "empty":
@@ -112,24 +131,15 @@ class EPGhandler():
                         sub_el(prog_out, 'icon', src=(str(program['thumbnail'])))
                     else:
                         sub_el(prog_out, 'icon', src=(str(program['thumbnail'])))
+                else:
+                    sub_el(prog_out, 'icon', src=("http://" + str(base_url) + "/images?source=empty&type=content&id=empty"))
 
                 if program['rating']:
-                    r = ET.SubElement(prog_out, 'rating')
-                    sub_el(r, 'value', text=program['rating'])
+                    rating_out = sub_el(prog_out, 'rating', system="MPAA")
+                    sub_el(rating_out, 'value', text=program['rating'])
 
-                if 'seasonnumber' in list(program.keys()) and 'episodenumber' in list(program.keys()):
-                    if program['seasonnumber'] and program['episodenumber']:
-                        s_ = int(program['seasonnumber'], 10)
-                        e_ = int(program['episodenumber'], 10)
-                        sub_el(prog_out, 'episode-num', system='common',
-                               text='S%02dE%02d' % (s_, e_))
-                        sub_el(prog_out, 'episode-num', system='xmltv_ns',
-                               text='%d.%d.' % (int(s_)-1, int(e_)-1))
-                        sub_el(prog_out, 'episode-num', system='SxxExx">S',
-                               text='S%02dE%02d' % (s_, e_))
-
-                # if 'New' in event['flag'] and 'live' not in event['flag']:
-                #    sub_el(prog_out, 'new')
+                if program['isnew']:
+                    sub_el(prog_out, 'new')
 
         fakefile = BytesIO()
         fakefile.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -148,85 +158,9 @@ class EPGhandler():
         fakefile.write(ET.tostring(out, encoding='UTF-8'))
         return fakefile.getvalue()
 
-    def update_epg(self):
-        print('Updating Empty EPG cache file.')
-
-        programguide = {}
-
-        timestamps = []
-        todaydate = datetime.date.today()
-        for x in range(0, 6):
-            xdate = todaydate + datetime.timedelta(days=x)
-            xtdate = xdate + datetime.timedelta(days=1)
-
-            for hour in range(0, 24):
-                time_start = datetime.datetime.combine(xdate, datetime.time(hour, 0))
-                if hour + 1 < 24:
-                    time_end = datetime.datetime.combine(xdate, datetime.time(hour + 1, 0))
-                else:
-                    time_end = datetime.datetime.combine(xtdate, datetime.time(0, 0))
-                timestampdict = {
-                                "time_start": str(time_start.strftime('%Y%m%d%H%M%S')) + " +0000",
-                                "time_end": str(time_end.strftime('%Y%m%d%H%M%S')) + " +0000",
-                                }
-                timestamps.append(timestampdict)
-
-        for c in self.serviceproxy.get_channels():
-            if str(c["number"]) not in list(programguide.keys()):
-                programguide[str(c["number"])] = {}
-
-            channel_thumb_path = ("/images?source=empty&type=channel&id=%s" % (str(c['channel'])))
-            programguide[str(c["number"])]["thumbnail"] = channel_thumb_path
-
-            if "name" not in list(programguide[str(c["number"])].keys()):
-                programguide[str(c["number"])]["name"] = c["name"]
-
-            if "callsign" not in list(programguide[str(c["number"])].keys()):
-                programguide[str(c["number"])]["callsign"] = c["name"]
-
-            if "id" not in list(programguide[str(c["number"])].keys()):
-                programguide[str(c["number"])]["id"] = c["id"]
-
-            if "number" not in list(programguide[str(c["number"])].keys()):
-                programguide[str(c["number"])]["number"] = c["number"]
-
-            if "listing" not in list(programguide[str(c["number"])].keys()):
-                programguide[str(c["number"])]["listing"] = []
-
-            for timestamp in timestamps:
-                clean_prog_dict = {}
-
-                clean_prog_dict["time_start"] = timestamp['time_start']
-                clean_prog_dict["time_end"] = timestamp['time_end']
-                clean_prog_dict["duration_minutes"] = 60.0
-
-                content_thumb = ("/images?source=empty&type=content&id=%s" % (str(c['channel'])))
-                clean_prog_dict["thumbnail"] = content_thumb
-
-                clean_prog_dict["title"] = "Unavailable"
-
-                clean_prog_dict["genres"] = []
-
-                clean_prog_dict["sub-title"] = "Unavailable"
-
-                clean_prog_dict['releaseyear'] = ""
-                clean_prog_dict["episodetitle"] = "Unavailable"
-
-                clean_prog_dict["description"] = "Unavailable"
-
-                clean_prog_dict['rating'] = "N/A"
-
-                programguide[str(c["number"])]["listing"].append(clean_prog_dict)
-
-        self.epg_cache = programguide
-        with open(self.empty_cache_file, 'w') as epgfile:
-            epgfile.write(json.dumps(programguide, indent=4))
-        print('Wrote updated Empty EPG cache file.')
-        return programguide
-
     def update(self):
         if self.config["fakehdhr"]["epg_method"] == "empty":
-            self.update_epg()
+            self.emptyepg.update_epg()
         elif self.config["fakehdhr"]["epg_method"] == "proxy":
             self.serviceproxy.update_epg()
         elif self.config["fakehdhr"]["epg_method"] == "zap2it":
