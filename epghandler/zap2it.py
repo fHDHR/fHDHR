@@ -14,8 +14,22 @@ def xmltimestamp_zap(inputtime):
     return xmltime
 
 
-def duration_nextpvr_minutes(starttime, endtime):
-    return ((int(endtime) - int(starttime))/1000/60)
+def xmldictmaker(inputdict, req_items, list_items=[], str_items=[]):
+    xml_dict = {}
+
+    for origitem in list(inputdict.keys()):
+        xml_dict[origitem] = inputdict[origitem]
+
+    for req_item in req_items:
+        if req_item not in list(inputdict.keys()):
+            xml_dict[req_item] = None
+        if not xml_dict[req_item]:
+            if req_item in list_items:
+                xml_dict[req_item] = []
+            elif req_item in str_items:
+                xml_dict[req_item] = ""
+
+    return xml_dict
 
 
 class ZapEPG():
@@ -125,79 +139,54 @@ class ZapEPG():
 
             for c in d['channels']:
 
-                if str(c['channelNo']) not in list(programguide.keys()):
-                    programguide[str(c['channelNo'])] = {}
+                cdict = xmldictmaker(c, ["callSign", "name", "channelNo", "channelId", "thumbnail"])
 
-                channel_thumb = str(c['thumbnail']).replace("//", "https://").split("?")[0]
-                programguide[str(c["channelNo"])]["thumbnail"] = channel_thumb
+                if str(cdict['channelNo']) not in list(programguide.keys()):
 
-                if "name" not in list(programguide[str(c["channelNo"])].keys()):
-                    programguide[str(c["channelNo"])]["name"] = c["callSign"]
-
-                if "callsign" not in list(programguide[str(c["channelNo"])].keys()):
-                    programguide[str(c["channelNo"])]["callsign"] = c["callSign"]
-
-                if "id" not in list(programguide[str(c["channelNo"])].keys()):
-                    programguide[str(c["channelNo"])]["id"] = c["channelId"]
-
-                if "number" not in list(programguide[str(c["channelNo"])].keys()):
-                    programguide[str(c["channelNo"])]["number"] = c["channelNo"]
-
-                if "listing" not in list(programguide[str(c["channelNo"])].keys()):
-                    programguide[str(c["channelNo"])]["listing"] = []
+                    programguide[str(cdict['channelNo'])] = {
+                                                        "callsign": cdict["callSign"],
+                                                        "name": cdict["name"] or cdict["callSign"],  # TODO
+                                                        "number": cdict["channelNo"],
+                                                        "id": cdict["channelId"],
+                                                        "thumbnail": str(cdict['thumbnail']).replace("//", "https://").split("?")[0],
+                                                        "listing": [],
+                                                        }
 
                 for event in c['events']:
-                    clean_prog_dict = {}
 
-                    prog_in = event['program']
+                    eventdict = xmldictmaker(event, ["startTime", "endTime", "duration", "rating", "flag"], list_items=["filter", "flag"])
+                    progdict = xmldictmaker(event['program'], ["title", "sub-title", "releaseYear", "episodeTitle", "shortDesc", "season", "episode", "id"])
 
-                    clean_prog_dict["time_start"] = xmltimestamp_zap(event['startTime'])
-                    clean_prog_dict["time_end"] = xmltimestamp_zap(event['endTime'])
-                    clean_prog_dict["duration_minutes"] = event['duration']
+                    clean_prog_dict = {
+                                    "time_start": xmltimestamp_zap(eventdict['startTime']),
+                                    "time_end": xmltimestamp_zap(eventdict['endTime']),
+                                    "duration_minutes": eventdict['duration'],
+                                    "thumbnail": str("https://zap2it.tmsimg.com/assets/" + str(eventdict['thumbnail']) + ".jpg"),
+                                    "title": progdict['title'] or "Unavailable",
+                                    "sub-title": progdict['sub-title'] or "Unavailable",
+                                    "description": progdict['shortDesc'] or "Unavailable",
+                                    "rating": eventdict['rating'] or "N/A",
+                                    "episodetitle": progdict['episodeTitle'],
+                                    "releaseyear": progdict['releaseYear'],
+                                    "genres": [],
+                                    "seasonnumber": progdict['season'],
+                                    "episodenumber": progdict['episode'],
+                                    "isnew": False,
+                                    "id": progdict['id'] or xmltimestamp_zap(eventdict['startTime']),
+                                    }
 
-                    content_thumb = str("https://zap2it.tmsimg.com/assets/" + str(event['thumbnail']) + ".jpg")
-                    clean_prog_dict["thumbnail"] = content_thumb
+                    for f in eventdict['filter']:
+                        clean_prog_dict["genres"].append(f.replace('filter-', ''))
 
-                    if 'title' not in list(prog_in.keys()):
-                        prog_in["title"] = "Unavailable"
-                    elif not prog_in["title"]:
-                        prog_in["title"] = "Unavailable"
-                    clean_prog_dict["title"] = prog_in["title"]
+                    if 'movie' in clean_prog_dict['genres'] and clean_prog_dict['releaseyear']:
+                        clean_prog_dict["sub-title"] = 'Movie: ' + clean_prog_dict['releaseyear']
+                    elif clean_prog_dict['episodetitle']:
+                        clean_prog_dict["sub-title"] = clean_prog_dict['episodetitle']
 
-                    clean_prog_dict["genres"] = []
-                    if 'filter' in list(event.keys()):
-                        for f in event['filter']:
-                            clean_prog_dict["genres"].append(f.replace('filter-', ''))
-
-                    if 'filter-movie' in event['filter'] and prog_in['releaseYear']:
-                        clean_prog_dict["sub-title"] = 'Movie: ' + prog_in['releaseYear']
-                    elif prog_in['episodeTitle']:
-                        clean_prog_dict["sub-title"] = prog_in['episodeTitle']
-                    else:
-                        clean_prog_dict["sub-title"] = "Unavailable"
-
-                    clean_prog_dict['releaseyear'] = prog_in['releaseYear']
-
-                    if prog_in['shortDesc'] is None:
-                        prog_in['shortDesc'] = "Unavailable"
-                    clean_prog_dict["description"] = prog_in['shortDesc']
-
-                    if 'rating' not in list(event.keys()):
-                        event['rating'] = "N/A"
-                    clean_prog_dict['rating'] = event['rating']
-
-                    if 'season' in list(prog_in.keys()) and 'episode' in list(prog_in.keys()):
-                        clean_prog_dict["seasonnumber"] = prog_in['season']
-                        clean_prog_dict["episodenumber"] = prog_in['episode']
-                        clean_prog_dict["episodetitle"] = clean_prog_dict["sub-title"]
-                    else:
-                        if "movie" not in clean_prog_dict["genres"]:
-                            clean_prog_dict["episodetitle"] = clean_prog_dict["sub-title"]
-
-                    if 'New' in event['flag'] and 'live' not in event['flag']:
+                    if 'New' in eventdict['flag'] and 'live' not in eventdict['flag']:
                         clean_prog_dict["isnew"] = True
 
-                    programguide[str(c["channelNo"])]["listing"].append(clean_prog_dict)
+                    programguide[str(cdict["channelNo"])]["listing"].append(clean_prog_dict)
 
         self.epg_cache = programguide
         with open(self.epg_cache_file, 'w') as epgfile:
