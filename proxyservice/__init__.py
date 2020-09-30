@@ -118,7 +118,7 @@ class proxyserviceFetcher():
                     ))
             station_list.append(
                                 {
-                                 'GuideNumber': str(c['channel']),
+                                 'GuideNumber': str(c['number']),
                                  'GuideName': c['name'],
                                  'URL': url
                                 })
@@ -137,10 +137,10 @@ class proxyserviceFetcher():
                    ("https://" if self.config["nextpvr"]["ssl"] else "http://",
                     self.config["nextpvr"]["address"],
                     str(self.config["nextpvr"]["port"]),
-                    str(c["channel"]),
-                    str(c["channel"]),
+                    str(c["id"]),
+                    str(c["id"]),
                     ))
-            streamdict[str(c["channel"])] = url
+            streamdict[str(c["id"])] = url
         return streamdict
 
     def get_channel_thumbnail(self, channel_id):

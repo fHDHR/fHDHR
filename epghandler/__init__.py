@@ -172,26 +172,26 @@ class EPGhandler():
                 timestamps.append(timestampdict)
 
         for c in self.serviceproxy.get_channels():
-            if str(c["channel"]) not in list(programguide.keys()):
-                programguide[str(c["channel"])] = {}
+            if str(c["number"]) not in list(programguide.keys()):
+                programguide[str(c["number"])] = {}
 
             channel_thumb_path = ("/images?source=empty&type=channel&id=%s" % (str(c['channel'])))
-            programguide[str(c["channel"])]["thumbnail"] = channel_thumb_path
+            programguide[str(c["number"])]["thumbnail"] = channel_thumb_path
 
-            if "name" not in list(programguide[str(c["channel"])].keys()):
-                programguide[str(c["channel"])]["name"] = c["name"]
+            if "name" not in list(programguide[str(c["number"])].keys()):
+                programguide[str(c["number"])]["name"] = c["name"]
 
-            if "callsign" not in list(programguide[str(c["channel"])].keys()):
-                programguide[str(c["channel"])]["callsign"] = c["name"]
+            if "callsign" not in list(programguide[str(c["number"])].keys()):
+                programguide[str(c["number"])]["callsign"] = c["name"]
 
-            if "id" not in list(programguide[str(c["channel"])].keys()):
-                programguide[str(c["channel"])]["id"] = c["id"]
+            if "id" not in list(programguide[str(c["number"])].keys()):
+                programguide[str(c["number"])]["id"] = c["id"]
 
-            if "number" not in list(programguide[str(c["channel"])].keys()):
-                programguide[str(c["channel"])]["number"] = c["channel"]
+            if "number" not in list(programguide[str(c["number"])].keys()):
+                programguide[str(c["number"])]["number"] = c["number"]
 
-            if "listing" not in list(programguide[str(c["channel"])].keys()):
-                programguide[str(c["channel"])]["listing"] = []
+            if "listing" not in list(programguide[str(c["number"])].keys()):
+                programguide[str(c["number"])]["listing"] = []
 
             for timestamp in timestamps:
                 clean_prog_dict = {}
@@ -216,7 +216,7 @@ class EPGhandler():
 
                 clean_prog_dict['rating'] = "N/A"
 
-                programguide[str(c["channel"])]["listing"].append(clean_prog_dict)
+                programguide[str(c["number"])]["listing"].append(clean_prog_dict)
 
         self.epg_cache = programguide
         with open(self.empty_cache_file, 'w') as epgfile:
