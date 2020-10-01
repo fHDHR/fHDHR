@@ -7,6 +7,7 @@ import json
 import time
 import requests
 import subprocess
+import threading
 import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFont
@@ -31,14 +32,38 @@ class HDHR_Hub():
     epghandling = None
     station_scan = False
     station_list = []
+    http = None
 
     def __init__(self):
+        self.tuner_lock = threading.Lock()
+        self.tuners = 0
+
+    def hubprep(self, config, serviceproxy, epghandling):
+        self.config = config.config
+        self.max_tuners = int(self.config["fakehdhr"]["tuner_count"])
         self.station_scan = False
+        self.serviceproxy = serviceproxy
+        self.epghandling = epghandling
+
+    def tuner_usage(self, number):
+        self.tuner_lock.acquire()
+        self.tuners += number
+        if self.tuners < 0:
+            self.tuners = 0
+        elif self.tuners > self.max_tuners:
+            self.tuners = self.max_tuners
+        self.tuner_lock.release()
+
+    def get_tuner(self):
+        if self.tuners <= self.max_tuners:
+            return True
+        return False
 
     def get_xmltv(self, base_url):
         return self.epghandling.get_xmltv(base_url)
 
     def get_image(self, req_args):
+
         imageid = req_args["id"]
 
         if req_args["source"] == "proxy":
@@ -247,67 +272,77 @@ class HDHR_HTTP_Server():
 
     @app.route('/watch', methods=['GET'])
     def watch():
-        if 'method' in list(request.args.keys()):
-            if 'channel' in list(request.args.keys()):
 
-                channelUri = hdhr.serviceproxy.get_channel_stream(str(request.args["channel"]))
-                if not channelUri:
-                    abort(404)
+        if 'method' in list(request.args.keys()) and 'channel' in list(request.args.keys()):
 
-                if request.args["method"] == "direct":
-                    duration = request.args.get('duration', default=0, type=int)
+            method = str(request.args["method"])
+            channel_id = str(request.args["channel"])
 
-                    if not duration == 0:
-                        duration += time.time()
+            tuner = hdhr.get_tuner()
+            if not tuner:
+                abort(503)
 
-                    req = requests.get(channelUri, stream=True)
+            channelUri = hdhr.serviceproxy.get_channel_stream(channel_id)
 
-                    def generate():
-                        try:
-                            yield ''
-                            for chunk in req.iter_content(chunk_size=hdhr.config["direct_stream"]['chunksize']):
-                                if not duration == 0 and not time.time() < duration:
-                                    req.close()
-                                    break
-                                yield chunk
-                        except GeneratorExit:
-                            req.close()
-                            print("Connection Closed.")
+            if method == "direct":
+                duration = request.args.get('duration', default=0, type=int)
 
-                    return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
+                if not duration == 0:
+                    duration += time.time()
 
-                if request.args["method"] == "ffmpeg":
+                req = requests.get(channelUri, stream=True)
+                hdhr.tuner_usage(1)
 
-                    ffmpeg_command = [hdhr.config["ffmpeg"]["ffmpeg_path"],
-                                      "-i", channelUri,
-                                      "-c", "copy",
-                                      "-f", "mpegts",
-                                      "-nostats", "-hide_banner",
-                                      "-loglevel", "warning",
-                                      "pipe:stdout"
-                                      ]
+                def generate():
+                    try:
+                        yield ''
+                        for chunk in req.iter_content(chunk_size=hdhr.config["direct_stream"]['chunksize']):
+                            if not duration == 0 and not time.time() < duration:
+                                req.close()
+                                hdhr.tuner_usage(-1)
+                                break
+                            yield chunk
+                    except GeneratorExit:
+                        req.close()
+                        print("Connection Closed.")
+                        hdhr.tuner_usage(-1)
 
-                    ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+                return Response(generate(), content_type=req.headers['content-type'], direct_passthrough=True)
 
-                    def generate():
-                        try:
-                            while True:
-                                videoData = ffmpeg_proc.stdout.read(int(hdhr.config["ffmpeg"]["bytes_per_read"]))
-                                if not videoData:
-                                    break
-                                try:
-                                    yield videoData
-                                except Exception as e:
-                                    ffmpeg_proc.terminate()
-                                    ffmpeg_proc.communicate()
-                                    print("Connection Closed: " + str(e))
-                        except GeneratorExit:
-                            ffmpeg_proc.terminate()
-                            ffmpeg_proc.communicate()
-                            print("Connection Closed.")
+            elif method == "ffmpeg":
 
-                    return Response(stream_with_context(generate()), mimetype="audio/mpeg")
-        abort(404)
+                ffmpeg_command = [hdhr.config["ffmpeg"]["ffmpeg_path"],
+                                  "-i", channelUri,
+                                  "-c", "copy",
+                                  "-f", "mpegts",
+                                  "-nostats", "-hide_banner",
+                                  "-loglevel", "warning",
+                                  "pipe:stdout"
+                                  ]
+
+                ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+                hdhr.tuner_usage(1)
+
+                def generate():
+                    try:
+                        while True:
+                            videoData = ffmpeg_proc.stdout.read(int(hdhr.config["ffmpeg"]["bytes_per_read"]))
+                            if not videoData:
+                                break
+                            try:
+                                yield videoData
+                            except Exception as e:
+                                ffmpeg_proc.terminate()
+                                ffmpeg_proc.communicate()
+                                print("Connection Closed: " + str(e))
+                                hdhr.tuner_usage(-1)
+                    except GeneratorExit:
+                        ffmpeg_proc.terminate()
+                        ffmpeg_proc.communicate()
+                        print("Connection Closed.")
+                        hdhr.tuner_usage(-1)
+
+                return Response(stream_with_context(generate()), mimetype="audio/mpeg")
 
     @app.route('/lineup.post', methods=['POST'])
     def lineup_post():
@@ -334,17 +369,17 @@ class HDHR_HTTP_Server():
         self.config = config.config
 
     def run(self):
-        http = WSGIServer((
+        self.http = WSGIServer((
                             self.config["fakehdhr"]["address"],
                             int(self.config["fakehdhr"]["port"])
                             ), self.app.wsgi_app)
-        http.serve_forever()
+        try:
+            self.http.serve_forever()
+        except KeyboardInterrupt:
+            self.http.stop()
 
 
 def interface_start(config, serviceproxy, epghandling):
-    hdhr.config = config.config
-    hdhr.station_scan = False
-    hdhr.serviceproxy = serviceproxy
-    hdhr.epghandling = epghandling
+    hdhr.hubprep(config, serviceproxy, epghandling)
     fakhdhrserver = HDHR_HTTP_Server(config)
     fakhdhrserver.run()

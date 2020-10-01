@@ -12,6 +12,7 @@ def clean_exit():
 
 
 class LocastDMAFinder():
+    config = None
     location = {
                 "latitude": None,
                 "longitude": None,
@@ -22,8 +23,9 @@ class LocastDMAFinder():
 
     def __init__(self, config):
         print("Getting user location...")
-        self.mock_location = config.config["location"]["mock_location"]
-        self.zipcode = config.config["location"]["override_zipcode"]
+        self.config = config.config
+        self.zipcode = config.config["proxy"]["override_zipcode"]
+        self.mock_location = self.format_mock_location()
 
         # Check for user's location
 
@@ -120,3 +122,13 @@ class LocastDMAFinder():
         resp.close()
         self.set_location(geoRes)
         return True
+
+    def format_mock_location(self):
+        if not self.config["proxy"]["override_latitude"] or not self.config["proxy"]["override_longitude"]:
+            return None
+        else:
+            loc_dict = {
+                          "lat": self.config["proxy"]["override_latitude"],
+                          "lon": self.config["proxy"]["override_longitude"],
+                          }
+            return loc_dict

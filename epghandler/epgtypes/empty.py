@@ -5,15 +5,16 @@ import datetime
 
 class EmptyEPG():
 
-    def __init__(self, config):
+    def __init__(self, config, serviceproxy):
 
         self.config = config.config
+        self.serviceproxy = serviceproxy
 
         self.postalcode = None
 
         self.epg_cache = None
-        self.cache_dir = config.config["main"]["empty_cache"]
-        self.epg_cache_file = config.config["main"]["empty_cache_file"]
+        self.cache_dir = config.config["empty"]["empty_cache"]
+        self.epg_cache_file = config.config["empty"]["empty_cache_file"]
         self.epg_cache = self.epg_cache_open()
 
     def epg_cache_open(self):
@@ -22,6 +23,12 @@ class EmptyEPG():
             with open(self.epg_cache_file, 'r') as epgfile:
                 epg_cache = json.load(epgfile)
         return epg_cache
+
+    def thumb_url(self, thumb_type, base_url, thumbnail):
+        if thumb_type == "channel":
+            return "http://" + str(base_url) + str(thumbnail)
+        elif thumb_type == "content":
+            return "http://" + str(base_url) + str(thumbnail)
 
     def update_epg(self):
         print('Updating Empty EPG cache file.')
@@ -79,7 +86,7 @@ class EmptyEPG():
                 programguide[str(c["number"])]["listing"].append(clean_prog_dict)
 
         self.epg_cache = programguide
-        with open(self.empty_cache_file, 'w') as epgfile:
+        with open(self.epg_cache_file, 'w') as epgfile:
             epgfile.write(json.dumps(programguide, indent=4))
         print('Wrote updated Empty EPG cache file.')
         return programguide

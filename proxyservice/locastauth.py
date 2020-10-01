@@ -38,11 +38,11 @@ class Locast_Auth():
 
     def login(self):
         # login
-        print("Logging into Locast using username " + self.config["locast"]["username"] + "...")
+        print("Logging into Locast using username " + self.config["proxy"]["username"] + "...")
 
         loginReq = urllib.request.Request('https://api.locastnet.org/api/user/login',
-                                          ('{"username":"' + self.config["locast"]["username"] +
-                                              '","password":"' + self.config["locast"]["password"] +
+                                          ('{"username":"' + self.config["proxy"]["username"] +
+                                              '","password":"' + self.config["proxy"]["password"] +
                                               '"}').encode("utf-8"),
                                           {'Content-Type': 'application/json'})
 

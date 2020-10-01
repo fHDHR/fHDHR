@@ -32,13 +32,11 @@ class proxyserviceFetcher():
     def __init__(self, config):
         self.config = config.config
 
-        self.servicename = "LocastProxy"
-
         self.video_records = {}
 
         self.epg_cache = None
-        self.cache_dir = config.config["main"]["locast_web_cache"]
-        self.epg_cache_file = config.config["locast"]["epg_cache"]
+        self.cache_dir = config.config["main"]["proxy_web_cache"]
+        self.epg_cache_file = config.config["proxy"]["epg_cache"]
 
         self.urls = {}
         self.url_assembler()
@@ -55,6 +53,12 @@ class proxyserviceFetcher():
             with open(self.epg_cache_file, 'r') as epgfile:
                 epg_cache = json.load(epgfile)
         return epg_cache
+
+    def thumb_url(self, thumb_type, base_url, thumbnail):
+        if thumb_type == "channel":
+            return thumbnail
+        elif thumb_type == "content":
+            return thumbnail
 
     def url_assembler(self):
         pass
@@ -168,7 +172,7 @@ class proxyserviceFetcher():
         return item_thumb_url
 
     def update_epg(self):
-        print('Updating Locast EPG cache file.')
+        print('Updating ' + self.config["main"]["servicename"] + ' EPG cache file.')
         self.auth.check_token()
 
         programguide = {}
@@ -246,7 +250,7 @@ class proxyserviceFetcher():
         self.epg_cache = programguide
         with open(self.epg_cache_file, 'w') as epgfile:
             epgfile.write(json.dumps(programguide, indent=4))
-        print('Wrote updated Locast EPG cache file.')
+        print('Wrote updated ' + self.config["main"]["servicename"] + ' EPG cache file.')
         return programguide
 
     def get_location(self):
