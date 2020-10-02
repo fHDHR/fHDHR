@@ -34,19 +34,20 @@ def xmldictmaker(inputdict, req_items, list_items=[], str_items=[]):
 
 class ZapEPG():
 
-    def __init__(self, config):
+    def __init__(self, config, serviceproxy):
 
         self.config = config.config
+        self.serviceproxy = serviceproxy
 
         self.postalcode = None
 
         self.epg_cache = None
         self.cache_dir = config.config["main"]["zap_web_cache"]
-        self.epg_cache_file = config.config["zap2xml"]["epg_cache"]
+        self.epg_cache_file = config.config["zap2it"]["epg_cache"]
         self.epg_cache = self.epg_cache_open()
 
     def get_location(self):
-        self.postalcode = self.config["zap2xml"]["postalcode"]
+        self.postalcode = self.config["zap2it"]["postalcode"]
         if self.postalcode:
             url = 'http://ipinfo.io/json'
             response = urllib.request.urlopen(url)
@@ -59,6 +60,12 @@ class ZapEPG():
             with open(self.epg_cache_file, 'r') as epgfile:
                 epg_cache = json.load(epgfile)
         return epg_cache
+
+    def thumb_url(self, thumb_type, base_url, thumbnail):
+        if thumb_type == "channel":
+            return thumbnail
+        elif thumb_type == "content":
+            return thumbnail
 
     def get_cached(self, cache_key, delay, url):
         cache_path = self.cache_dir.joinpath(cache_key)
@@ -83,6 +90,7 @@ class ZapEPG():
                     raise
             with open(cache_path, 'wb') as f:
                 f.write(result)
+            time.sleep(int(delay))
             return result
 
     def remove_stale_cache(self, todaydate):
@@ -106,26 +114,26 @@ class ZapEPG():
 
         # Start time parameter is now rounded down to nearest `zap_timespan`, in s.
         zap_time = time.mktime(time.localtime())
-        zap_time_window = int(self.config["zap2xml"]["timespan"]) * 3600
+        zap_time_window = int(self.config["zap2it"]["timespan"]) * 3600
         zap_time = int(zap_time - (zap_time % zap_time_window))
 
         # Fetch data in `zap_timespan` chunks.
-        for i in range(int(7 * 24 / int(self.config["zap2xml"]["timespan"]))):
+        for i in range(int(7 * 24 / int(self.config["zap2it"]["timespan"]))):
             i_time = zap_time + (i * zap_time_window)
 
             parameters = {
-                'aid': self.config["zap2xml"]['affiliate_id'],
-                'country': self.config["zap2xml"]['country'],
-                'device': self.config["zap2xml"]['device'],
-                'headendId': self.config["zap2xml"]['headendid'],
+                'aid': self.config["zap2it"]['affiliate_id'],
+                'country': self.config["zap2it"]['country'],
+                'device': self.config["zap2it"]['device'],
+                'headendId': self.config["zap2it"]['headendid'],
                 'isoverride': "true",
-                'languagecode': self.config["zap2xml"]['languagecode'],
+                'languagecode': self.config["zap2it"]['languagecode'],
                 'pref': 'm,p',
-                'timespan': self.config["zap2xml"]['timespan'],
-                'timezone': self.config["zap2xml"]['timezone'],
-                'userId': self.config["zap2xml"]['userid'],
+                'timespan': self.config["zap2it"]['timespan'],
+                'timezone': self.config["zap2it"]['timezone'],
+                'userId': self.config["zap2it"]['userid'],
                 'postalCode': self.postalcode,
-                'lineupId': '%s-%s-DEFAULT' % (self.config["zap2xml"]['country'], self.config["zap2xml"]['device']),
+                'lineupId': '%s-%s-DEFAULT' % (self.config["zap2it"]['country'], self.config["zap2it"]['device']),
                 'time': i_time,
                 'Activity_ID': 1,
                 'FromPage': "TV%20Guide",
@@ -134,7 +142,7 @@ class ZapEPG():
             url = 'https://tvlistings.zap2it.com/api/grid?'
             url += urllib.parse.urlencode(parameters)
 
-            result = self.get_cached(str(i_time), self.config["zap2xml"]['delay'], url)
+            result = self.get_cached(str(i_time), self.config["zap2it"]['delay'], url)
             d = json.loads(result)
 
             for c in d['channels']:

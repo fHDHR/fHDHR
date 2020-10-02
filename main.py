@@ -55,11 +55,20 @@ if __name__ == '__main__':
         fhdhrServer = Process(target=fakehdhr.interface_start, args=(config, serviceproxy, epghandling))
         fhdhrServer.start()
 
-        print("Starting SSDP server...")
-        ssdpServer = Process(target=ssdpserver.ssdpServerProcess, args=(config,))
-        ssdpServer.daemon = True
-        ssdpServer.start()
+        if (config.config["fakehdhr"]["discovery_address"] and
+                config.config["fakehdhr"]["discovery_address"] != "0.0.0.0"):
+            print("Starting SSDP server...")
+            ssdpServer = Process(target=ssdpserver.ssdpServerProcess, args=(config,))
+            ssdpServer.daemon = True
+            ssdpServer.start()
+        else:
+            ssdpServer = None
+            print("Not Starting SSDP server...")
 
     except KeyboardInterrupt:
         print('^C received, shutting down the server')
+        epgServer.terminate()
+        fhdhrServer.terminate()
+        if ssdpServer:
+            ssdpServer.terminate()
         clean_exit()

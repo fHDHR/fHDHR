@@ -24,10 +24,4 @@ PRs welcome for:
 * Docker support
 
 
-Vague Instructions (specific details intentionally excluded):
-
-* Install ffmpeg, and verify it is accessible in PATH. Otherwise, you may specify it's path in your configuration later.
-* Install Python3 and Python3-pip. There will be no support for Python2.
-* Download the zip of the `master` branch, or `git clone`.
-* `pip3 install -r requirements.txt`
-* Copy the included configuration example to a known path, and adjust as needed. The script will look in the current directory for `config.ini`, but this can be specified with the commandline argument `--config_file=`
+Please Check the repository wiki for Installation information.
