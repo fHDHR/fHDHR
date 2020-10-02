@@ -296,7 +296,7 @@ class HDHR_HTTP_Server():
                 def generate():
                     try:
                         yield ''
-                        for chunk in req.iter_content(chunk_size=hdhr.config["direct_stream"]['chunksize']):
+                        for chunk in req.iter_content(chunk_size=int(hdhr.config["direct_stream"]['chunksize'])):
                             if not duration == 0 and not time.time() < duration:
                                 req.close()
                                 hdhr.tuner_usage(-1)
