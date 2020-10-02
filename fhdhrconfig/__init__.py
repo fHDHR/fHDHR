@@ -135,7 +135,7 @@ class HDHRConfig():
               str(self.config["fakehdhr"]["port"]))
 
     def config_adjustments_this(self):
-        self.config["proxy"] = self.config.pop("locast")
+        self.config["proxy"] = self.config.pop(self.config["main"]["dictpopname"])
         self.config_adjustments_proxy()
         self.config_adjustments_zap2it()
 
@@ -156,7 +156,6 @@ class HDHRConfig():
         self.config["main"]["proxy_cache"] = proxy_cache
         if not proxy_cache.is_dir():
             proxy_cache.mkdir()
-        self.config["proxy"]["sidfile"] = pathlib.Path(proxy_cache).joinpath('sid.txt')
         self.config["proxy"]["epg_cache"] = pathlib.Path(proxy_cache).joinpath('epg.json')
         proxy_web_cache = pathlib.Path(proxy_cache).joinpath('proxy_web_cache')
         self.config["main"]["proxy_web_cache"] = proxy_web_cache
