@@ -135,7 +135,7 @@ class HDHRConfig():
               str(self.config["fakehdhr"]["port"]))
 
     def config_adjustments_this(self):
-        self.config["proxy"] = self.config.pop("locast")
+        self.config["proxy"] = self.config.pop(self.config["main"]["dictpopname"])
         self.config_adjustments_proxy()
         self.config_adjustments_zap2it()
 
