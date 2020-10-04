@@ -30,13 +30,13 @@ def xmldictmaker(inputdict, req_items, list_items=[], str_items=[]):
 class proxyserviceFetcher():
 
     def __init__(self, config):
-        self.config = config.config
+        self.config = config.copy()
 
         self.video_records = {}
 
         self.epg_cache = None
-        self.cache_dir = config.config["main"]["proxy_web_cache"]
-        self.epg_cache_file = config.config["proxy"]["epg_cache"]
+        self.cache_dir = self.config["main"]["proxy_web_cache"]
+        self.epg_cache_file = self.config["proxy"]["epg_cache"]
 
         self.urls = {}
         self.url_assembler()

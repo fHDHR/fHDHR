@@ -36,14 +36,14 @@ class ZapEPG():
 
     def __init__(self, config, serviceproxy):
 
-        self.config = config.config
+        self.config = config.copy()
         self.serviceproxy = serviceproxy
 
         self.postalcode = None
 
         self.epg_cache = None
-        self.cache_dir = config.config["main"]["zap_web_cache"]
-        self.epg_cache_file = config.config["zap2it"]["epg_cache"]
+        self.cache_dir = self.config["main"]["zap_web_cache"]
+        self.epg_cache_file = self.config["zap2it"]["epg_cache"]
         self.epg_cache = self.epg_cache_open()
 
     def get_location(self):

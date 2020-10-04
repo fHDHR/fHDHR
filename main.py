@@ -40,25 +40,25 @@ if __name__ == '__main__':
     config = fhdhrconfig.HDHRConfig(script_dir, args)
 
     # Open proxyservice
-    serviceproxy = proxyservice.proxyserviceFetcher(config)
+    serviceproxy = proxyservice.proxyserviceFetcher(config.config)
 
     # Open EPG Handler
-    epghandling = epghandler.EPGhandler(config, serviceproxy)
+    epghandling = epghandler.EPGhandler(config.config, serviceproxy)
 
     try:
 
         print("Starting EPG thread...")
-        epgServer = Process(target=epghandler.epgServerProcess, args=(config, epghandling))
+        epgServer = Process(target=epghandler.epgServerProcess, args=(config.config.copy(), epghandling))
         epgServer.start()
 
         print("Starting fHDHR Interface")
-        fhdhrServer = Process(target=fakehdhr.interface_start, args=(config, serviceproxy, epghandling))
+        fhdhrServer = Process(target=fakehdhr.interface_start, args=(config.config.copy(), serviceproxy, epghandling))
         fhdhrServer.start()
 
         if (config.config["fakehdhr"]["discovery_address"] and
                 config.config["fakehdhr"]["discovery_address"] != "0.0.0.0"):
             print("Starting SSDP server...")
-            ssdpServer = Process(target=ssdpserver.ssdpServerProcess, args=(config,))
+            ssdpServer = Process(target=ssdpserver.ssdpServerProcess, args=(config.config.copy(),))
             ssdpServer.daemon = True
             ssdpServer.start()
         else:

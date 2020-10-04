@@ -28,10 +28,10 @@ def ssdpServerProcess(config):
     ssdp = SSDPServer()
     ssdp.ssdp_port = 1900
     ssdp.register('local',
-                  'uuid:' + config.config["main"]["uuid"] + '::upnp:rootdevice',
+                  'uuid:' + config["main"]["uuid"] + '::upnp:rootdevice',
                   'upnp:rootdevice',
-                  'http://' + config.config["fakehdhr"]["discovery_address"] + ':' +
-                  config.config["fakehdhr"]["port"] + '/device.xml')
+                  'http://' + config["fakehdhr"]["discovery_address"] + ':' +
+                  config["fakehdhr"]["port"] + '/device.xml')
     try:
         ssdp.run()
     except KeyboardInterrupt:

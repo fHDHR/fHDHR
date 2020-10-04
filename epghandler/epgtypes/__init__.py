@@ -5,7 +5,7 @@ from . import empty
 class EPGTypes():
 
     def __init__(self, config, serviceproxy):
-        self.config = config.config
+        self.config = config.copy()
         self.proxy = serviceproxy
         self.zap2it = zap2it.ZapEPG(config, serviceproxy)
         self.empty = empty.EmptyEPG(config, serviceproxy)
