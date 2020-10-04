@@ -39,7 +39,7 @@ class HDHR_Hub():
         self.tuners = 0
 
     def hubprep(self, config, serviceproxy, epghandling):
-        self.config = config.config
+        self.config = config
         self.max_tuners = int(self.config["fakehdhr"]["tuner_count"])
         self.station_scan = False
         self.serviceproxy = serviceproxy
@@ -366,7 +366,7 @@ class HDHR_HTTP_Server():
             return Response(status=200, response=currenthtmlerror, mimetype='text/html')
 
     def __init__(self, config):
-        self.config = config.config
+        self.config = config.copy()
 
     def run(self):
         self.http = WSGIServer((

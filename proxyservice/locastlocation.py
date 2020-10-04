@@ -23,8 +23,8 @@ class LocastDMAFinder():
 
     def __init__(self, config):
         print("Getting user location...")
-        self.config = config.config
-        self.zipcode = config.config["proxy"]["override_zipcode"]
+        self.config = config.copy()
+        self.zipcode = self.config["proxy"]["override_zipcode"]
         self.mock_location = self.format_mock_location()
 
         # Check for user's location

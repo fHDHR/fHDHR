@@ -15,7 +15,7 @@ class Locast_Auth():
     login_token = None
 
     def __init__(self, config):
-        self.config = config.config
+        self.config = config.copy()
 
         # attempt login
         if not self.login():

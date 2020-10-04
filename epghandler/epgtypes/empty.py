@@ -7,14 +7,14 @@ class EmptyEPG():
 
     def __init__(self, config, serviceproxy):
 
-        self.config = config.config
+        self.config = config.copy()
         self.serviceproxy = serviceproxy
 
         self.postalcode = None
 
         self.epg_cache = None
-        self.cache_dir = config.config["empty"]["empty_cache"]
-        self.epg_cache_file = config.config["empty"]["empty_cache_file"]
+        self.cache_dir = self.config["empty"]["empty_cache"]
+        self.epg_cache_file = self.config["empty"]["empty_cache_file"]
         self.epg_cache = self.epg_cache_open()
 
     def epg_cache_open(self):

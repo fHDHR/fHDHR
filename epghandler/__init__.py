@@ -23,7 +23,7 @@ def clean_exit():
 class EPGhandler():
 
     def __init__(self, config, serviceproxy):
-        self.config = config.config
+        self.config = config.copy()
         self.epgtypes = epgtypes.EPGTypes(config, serviceproxy)
 
     def get_xmltv(self, base_url):
@@ -127,7 +127,7 @@ class EPGhandler():
 
 def epgServerProcess(config, epghandling):
 
-    sleeptime = int(config.config[config.config["fakehdhr"]["epg_method"]]["epg_update_frequency"])
+    sleeptime = int(config[config["fakehdhr"]["epg_method"]]["epg_update_frequency"])
 
     try:
 
