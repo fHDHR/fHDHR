@@ -17,8 +17,6 @@ Welcome to the world of streaming to Plex! We use some fancy python here to achi
 
   )
 
-Until I have time to do the wiki thing for this project, instructions will be in this `README.md`.
-
 PRs welcome for:
 
 * Docker support
