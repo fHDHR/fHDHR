@@ -142,15 +142,16 @@ class HDHRConfig():
     def config_adjustments_proxy(self):
         cache_dir = self.config["main"]["cache_dir"]
 
-        credentials_list = self.config["main"]["credentials"].split(",")
-        creds_missing = False
-        if len(credentials_list):
-            for cred_item in credentials_list:
-                if not self.config["proxy"][cred_item]:
-                    creds_missing = True
-            if creds_missing:
-                print(self.config["main"]["servicename"] + " Login Credentials Missing. Exiting...")
-                clean_exit()
+        if self.config["main"]["credentials"]:
+            credentials_list = self.config["main"]["credentials"].split(",")
+            creds_missing = False
+            if len(credentials_list):
+                for cred_item in credentials_list:
+                    if not self.config["proxy"][cred_item]:
+                        creds_missing = True
+                if creds_missing:
+                    print(self.config["main"]["servicename"] + " Login Credentials Missing. Exiting...")
+                    clean_exit()
 
         proxy_cache = pathlib.Path(cache_dir).joinpath('proxy')
         self.config["main"]["proxy_cache"] = proxy_cache
