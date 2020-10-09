@@ -1,38 +1,13 @@
-import os
-import json
 import datetime
 
 
-class EmptyEPG():
+class BlocksEPG():
 
-    def __init__(self, config, serviceproxy):
-
-        self.config = config.copy()
-        self.serviceproxy = serviceproxy
-
-        self.postalcode = None
-
-        self.epg_cache = None
-        self.cache_dir = self.config["empty"]["empty_cache"]
-        self.epg_cache_file = self.config["empty"]["empty_cache_file"]
-        self.epg_cache = self.epg_cache_open()
-
-    def epg_cache_open(self):
-        epg_cache = None
-        if os.path.isfile(self.epg_cache_file):
-            with open(self.epg_cache_file, 'r') as epgfile:
-                epg_cache = json.load(epgfile)
-        return epg_cache
-
-    def thumb_url(self, thumb_type, base_url, thumbnail):
-        if thumb_type == "channel":
-            return "http://" + str(base_url) + str(thumbnail)
-        elif thumb_type == "content":
-            return "http://" + str(base_url) + str(thumbnail)
+    def __init__(self, settings, origserv):
+        self.config = settings
+        self.origserv = origserv
 
     def update_epg(self):
-        print('Updating Empty EPG cache file.')
-
         programguide = {}
 
         timestamps = []
@@ -53,7 +28,7 @@ class EmptyEPG():
                                 }
                 timestamps.append(timestampdict)
 
-        for c in self.serviceproxy.get_channels():
+        for c in self.origserv.get_channels():
             if str(c["number"]) not in list(programguide.keys()):
                 programguide[str(c["number"])] = {
                                                     "callsign": c["callsign"],
@@ -85,8 +60,4 @@ class EmptyEPG():
 
                 programguide[str(c["number"])]["listing"].append(clean_prog_dict)
 
-        self.epg_cache = programguide
-        with open(self.epg_cache_file, 'w') as epgfile:
-            epgfile.write(json.dumps(programguide, indent=4))
-        print('Wrote updated Empty EPG cache file.')
         return programguide
