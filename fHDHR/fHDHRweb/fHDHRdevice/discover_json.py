@@ -17,7 +17,7 @@ class Discover_JSON():
                                 "TunerCount": self.config.dict["fhdhr"]["tuner_count"],
                                 "FirmwareVersion": self.config.dict["dev"]["reporting_firmware_ver"],
                                 "DeviceID": self.config.dict["main"]["uuid"],
-                                "DeviceAuth": "fHDHR",
+                                "DeviceAuth": self.config.dict["dev"]["device_auth"],
                                 "BaseURL": "http://" + base_url,
                                 "LineupURL": "http://" + base_url + "/lineup.json"
                             }
