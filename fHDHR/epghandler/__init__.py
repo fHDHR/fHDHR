@@ -1,6 +1,6 @@
 import time
 
-from fHDHR.epghandler import epgtypes
+from . import epgtypes
 
 
 class EPGhandler():
