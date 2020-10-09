@@ -1,4 +1,4 @@
-# FakeHDHR_Locast
+# fHDHR_Locast
 
 
 Welcome to the world of streaming to Plex! We use some fancy python here to achieve a system of:

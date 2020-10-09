@@ -24,14 +24,17 @@ logger = logging.getLogger()
 
 
 # mostly from https://github.com/ZeWaren/python-upnp-ssdp-example
-def ssdpServerProcess(config):
+def ssdpServerProcess(settings):
     ssdp = SSDPServer()
     ssdp.ssdp_port = 1900
     ssdp.register('local',
-                  'uuid:' + config["main"]["uuid"] + '::upnp:rootdevice',
+                  'uuid:' + settings.dict["main"]["uuid"] + '::upnp:rootdevice',
                   'upnp:rootdevice',
-                  'http://' + config["fakehdhr"]["discovery_address"] + ':' +
-                  config["fakehdhr"]["port"] + '/device.xml')
+                  'http://' + settings.dict["fhdhr"]["discovery_address"] + ':' +
+                  str(settings.dict["fhdhr"]["port"]) + '/device.xml')
+    print("SSDP server Started on port " + str(ssdp.ssdp_port) +
+          " and broadcasting the availability of " + settings.dict["fhdhr"]["friendlyname"] +
+          " at " 'http://' + settings.dict["fhdhr"]["discovery_address"] + ':' + str(settings.dict["fhdhr"]["port"]))
     try:
         ssdp.run()
     except KeyboardInterrupt:

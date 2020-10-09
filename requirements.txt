@@ -2,3 +2,4 @@ requests
 gevent
 flask
 image
+m3u8
