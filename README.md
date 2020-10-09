@@ -3,6 +3,7 @@
 
 Welcome to the world of streaming to Plex! We use some fancy python here to achieve a system of:
 
+**f**un
 **H**ome
 **D**istribution
 **H**iatus
@@ -23,3 +24,5 @@ PRs welcome for:
 
 
 Please Check the repository wiki for Installation information.
+
+Officially marking this Fork as Beta.
