@@ -1,6 +1,6 @@
 import datetime
 
-import fHDHR.originservice.locast as serviceorigin
+from . import locast as serviceorigin
 from fHDHR.tools import hours_between_datetime
 from fHDHR.fHDHRerrors import LoginError
 

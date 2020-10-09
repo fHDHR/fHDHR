@@ -2,7 +2,7 @@ import os
 import json
 from collections import OrderedDict
 
-from fHDHR.epghandler.epgtypes import blocks, zap2it
+from . import blocks, zap2it
 
 
 class EPGTypes():
