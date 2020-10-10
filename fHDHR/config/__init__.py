@@ -51,8 +51,8 @@ class Config():
         config_handler = configparser.ConfigParser()
         config_handler.read(conffilepath)
         for each_section in config_handler.sections():
-            if each_section not in list(self.dict.keys()):
-                self.dict[each_section] = {}
+            if each_section.lower() not in list(self.dict.keys()):
+                self.dict[each_section.lower()] = {}
             for (each_key, each_val) in config_handler.items(each_section):
                 if not each_val:
                     each_val = None
