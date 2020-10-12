@@ -21,7 +21,7 @@ class fHDHRservice():
                         }
         self.zipcode = self.config.dict["origin"]["override_zipcode"]
         self.mock_location = self.format_mock_location()
-        self.web_cache_dir = self.config.dict["filedir"]["epg_cache"]["zap2it"]["web_cache"]
+        self.web_cache_dir = self.config.dict["filedir"]["epg_cache"]["origin"]["web_cache"]
 
     def login(self):
         print("Logging into Locast using username " + self.config.dict["origin"]["username"] + "...")
