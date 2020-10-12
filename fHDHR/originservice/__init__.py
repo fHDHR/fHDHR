@@ -13,7 +13,6 @@ class OriginService():
         if not self.serviceorigin.login():
             raise LoginError(self.config.dict["main"]["servicename"] + " Login Failed.")
 
-        self.streamtype = self.config.dict["fhdhr"]["stream_type"]
         self.channels = {
                         "list": {},
                         "list_updated": None,
@@ -47,10 +46,9 @@ class OriginService():
         return channel_list
 
     def get_fhdhr_stream_url(self, base_url, channel):
-        return ('%s%s/watch?method=%s&channel=%s' %
+        return ('%s%s/auto/v%s' %
                 ("http://",
                  base_url,
-                 self.streamtype,
                  channel['number']))
 
     def get_station_list(self, base_url):
