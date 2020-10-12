@@ -13,20 +13,20 @@ class WatchStream():
         self.tuners = tuners
         self.web = fHDHR.tools.WebReq()
 
-    def direct_stream(self, channel_id, method, channelUri, content_type, duration):
+    def direct_stream(self, stream_args):
 
         chunksize = int(self.tuners.config.dict["direct_stream"]['chunksize'])
 
-        if not duration == 0:
-            duration += time.time()
+        if not stream_args["duration"] == 0:
+            stream_args["duration"] += time.time()
 
-        req = self.web.session.get(channelUri, stream=True)
+        req = self.web.session.get(stream_args["channelUri"], stream=True)
 
         def generate():
             try:
                 for chunk in req.iter_content(chunk_size=chunksize):
 
-                    if not duration == 0 and not time.time() < duration:
+                    if not stream_args["duration"] == 0 and not time.time() < stream_args["duration"]:
                         req.close()
                         print("Requested Duration Expired.")
                         break
@@ -40,12 +40,12 @@ class WatchStream():
 
         return generate()
 
-    def ffmpeg_stream(self, channel_id, method, channelUri, content_type, duration):
+    def ffmpeg_stream(self, stream_args):
 
         bytes_per_read = int(self.config.dict["ffmpeg"]["bytes_per_read"])
 
         ffmpeg_command = [self.config.dict["ffmpeg"]["ffmpeg_path"],
-                          "-i", channelUri,
+                          "-i", stream_args["channelUri"],
                           "-c", "copy",
                           "-f", "mpegts",
                           "-nostats", "-hide_banner",
@@ -53,8 +53,8 @@ class WatchStream():
                           "pipe:stdout"
                           ]
 
-        if not duration == 0:
-            duration += time.time()
+        if not stream_args["duration"] == 0:
+            stream_args["duration"] += time.time()
 
         ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
 
@@ -62,7 +62,7 @@ class WatchStream():
             try:
                 while True:
 
-                    if not duration == 0 and not time.time() < duration:
+                    if not stream_args["duration"] == 0 and not time.time() < stream_args["duration"]:
                         ffmpeg_proc.terminate()
                         ffmpeg_proc.communicate()
                         print("Requested Duration Expired.")
@@ -88,33 +88,30 @@ class WatchStream():
 
         return generate()
 
-    def get_stream(self, channel_id, method, channelUri, content_type, duration):
+    def get_stream(self, stream_args):
 
         try:
             self.tuners.tuner_grab()
         except TunerError:
-            print("A " + method + " stream request for channel " +
-                  str(channel_id) + " was rejected do to a lack of available tuners.")
+            print("A " + stream_args["method"] + " stream request for channel " +
+                  str(stream_args["channel"]) + " was rejected do to a lack of available tuners.")
             return
 
-        print("Attempting a " + method + " stream request for channel " + str(channel_id))
+        print("Attempting a " + stream_args["method"] + " stream request for channel " + str(stream_args["channel"]))
 
-        if method == "ffmpeg":
-            return self.ffmpeg_stream(channel_id, method, channelUri, content_type, duration)
-        elif method == "direct":
-            return self.direct_stream(channel_id, method, channelUri, content_type, duration)
+        if stream_args["method"] == "ffmpeg":
+            return self.ffmpeg_stream(stream_args)
+        elif stream_args["method"] == "direct":
+            return self.direct_stream(stream_args)
 
-    def get_stream_info(self, request_args):
+    def get_stream_info(self, stream_args):
 
-        method = str(request_args["method"])
-        channel_id = str(request_args["channel"])
-        duration = int(request_args["duration"])
+        stream_args["channelUri"] = self.origserv.get_channel_stream(str(stream_args["channel"]))
+        if not stream_args["channelUri"]:
+            print("Could not Obtain Channel Stream.")
+            stream_args["content_type"] = "video/mpeg"
+        else:
+            channelUri_headers = self.web.session.head(stream_args["channelUri"]).headers
+            stream_args["content_type"] = channelUri_headers['Content-Type']
 
-        channelUri = self.origserv.get_channel_stream(channel_id)
-        if not channelUri:
-            return None, None, None, None
-
-        channelUri_headers = self.web.session.head(channelUri).headers
-        content_type = channelUri_headers['Content-Type']
-
-        return method, channelUri, content_type, duration
+        return stream_args

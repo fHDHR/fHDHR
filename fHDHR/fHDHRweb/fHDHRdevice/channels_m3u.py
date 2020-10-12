@@ -45,10 +45,9 @@ class channels_M3U():
 
             fakefile.write(
                             "%s\n" % (
-                                        ('%s%s/watch?method=%s&channel=%s' %
+                                        ('%s%s/auto/v%s' %
                                          ("http://",
                                           base_url,
-                                          self.config.dict["fhdhr"]["stream_type"],
                                           str(channel['number'])))
                              )
                             )

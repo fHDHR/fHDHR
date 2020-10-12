@@ -69,11 +69,11 @@ class HDHR_Hub():
     def get_channels_m3u(self, base_url):
         return self.m3u.get_channels_m3u(base_url)
 
-    def get_stream_info(self, request_args):
-        return self.watch.get_stream_info(request_args)
+    def get_stream_info(self, stream_args):
+        return self.watch.get_stream_info(stream_args)
 
-    def get_stream(self, channel_id, method, channelUri, content_type, duration):
-        return self.watch.get_stream(channel_id, method, channelUri, content_type, duration)
+    def get_stream(self, stream_args):
+        return self.watch.get_stream(stream_args)
 
 
 hdhr = HDHR_Hub()
@@ -174,31 +174,17 @@ class HDHR_HTTP_Server():
 
     @app.route('/auto/<channel>')
     def auto(channel):
-        request_args = {
+        stream_args = {
                         "channel": channel.replace('v', ''),
-                        "method": hdhr.config.dict["fhdhr"]["stream_type"],
+                        "method": request.args.get('method', default=hdhr.config.dict["fhdhr"]["stream_type"], type=str),
                         "duration": request.args.get('duration', default=0, type=int),
                         }
-        channel_id = request_args["channel"]
-        method, channelUri, content_type, duration = hdhr.get_stream_info(request_args)
-        if channelUri:
-            if method == "direct":
-                return Response(hdhr.get_stream(channel_id, method, channelUri, content_type, duration), content_type=content_type, direct_passthrough=True)
-            elif method == "ffmpeg":
-                return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type, duration)), mimetype="video/mpeg")
-        abort(503)
-
-    @app.route('/watch', methods=['GET'])
-    def watch():
-        if 'method' in list(request.args.keys()) and 'channel' in list(request.args.keys()):
-            channel_id = str(request.args["channel"])
-            method = str(request.args["method"])
-            method, channelUri, content_type, duration = hdhr.get_stream_info(request.args)
-            if channelUri:
-                if method == "direct":
-                    return Response(hdhr.get_stream(channel_id, method, channelUri, content_type, duration), content_type=content_type, direct_passthrough=True)
-                elif method == "ffmpeg":
-                    return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type, duration)), mimetype="video/mpeg")
+        stream_args = hdhr.get_stream_info(stream_args)
+        if stream_args["channelUri"]:
+            if stream_args["method"] == "direct":
+                return Response(hdhr.get_stream(stream_args), content_type=stream_args["content_type"], direct_passthrough=True)
+            elif stream_args["method"] == "ffmpeg":
+                return Response(stream_with_context(hdhr.get_stream(stream_args)), mimetype="video/mpeg")
         abort(503)
 
     @app.route('/lineup.post', methods=['POST'])
