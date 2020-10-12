@@ -22,6 +22,7 @@ class HDHR_Hub():
         self.watch = fHDHRdevice.WatchStream(settings, origserv, self.tuners)
         self.station_scan = fHDHRdevice.Station_Scan(settings, origserv)
         self.xmltv = fHDHRdevice.xmlTV_XML(settings, epghandling)
+        self.m3u = fHDHRdevice.channels_M3U(settings, origserv)
         self.htmlerror = fHDHRdevice.HTMLerror(settings)
 
         self.debug = fHDHRdevice.Debug_JSON(settings, origserv, epghandling)
@@ -64,6 +65,9 @@ class HDHR_Hub():
 
     def get_image(self, request_args):
         return self.images.get_image(request_args)
+
+    def get_channels_m3u(self, base_url):
+        return self.m3u.get_channels_m3u(base_url)
 
     def get_stream_info(self, request_args):
         return self.watch.get_stream_info(request_args)
@@ -153,6 +157,15 @@ class HDHR_HTTP_Server():
         return Response(status=200,
                         response=debugreport,
                         mimetype='application/json')
+
+    @app.route('/api/channels.m3u')
+    @app.route('/channels.m3u', methods=['GET'])
+    def channels_m3u():
+        base_url = request.headers["host"]
+        channels_m3u = hdhr.get_channels_m3u(base_url)
+        return Response(status=200,
+                        response=channels_m3u,
+                        mimetype='text/plain')
 
     @app.route('/images', methods=['GET'])
     def images():
