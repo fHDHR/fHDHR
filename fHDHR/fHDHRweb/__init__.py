@@ -68,8 +68,8 @@ class HDHR_Hub():
     def get_stream_info(self, request_args):
         return self.watch.get_stream_info(request_args)
 
-    def get_stream(self, channel_id, method, channelUri, content_type):
-        return self.watch.get_stream(channel_id, method, channelUri, content_type)
+    def get_stream(self, channel_id, method, channelUri, content_type, duration):
+        return self.watch.get_stream(channel_id, method, channelUri, content_type, duration)
 
 
 hdhr = HDHR_Hub()
@@ -137,13 +137,13 @@ class HDHR_HTTP_Server():
 
     @app.route('/api/xmltv')
     def api_xmltv():
-        if 'DeviceAuth' in list(request.args.keys()):
-            if request.args['DeviceAuth'] == hdhr.config.dict["dev"]["device_auth"]:
-                base_url = request.headers["host"]
-                xmltv = hdhr.get_xmltv(base_url)
-                return Response(status=200,
-                                response=xmltv,
-                                mimetype='application/xml')
+        DeviceAuth = request.args.get('DeviceAuth', default=None, type=str)
+        if DeviceAuth == hdhr.config.dict["dev"]["device_auth"]:
+            base_url = request.headers["host"]
+            xmltv = hdhr.get_xmltv(base_url)
+            return Response(status=200,
+                            response=xmltv,
+                            mimetype='application/xml')
         return "not subscribed"
 
     @app.route('/debug.json', methods=['GET'])
@@ -163,15 +163,16 @@ class HDHR_HTTP_Server():
     def auto(channel):
         request_args = {
                         "channel": channel.replace('v', ''),
-                        "method": hdhr.config.dict["fhdhr"]["stream_type"]
+                        "method": hdhr.config.dict["fhdhr"]["stream_type"],
+                        "duration": request.args.get('duration', default=0, type=int),
                         }
         channel_id = request_args["channel"]
-        method, channelUri, content_type = hdhr.get_stream_info(request_args)
+        method, channelUri, content_type, duration = hdhr.get_stream_info(request_args)
         if channelUri:
             if method == "direct":
-                return Response(hdhr.get_stream(channel_id, method, channelUri, content_type), content_type=content_type, direct_passthrough=True)
+                return Response(hdhr.get_stream(channel_id, method, channelUri, content_type, duration), content_type=content_type, direct_passthrough=True)
             elif method == "ffmpeg":
-                return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type)), mimetype="video/mpeg")
+                return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type, duration)), mimetype="video/mpeg")
         abort(503)
 
     @app.route('/watch', methods=['GET'])
@@ -179,12 +180,12 @@ class HDHR_HTTP_Server():
         if 'method' in list(request.args.keys()) and 'channel' in list(request.args.keys()):
             channel_id = str(request.args["channel"])
             method = str(request.args["method"])
-            method, channelUri, content_type = hdhr.get_stream_info(request.args)
+            method, channelUri, content_type, duration = hdhr.get_stream_info(request.args)
             if channelUri:
                 if method == "direct":
-                    return Response(hdhr.get_stream(channel_id, method, channelUri, content_type), content_type=content_type, direct_passthrough=True)
+                    return Response(hdhr.get_stream(channel_id, method, channelUri, content_type, duration), content_type=content_type, direct_passthrough=True)
                 elif method == "ffmpeg":
-                    return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type)), mimetype="video/mpeg")
+                    return Response(stream_with_context(hdhr.get_stream(channel_id, method, channelUri, content_type, duration)), mimetype="video/mpeg")
         abort(503)
 
     @app.route('/lineup.post', methods=['POST'])
