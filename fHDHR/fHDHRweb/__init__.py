@@ -1,7 +1,7 @@
 from gevent.pywsgi import WSGIServer
 from flask import Flask, send_from_directory, request, abort, Response, stream_with_context
 
-from . import fHDHRdevice
+from . import fHDHRdevice, fHDHRpages
 
 
 class HDHR_Hub():
@@ -11,6 +11,8 @@ class HDHR_Hub():
 
     def hubprep(self, settings, origserv, epghandling):
         self.config = settings
+
+        self.index = fHDHRpages.Index_HTML(settings)
 
         self.devicexml = fHDHRdevice.Device_XML(settings)
         self.discoverjson = fHDHRdevice.Discover_JSON(settings)
@@ -75,6 +77,9 @@ class HDHR_Hub():
     def get_stream(self, stream_args):
         return self.watch.get_stream(stream_args)
 
+    def get_index_html(self, base_url):
+        return self.index.get_index_html(base_url)
+
 
 hdhr = HDHR_Hub()
 
@@ -84,7 +89,8 @@ class HDHR_HTTP_Server():
 
     @app.route('/')
     def root_path():
-        return hdhr.config.dict["fhdhr"]["friendlyname"]
+        base_url = request.headers["host"]
+        return hdhr.get_index_html(base_url)
 
     @app.route('/favicon.ico', methods=['GET'])
     def favicon():
