@@ -76,6 +76,7 @@ class OriginService():
             else:
                 chanstreamdict = next(item for item in streamlist if item["number"] == channel_number)
                 return chanstreamdict["stream_url"]
+        return self.channels["list"][channel_number]["stream_url"]
 
     def get_station_total(self):
         chanlist = self.get_channels()
