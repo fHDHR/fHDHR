@@ -49,7 +49,7 @@ class WatchStream():
                           "-c", "copy",
                           "-f", "mpegts",
                           "-nostats", "-hide_banner",
-                          "-loglevel", "warning",
+                          "-loglevel", "fatal",
                           "pipe:stdout"
                           ]
 
