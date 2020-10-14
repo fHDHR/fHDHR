@@ -137,7 +137,7 @@ class fHDHRservice():
     def m3u8_beststream(self, m3u8_url):
         bestStream = None
         videoUrlM3u = m3u8.load(m3u8_url)
-        
+
         if not videoUrlM3u.is_variant:
             return m3u8_url
         print(videoUrlM3u.playlists)
