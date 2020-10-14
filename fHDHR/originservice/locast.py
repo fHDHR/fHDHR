@@ -1,6 +1,7 @@
 import json
 import datetime
 import re
+import m3u8
 
 import urllib.request
 
@@ -125,13 +126,32 @@ class fHDHRservice():
         videoUrlOpn = urllib.request.urlopen(videoUrlReq)
         videoUrlRes = json.load(videoUrlOpn)
         if self.config.dict["origin"]["force_best"]:
-            streamurl = fHDHR.tools.m3u8_beststream(videoUrlRes['streamUrl'])
+            streamurl = self.m3u8_beststream(videoUrlRes['streamUrl'])
         else:
             streamurl = videoUrlRes['streamUrl']
         streamdict = {"number": chandict["number"], "stream_url": streamurl}
         streamlist.append(streamdict)
 
         return streamlist, caching
+
+    def m3u8_beststream(self, m3u8_url):
+        bestStream = None
+        videoUrlM3u = m3u8.load(m3u8_url)
+        if len(videoUrlM3u.playlists) > 0:
+            for videoStream in videoUrlM3u.playlists:
+                if bestStream is None:
+                    bestStream = videoStream
+                elif ((videoStream.stream_info.resolution[0] > bestStream.stream_info.resolution[0]) and
+                      (videoStream.stream_info.resolution[1] > bestStream.stream_info.resolution[1])):
+                    bestStream = videoStream
+                elif ((videoStream.stream_info.resolution[0] == bestStream.stream_info.resolution[0]) and
+                      (videoStream.stream_info.resolution[1] == bestStream.stream_info.resolution[1]) and
+                      (videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth)):
+                    bestStream = videoStream
+            if bestStream is not None:
+                return bestStream.absolute_uri
+        else:
+            return m3u8_url
 
     def update_epg(self):
         programguide = {}
