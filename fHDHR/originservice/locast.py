@@ -140,7 +140,6 @@ class fHDHRservice():
 
         if not videoUrlM3u.is_variant:
             return m3u8_url
-        print(videoUrlM3u.playlists)
 
         for videoStream in videoUrlM3u.playlists:
             if not bestStream:

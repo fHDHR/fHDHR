@@ -57,7 +57,7 @@ class HDHR_Hub():
         return self.lineupjson.get_lineup_json(base_url)
 
     def get_debug_json(self, base_url):
-        return self.debug.get_debug_json(base_url, self.tuners.tuners)
+        return self.debug.get_debug_json(base_url, self.tuners)
 
     def get_html_error(self, message):
         return self.htmlerror.get_html_error(message)
@@ -184,6 +184,7 @@ class HDHR_HTTP_Server():
                         "channel": channel.replace('v', ''),
                         "method": request.args.get('method', default=hdhr.config.dict["fhdhr"]["stream_type"], type=str),
                         "duration": request.args.get('duration', default=0, type=int),
+                        "accessed": str(request.headers["host"]) + str(request.url_rule),
                         }
         stream_args = hdhr.get_stream_info(stream_args)
         if stream_args["channelUri"]:
