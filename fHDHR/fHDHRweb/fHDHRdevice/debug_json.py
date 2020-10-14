@@ -10,7 +10,7 @@ class Debug_JSON():
     def get_debug_json(self, base_url, tuners):
         debugjson = {
                     "base_url": base_url,
-                    "available tuners": tuners,
-                    "total channels": self.origserv.get_station_total()
+                    "total channels": self.origserv.get_station_total(),
+                    "tuner status": tuners.status(),
                     }
         return json.dumps(debugjson, indent=4)

@@ -13,7 +13,7 @@ class WatchStream():
         self.tuners = tuners
         self.web = fHDHR.tools.WebReq()
 
-    def direct_stream(self, stream_args):
+    def direct_stream(self, stream_args, tunernum):
 
         chunksize = int(self.tuners.config.dict["direct_stream"]['chunksize'])
 
@@ -36,11 +36,11 @@ class WatchStream():
             except GeneratorExit:
                 req.close()
                 print("Connection Closed.")
-                self.tuners.tuner_close()
+                self.tuners.tuner_close(tunernum)
 
         return generate()
 
-    def ffmpeg_stream(self, stream_args):
+    def ffmpeg_stream(self, stream_args, tunernum):
 
         bytes_per_read = int(self.config.dict["ffmpeg"]["bytes_per_read"])
 
@@ -84,25 +84,25 @@ class WatchStream():
                 ffmpeg_proc.terminate()
                 ffmpeg_proc.communicate()
                 print("Connection Closed.")
-                self.tuners.tuner_close()
+                self.tuners.tuner_close(tunernum)
 
         return generate()
 
     def get_stream(self, stream_args):
 
         try:
-            self.tuners.tuner_grab()
-        except TunerError:
+            tunernum = self.tuners.tuner_grab(stream_args)
+        except TunerError as e:
             print("A " + stream_args["method"] + " stream request for channel " +
-                  str(stream_args["channel"]) + " was rejected do to a lack of available tuners.")
+                  str(stream_args["channel"]) + " was rejected do to " + str(e))
             return
 
         print("Attempting a " + stream_args["method"] + " stream request for channel " + str(stream_args["channel"]))
 
         if stream_args["method"] == "ffmpeg":
-            return self.ffmpeg_stream(stream_args)
+            return self.ffmpeg_stream(stream_args, tunernum)
         elif stream_args["method"] == "direct":
-            return self.direct_stream(stream_args)
+            return self.direct_stream(stream_args, tunernum)
 
     def get_stream_info(self, stream_args):
 

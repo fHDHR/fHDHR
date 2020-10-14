@@ -4,7 +4,7 @@ class TunerError(Exception):
         self.value = value
 
     def __str__(self):
-        return 'LoginError: %s' % self.value
+        return 'TunerError: %s' % self.value
 
 
 class LoginError(Exception):
