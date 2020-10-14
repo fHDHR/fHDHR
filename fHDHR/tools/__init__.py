@@ -3,7 +3,6 @@ import sys
 import ast
 import requests
 import xml.etree.ElementTree
-import m3u8
 
 UNARY_OPS = (ast.UAdd, ast.USub)
 BINARY_OPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)
@@ -13,26 +12,6 @@ def clean_exit():
     sys.stderr.flush()
     sys.stdout.flush()
     os._exit(0)
-
-
-def m3u8_beststream(m3u8_url):
-    bestStream = None
-    videoUrlM3u = m3u8.load(m3u8_url)
-    if len(videoUrlM3u.playlists) > 0:
-        for videoStream in videoUrlM3u.playlists:
-            if bestStream is None:
-                bestStream = videoStream
-            elif ((videoStream.stream_info.resolution[0] > bestStream.stream_info.resolution[0]) and
-                  (videoStream.stream_info.resolution[1] > bestStream.stream_info.resolution[1])):
-                bestStream = videoStream
-            elif ((videoStream.stream_info.resolution[0] == bestStream.stream_info.resolution[0]) and
-                  (videoStream.stream_info.resolution[1] == bestStream.stream_info.resolution[1]) and
-                  (videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth)):
-                bestStream = videoStream
-        if bestStream is not None:
-            return bestStream.absolute_uri
-    else:
-        return m3u8_url
 
 
 def sub_el(parent, name, text=None, **kwargs):
