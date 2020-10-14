@@ -137,19 +137,18 @@ class fHDHRservice():
     def m3u8_beststream(self, m3u8_url):
         bestStream = None
         videoUrlM3u = m3u8.load(m3u8_url)
-        if len(videoUrlM3u.playlists) > 0:
-            for videoStream in videoUrlM3u.playlists:
-                if bestStream is None:
-                    bestStream = videoStream
-                elif ((videoStream.stream_info.resolution[0] > bestStream.stream_info.resolution[0]) and
-                      (videoStream.stream_info.resolution[1] > bestStream.stream_info.resolution[1])):
-                    bestStream = videoStream
-                elif ((videoStream.stream_info.resolution[0] == bestStream.stream_info.resolution[0]) and
-                      (videoStream.stream_info.resolution[1] == bestStream.stream_info.resolution[1]) and
-                      (videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth)):
-                    bestStream = videoStream
-            if bestStream is not None:
-                return bestStream.absolute_uri
+        if not videoUrlM3u.is_variant:
+            return m3u8_url
+        print(videoUrlM3u.playlists)
+
+        for videoStream in videoUrlM3u.playlists:
+            if not bestStream:
+                bestStream = videoStream
+            elif videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth:
+                bestStream = videoStream
+
+        if not bestStream:
+            return bestStream.absolute_uri
         else:
             return m3u8_url
 
