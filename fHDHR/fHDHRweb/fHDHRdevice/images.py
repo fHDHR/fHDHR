@@ -28,13 +28,12 @@ class imageHandler():
         return image, imagetype
 
     def get_epg_image(self, request_args):
-        imageUri = self.epghandling.get_thumbnail(request_args["type"], request_args["id"])
+        imageUri = self.epghandling.get_thumbnail(request_args["type"], str(request_args["id"]))
         if not imageUri:
-            return self.generate_image(request_args["type"], request_args["id"])
+            return self.generate_image(request_args["type"], str(request_args["id"]))
 
         req = requests.get(imageUri)
         return req.content
-        # return self.generate_image(request_args["type"], request_args["id"])
 
     def getSize(self, txt, font):
         testImg = PIL.Image.new('RGB', (1, 1))
