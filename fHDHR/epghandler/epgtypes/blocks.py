@@ -35,7 +35,7 @@ class BlocksEPG():
                                                     "name": c["name"],
                                                     "number": c["number"],
                                                     "id": c["id"],
-                                                    "thumbnail": ("/images?source=empty&type=channel&id=%s" % (str(c['number']))),
+                                                    "thumbnail": ("/images?source=generate&message=%s" % (str(c['number']))),
                                                     "listing": [],
                                                     }
 
@@ -44,7 +44,7 @@ class BlocksEPG():
                                     "time_start": timestamp['time_start'],
                                     "time_end": timestamp['time_end'],
                                     "duration_minutes": 60,
-                                    "thumbnail": ("/images?source=empty&type=content&id=%s" % (str(c['number']))),
+                                    "thumbnail": ("/images?source=generate&message=%s" % (str(c["id"]) + "_" + str(timestamp['time_start']))),
                                     "title": "Unavailable",
                                     "sub-title": "Unavailable",
                                     "description": "Unavailable",
@@ -55,7 +55,7 @@ class BlocksEPG():
                                     "seasonnumber": None,
                                     "episodenumber": None,
                                     "isnew": False,
-                                    "id": timestamp['time_start'],
+                                    "id": str(c["id"]) + "_" + str(timestamp['time_start']),
                                     }
 
                 programguide[str(c["number"])]["listing"].append(clean_prog_dict)
