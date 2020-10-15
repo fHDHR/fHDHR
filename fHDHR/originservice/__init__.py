@@ -1,6 +1,7 @@
 import datetime
+from collections import OrderedDict
 
-from . import locast as serviceorigin
+from . import plutotv as serviceorigin
 from fHDHR.tools import hours_between_datetime
 from fHDHR.fHDHRerrors import LoginError
 
@@ -24,6 +25,10 @@ class OriginService():
                 self.channels["list"][chan["number"]] = {}
             for chankey in list(chan.keys()):
                 self.channels["list"][chan["number"]][chankey] = chan[chankey]
+        self.channel_order()
+
+    def channel_order(self):
+        self.channels["list"] = OrderedDict(sorted(self.channels["list"].items()))
 
     def get_channels(self, forceupdate=False):
 
