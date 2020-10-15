@@ -34,7 +34,7 @@ class ZapEPG():
         programguide = {}
 
         # Start time parameter is now rounded down to nearest `zap_timespan`, in s.
-        zap_time = time.mktime(time.localtime())
+        zap_time = datetime.datetime.utcnow().timestamp()
         zap_time_window = int(self.config.dict["zap2it"]["timespan"]) * 3600
         zap_time = int(zap_time - (zap_time % zap_time_window))
 
