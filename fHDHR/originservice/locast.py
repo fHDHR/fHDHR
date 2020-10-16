@@ -163,12 +163,13 @@ class fHDHRservice():
         for x in range(1, 6):
             xdate = todaydate + datetime.timedelta(days=x)
             dates_to_pull.append(xdate)
+            print(xdate)
 
         self.remove_stale_cache(todaydate)
 
         for x_date in dates_to_pull:
             url = ('https://api.locastnet.org/api/watch/epg/' +
-                   str(self.location["DMA"]) + "?startTime=" + str(x_date))
+                   str(self.location["DMA"]) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
 
             result = self.get_cached(str(x_date), url)
             d = json.loads(result)
