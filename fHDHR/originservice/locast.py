@@ -155,8 +155,6 @@ class fHDHRservice():
     def update_epg(self):
         programguide = {}
 
-        programguide = {}
-
         # Make a date range to pull
         todaydate = datetime.date.today()
         dates_to_pull = [todaydate]
