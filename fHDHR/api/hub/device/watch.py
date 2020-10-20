@@ -1,7 +1,7 @@
 import subprocess
 import time
 
-from fHDHR.fHDHRerrors import TunerError
+from fHDHR.exceptions import TunerError
 import fHDHR.tools
 
 

@@ -7,9 +7,9 @@ import PIL.ImageFont
 
 class imageHandler():
 
-    def __init__(self, settings, epghandling):
+    def __init__(self, settings, epg):
         self.config = settings
-        self.epghandling = epghandling
+        self.epg = epg
 
     def get_image(self, request_args):
 
@@ -28,7 +28,7 @@ class imageHandler():
         return image, imagetype
 
     def get_epg_image(self, request_args):
-        imageUri = self.epghandling.get_thumbnail(request_args["type"], str(request_args["id"]))
+        imageUri = self.epg.get_thumbnail(request_args["type"], str(request_args["id"]))
         if not imageUri:
             return self.generate_image(request_args["type"], str(request_args["id"]))
 

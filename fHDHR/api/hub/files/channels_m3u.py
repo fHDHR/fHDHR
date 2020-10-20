@@ -3,9 +3,9 @@ from io import StringIO
 
 class channels_M3U():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, device):
         self.config = settings
-        self.origserv = origserv
+        self.device = device
 
     def get_channels_m3u(self, base_url):
 
@@ -25,7 +25,7 @@ class channels_M3U():
                                  "x-tvg-url=\"" + xmltvurl + "\"")
                         )
 
-        for channel in self.origserv.get_channels():
+        for channel in self.device.channels.get_channels():
 
             logourl = ('%s%s/images?source=epg&type=channel&id=%s' %
                        ("http://",

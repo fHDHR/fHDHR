@@ -1,11 +1,11 @@
 import datetime
 
 
-class BlocksEPG():
+class blocksEPG():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, channels):
         self.config = settings
-        self.origserv = origserv
+        self.channels = channels
 
     def update_epg(self):
         programguide = {}
@@ -28,7 +28,7 @@ class BlocksEPG():
                                 }
                 timestamps.append(timestampdict)
 
-        for c in self.origserv.get_channels():
+        for c in self.channels.get_channels():
             if str(c["number"]) not in list(programguide.keys()):
                 programguide[str(c["number"])] = {
                                                     "callsign": c["callsign"],
@@ -44,7 +44,7 @@ class BlocksEPG():
                                     "time_start": timestamp['time_start'],
                                     "time_end": timestamp['time_end'],
                                     "duration_minutes": 60,
-                                    "thumbnail": ("/images?source=generate&message=%s" % (str(c["id"]) + "_" + str(timestamp['time_start']))),
+                                    "thumbnail": ("/images?source=generate&message=%s" % (str(c["id"]) + "_" + str(timestamp['time_start']).split(" ")[0])),
                                     "title": "Unavailable",
                                     "sub-title": "Unavailable",
                                     "description": "Unavailable",
@@ -55,7 +55,7 @@ class BlocksEPG():
                                     "seasonnumber": None,
                                     "episodenumber": None,
                                     "isnew": False,
-                                    "id": str(c["id"]) + "_" + str(timestamp['time_start']),
+                                    "id": str(c["id"]) + "_" + str(timestamp['time_start']).split(" ")[0],
                                     }
 
                 programguide[str(c["number"])]["listing"].append(clean_prog_dict)

@@ -8,13 +8,13 @@ class xmlTV_XML():
     """Methods to create xmltv.xml"""
     xmltv_xml = None
 
-    def __init__(self, settings, epghandling):
+    def __init__(self, settings, device):
         self.config = settings
-        self.epghandling = epghandling
+        self.device = device
 
     def get_xmltv_xml(self, base_url, force_update=False):
 
-        epgdict = self.epghandling.epgtypes.get_epg()
+        epgdict = self.device.epg.get_epg()
         return self.create_xmltv(base_url, epgdict)
 
     def xmltv_headers(self):

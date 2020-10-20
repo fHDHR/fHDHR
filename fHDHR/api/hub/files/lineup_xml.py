@@ -7,14 +7,14 @@ from fHDHR.tools import sub_el
 class Lineup_XML():
     device_xml = None
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, device):
         self.config = settings
-        self.origserv = origserv
+        self.device = device
 
     def get_lineup_xml(self, base_url, force_update=False):
         if not self.device_xml or force_update:
             out = xml.etree.ElementTree.Element('Lineup')
-            station_list = self.origserv.get_station_list(base_url)
+            station_list = self.device.channels.get_station_list(base_url)
             for station_item in station_list:
                 program_out = sub_el(out, 'Program')
                 sub_el(program_out, 'GuideNumber', station_item['GuideNumber'])

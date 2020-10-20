@@ -1,13 +1,13 @@
 import threading
 
-from fHDHR.fHDHRerrors import TunerError
+from fHDHR.exceptions import TunerError
 
 
 class Tuner():
     def __init__(self, inum):
         self.number = inum
         self.tuner_lock = threading.Lock()
-        self.status = {}
+        self.set_off_status()
 
     def grab(self, stream_args):
         if self.tuner_lock.locked():
@@ -24,13 +24,19 @@ class Tuner():
 
     def close(self):
         print("Tuner #" + str(self.number) + " Shutting Down.")
-        self.status = {}
+        self.set_off_status()
         self.tuner_lock.release()
 
     def get_status(self):
-        if not self.tuner_lock.locked():
-            return {"status": "Inactive"}
         return self.status
+
+    def set_off_status(self):
+        self.status = {
+                        "status": "Inactive",
+                        "method": None,
+                        "accessed": None,
+                        "proxied_url": None,
+                        }
 
 
 class Tuners():

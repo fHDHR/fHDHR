@@ -23,12 +23,17 @@ class Index_HTML():
             fakefile.write("</head>\n")
 
             fakefile.write("<h2 id=\"mcetoc_1cdobsl3g0\" style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong><em>%s</em></strong></span></h2>\n" % friendlyname)
+            fakefile.write("\n")
+
+            fakefile.write("<h4 style=\"text-align: center;\">Primary fHDHR Links</h4>")
+            fakefile.write("\n")
 
             # a list of 2 part lists containing button information
             button_list = [
                             ["xmltv", "xmltv.xml"],
                             ["m3u", "channels.m3u"],
-                            ["debug", "debug.json"]
+                            ["debug", "debug.json"],
+                            ["Force Channel Update", "chanscan"]
                             ]
 
             for button_item in button_list:
@@ -37,6 +42,25 @@ class Index_HTML():
                 fakefile.write("<div style=\"text-align: center;\">\n")
                 fakefile.write("  <p><button onclick=\"OpenLink('%s')\">%s</a></button></p>\n" % (button_path, button_label))
                 fakefile.write("</div>\n")
+            fakefile.write("\n")
+
+            fakefile.write("<h4 style=\"text-align: center;\">Other fHDHR Links</h4>")
+
+            # a list of 2 part lists containing button information
+            button_list = [
+                            ["device.xml", "device.xml"],
+                            ["discover.json", "discover.json"],
+                            ["lineup.json", "lineup.json"],
+                            ["lineup_status.json", "lineup_status.json"]
+                            ]
+
+            for button_item in button_list:
+                button_label = button_item[0]
+                button_path = button_item[1]
+                fakefile.write("<div style=\"text-align: center;\">\n")
+                fakefile.write("  <p><button onclick=\"OpenLink('%s')\">%s</a></button></p>\n" % (button_path, button_label))
+                fakefile.write("</div>\n")
+            fakefile.write("\n")
 
             fakefile.write("</html>\n")
             fakefile.write("\n")

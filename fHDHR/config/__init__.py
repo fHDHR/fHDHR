@@ -3,7 +3,7 @@ import random
 import configparser
 import pathlib
 
-from fHDHR import fHDHRerrors
+import fHDHR.exceptions
 from fHDHR.tools import isint, isfloat, is_arithmetic
 
 
@@ -100,7 +100,7 @@ class Config():
                     if not self.dict[req_section][req_key]:
                         required_missing.append(req_item)
             if len(required_missing):
-                raise fHDHRerrors.ConfigurationError("Required configuration options missing: " + ", ".join(required_missing))
+                raise fHDHR.exceptions.ConfigurationError("Required configuration options missing: " + ", ".join(required_missing))
 
         self.dict["origin"] = self.dict.pop(self.dict["main"]["dictpopname"])
 
@@ -111,7 +111,7 @@ class Config():
             if self.dict["fhdhr"]["epg_method"] == self.dict["main"]["dictpopname"]:
                 self.dict["fhdhr"]["epg_method"] = "origin"
             elif self.dict["fhdhr"]["epg_method"] not in self.dict["main"]["valid_epg_methods"]:
-                raise fHDHRerrors.ConfigurationError("Invalid EPG Method. Exiting...")
+                raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
         else:
             print("EPG Method not set, will not create EPG/xmltv")
 
@@ -129,10 +129,12 @@ class Config():
         if self.dict["main"]["cache_dir"]:
             print("Verifying cache directory...")
             if not pathlib.Path(self.dict["main"]["cache_dir"]).is_dir():
-                raise fHDHRerrors.ConfigurationError("Invalid Cache Directory. Exiting...")
+                raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
             self.dict["filedir"]["cache_dir"] = pathlib.Path(self.dict["main"]["cache_dir"])
         print("Cache set to " + str(self.dict["filedir"]["cache_dir"]))
         cache_dir = self.dict["filedir"]["cache_dir"]
+
+        self.dict["main"]["channel_numbers"] = pathlib.Path(cache_dir).joinpath("cnumbers.json")
 
         for epg_method in self.dict["main"]["valid_epg_methods"]:
             if epg_method and epg_method != "None":
@@ -149,7 +151,7 @@ class Config():
                 self.dict["filedir"]["epg_cache"][epg_method]["epg_json"] = pathlib.Path(epg_cache_dir).joinpath('epg.json')
 
         if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg"]:
-            raise fHDHRerrors.ConfigurationError("Invalid stream type. Exiting...")
+            raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]

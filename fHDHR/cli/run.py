@@ -4,7 +4,13 @@ import time
 import argparse
 from multiprocessing import Process
 
-from fHDHR import fHDHR_VERSION, config, originservice, ssdpserver, epghandler, fHDHRerrors, fHDHRweb
+from fHDHR import fHDHR_VERSION
+import fHDHR.exceptions
+import fHDHR.config
+
+import fHDHR.origin
+import fHDHR.api
+import fHDHR.ssdpserver
 
 ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
@@ -25,25 +31,17 @@ def build_args_parser():
 
 def get_configuration(args, script_dir):
     if not os.path.isfile(args.cfg):
-        raise config.ConfigurationNotFound(filename=args.cfg)
-    return config.Config(args.cfg, script_dir)
+        raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
+    return fHDHR.config.Config(args.cfg, script_dir)
 
 
-def get_originservice(settings):
-    return originservice.OriginService(settings)
-
-
-def run(settings, origserv, epghandling):
+def run(settings, origin):
 
     if settings.dict["fhdhr"]["discovery_address"]:
-        ssdpServer = Process(target=ssdpserver.ssdpServerProcess, args=(settings,))
+        ssdpServer = Process(target=fHDHR.ssdpserver.ssdpServerProcess, args=(settings,))
         ssdpServer.start()
 
-    if settings.dict["fhdhr"]["epg_method"]:
-        epgServer = Process(target=epghandler.epgServerProcess, args=(settings, epghandling))
-        epgServer.start()
-
-    fhdhrweb = Process(target=fHDHRweb.interface_start, args=(settings, origserv, epghandling))
+    fhdhrweb = Process(target=fHDHR.api.interface_start, args=(settings, origin))
     fhdhrweb.start()
 
     print(settings.dict["fhdhr"]["friendlyname"] + " is now running!")
@@ -60,23 +58,17 @@ def start(args, script_dir):
 
     try:
         settings = get_configuration(args, script_dir)
-    except fHDHRerrors.ConfigurationError as e:
+    except fHDHR.exceptions.ConfigurationError as e:
         print(e)
         return ERR_CODE_NO_RESTART
 
     try:
-        origserv = get_originservice(settings)
-    except fHDHRerrors.LoginError as e:
+        origin = fHDHR.origin.origin_channels.OriginService(settings)
+    except fHDHR.exceptions.OriginSetupError as e:
         print(e)
         return ERR_CODE_NO_RESTART
 
-    try:
-        epghandling = epghandler.EPGhandler(settings, origserv)
-    except fHDHRerrors.EPGSetupError as e:
-        print(e)
-        return ERR_CODE_NO_RESTART
-
-    return run(settings, origserv, epghandling)
+    return run(settings, origin)
 
 
 def main(script_dir):
