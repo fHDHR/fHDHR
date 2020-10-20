@@ -1,26 +1,35 @@
 import os
 import json
+import time
 from collections import OrderedDict
+from multiprocessing import Process
 
-from . import blocks, zap2it
+from fHDHR.origin import origin_epg
+from .epgtypes import blocks, zap2it
 
 
-class EPGTypes():
+class EPG():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, channels):
         self.config = settings
-        self.origin = origserv
+        self.channels = channels
 
-        self.blocks = blocks.BlocksEPG(settings, origserv)
-        self.zap2it = zap2it.ZapEPG(settings, origserv)
+        self.origin = origin_epg.originEPG(settings, channels)
+
+        self.epg_method_selfadd()
 
         self.epg_method = self.config.dict["fhdhr"]["epg_method"]
         if self.epg_method:
+            self.sleeptime = self.config.dict[self.epg_method]["epg_update_frequency"]
+
             self.epg_cache_file = self.config.dict["filedir"]["epg_cache"][self.epg_method]["epg_json"]
 
             self.epgtypename = self.epg_method
-            if self.epg_method == self.config.dict["main"]["dictpopname"] or self.epg_method == "origin":
+            if self.epg_method in [self.config.dict["main"]["dictpopname"], "origin"]:
                 self.epgtypename = self.config.dict["main"]["dictpopname"]
+
+            self.epgscan = Process(target=self.epgServerProcess)
+            self.epgscan.start()
 
     def get_epg(self):
         epgdict = None
@@ -52,6 +61,11 @@ class EPGTypes():
             event_list.extend(epgdict[channel]["listing"])
         return next(item for item in event_list if item["id"] == event_id)
 
+    def epg_method_selfadd(self):
+        for method in self.config.dict["main"]["valid_epg_methods"]:
+            if method not in [None, "None", "origin", self.config.dict["main"]["dictpopname"]]:
+                exec("%s = %s" % ("self." + str(method), str(method) + "." + str(method) + "EPG(self.config, self.channels)"))
+
     def update(self):
 
         print("Updating " + self.epgtypename + " EPG cache file.")
@@ -66,3 +80,13 @@ class EPGTypes():
         with open(self.epg_cache_file, 'w') as epgfile:
             epgfile.write(json.dumps(programguide, indent=4))
         print("Wrote " + self.epgtypename + " EPG cache file.")
+
+    def epgServerProcess(self):
+        print("Starting EPG thread...")
+
+        try:
+            while True:
+                self.update()
+                time.sleep(self.sleeptime)
+        except KeyboardInterrupt:
+            pass

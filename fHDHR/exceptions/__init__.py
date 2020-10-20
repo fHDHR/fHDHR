@@ -7,12 +7,12 @@ class TunerError(Exception):
         return 'TunerError: %s' % self.value
 
 
-class LoginError(Exception):
+class OriginSetupError(Exception):
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
-        return 'LoginError: %s' % self.value
+        return 'OriginSetupError: %s' % self.value
 
 
 class EPGSetupError(Exception):

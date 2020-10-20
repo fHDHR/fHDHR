@@ -3,9 +3,9 @@ from multiprocessing import Process
 
 class Station_Scan():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, channels):
         self.config = settings
-        self.origserv = origserv
+        self.channels = channels
         self.chanscan = Process(target=self.runscan)
 
     def scan(self):
@@ -16,7 +16,7 @@ class Station_Scan():
             print("Channel Scan Already In Progress!")
 
     def runscan(self):
-        self.origserv.get_channels(forceupdate=True)
+        self.channels.get_channels(forceupdate=True)
         print("Requested Channel Scan Complete.")
 
     def scanning(self):

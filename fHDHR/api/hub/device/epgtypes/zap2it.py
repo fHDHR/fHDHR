@@ -4,14 +4,14 @@ import datetime
 import urllib.parse
 
 from fHDHR.tools import xmldictmaker, WebReq
-from fHDHR.fHDHRerrors import EPGSetupError
+from fHDHR.exceptions import EPGSetupError
 
 
-class ZapEPG():
+class zap2itEPG():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, channels):
         self.config = settings
-        self.origserv = origserv
+        self.channels = channels
         self.web = WebReq()
 
         self.postalcode = self.config.dict["zap2it"]["postalcode"]

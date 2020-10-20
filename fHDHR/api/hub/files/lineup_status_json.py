@@ -3,21 +3,22 @@ import json
 
 class Lineup_Status_JSON():
 
-    def __init__(self, settings, origserv):
+    def __init__(self, settings, device):
         self.config = settings
-        self.origserv = origserv
+        self.device = device
 
-    def get_lineup_json(self, station_scanning):
+    def get_lineup_status_json(self):
+        station_scanning = self.device.station_scan.scanning()
         if station_scanning:
             jsonlineup = self.scan_in_progress()
-        elif not self.origserv.get_station_total():
+        elif not self.device.channels.get_station_total():
             jsonlineup = self.scan_in_progress()
         else:
             jsonlineup = self.not_scanning()
         return json.dumps(jsonlineup, indent=4)
 
     def scan_in_progress(self):
-        channel_count = self.origserv.get_station_total()
+        channel_count = self.device.channels.get_station_total()
         jsonlineup = {
                       "ScanInProgress": "true",
                       "Progress": 99,
