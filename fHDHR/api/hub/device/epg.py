@@ -73,7 +73,13 @@ class EPG():
         func_to_call = getattr(method_to_call, 'update_epg')
         programguide = func_to_call()
 
+        for chan in list(programguide.keys()):
+            floatnum = str(float(chan))
+            programguide[floatnum] = programguide.pop(chan)
+            programguide[floatnum]["number"] = floatnum
+
         programguide = OrderedDict(sorted(programguide.items()))
+
         for cnum in programguide:
             programguide[cnum]["listing"] = sorted(programguide[cnum]["listing"], key=lambda i: i['time_start'])
 
