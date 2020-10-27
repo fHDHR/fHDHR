@@ -235,7 +235,7 @@ class OriginService():
             return None
         else:
             loc_dict = {
-                          "lat": self.config.dict["origin"]["override_latitude"],
-                          "lon": self.config.dict["origin"]["override_longitude"],
+                          "latitude": self.config.dict["origin"]["override_latitude"],
+                          "longitude": self.config.dict["origin"]["override_longitude"],
                           }
             return loc_dict
