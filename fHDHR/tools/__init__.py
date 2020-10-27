@@ -76,6 +76,39 @@ def hours_between_datetime(first_time, later_time):
     return (timebetween.total_seconds() / 60 / 60)
 
 
+def humanized_time(countdownseconds):
+    time = float(countdownseconds)
+    if time == 0:
+        return "just now"
+    year = time // (365 * 24 * 3600)
+    time = time % (365 * 24 * 3600)
+    day = time // (24 * 3600)
+    time = time % (24 * 3600)
+    time = time % (24 * 3600)
+    hour = time // 3600
+    time %= 3600
+    minute = time // 60
+    time %= 60
+    second = time
+    displaymsg = None
+    timearray = ['year', 'day', 'hour', 'minute', 'second']
+    for x in timearray:
+        currenttimevar = eval(x)
+        if currenttimevar >= 1:
+            timetype = x
+            if currenttimevar > 1:
+                timetype = str(x+"s")
+            if displaymsg:
+                displaymsg = str(displaymsg + " " + str(int(currenttimevar)) + " " + timetype)
+            else:
+                displaymsg = str(str(int(currenttimevar)) + " " + timetype)
+    if not displaymsg:
+        return "just now"
+    return displaymsg
+    # just for ignoring a pep error
+    year, day, hour, minute, second
+
+
 class WebReq():
     def __init__(self):
         self.session = requests.Session()

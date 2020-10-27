@@ -1,6 +1,8 @@
 import threading
+import datetime
 
 from fHDHR.exceptions import TunerError
+from fHDHR.tools import humanized_time
 
 
 class Tuner():
@@ -20,6 +22,7 @@ class Tuner():
                         "method": stream_args["method"],
                         "accessed": stream_args["accessed"],
                         "proxied_url": stream_args["channelUri"],
+                        "time_start": datetime.datetime.utcnow(),
                         }
 
     def close(self):
@@ -28,15 +31,16 @@ class Tuner():
         self.tuner_lock.release()
 
     def get_status(self):
-        return self.status
+        current_status = self.status.copy()
+        if current_status["status"] == "Active":
+            current_status["Play Time"] = str(
+                humanized_time(
+                    int((datetime.datetime.utcnow() - current_status["time_start"]).total_seconds())))
+            current_status["time_start"] = str(current_status["time_start"])
+        return current_status
 
     def set_off_status(self):
-        self.status = {
-                        "status": "Inactive",
-                        "method": None,
-                        "accessed": None,
-                        "proxied_url": None,
-                        }
+        self.status = {"status": "Inactive"}
 
 
 class Tuners():
