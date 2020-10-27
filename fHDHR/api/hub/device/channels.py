@@ -56,6 +56,12 @@ class Channels():
         self.list_update_time = None
         self.get_channels()
 
+    def get_origin_status(self):
+        try:
+            return self.origin.get_status_dict()
+        except AttributeError:
+            return {}
+
     def get_channels(self, forceupdate=False):
         """Pull Channels from origin.
 

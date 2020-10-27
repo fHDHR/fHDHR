@@ -6,7 +6,7 @@ from .lineup_json import Lineup_JSON
 from .debug_json import Debug_JSON
 from .lineup_status_json import Lineup_Status_JSON
 from .xmltv_xml import xmlTV_XML
-from .channels_m3u import channels_M3U
+from .m3u import channels_M3U
 
 
 class fHDHR_Files():

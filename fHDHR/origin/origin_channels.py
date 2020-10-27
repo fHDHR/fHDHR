@@ -15,6 +15,8 @@ class OriginService():
 
         self.web = fHDHR.tools.WebReq()
 
+        self.status_dict = {"donateExp": None}
+
         self.location = {
                         "latitude": None,
                         "longitude": None,
@@ -27,13 +29,26 @@ class OriginService():
 
         self.login()
 
+    def get_status_dict(self):
+        ret_status_dict = {
+            "Login": "Success",
+            "Username": self.config.dict["origin"]["username"],
+            "DMA": self.location["DMA"],
+            "City": self.location["city"],
+            "Latitude": self.location["latitude"],
+            "Longitude": self.location["longitude"],
+            "Donation Expiration": fHDHR.tools.humanized_time(int((self.status_dict["donateExp"] - datetime.datetime.utcnow()).total_seconds()))
+            }
+        return ret_status_dict
+
     def login(self):
         print("Logging into Locast using username " + self.config.dict["origin"]["username"] + "...")
         self.token = self.get_token()
         if not self.token:
-            return False
+            raise fHDHR.exceptions.OriginSetupError("Locast Login Failed")
         else:
             print("Locast Login Success")
+            self.status_dict["Login"] = "Success"
             self.config.write(self.config.dict["main"]["dictpopname"], 'token', self.token)
         return True
 
@@ -64,9 +79,11 @@ class OriginService():
             # Check if donation has expired.
             donateExp = datetime.datetime.fromtimestamp(userresp['donationExpire'] / 1000)
             print("User donationExpire: {}".format(donateExp))
-            if datetime.datetime.now() > donateExp:
+            if datetime.datetime.utcnow() > donateExp:
                 print("Error!  User's donation ad-free period has expired.")
                 return False
+            else:
+                self.status_dict["donateExp"] = donateExp
         else:
             print("Error!  User must donate for this to work.")
             return False

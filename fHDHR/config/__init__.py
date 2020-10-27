@@ -30,6 +30,7 @@ class Config():
 
         data_dir = pathlib.Path(script_dir).joinpath('data')
         www_dir = pathlib.Path(data_dir).joinpath('www')
+        www_images_dir = pathlib.Path(www_dir).joinpath('images')
 
         self.dict["filedir"] = {
                                     "script_dir": script_dir,
@@ -38,6 +39,7 @@ class Config():
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,
+                                    "www_images_dir": www_images_dir,
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
                                     "favicon": pathlib.Path(data_dir).joinpath('favicon.ico'),
                                     "epg_cache": {},

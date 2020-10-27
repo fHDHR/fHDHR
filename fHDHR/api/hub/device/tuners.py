@@ -88,3 +88,19 @@ class Tuners():
         for tunernum in range(1, self.max_tuners + 1):
             all_status[tunernum] = eval("self.tuner_" + str(tunernum) + ".get_status()")
         return all_status
+
+    def available_tuner_count(self):
+        available_tuners = 0
+        for tunernum in range(1, self.max_tuners + 1):
+            tuner_status = eval("self.tuner_" + str(tunernum) + ".get_status()")
+            if tuner_status["status"] == "Inactive":
+                available_tuners += 1
+        return available_tuners
+
+    def inuse_tuner_count(self):
+        inuse_tuners = 0
+        for tunernum in range(1, self.max_tuners + 1):
+            tuner_status = eval("self.tuner_" + str(tunernum) + ".get_status()")
+            if tuner_status["status"] == "Active":
+                inuse_tuners += 1
+        return inuse_tuners
