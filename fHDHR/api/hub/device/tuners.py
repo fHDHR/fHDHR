@@ -6,8 +6,9 @@ from fHDHR.tools import humanized_time
 
 
 class Tuner():
-    def __init__(self, inum):
+    def __init__(self, inum, epg):
         self.number = inum
+        self.epg = epg
         self.tuner_lock = threading.Lock()
         self.set_off_status()
 
@@ -37,6 +38,7 @@ class Tuner():
                 humanized_time(
                     int((datetime.datetime.utcnow() - current_status["time_start"]).total_seconds())))
             current_status["time_start"] = str(current_status["time_start"])
+            current_status["epg"] = self.epg.whats_on_now(current_status["accessed"].split("v")[-1])
         return current_status
 
     def set_off_status(self):
@@ -45,12 +47,13 @@ class Tuner():
 
 class Tuners():
 
-    def __init__(self, settings):
+    def __init__(self, settings, epg):
         self.config = settings
+        self.epg = epg
         self.max_tuners = int(self.config.dict["fhdhr"]["tuner_count"])
 
         for i in range(1, self.max_tuners + 1):
-            exec("%s = %s" % ("self.tuner_" + str(i), "Tuner(i)"))
+            exec("%s = %s" % ("self.tuner_" + str(i), "Tuner(i, epg)"))
 
     def tuner_grab(self, stream_args, tunernum=None):
         tunerselected = None
