@@ -14,7 +14,7 @@ class fHDHR_Device():
 
         self.epg = epg.EPG(settings, self.channels)
 
-        self.tuners = Tuners(settings)
+        self.tuners = Tuners(settings, self.epg)
 
         self.watch = WatchStream(settings, self.channels, self.tuners)
 

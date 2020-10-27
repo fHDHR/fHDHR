@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import datetime
 from collections import OrderedDict
 from multiprocessing import Process
 
@@ -30,6 +31,19 @@ class EPG():
 
             self.epgscan = Process(target=self.epgServerProcess)
             self.epgscan.start()
+
+    def whats_on_now(self, channel):
+        epgdict = self.get_epg()
+        listings = epgdict[channel]["listing"]
+        for listing in listings:
+            nowtime = datetime.datetime.utcnow()
+            start_time = datetime.datetime.strptime(listing["time_start"], '%Y%m%d%H%M%S +0000')
+            end_time = datetime.datetime.strptime(listing["time_end"], '%Y%m%d%H%M%S +0000')
+            if start_time <= nowtime <= end_time:
+                epgitem = epgdict[channel].copy()
+                epgitem["listing"] = [listing]
+                return epgitem
+        return None
 
     def get_epg(self):
         epgdict = None
