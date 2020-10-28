@@ -17,6 +17,8 @@ class EPG():
 
         self.origin = origin_epg.originEPG(settings, channels)
 
+        self.epgdict = None
+
         self.epg_method_selfadd()
 
         self.epg_method = self.config.dict["fhdhr"]["epg_method"]
@@ -45,12 +47,18 @@ class EPG():
                 return epgitem
         return None
 
+    def whats_on_allchans(self):
+        channel_guide_list = []
+        for channel in self.channels.get_channels():
+            channel_guide_list.append(self.whats_on_now(channel["number"]))
+        return channel_guide_list
+
     def get_epg(self):
-        epgdict = None
-        if os.path.isfile(self.epg_cache_file):
-            with open(self.epg_cache_file, 'r') as epgfile:
-                epgdict = json.load(epgfile)
-        return epgdict
+        if not self.epgdict:
+            if os.path.isfile(self.epg_cache_file):
+                with open(self.epg_cache_file, 'r') as epgfile:
+                    self.epgdict = json.load(epgfile)
+        return self.epgdict
 
     def get_thumbnail(self, itemtype, itemid):
         if itemtype == "channel":
@@ -100,6 +108,7 @@ class EPG():
         with open(self.epg_cache_file, 'w') as epgfile:
             epgfile.write(json.dumps(programguide, indent=4))
         print("Wrote " + self.epgtypename + " EPG cache file.")
+        self.epgdict = programguide
 
     def epgServerProcess(self):
         print("Starting EPG thread...")

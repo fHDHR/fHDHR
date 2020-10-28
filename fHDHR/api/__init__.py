@@ -15,6 +15,19 @@ class HDHR_HTTP_Server():
         base_url = request.headers["host"]
         return fhdhrhub.get_index_html(base_url)
 
+    @app.route('/guide')
+    def channel_guide_html():
+        return fhdhrhub.get_channel_guide_html()
+
+    @app.route('/origin')
+    def origin_html():
+        base_url = request.headers["host"]
+        return fhdhrhub.get_origin_html(base_url)
+
+    @app.route('/style.css', methods=['GET'])
+    def style_css():
+        return send_from_directory(fhdhrhub.config.dict["filedir"]["www_dir"], 'style.css')
+
     @app.route('/favicon.ico', methods=['GET'])
     def favicon():
         return send_from_directory(fhdhrhub.config.dict["filedir"]["www_dir"],
@@ -79,6 +92,16 @@ class HDHR_HTTP_Server():
                             mimetype='application/xml')
         return "not subscribed"
 
+    @app.route('/diagnostics', methods=['GET'])
+    def debug_html():
+        base_url = request.headers["host"]
+        return fhdhrhub.get_diagnostics_html(base_url)
+
+    @app.route('/version', methods=['GET'])
+    def version_html():
+        base_url = request.headers["host"]
+        return fhdhrhub.get_version_html(base_url)
+
     @app.route('/debug.json', methods=['GET'])
     def debug_json():
         base_url = request.headers["host"]
@@ -94,6 +117,14 @@ class HDHR_HTTP_Server():
         channels_m3u = fhdhrhub.get_channels_m3u(base_url)
         return Response(status=200,
                         response=channels_m3u,
+                        mimetype='text/plain')
+
+    @app.route('/<channel>.m3u', methods=['GET'])
+    def channel_m3u(channel):
+        base_url = request.headers["host"]
+        channel_m3u = fhdhrhub.get_channel_m3u(base_url, channel)
+        return Response(status=200,
+                        response=channel_m3u,
                         mimetype='text/plain')
 
     @app.route('/images', methods=['GET'])

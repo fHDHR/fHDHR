@@ -11,9 +11,9 @@ class fHDHR_Hub():
 
         self.origin = origin
 
-        self.pages = pages.fHDHR_Pages(settings)
-
         self.device = device.fHDHR_Device(settings, origin)
+
+        self.pages = pages.fHDHR_Pages(settings, self.device)
 
         self.files = files.fHDHR_Files(settings, self.device)
 
@@ -50,6 +50,9 @@ class fHDHR_Hub():
     def get_channels_m3u(self, base_url):
         return self.files.m3u.get_channels_m3u(base_url)
 
+    def get_channel_m3u(self, base_url, channel_number):
+        return self.files.m3u.get_channel_m3u(base_url, channel_number)
+
     def get_stream_info(self, stream_args):
         return self.device.watch.get_stream_info(stream_args)
 
@@ -58,3 +61,15 @@ class fHDHR_Hub():
 
     def get_index_html(self, base_url):
         return self.pages.index.get_index_html(base_url)
+
+    def get_channel_guide_html(self):
+        return self.pages.channel_guide.get_channel_guide_html()
+
+    def get_diagnostics_html(self, base_url):
+        return self.pages.diagnostics.get_diagnostics_html(base_url)
+
+    def get_version_html(self, base_url):
+        return self.pages.version.get_version_html(base_url)
+
+    def get_origin_html(self, base_url):
+        return self.pages.origin.get_origin_html(base_url)

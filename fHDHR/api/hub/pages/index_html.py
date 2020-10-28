@@ -3,74 +3,47 @@ from io import StringIO
 
 class Index_HTML():
 
-    def __init__(self, settings):
+    def __init__(self, settings, device, page_elements):
         self.config = settings
-        self.index_html = None
+        self.device = device
+        self.page_elements = page_elements
 
     def get_index_html(self, base_url, force_update=False):
-        if not self.index_html or force_update:
 
-            friendlyname = self.config.dict["fhdhr"]["friendlyname"]
+        fakefile = StringIO()
 
-            fakefile = StringIO()
+        for line in self.page_elements["top"]:
+            fakefile.write(line + "\n")
 
-            fakefile.write("<!DOCTYPE html>\n")
-            fakefile.write("<html>\n")
+        fakefile.write("<h4 style=\"text-align: center;\">fHDHR Status</h4>")
+        fakefile.write("\n")
 
-            fakefile.write("<head>\n")
-            fakefile.write("<title>%s</title>\n" % friendlyname)
-            fakefile.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n")
-            fakefile.write("</head>\n")
+        fakefile.write("<table class=\"center\" style=\"width:50%\">\n")
+        fakefile.write("  <tr>\n")
+        fakefile.write("    <th></th>\n")
+        fakefile.write("    <th></th>\n")
+        fakefile.write("  </tr>\n")
 
-            fakefile.write("<h2 id=\"mcetoc_1cdobsl3g0\" style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong><em>%s</em></strong></span></h2>\n" % friendlyname)
-            fakefile.write("\n")
+        total_channels = self.device.channels.get_station_total()
 
-            fakefile.write("<h4 style=\"text-align: center;\">Primary fHDHR Links</h4>")
-            fakefile.write("\n")
+        tuners_in_use = self.device.tuners.inuse_tuner_count()
+        max_tuners = self.device.tuners.max_tuners
 
-            # a list of 2 part lists containing button information
-            button_list = [
-                            ["xmltv", "xmltv.xml"],
-                            ["m3u", "channels.m3u"],
-                            ["debug", "debug.json"],
-                            ["Force Channel Update", "chanscan"]
-                            ]
+        tableguts = [
+                    ["Script Directory", str(self.config.dict["filedir"]["script_dir"])],
+                    ["Config File", str(self.config.config_file)],
+                    ["Cache Path", str(self.config.dict["filedir"]["cache_dir"])],
+                    ["Total Channels", str(total_channels)],
+                    ["Tuner Usage", "%s/%s" % (str(tuners_in_use), str(max_tuners))]
+                    ]
 
-            for button_item in button_list:
-                button_label = button_item[0]
-                button_path = button_item[1]
-                fakefile.write("<div style=\"text-align: center;\">\n")
-                fakefile.write("  <p><button onclick=\"OpenLink('%s')\">%s</a></button></p>\n" % (button_path, button_label))
-                fakefile.write("</div>\n")
-            fakefile.write("\n")
+        for guts in tableguts:
+            fakefile.write("  <tr>\n")
+            fakefile.write("    <td>%s</td>\n" % (guts[0]))
+            fakefile.write("    <td>%s</td>\n" % (guts[1]))
+            fakefile.write("  </tr>\n")
 
-            fakefile.write("<h4 style=\"text-align: center;\">Other fHDHR Links</h4>")
+        for line in self.page_elements["end"]:
+            fakefile.write(line + "\n")
 
-            # a list of 2 part lists containing button information
-            button_list = [
-                            ["device.xml", "device.xml"],
-                            ["discover.json", "discover.json"],
-                            ["lineup.json", "lineup.json"],
-                            ["lineup_status.json", "lineup_status.json"]
-                            ]
-
-            for button_item in button_list:
-                button_label = button_item[0]
-                button_path = button_item[1]
-                fakefile.write("<div style=\"text-align: center;\">\n")
-                fakefile.write("  <p><button onclick=\"OpenLink('%s')\">%s</a></button></p>\n" % (button_path, button_label))
-                fakefile.write("</div>\n")
-            fakefile.write("\n")
-
-            fakefile.write("</html>\n")
-            fakefile.write("\n")
-
-            fakefile.write("<script>\n")
-            fakefile.write("function OpenLink(NewURL) {\n")
-            fakefile.write("    window.open(NewURL, \"_self\");\n")
-            fakefile.write("}\n")
-            fakefile.write("</script>")
-
-            self.index_html = fakefile.getvalue()
-
-        return self.index_html
+        return fakefile.getvalue()
