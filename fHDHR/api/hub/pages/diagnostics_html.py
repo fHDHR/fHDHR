@@ -13,8 +13,9 @@ class Diagnostics_HTML():
         if not self.diagnostics_html or force_update:
 
             fakefile = StringIO()
+            page_elements = self.page_elements.get()
 
-            for line in self.page_elements["top"]:
+            for line in page_elements["top"]:
                 fakefile.write(line + "\n")
 
             # a list of 2 part lists containing button information
@@ -24,7 +25,8 @@ class Diagnostics_HTML():
                             ["device.xml", "device.xml"],
                             ["discover.json", "discover.json"],
                             ["lineup.json", "lineup.json"],
-                            ["lineup_status.json", "lineup_status.json"]
+                            ["lineup_status.json", "lineup_status.json"],
+                            ["cluster.json", "cluster.json"]
                             ]
 
             for button_item in button_list:
@@ -35,7 +37,7 @@ class Diagnostics_HTML():
                 fakefile.write("</div>\n")
             fakefile.write("\n")
 
-            for line in self.page_elements["end"]:
+            for line in page_elements["end"]:
                 fakefile.write(line + "\n")
 
             self.diagnostics_html = fakefile.getvalue()

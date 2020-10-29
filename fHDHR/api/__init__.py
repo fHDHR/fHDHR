@@ -1,5 +1,6 @@
 from gevent.pywsgi import WSGIServer
-from flask import Flask, send_from_directory, request, abort, Response, stream_with_context
+from flask import (Flask, send_from_directory, request,
+                   abort, Response, stream_with_context, redirect)
 
 from . import hub
 
@@ -23,6 +24,32 @@ class HDHR_HTTP_Server():
     def origin_html():
         base_url = request.headers["host"]
         return fhdhrhub.get_origin_html(base_url)
+
+    @app.route('/cluster')
+    def cluster_html():
+        method = request.args.get('method', default=None, type=str)
+
+        if method == "scan":
+            fhdhrhub.m_search()
+
+        elif method == 'add':
+            fhdhrhub.cluster_add(request.args.get("location", default=None, type=str))
+        elif method == 'del':
+            fhdhrhub.cluster_del(request.args.get("location", default=None, type=str))
+
+        elif method == 'sync':
+            fhdhrhub.cluster_sync(request.args.get("location", default=None, type=str))
+
+        elif method == 'leave':
+            fhdhrhub.cluster_leave()
+        elif method == 'disconnect':
+            fhdhrhub.cluster_disconnect()
+
+        if method:
+            return redirect('/cluster')
+
+        base_url = request.headers["host"]
+        return fhdhrhub.get_cluster_html(base_url)
 
     @app.route('/style.css', methods=['GET'])
     def style_css():
@@ -71,6 +98,14 @@ class HDHR_HTTP_Server():
         station_list = fhdhrhub.get_lineup_json(base_url)
         return Response(status=200,
                         response=station_list,
+                        mimetype='application/json')
+
+    @app.route('/cluster.json', methods=['GET'])
+    def cluster_json():
+        base_url = request.headers["host"]
+        cluster_list = fhdhrhub.get_cluster_json(base_url)
+        return Response(status=200,
+                        response=cluster_list,
                         mimetype='application/json')
 
     @app.route('/xmltv.xml', methods=['GET'])

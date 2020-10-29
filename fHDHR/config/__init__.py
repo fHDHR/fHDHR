@@ -137,6 +137,8 @@ class Config():
         cache_dir = self.dict["filedir"]["cache_dir"]
 
         self.dict["main"]["channel_numbers"] = pathlib.Path(cache_dir).joinpath("cnumbers.json")
+        self.dict["main"]["ssdp_detect"] = pathlib.Path(cache_dir).joinpath("ssdp_list.json")
+        self.dict["main"]["cluster"] = pathlib.Path(cache_dir).joinpath("cluster.json")
 
         for epg_method in self.dict["main"]["valid_epg_methods"]:
             if epg_method and epg_method != "None":
