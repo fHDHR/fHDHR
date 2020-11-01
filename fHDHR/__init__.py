@@ -1,2 +1,2 @@
 # coding=utf-8
-fHDHR_VERSION = "v0.2.9-beta"
+fHDHR_VERSION = "v0.3.0-beta"
