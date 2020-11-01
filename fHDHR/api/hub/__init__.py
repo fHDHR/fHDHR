@@ -38,6 +38,9 @@ class fHDHR_Hub():
     def get_debug_json(self, base_url):
         return self.files.debug.get_debug_json(base_url)
 
+    def get_cluster_json(self, base_url):
+        return self.files.cluster.get_cluster_json(base_url)
+
     def get_html_error(self, message):
         return self.pages.htmlerror.get_html_error(message)
 
@@ -73,3 +76,24 @@ class fHDHR_Hub():
 
     def get_origin_html(self, base_url):
         return self.pages.origin.get_origin_html(base_url)
+
+    def get_cluster_html(self, base_url):
+        return self.pages.cluster.get_cluster_html(base_url)
+
+    def m_search(self):
+        self.device.ssdp.m_search()
+
+    def cluster_add(self, location):
+        self.device.cluster.add(location)
+
+    def cluster_del(self, location):
+        self.device.cluster.remove(location)
+
+    def cluster_sync(self, location):
+        self.device.cluster.sync(location)
+
+    def cluster_leave(self):
+        self.device.cluster.leave()
+
+    def cluster_disconnect(self):
+        self.device.cluster.disconnect()

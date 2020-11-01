@@ -13,8 +13,9 @@ class Origin_HTML():
         servicename = str(self.config.dict["main"]["servicename"])
 
         fakefile = StringIO()
+        page_elements = self.page_elements.get()
 
-        for line in self.page_elements["top"]:
+        for line in page_elements["top"]:
             fakefile.write(line + "\n")
 
         fakefile.write("<h4 style=\"text-align: center;\">%s Status</h4>" % (servicename))
@@ -33,7 +34,7 @@ class Origin_HTML():
             fakefile.write("    <td>%s</td>\n" % (str(origin_status_dict[key])))
             fakefile.write("  </tr>\n")
 
-        for line in self.page_elements["end"]:
+        for line in page_elements["end"]:
             fakefile.write(line + "\n")
 
         return fakefile.getvalue()

@@ -18,8 +18,9 @@ class Channel_Guide_HTML():
         nowtime = datetime.datetime.utcnow()
 
         fakefile = StringIO()
+        page_elements = self.page_elements.get()
 
-        for line in self.page_elements["top"]:
+        for line in page_elements["top"]:
             fakefile.write(line + "\n")
 
         fakefile.write("<h4 id=\"mcetoc_1cdobsl3g0\" style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong><em>What's On %s</em></strong></span></h4>\n" % friendlyname)
@@ -53,7 +54,7 @@ class Channel_Guide_HTML():
             fakefile.write("    <td>%s</td>\n" % (str(remaining_time)))
             fakefile.write("  </tr>\n")
 
-        for line in self.page_elements["end"]:
+        for line in page_elements["end"]:
             fakefile.write(line + "\n")
 
         channel_guide_html = fakefile.getvalue()

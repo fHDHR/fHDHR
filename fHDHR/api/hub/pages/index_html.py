@@ -11,8 +11,9 @@ class Index_HTML():
     def get_index_html(self, base_url, force_update=False):
 
         fakefile = StringIO()
+        page_elements = self.page_elements.get()
 
-        for line in self.page_elements["top"]:
+        for line in page_elements["top"]:
             fakefile.write(line + "\n")
 
         fakefile.write("<h4 style=\"text-align: center;\">fHDHR Status</h4>")
@@ -43,7 +44,7 @@ class Index_HTML():
             fakefile.write("    <td>%s</td>\n" % (guts[1]))
             fakefile.write("  </tr>\n")
 
-        for line in self.page_elements["end"]:
+        for line in page_elements["end"]:
             fakefile.write(line + "\n")
 
         return fakefile.getvalue()

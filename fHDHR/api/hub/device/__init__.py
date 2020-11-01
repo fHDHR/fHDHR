@@ -3,6 +3,8 @@ from .tuners import Tuners
 from .watch import WatchStream
 from .images import imageHandler
 from .station_scan import Station_Scan
+from .ssdp import SSDPServer
+from .cluster import fHDHR_Cluster
 
 
 class fHDHR_Device():
@@ -21,3 +23,7 @@ class fHDHR_Device():
         self.images = imageHandler(settings, self.epg)
 
         self.station_scan = Station_Scan(settings, self.channels)
+
+        self.ssdp = SSDPServer(settings)
+
+        self.cluster = fHDHR_Cluster(settings, self.ssdp)

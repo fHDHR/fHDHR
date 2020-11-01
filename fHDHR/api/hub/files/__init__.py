@@ -7,6 +7,7 @@ from .debug_json import Debug_JSON
 from .lineup_status_json import Lineup_Status_JSON
 from .xmltv_xml import xmlTV_XML
 from .m3u import channels_M3U
+from .cluster_json import Cluster_JSON
 
 
 class fHDHR_Files():
@@ -26,3 +27,4 @@ class fHDHR_Files():
         self.m3u = channels_M3U(settings, device)
 
         self.debug = Debug_JSON(settings, device)
+        self.cluster = Cluster_JSON(settings, device)

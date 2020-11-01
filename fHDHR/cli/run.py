@@ -10,7 +10,6 @@ import fHDHR.config
 
 import fHDHR.origin
 import fHDHR.api
-import fHDHR.ssdpserver
 
 ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
@@ -36,10 +35,6 @@ def get_configuration(args, script_dir):
 
 
 def run(settings, origin):
-
-    if settings.dict["fhdhr"]["discovery_address"]:
-        ssdpServer = Process(target=fHDHR.ssdpserver.ssdpServerProcess, args=(settings,))
-        ssdpServer.start()
 
     fhdhrweb = Process(target=fHDHR.api.interface_start, args=(settings, origin))
     fhdhrweb.start()
