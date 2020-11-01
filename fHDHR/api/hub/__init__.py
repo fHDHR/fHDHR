@@ -71,6 +71,9 @@ class fHDHR_Hub():
     def get_diagnostics_html(self, base_url):
         return self.pages.diagnostics.get_diagnostics_html(base_url)
 
+    def get_streams_html(self, base_url):
+        return self.pages.streams.get_streams_html(base_url)
+
     def get_version_html(self, base_url):
         return self.pages.version.get_version_html(base_url)
 
