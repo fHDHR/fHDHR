@@ -132,6 +132,11 @@ class HDHR_HTTP_Server():
         base_url = request.headers["host"]
         return fhdhrhub.get_diagnostics_html(base_url)
 
+    @app.route('/streams', methods=['GET'])
+    def streams_html():
+        base_url = request.headers["host"]
+        return fhdhrhub.get_streams_html(base_url)
+
     @app.route('/version', methods=['GET'])
     def version_html():
         base_url = request.headers["host"]

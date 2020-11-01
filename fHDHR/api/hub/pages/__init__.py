@@ -6,6 +6,7 @@ from .index_html import Index_HTML
 from .origin_html import Origin_HTML
 from .cluster_html import Cluster_HTML
 from .diagnostics_html import Diagnostics_HTML
+from .streams_html import Streams_HTML
 from .version_html import Version_HTML
 from .channel_guide_html import Channel_Guide_HTML
 
@@ -48,6 +49,7 @@ class fHDHR_Page_Elements():
                 "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/version", "Version"),
                 "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/diagnostics", "Diagnostics"),
                 "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/cluster", "Cluster"),
+                "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/streams", "Streams"),
 
                 "<a class=\"pull-right\" style=\"padding: 5px;\" href=\"%s\">%s</a>" % ("xmltv.xml", "xmltv"),
                 "<a class=\"pull-right\" style=\"padding: 5px;\" href=\"%s\">%s</a>" % ("channels.m3u", "m3u"),
@@ -103,3 +105,4 @@ class fHDHR_Pages():
         self.diagnostics = Diagnostics_HTML(settings, self.device, self.page_elements)
         self.version = Version_HTML(settings, self.device, self.page_elements)
         self.channel_guide = Channel_Guide_HTML(settings, self.device, self.page_elements)
+        self.streams = Streams_HTML(settings, self.device, self.page_elements)
