@@ -5,16 +5,16 @@ import urllib.request
 import fHDHR.tools
 
 
-class originEPG():
+class OriginEPG():
 
-    def __init__(self, settings, channels):
+    def __init__(self, settings, logger, web):
         self.config = settings
-        self.channels = channels
+        self.logger = logger
+        self.web = web
 
-        self.web = fHDHR.tools.WebReq()
         self.web_cache_dir = self.config.dict["filedir"]["epg_cache"]["origin"]["web_cache"]
 
-    def update_epg(self):
+    def update_epg(self, fhdhr_channels):
         programguide = {}
 
         # Make a date range to pull
@@ -28,7 +28,7 @@ class originEPG():
 
         for x_date in dates_to_pull:
             url = ('https://api.locastnet.org/api/watch/epg/' +
-                   str(self.channels.origin.location["DMA"]) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
+                   str(fhdhr_channels.origin.location["DMA"]) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
 
             result = self.get_cached(str(x_date), url)
             d = json.loads(result)
@@ -97,17 +97,17 @@ class originEPG():
     def get_cached(self, cache_key, url):
         cache_path = self.web_cache_dir.joinpath(cache_key)
         if cache_path.is_file():
-            print('FROM CACHE:', str(cache_path))
+            self.logger.info('FROM CACHE:  ' + str(cache_path))
             with open(cache_path, 'rb') as f:
                 return f.read()
         else:
-            print('Fetching:  ', url)
+            self.logger.info('Fetching:  ' + url)
             try:
                 resp = urllib.request.urlopen(url)
                 result = resp.read()
             except urllib.error.HTTPError as e:
                 if e.code == 400:
-                    print('Got a 400 error!  Ignoring it.')
+                    self.logger.info('Got a 400 error!  Ignoring it.')
                     result = (
                         b'{'
                         b'"note": "Got a 400 error at this time, skipping.",'
@@ -127,7 +127,7 @@ class originEPG():
                 if cachedate >= todaysdate:
                     continue
             except Exception as e:
-                print(e)
+                self.logger.error(e)
                 pass
-            print('Removing stale cache file:', p.name)
+            self.logger.info('Removing stale cache file:' + p.name)
             p.unlink()

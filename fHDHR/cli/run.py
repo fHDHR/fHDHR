@@ -1,15 +1,14 @@
 import os
 import sys
-import time
 import argparse
-from multiprocessing import Process
+import time
+import multiprocessing
 
-from fHDHR import fHDHR_VERSION
+from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
 import fHDHR.config
-
-import fHDHR.origin
-import fHDHR.api
+from fHDHR.http import fHDHR_HTTP_Server
+from fHDHR.db import fHDHRdb
 
 ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
@@ -22,7 +21,6 @@ if sys.version_info.major == 2 or sys.version_info < (3, 3):
 
 def build_args_parser():
     """Build argument parser for fHDHR"""
-    print("Validating CLI Argument")
     parser = argparse.ArgumentParser(description='fHDHR')
     parser.add_argument('-c', '--config', dest='cfg', type=str, required=True, help='configuration file to load.')
     return parser.parse_args()
@@ -34,16 +32,33 @@ def get_configuration(args, script_dir):
     return fHDHR.config.Config(args.cfg, script_dir)
 
 
-def run(settings, origin):
+def run(settings, logger, db):
 
-    fhdhrweb = Process(target=fHDHR.api.interface_start, args=(settings, origin))
-    fhdhrweb.start()
+    fhdhr = fHDHR_OBJ(settings, logger, db)
+    fhdhrweb = fHDHR_HTTP_Server(fhdhr)
 
-    print(settings.dict["fhdhr"]["friendlyname"] + " is now running!")
+    try:
 
-    # wait forever
-    while True:
-        time.sleep(3600)
+        print("HTTP Server Starting")
+        fhdhr_web = multiprocessing.Process(target=fhdhrweb.run)
+        fhdhr_web.start()
+
+        if settings.dict["fhdhr"]["discovery_address"]:
+            print("SSDP Server Starting")
+            fhdhr_ssdp = multiprocessing.Process(target=fhdhr.device.ssdp.run)
+            fhdhr_ssdp.start()
+
+        if settings.dict["epg"]["method"]:
+            print("EPG Update Starting")
+            fhdhr_epg = multiprocessing.Process(target=fhdhr.device.epg.run)
+            fhdhr_epg.start()
+
+        # wait forever
+        while True:
+            time.sleep(3600)
+
+    except KeyboardInterrupt:
+        return ERR_CODE_NO_RESTART
 
     return ERR_CODE
 
@@ -57,13 +72,11 @@ def start(args, script_dir):
         print(e)
         return ERR_CODE_NO_RESTART
 
-    try:
-        origin = fHDHR.origin.origin_channels.OriginService(settings)
-    except fHDHR.exceptions.OriginSetupError as e:
-        print(e)
-        return ERR_CODE_NO_RESTART
+    logger = settings.logging_setup()
 
-    return run(settings, origin)
+    db = fHDHRdb(settings)
+
+    return run(settings, logger, db)
 
 
 def main(script_dir):
