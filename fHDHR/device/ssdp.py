@@ -137,9 +137,12 @@ class SSDPServer():
         elif cmd[0] == 'NOTIFY' and cmd[1] == '*':
             # SSDP presence
             self.logger.debug("NOTIFY data: {}".format(headers))
-            if headers["server"].startswith("fHDHR"):
-                if headers["location"] != self.location:
-                    self.detect_method.set(headers["location"].split("/device.xml")[0])
+            try:
+                if headers["server"].startswith("fHDHR"):
+                    if headers["location"] != self.location:
+                        self.detect_method.set(headers["location"].split("/device.xml")[0])
+            except KeyError:
+                return
         else:
             self.logger.debug('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
 
