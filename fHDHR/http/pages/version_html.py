@@ -31,20 +31,18 @@ class Version_HTML():
         fakefile.write("    <th></th>\n")
         fakefile.write("  </tr>\n")
 
-        fakefile.write("  <tr>\n")
-        fakefile.write("    <td>%s</td>\n" % ("fHDHR"))
-        fakefile.write("    <td>%s</td>\n" % (str(self.fhdhr.version)))
-        fakefile.write("  </tr>\n")
+        table_guts = [
+                        ["fHDHR", self.fhdhr.version],
+                        ["Python", sys.version],
+                        ["Operating System", self.fhdhr.config.dict["main"]["opersystem"]],
+                        ["Using Docker", self.fhdhr.config.dict["main"]["isdocker"]],
+                        ["ffmpeg", self.fhdhr.config.dict["ffmpeg"]["version"]]
+                    ]
 
-        fakefile.write("  <tr>\n")
-        fakefile.write("    <td>%s</td>\n" % ("Python"))
-        fakefile.write("    <td>%s</td>\n" % (str(sys.version)))
-        fakefile.write("  </tr>\n")
-
-        if self.fhdhr.config.dict["fhdhr"]["stream_type"] == "ffmpeg":
+        for item in table_guts:
             fakefile.write("  <tr>\n")
-            fakefile.write("    <td>%s</td>\n" % ("ffmpeg"))
-            fakefile.write("    <td>%s</td>\n" % (str(self.fhdhr.config.dict["ffmpeg"]["version"])))
+            fakefile.write("    <td>%s</td>\n" % (str(item[0])))
+            fakefile.write("    <td>%s</td>\n" % (str(item[1])))
             fakefile.write("  </tr>\n")
 
         for line in page_elements["end"]:

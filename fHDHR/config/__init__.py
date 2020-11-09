@@ -4,9 +4,10 @@ import configparser
 import pathlib
 import logging
 import subprocess
+import platform
 
 import fHDHR.exceptions
-from fHDHR.tools import isint, isfloat, is_arithmetic
+from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 
 class Config():
@@ -158,6 +159,22 @@ class Config():
         if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
+        opersystem = platform.system()
+        self.dict["main"]["opersystem"] = opersystem
+        if opersystem in ["Linux", "Darwin"]:
+            # Linux/Mac
+            if os.getuid() == 0 or os.geteuid() == 0:
+                print('Warning: Do not run fHDHR with root privileges.')
+        elif opersystem in ["Windows"]:
+            # Windows
+            if os.environ.get("USERNAME") == "Administrator":
+                print('Warning: Do not run fHDHR as Administrator.')
+        else:
+            print("Uncommon Operating System, use at your own risk.")
+
+        isdocker = is_docker()
+        self.dict["main"]["isdocker"] = isdocker
+
         if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
             try:
                 ffmpeg_command = [self.dict["ffmpeg"]["ffmpeg_path"],
@@ -173,6 +190,8 @@ class Config():
             except FileNotFoundError:
                 ffmpeg_version = None
             self.dict["ffmpeg"]["version"] = ffmpeg_version
+        else:
+            self.dict["ffmpeg"]["version"] = "N/A"
 
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
