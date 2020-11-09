@@ -37,6 +37,10 @@ def run(settings, logger, db):
     fhdhr = fHDHR_OBJ(settings, logger, db)
     fhdhrweb = fHDHR_HTTP_Server(fhdhr)
 
+    # Ensure spawn on Windows instead of fork
+    if settings.dict["main"]["opersystem"] in ["Windows"]:
+        multiprocessing.set_start_method('spawn')
+
     try:
 
         print("HTTP Server Starting")
