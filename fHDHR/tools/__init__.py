@@ -1,9 +1,22 @@
+import os
+import re
 import ast
 import requests
 import xml.etree.ElementTree
 
 UNARY_OPS = (ast.UAdd, ast.USub)
 BINARY_OPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)
+
+
+def is_docker():
+    path = "/proc/self/cgroup"
+    if not os.path.isfile(path):
+        return False
+    with open(path) as f:
+        for line in f:
+            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):
+                return True
+        return False
 
 
 def sub_el(parent, name, text=None, **kwargs):
