@@ -2,6 +2,8 @@ import os
 import random
 import configparser
 import pathlib
+import logging
+import subprocess
 
 import fHDHR.exceptions
 from fHDHR.tools import isint, isfloat, is_arithmetic
@@ -19,12 +21,7 @@ class Config():
         print("Loading Configuration File: " + str(self.config_file))
         self.read_config(self.config_file)
 
-        print("Verifying Configuration settings.")
         self.config_verification()
-
-        print("Server is set to run on  " +
-              str(self.dict["fhdhr"]["address"]) + ":" +
-              str(self.dict["fhdhr"]["port"]))
 
     def load_defaults(self, script_dir):
 
@@ -109,36 +106,40 @@ class Config():
         if isinstance(self.dict["main"]["valid_epg_methods"], str):
             self.dict["main"]["valid_epg_methods"] = [self.dict["main"]["valid_epg_methods"]]
 
-        if self.dict["fhdhr"]["epg_method"] and self.dict["fhdhr"]["epg_method"] not in ["None"]:
-            if self.dict["fhdhr"]["epg_method"] == self.dict["main"]["dictpopname"]:
-                self.dict["fhdhr"]["epg_method"] = "origin"
-            elif self.dict["fhdhr"]["epg_method"] not in self.dict["main"]["valid_epg_methods"]:
-                raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
-        else:
-            print("EPG Method not set, will not create EPG/xmltv")
+        if self.dict["epg"]["method"] and self.dict["epg"]["method"] not in ["None"]:
+            if isinstance(self.dict["epg"]["method"], str):
+                self.dict["epg"]["method"] = [self.dict["epg"]["method"]]
+            epg_methods = []
+            for epg_method in self.dict["epg"]["method"]:
+                if epg_method == self.dict["main"]["dictpopname"] or epg_method == "origin":
+                    epg_methods.append("origin")
+                elif epg_method in ["None"]:
+                    raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
+                elif epg_method in self.dict["main"]["valid_epg_methods"]:
+                    epg_methods.append(epg_method)
+                else:
+                    raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
+        self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
 
         # generate UUID here for when we are not using docker
         if not self.dict["main"]["uuid"]:
-            print("No UUID found.  Generating one now...")
             # from https://pynative.com/python-generate-random-string/
             # create a string that wouldn't be a real device uuid for
             self.dict["main"]["uuid"] = ''.join(random.choice("hijklmnopqrstuvwxyz") for i in range(8))
             self.write('main', 'uuid', self.dict["main"]["uuid"])
-            print("UUID set to: " + str(self.dict["main"]["uuid"]) + "...")
-        else:
-            print("UUID read as: " + str(self.dict["main"]["uuid"]) + "...")
 
         if self.dict["main"]["cache_dir"]:
-            print("Verifying cache directory...")
             if not pathlib.Path(self.dict["main"]["cache_dir"]).is_dir():
                 raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
             self.dict["filedir"]["cache_dir"] = pathlib.Path(self.dict["main"]["cache_dir"])
-        print("Cache set to " + str(self.dict["filedir"]["cache_dir"]))
         cache_dir = self.dict["filedir"]["cache_dir"]
 
-        self.dict["main"]["channel_numbers"] = pathlib.Path(cache_dir).joinpath("cnumbers.json")
-        self.dict["main"]["ssdp_detect"] = pathlib.Path(cache_dir).joinpath("ssdp_list.json")
-        self.dict["main"]["cluster"] = pathlib.Path(cache_dir).joinpath("cluster.json")
+        logs_dir = pathlib.Path(cache_dir).joinpath('logs')
+        self.dict["filedir"]["logs_dir"] = logs_dir
+        if not logs_dir.is_dir():
+            logs_dir.mkdir()
+
+        self.dict["database"]["path"] = pathlib.Path(cache_dir).joinpath('fhdhr.db')
 
         for epg_method in self.dict["main"]["valid_epg_methods"]:
             if epg_method and epg_method != "None":
@@ -157,8 +158,49 @@ class Config():
         if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
+        if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
+            try:
+                ffmpeg_command = [self.dict["ffmpeg"]["ffmpeg_path"],
+                                  "-version",
+                                  "pipe:stdout"
+                                  ]
+
+                ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+                ffmpeg_version = ffmpeg_proc.stdout.read()
+                ffmpeg_proc.terminate()
+                ffmpeg_proc.communicate()
+                ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
+            except FileNotFoundError:
+                ffmpeg_version = None
+            self.dict["ffmpeg"]["version"] = ffmpeg_version
+
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
         if not self.dict["fhdhr"]["discovery_address"] or self.dict["fhdhr"]["discovery_address"] == "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = None
-            print("SSDP Server disabled.")
+
+    def logging_setup(self):
+
+        log_level = self.dict["logging"]["level"].upper()
+
+        # Create a custom logger
+        logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=log_level)
+        logger = logging.getLogger('fHDHR')
+        log_file = os.path.join(self.dict["filedir"]["logs_dir"], 'fHDHR.log')
+
+        # Create handlers
+        # c_handler = logging.StreamHandler()
+        f_handler = logging.FileHandler(log_file)
+        # c_handler.setLevel(log_level)
+        f_handler.setLevel(log_level)
+
+        # Create formatters and add it to handlers
+        # c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # c_handler.setFormatter(c_format)
+        f_handler.setFormatter(f_format)
+
+        # Add handlers to the logger
+        # logger.addHandler(c_handler)
+        logger.addHandler(f_handler)
+        return logger

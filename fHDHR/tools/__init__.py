@@ -112,3 +112,4 @@ def humanized_time(countdownseconds):
 class WebReq():
     def __init__(self):
         self.session = requests.Session()
+        self.exceptions = requests.exceptions
