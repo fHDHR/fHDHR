@@ -108,7 +108,11 @@ class SSDPServer():
 
         (host, port) = address
 
-        header, payload = data.decode().split('\r\n\r\n')[:2]
+        try:
+            header, payload = data.decode().split('\r\n\r\n')[:2]
+        except ValueError:
+            self.logger.error("Error with Received packet from {}: {}".format(address, data))
+            return
 
         lines = header.split('\r\n')
         cmd = lines[0].split(' ')
