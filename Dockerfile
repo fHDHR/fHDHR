@@ -9,4 +9,4 @@ COPY ./ /app/
 WORKDIR /app
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT ["python3", "/app/main.py", "--config_file", "/app/config/config.ini"]
+ENTRYPOINT ["python3", "/app/main.py", "--config", "/app/config/config.ini"]
