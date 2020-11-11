@@ -25,6 +25,7 @@ class Lineup_XML():
             program_out = sub_el(out, 'Program')
             sub_el(program_out, 'GuideNumber', station_item['GuideNumber'])
             sub_el(program_out, 'GuideName', station_item['GuideName'])
+            sub_el(program_out, 'Tags', ",".join(station_item['Tags']))
             sub_el(program_out, 'URL', station_item['URL'])
 
         fakefile = BytesIO()

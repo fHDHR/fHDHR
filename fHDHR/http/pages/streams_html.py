@@ -35,6 +35,8 @@ class Streams_HTML():
 
         tuner_status = self.fhdhr.device.tuners.status()
         for tuner in list(tuner_status.keys()):
+            print(tuner_status[tuner])
+        for tuner in list(tuner_status.keys()):
             fakefile.write("  <tr>\n")
             fakefile.write("    <td>%s</td>\n" % (str(tuner)))
             fakefile.write("    <td>%s</td>\n" % (str(tuner_status[tuner]["status"])))

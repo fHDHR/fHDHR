@@ -3,31 +3,31 @@ from multiprocessing import Process
 
 class Station_Scan():
 
-    def __init__(self, settings, channels, logger, db):
-        self.config = settings
-        self.logger = logger
+    def __init__(self, fhdhr, channels):
+        self.fhdhr = fhdhr
+
         self.channels = channels
-        self.db = db
-        self.db.delete_fhdhr_value("station_scan", "scanning")
+
+        self.fhdhr.db.delete_fhdhr_value("station_scan", "scanning")
 
     def scan(self):
-        self.logger.info("Channel Scan Requested by Client.")
+        self.fhdhr.logger.info("Channel Scan Requested by Client.")
 
-        scan_status = self.db.get_fhdhr_value("station_scan", "scanning")
+        scan_status = self.fhdhr.db.get_fhdhr_value("station_scan", "scanning")
         if not scan_status:
-            self.db.set_fhdhr_value("station_scan", "scanning", 1)
+            self.fhdhr.db.set_fhdhr_value("station_scan", "scanning", 1)
             chanscan = Process(target=self.runscan)
             chanscan.start()
         else:
-            self.logger.info("Channel Scan Already In Progress!")
+            self.fhdhr.logger.info("Channel Scan Already In Progress!")
 
     def runscan(self):
         self.channels.get_channels(forceupdate=True)
-        self.logger.info("Requested Channel Scan Complete.")
-        self.db.delete_fhdhr_value("station_scan", "scanning")
+        self.fhdhr.logger.info("Requested Channel Scan Complete.")
+        self.fhdhr.db.delete_fhdhr_value("station_scan", "scanning")
 
     def scanning(self):
-        scan_status = self.db.get_fhdhr_value("station_scan", "scanning")
+        scan_status = self.fhdhr.db.get_fhdhr_value("station_scan", "scanning")
         if not scan_status:
             return False
         else:

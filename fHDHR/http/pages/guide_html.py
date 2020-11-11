@@ -31,19 +31,6 @@ class Guide_HTML():
         fakefile.write("<h4 id=\"mcetoc_1cdobsl3g0\" style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong><em>What's On %s</em></strong></span></h4>\n" % friendlyname)
         fakefile.write("\n")
 
-        # a list of 2 part lists containing button information
-        button_list = [
-                        ["Force xmlTV Update", "/api/xmltv?method=update&redirect=%2Fguide"],
-                        ]
-
-        fakefile.write("<div style=\"text-align: center;\">\n")
-        for button_item in button_list:
-            button_label = button_item[0]
-            button_path = button_item[1]
-            fakefile.write("  <p><button onclick=\"OpenLink('%s')\">%s</a></button></p>\n" % (button_path, button_label))
-        fakefile.write("</div>\n")
-        fakefile.write("\n")
-
         fakefile.write("<table style=\"width:100%\">\n")
         fakefile.write("  <tr>\n")
         fakefile.write("    <th>Play</th>\n")

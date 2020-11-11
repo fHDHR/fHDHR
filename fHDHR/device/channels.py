@@ -6,13 +6,11 @@ from fHDHR.tools import hours_between_datetime
 
 class ChannelNumbers():
 
-    def __init__(self, settings, logger, db):
-        self.config = settings
-        self.logger = logger
-        self.db = db
+    def __init__(self, fhdhr):
+        self.fhdhr = fhdhr
 
     def get_number(self, channel_id):
-        cnumbers = self.db.get_fhdhr_value("channel_numbers", "list") or {}
+        cnumbers = self.fhdhr.db.get_fhdhr_value("channel_numbers", "list") or {}
         if channel_id in list(cnumbers.keys()):
             return cnumbers[channel_id]
 
@@ -26,20 +24,19 @@ class ChannelNumbers():
         return str(float(i))
 
     def set_number(self, channel_id, channel_number):
-        cnumbers = self.db.get_fhdhr_value("channel_numbers", "list") or {}
+        cnumbers = self.fhdhr.db.get_fhdhr_value("channel_numbers", "list") or {}
         cnumbers[channel_id] = str(float(channel_number))
-        self.db.set_fhdhr_value("channel_numbers", "list", cnumbers)
+        self.fhdhr.db.set_fhdhr_value("channel_numbers", "list", cnumbers)
 
 
 class Channels():
 
-    def __init__(self, settings, origin, logger, db):
-        self.config = settings
-        self.logger = logger
-        self.origin = origin
-        self.db = db
+    def __init__(self, fhdhr, origin):
+        self.fhdhr = fhdhr
 
-        self.channel_numbers = ChannelNumbers(settings, logger, db)
+        self.origin = origin
+
+        self.channel_numbers = ChannelNumbers(fhdhr)
 
         self.list = {}
         self.list_update_time = None
@@ -72,7 +69,7 @@ class Channels():
             channel_dict_list = self.verify_channel_info(channel_dict_list)
             self.append_channel_info(channel_dict_list)
             if not self.list_update_time:
-                self.logger.info("Found " + str(len(self.list)) + " channels for " + str(self.config.dict["main"]["servicename"]))
+                self.fhdhr.logger.info("Found " + str(len(self.list)) + " channels for " + str(self.fhdhr.config.dict["main"]["servicename"]))
             self.list_update_time = datetime.datetime.now()
 
         channel_list = []
@@ -87,6 +84,7 @@ class Channels():
             station_list.append({
                                  'GuideNumber': c['number'],
                                  'GuideName': c['name'],
+                                 'Tags': ",".join(c['tags']),
                                  'URL': self.get_fhdhr_stream_url(base_url, c['number']),
                                 })
         return station_list
@@ -123,15 +121,22 @@ class Channels():
         """Some Channel Information is Critical"""
         cleaned_channel_dict_list = []
         for station_item in channel_dict_list:
+
             if "callsign" not in list(station_item.keys()):
                 station_item["callsign"] = station_item["name"]
+
             if "id" not in list(station_item.keys()):
                 station_item["id"] = station_item["name"]
+
+            if "tags" not in list(station_item.keys()):
+                station_item["tags"] = []
+
             if "number" not in list(station_item.keys()):
                 station_item["number"] = self.channel_numbers.get_number(station_item["id"])
             else:
                 station_item["number"] = str(float(station_item["number"]))
             self.channel_numbers.set_number(station_item["id"], station_item["number"])
+
             cleaned_channel_dict_list.append(station_item)
         return cleaned_channel_dict_list
 

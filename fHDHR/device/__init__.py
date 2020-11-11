@@ -10,20 +10,20 @@ from .cluster import fHDHR_Cluster
 
 class fHDHR_Device():
 
-    def __init__(self, settings, fhdhr_version, origin, logger, web, db):
+    def __init__(self, fhdhr, origin):
 
-        self.channels = Channels(settings, origin, logger, db)
+        self.channels = Channels(fhdhr, origin)
 
-        self.epg = EPG(settings, self.channels, origin, logger, web, db)
+        self.epg = EPG(fhdhr, self.channels, origin)
 
-        self.tuners = Tuners(settings, self.epg, logger)
+        self.tuners = Tuners(fhdhr, self.epg)
 
-        self.watch = WatchStream(settings, self.channels, self.tuners, logger, web)
+        self.watch = WatchStream(fhdhr, self.channels, self.tuners)
 
-        self.images = imageHandler(settings, self.epg, logger, web)
+        self.images = imageHandler(fhdhr, self.epg)
 
-        self.station_scan = Station_Scan(settings, self.channels, logger, db)
+        self.station_scan = Station_Scan(fhdhr, self.channels)
 
-        self.ssdp = SSDPServer(settings, fhdhr_version, logger, db)
+        self.ssdp = SSDPServer(fhdhr)
 
-        self.cluster = fHDHR_Cluster(settings, self.ssdp, logger, db, web)
+        self.cluster = fHDHR_Cluster(fhdhr, self.ssdp)

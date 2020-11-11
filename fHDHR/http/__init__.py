@@ -4,6 +4,7 @@ from flask import Flask
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
 from .api import fHDHR_API
+from .watch import fHDHR_WATCH
 
 
 class fHDHR_HTTP_Server():
@@ -22,6 +23,9 @@ class fHDHR_HTTP_Server():
 
         self.api = fHDHR_API(fhdhr)
         self.add_endpoints(self.api, "api")
+
+        self.watch = fHDHR_WATCH(fhdhr)
+        self.add_endpoints(self.watch, "watch")
 
     def add_endpoints(self, index_list, index_name):
         item_list = [x for x in dir(index_list) if self.isapath(x)]

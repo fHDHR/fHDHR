@@ -10,8 +10,6 @@ from .discover_json import Discover_JSON
 from .lineup_json import Lineup_JSON
 from .lineup_status_json import Lineup_Status_JSON
 
-from .watch import Watch
-
 
 class fHDHR_Files():
 
@@ -27,5 +25,3 @@ class fHDHR_Files():
         self.discover_json = Discover_JSON(fhdhr)
         self.lineup_json = Lineup_JSON(fhdhr)
         self.lineup_status_json = Lineup_Status_JSON(fhdhr)
-
-        self.watch = Watch(fhdhr)
