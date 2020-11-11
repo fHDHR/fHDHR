@@ -47,6 +47,9 @@ class xmlTV():
         elif method == "update":
             self.fhdhr.device.epg.update(source)
 
+        elif method == "clearcache":
+            self.fhdhr.device.epg.clear_epg_cache(source)
+
         else:
             return "%s Invalid Method" % method
 

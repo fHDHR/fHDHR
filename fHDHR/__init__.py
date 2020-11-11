@@ -8,7 +8,7 @@ import fHDHR.tools
 fHDHR_VERSION = "v0.4.0-beta"
 
 
-class fHDHR_OBJ():
+class fHDHR_INT_OBJ():
 
     def __init__(self, settings, logger, db):
         self.version = fHDHR_VERSION
@@ -18,6 +18,17 @@ class fHDHR_OBJ():
 
         self.web = fHDHR.tools.WebReq()
 
-        self.origin = OriginServiceWrapper(settings, logger, self.web, db)
 
-        self.device = fHDHR_Device(settings, self.version, self.origin, logger, self.web, db)
+class fHDHR_OBJ():
+
+    def __init__(self, settings, logger, db):
+        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db)
+
+        self.origin = OriginServiceWrapper(self.fhdhr)
+
+        self.device = fHDHR_Device(self.fhdhr, self.origin)
+
+    def __getattr__(self, name):
+        ''' will only get called for undefined attributes '''
+        if hasattr(self.fhdhr, name):
+            return eval("self.fhdhr." + name)

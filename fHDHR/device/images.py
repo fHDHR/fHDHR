@@ -6,18 +6,15 @@ import PIL.ImageFont
 
 class imageHandler():
 
-    def __init__(self, settings, epg, logger, web):
-        self.config = settings
-        self.logger = logger
-        self.epg = epg
-        self.web = web
+    def __init__(self, fhdhr, epg):
+        self.fhdhr = fhdhr
 
     def get_epg_image(self, image_type, content_id):
         imageUri = self.epg.get_thumbnail(image_type, str(content_id))
         if not imageUri:
             return self.generate_image(image_type, str(content_id))
 
-        req = self.web.session.get(imageUri)
+        req = self.fhdhr.web.session.get(imageUri)
         return req.content
 
     def getSize(self, txt, font):
@@ -38,7 +35,7 @@ class imageHandler():
         colorBackground = "#228822"
         colorText = "#717D7E"
         colorOutline = "#717D7E"
-        fontname = str(self.config.dict["filedir"]["font"])
+        fontname = str(self.fhdhr.config.dict["filedir"]["font"])
 
         font = PIL.ImageFont.truetype(fontname, fontsize)
         text_width, text_height = self.getSize(message, font)

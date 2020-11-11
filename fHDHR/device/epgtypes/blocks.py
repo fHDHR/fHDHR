@@ -3,11 +3,10 @@ import datetime
 
 class blocksEPG():
 
-    def __init__(self, settings, channels, logger, web, db):
-        self.config = settings
-        self.logger = logger
+    def __init__(self, fhdhr, channels):
+        self.fhdhr = fhdhr
+
         self.channels = channels
-        self.db = db
 
     def update_epg(self):
         programguide = {}

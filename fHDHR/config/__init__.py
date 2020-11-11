@@ -156,7 +156,7 @@ class Config():
                 self.dict["filedir"]["epg_cache"][epg_method]["web_cache"] = epg_web_cache_dir
                 self.dict["filedir"]["epg_cache"][epg_method]["epg_json"] = pathlib.Path(epg_cache_dir).joinpath('epg.json')
 
-        if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg"]:
+        if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg", "vlc"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
         opersystem = platform.system()
@@ -193,6 +193,24 @@ class Config():
         else:
             self.dict["ffmpeg"]["version"] = "N/A"
 
+        if self.dict["fhdhr"]["stream_type"] == "vlc":
+            try:
+                vlc_command = [self.dict["vlc"]["vlc_path"],
+                               "--version",
+                               "pipe:stdout"
+                               ]
+
+                vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
+                vlc_version = vlc_proc.stdout.read()
+                vlc_proc.terminate()
+                vlc_proc.communicate()
+                vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
+            except FileNotFoundError:
+                vlc_version = None
+            self.dict["vlc"]["version"] = vlc_version
+        else:
+            self.dict["vlc"]["version"] = "N/A"
+
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
         if not self.dict["fhdhr"]["discovery_address"] or self.dict["fhdhr"]["discovery_address"] == "0.0.0.0":
@@ -223,3 +241,8 @@ class Config():
         # logger.addHandler(c_handler)
         logger.addHandler(f_handler)
         return logger
+
+    def __getattr__(self, name):
+        ''' will only get called for undefined attributes '''
+        if name in list(self.dict.keys()):
+            return self.dict[name]

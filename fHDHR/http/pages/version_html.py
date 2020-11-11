@@ -36,7 +36,8 @@ class Version_HTML():
                         ["Python", sys.version],
                         ["Operating System", self.fhdhr.config.dict["main"]["opersystem"]],
                         ["Using Docker", self.fhdhr.config.dict["main"]["isdocker"]],
-                        ["ffmpeg", self.fhdhr.config.dict["ffmpeg"]["version"]]
+                        ["ffmpeg", self.fhdhr.config.dict["ffmpeg"]["version"]],
+                        ["vlc", self.fhdhr.config.dict["vlc"]["version"]]
                     ]
 
         for item in table_guts:

@@ -28,6 +28,7 @@ class Diagnostics_HTML():
                         ["device.xml", "device.xml"],
                         ["discover.json", "discover.json"],
                         ["lineup.json", "lineup.json"],
+                        ["lineup.xml", "lineup.xml"],
                         ["lineup_status.json", "lineup_status.json"],
                         ["cluster.json", "/api/cluster?method=get"]
                         ]

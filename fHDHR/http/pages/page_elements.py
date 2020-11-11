@@ -45,7 +45,7 @@ class fHDHR_Page_Elements():
                 "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/version", "Version"),
                 "<button class=\"pull-left\" onclick=\"OpenLink('%s')\">%s</a></button>" % ("/diagnostics", "Diagnostics"),
 
-                "<a class=\"pull-right\" style=\"padding: 5px;\" href=\"%s\">%s</a>" % ("/api/xmltv?method=get&source=origin", "xmltv"),
+                "<a class=\"pull-right\" style=\"padding: 5px;\" href=\"%s\">%s</a>" % ("/api/xmltv?method=get&source=" + self.fhdhr.device.epg.def_method, "xmltv"),
                 "<a class=\"pull-right\" style=\"padding: 5px;\" href=\"%s\">%s</a>" % ("/api/m3u?method=get&channel=all", "m3u"),
 
                 "</div>",

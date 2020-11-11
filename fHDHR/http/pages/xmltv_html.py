@@ -27,7 +27,8 @@ class xmlTV_HTML():
         fakefile.write("<table class=\"center\" style=\"width:50%\">\n")
         fakefile.write("  <tr>\n")
         fakefile.write("    <th>Version</th>\n")
-        fakefile.write("    <th>Link</th>\n")
+        fakefile.write("    <th>XMLTV Link</th>\n")
+        fakefile.write("    <th>EPG Link</th>\n")
         fakefile.write("    <th>Options</th>\n")
         fakefile.write("  </tr>\n")
 
@@ -39,12 +40,16 @@ class xmlTV_HTML():
                 fakefile.write("  <tr>\n")
                 fakefile.write("    <td>%s</td>\n" % (epg_method_name))
                 fakefile.write("    <td><a href=\"%s\">%s</a>\n" % ("/api/xmltv?method=get&source=" + epg_method, epg_method_name))
+                fakefile.write("    <td><a href=\"%s\">%s</a>\n" % ("/api/epg?method=get&source=" + epg_method, epg_method_name))
 
                 fakefile.write("    <td>\n")
                 fakefile.write("        <div>\n")
                 fakefile.write(
                     "  <button onclick=\"OpenLink('%s')\">%s</a></button>\n" %
                     ("/api/xmltv?method=update&source=" + epg_method + "&redirect=%2Fxmltv", "Update"))
+                fakefile.write(
+                    "  <button onclick=\"OpenLink('%s')\">%s</a></button>\n" %
+                    ("/api/xmltv?method=clearcache&source=" + epg_method + "&redirect=%2Fxmltv", "Clear Cache"))
                 fakefile.write("        </div>\n")
                 fakefile.write("    </td>\n")
 

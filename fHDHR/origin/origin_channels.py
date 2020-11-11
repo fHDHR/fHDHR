@@ -1,26 +1,25 @@
-import urllib.request
-import json
 import m3u8
 
 
 class OriginChannels():
 
-    def __init__(self, settings, origin, logger, web):
-        self.config = settings
+    def __init__(self, fhdhr, origin):
+        self.fhdhr = fhdhr
         self.origin = origin
-        self.logger = logger
-        self.web = web
 
     def get_channels(self):
 
-        stationsReq = urllib.request.Request('https://api.locastnet.org/api/watch/epg/' +
-                                             str(self.origin.location["DMA"]),
-                                             headers={'Content-Type': 'application/json',
-                                                      'authorization': 'Bearer ' + self.origin.token})
+        stations_url = 'https://api.locastnet.org/api/watch/epg/' + str(self.origin.location["DMA"])
+        url_headers = {'Content-Type': 'application/json', 'authorization': 'Bearer %s' % self.origin.token}
 
-        stationsOpn = urllib.request.urlopen(stationsReq)
-        stationsRes = json.load(stationsOpn)
-        stationsOpn.close()
+        try:
+            stationsReq = self.fhdhr.web.session.get(stations_url, headers=url_headers)
+            stationsReq.raise_for_status()
+        except self.fhdhr.web.exceptions.HTTPError as err:
+            self.fhdhr.logger.error('Error while getting stations: %s' % err)
+            return []
+
+        stationsRes = stationsReq.json()
 
         for index, locast_station in enumerate(stationsRes):
             try:
@@ -44,15 +43,26 @@ class OriginChannels():
         caching = True
         streamlist = []
         streamdict = {}
-        videoUrlReq = urllib.request.Request('https://api.locastnet.org/api/watch/station/' +
-                                             str(chandict["id"]) + '/' +
-                                             self.origin.location['latitude'] + '/' +
-                                             self.origin.location['longitude'],
-                                             headers={'Content-Type': 'application/json',
-                                                      'authorization': 'Bearer ' + self.origin.token})
-        videoUrlOpn = urllib.request.urlopen(videoUrlReq)
-        videoUrlRes = json.load(videoUrlOpn)
-        if self.config.dict["origin"]["force_best"]:
+        videoUrl = ('https://api.locastnet.org/api/watch/station/' +
+                    str(chandict["id"]) + '/' +
+                    self.origin.location['latitude'] + '/' +
+                    self.origin.location['longitude']
+                    )
+        videoUrl_headers = {
+                            'Content-Type': 'application/json',
+                            'authorization': 'Bearer %s' % self.origin.token,
+                            'User-Agent': "curl/7.64.1"}
+
+        try:
+            videoUrlReq = self.fhdhr.web.session.get(videoUrl, headers=videoUrl_headers)
+            videoUrlReq.raise_for_status()
+        except self.fhdhr.web.fhdhr.exceptions.HTTPError as err:
+            self.fhdhr.logger.error('Error while getting station URL: %s' % err)
+            return None
+
+        videoUrlRes = videoUrlReq.json()
+
+        if self.fhdhr.config.dict["origin"]["force_best"]:
             streamurl = self.m3u8_beststream(videoUrlRes['streamUrl'])
         else:
             streamurl = videoUrlRes['streamUrl']
@@ -64,8 +74,10 @@ class OriginChannels():
     def m3u8_beststream(self, m3u8_url):
         bestStream = None
         videoUrlM3u = m3u8.load(m3u8_url)
+        self.fhdhr.logger.info('force_best set in config. Checking for Best Stream')
 
-        if not videoUrlM3u.is_variant:
+        if len(videoUrlM3u.playlists) == 0 or not videoUrlM3u.is_variant:
+            self.fhdhr.logger.info('No Stream Variants Available.')
             return m3u8_url
 
         for videoStream in videoUrlM3u.playlists:
@@ -74,7 +86,9 @@ class OriginChannels():
             elif videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth:
                 bestStream = videoStream
 
-        if not bestStream:
+        if bestStream:
+            self.fhdhr.logger.info('BestStream URL Found!')
             return bestStream.absolute_uri
         else:
+            self.fhdhr.logger.info('No Stream Variant Found.')
             return m3u8_url

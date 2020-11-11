@@ -15,27 +15,49 @@ for entry in os.scandir(device_dir + '/epgtypes'):
 
 class EPG():
 
-    def __init__(self, settings, channels, origin, logger, web, db):
-        self.config = settings
-        self.logger = logger
+    def __init__(self, fhdhr, channels, origin):
+        self.fhdhr = fhdhr
+
         self.origin = origin
         self.channels = channels
-        self.web = web
-        self.db = db
 
         self.epgdict = {}
 
         self.epg_method_selfadd()
 
-        self.epg_methods = self.config.dict["epg"]["method"]
-        self.def_method = self.config.dict["epg"]["def_method"]
+        self.epg_methods = self.fhdhr.config.dict["epg"]["method"]
+        self.def_method = self.fhdhr.config.dict["epg"]["def_method"]
         self.sleeptime = {}
         for epg_method in self.epg_methods:
-            if epg_method in list(self.config.dict.keys()):
-                if "update_frequency" in list(self.config.dict[epg_method].keys()):
-                    self.sleeptime[epg_method] = self.config.dict[epg_method]["update_frequency"]
+            if epg_method in list(self.fhdhr.config.dict.keys()):
+                if "update_frequency" in list(self.fhdhr.config.dict[epg_method].keys()):
+                    self.sleeptime[epg_method] = self.fhdhr.config.dict[epg_method]["update_frequency"]
             if epg_method not in list(self.sleeptime.keys()):
-                self.sleeptime[epg_method] = self.config.dict["epg"]["update_frequency"]
+                self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
+
+    def clear_epg_cache(self, method=None):
+
+        if not method:
+            method = self.def_method
+        if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
+           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+            method = "origin"
+
+        epgtypename = method
+        if method in [self.fhdhr.config.dict["main"]["dictpopname"], "origin"]:
+            epgtypename = self.fhdhr.config.dict["main"]["dictpopname"]
+
+        self.fhdhr.logger.info("Clearing " + epgtypename + " EPG cache.")
+
+        method_to_call = getattr(self, method)
+        if hasattr(method_to_call, 'clear_cache'):
+            func_to_call = getattr(method_to_call, 'clear_cache')
+            func_to_call()
+
+        if method in list(self.epgdict.keys()):
+            del self.epgdict[method]
+
+        self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
 
     def whats_on_now(self, channel):
         epgdict = self.get_epg()
@@ -62,16 +84,16 @@ class EPG():
 
         if not method:
             method = self.def_method
-        if (method == self.config.dict["main"]["dictpopname"] or
-           method not in self.config.dict["main"]["valid_epg_methods"]):
+        if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
+           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
             method = "origin"
 
         if method not in list(self.epgdict.keys()):
 
-            epgdict = self.db.get_fhdhr_value("epg_dict", method) or None
+            epgdict = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or None
             if not epgdict:
                 self.update(method)
-                self.epgdict[method] = self.db.get_fhdhr_value("epg_dict", method) or {}
+                self.epgdict[method] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
             else:
                 self.epgdict[method] = epgdict
             return self.epgdict[method]
@@ -103,21 +125,21 @@ class EPG():
 
     def epg_method_selfadd(self):
         for method in epgtype_list:
-            exec("%s = %s" % ("self." + str(method), str(method) + "." + str(method) + "EPG(self.config, self.channels, self.logger, self.web, self.db)"))
+            exec("%s = %s" % ("self." + str(method), str(method) + "." + str(method) + "EPG(self.fhdhr, self.channels)"))
 
     def update(self, method=None):
 
         if not method:
             method = self.def_method
-        if (method == self.config.dict["main"]["dictpopname"] or
-           method not in self.config.dict["main"]["valid_epg_methods"]):
+        if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
+           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
             method = "origin"
 
         epgtypename = method
-        if method in [self.config.dict["main"]["dictpopname"], "origin"]:
-            epgtypename = self.config.dict["main"]["dictpopname"]
+        if method in [self.fhdhr.config.dict["main"]["dictpopname"], "origin"]:
+            epgtypename = self.fhdhr.config.dict["main"]["dictpopname"]
 
-        self.logger.info("Updating " + epgtypename + " EPG cache.")
+        self.fhdhr.logger.info("Updating " + epgtypename + " EPG cache.")
         method_to_call = getattr(self, method)
         func_to_call = getattr(method_to_call, 'update_epg')
         if method == 'origin':
@@ -136,9 +158,9 @@ class EPG():
             programguide[cnum]["listing"] = sorted(programguide[cnum]["listing"], key=lambda i: i['time_start'])
 
         self.epgdict = programguide
-        self.db.set_fhdhr_value("epg_dict", method, programguide)
-        self.db.set_fhdhr_value("update_time", method, time.time())
-        self.logger.info("Wrote " + epgtypename + " EPG cache.")
+        self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
+        self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
+        self.fhdhr.logger.info("Wrote " + epgtypename + " EPG cache.")
 
     def run(self):
         for epg_method in self.epg_methods:
@@ -146,7 +168,7 @@ class EPG():
         try:
             while True:
                 for epg_method in self.epg_methods:
-                    if time.time() >= (self.db.get_fhdhr_value("update_time", epg_method) + self.sleeptime[epg_method]):
+                    if time.time() >= (self.fhdhr.db.get_fhdhr_value("update_time", epg_method) + self.sleeptime[epg_method]):
                         self.update(epg_method)
                 time.sleep(3600)
         except KeyboardInterrupt:

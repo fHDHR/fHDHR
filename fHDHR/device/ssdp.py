@@ -5,47 +5,44 @@ import struct
 
 class fHDHR_Detect():
 
-    def __init__(self, settings, logger, db):
-        self.config = settings
-        self.db = db
-        self.db.delete_fhdhr_value("ssdp_detect", "list")
+    def __init__(self, fhdhr):
+        self.fhdhr = fhdhr
+        self.fhdhr.db.delete_fhdhr_value("ssdp_detect", "list")
 
     def set(self, location):
-        detect_list = self.db.get_fhdhr_value("ssdp_detect", "list") or []
+        detect_list = self.fhdhr.db.get_fhdhr_value("ssdp_detect", "list") or []
         if location not in detect_list:
             detect_list.append(location)
-            self.db.set_fhdhr_value("ssdp_detect", "list", detect_list)
+            self.fhdhr.db.set_fhdhr_value("ssdp_detect", "list", detect_list)
 
     def get(self):
-        return self.db.get_fhdhr_value("ssdp_detect", "list") or []
+        return self.fhdhr.db.get_fhdhr_value("ssdp_detect", "list") or []
 
 
 class SSDPServer():
 
-    def __init__(self, settings, fhdhr_version, logger, db):
-        self.config = settings
-        self.logger = logger
-        self.db = db
+    def __init__(self, fhdhr):
+        self.fhdhr = fhdhr
 
-        self.detect_method = fHDHR_Detect(settings, logger, db)
+        self.detect_method = fHDHR_Detect(fhdhr)
 
-        if settings.dict["fhdhr"]["discovery_address"]:
+        if fhdhr.config.dict["fhdhr"]["discovery_address"]:
 
             self.sock = None
             self.proto = "ipv4"
             self.port = 1900
             self.iface = None
             self.address = None
-            self.server = 'fHDHR/%s UPnP/1.0' % fhdhr_version
+            self.server = 'fHDHR/%s UPnP/1.0' % fhdhr.version
 
             allowed_protos = ("ipv4", "ipv6")
             if self.proto not in allowed_protos:
                 raise ValueError("Invalid proto - expected one of {}".format(allowed_protos))
 
             self.nt = 'urn:schemas-upnp-org:device:MediaServer:1'
-            self.usn = 'uuid:' + settings.dict["main"]["uuid"] + '::' + self.nt
-            self.location = ('http://' + settings.dict["fhdhr"]["discovery_address"] + ':' +
-                             str(settings.dict["fhdhr"]["port"]) + '/device.xml')
+            self.usn = 'uuid:' + fhdhr.config.dict["main"]["uuid"] + '::' + self.nt
+            self.location = ('http://' + fhdhr.config.dict["fhdhr"]["discovery_address"] + ':' +
+                             str(fhdhr.config.dict["fhdhr"]["port"]) + '/device.xml')
             self.al = self.location
             self.max_age = 1800
             self._iface = None
@@ -104,14 +101,14 @@ class SSDPServer():
             self.m_search()
 
     def on_recv(self, data, address):
-        self.logger.debug("Received packet from {}: {}".format(address, data))
+        self.fhdhr.logger.debug("Received packet from {}: {}".format(address, data))
 
         (host, port) = address
 
         try:
             header, payload = data.decode().split('\r\n\r\n')[:2]
         except ValueError:
-            self.logger.error("Error with Received packet from {}: {}".format(address, data))
+            self.fhdhr.logger.error("Error with Received packet from {}: {}".format(address, data))
             return
 
         lines = header.split('\r\n')
@@ -124,19 +121,19 @@ class SSDPServer():
 
         if cmd[0] == 'M-SEARCH' and cmd[1] == '*':
             # SSDP discovery
-            self.logger.debug("Received qualifying M-SEARCH from {}".format(address))
-            self.logger.debug("M-SEARCH data: {}".format(headers))
+            self.fhdhr.logger.debug("Received qualifying M-SEARCH from {}".format(address))
+            self.fhdhr.logger.debug("M-SEARCH data: {}".format(headers))
             notify = self.notify_payload
-            self.logger.debug("Created NOTIFY: {}".format(notify))
+            self.fhdhr.logger.debug("Created NOTIFY: {}".format(notify))
             try:
                 self.sock.sendto(notify, address)
             except OSError as e:
                 # Most commonly: We received a multicast from an IP not in our subnet
-                self.logger.debug("Unable to send NOTIFY to {}: {}".format(address, e))
+                self.fhdhr.logger.debug("Unable to send NOTIFY to {}: {}".format(address, e))
                 pass
         elif cmd[0] == 'NOTIFY' and cmd[1] == '*':
             # SSDP presence
-            self.logger.debug("NOTIFY data: {}".format(headers))
+            self.fhdhr.logger.debug("NOTIFY data: {}".format(headers))
             try:
                 if headers["server"].startswith("fHDHR"):
                     if headers["location"] != self.location:
@@ -144,7 +141,7 @@ class SSDPServer():
             except KeyError:
                 return
         else:
-            self.logger.debug('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
+            self.fhdhr.logger.debug('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
 
     def m_search(self):
         data = self.msearch_payload

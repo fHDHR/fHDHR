@@ -1,18 +1,12 @@
-import json
 import datetime
-import urllib.request
 
 import fHDHR.tools
 
 
 class OriginEPG():
 
-    def __init__(self, settings, logger, web):
-        self.config = settings
-        self.logger = logger
-        self.web = web
-
-        self.web_cache_dir = self.config.dict["filedir"]["epg_cache"]["origin"]["web_cache"]
+    def __init__(self, fhdhr):
+        self.fhdhr = fhdhr
 
     def update_epg(self, fhdhr_channels):
         programguide = {}
@@ -26,14 +20,10 @@ class OriginEPG():
 
         self.remove_stale_cache(todaydate)
 
-        for x_date in dates_to_pull:
-            url = ('https://api.locastnet.org/api/watch/epg/' +
-                   str(fhdhr_channels.origin.location["DMA"]) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
+        cached_items = self.get_cached(dates_to_pull, fhdhr_channels.origin.location["DMA"])
+        for result in cached_items:
 
-            result = self.get_cached(str(x_date), url)
-            d = json.loads(result)
-
-            for c in d:
+            for c in result:
 
                 cdict = fHDHR.tools.xmldictmaker(c, ["callSign", "name", "channelId"], list_items=[], str_items=[])
 
@@ -85,7 +75,8 @@ class OriginEPG():
                     if eventdict["entityType"]:
                         clean_prog_dict["genres"].append(eventdict["entityType"])
 
-                    programguide[str(channel_number)]["listing"].append(clean_prog_dict)
+                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(channel_number)]["listing"]):
+                        programguide[str(channel_number)]["listing"].append(clean_prog_dict)
 
         return programguide
 
@@ -94,40 +85,48 @@ class OriginEPG():
         tm = str(tm.strftime('%Y%m%d%H%M%S')) + " +0000"
         return tm
 
-    def get_cached(self, cache_key, url):
-        cache_path = self.web_cache_dir.joinpath(cache_key)
-        if cache_path.is_file():
-            self.logger.info('FROM CACHE:  ' + str(cache_path))
-            with open(cache_path, 'rb') as f:
-                return f.read()
+    def get_cached(self, dates_to_pull, dma):
+        for x_date in dates_to_pull:
+            url = ('https://api.locastnet.org/api/watch/epg/' +
+                   str(dma) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
+            self.get_cached_item(str(x_date), url)
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "origin") or []
+        return [self.fhdhr.db.get_cacheitem_value(x, "offline_cache", "origin") for x in cache_list]
+
+    def get_cached_item(self, cache_key, url):
+        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "offline_cache", "origin")
+        if cacheitem:
+            self.fhdhr.logger.info('FROM CACHE:  ' + str(cache_key))
+            return cacheitem
         else:
-            self.logger.info('Fetching:  ' + url)
+            self.fhdhr.logger.info('Fetching:  ' + url)
             try:
-                resp = urllib.request.urlopen(url)
-                result = resp.read()
-            except urllib.error.HTTPError as e:
-                if e.code == 400:
-                    self.logger.info('Got a 400 error!  Ignoring it.')
-                    result = (
-                        b'{'
-                        b'"note": "Got a 400 error at this time, skipping.",'
-                        b'"channels": []'
-                        b'}')
-                else:
-                    raise
-            with open(cache_path, 'wb') as f:
-                f.write(result)
-            return result
+                resp = self.fhdhr.web.session.get(url)
+            except self.fhdhr.web.exceptions.HTTPError:
+                self.fhdhr.logger.info('Got an error!  Ignoring it.')
+                return
+            result = resp.json()
+
+            self.fhdhr.db.set_cacheitem_value(cache_key, "offline_cache", result, "origin")
+            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "origin") or []
+            cache_list.append(cache_key)
+            self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", cache_list, "origin")
 
     def remove_stale_cache(self, todaydate):
-        for p in self.web_cache_dir.glob('*'):
-            try:
-                cachedate = datetime.datetime.strptime(str(p.name), "%Y-%m-%d")
-                todaysdate = datetime.datetime.strptime(str(todaydate), "%Y-%m-%d")
-                if cachedate >= todaysdate:
-                    continue
-            except Exception as e:
-                self.logger.error(e)
-                pass
-            self.logger.info('Removing stale cache file:' + p.name)
-            p.unlink()
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "origin") or []
+        cache_to_kill = []
+        for cacheitem in cache_list:
+            cachedate = datetime.datetime.strptime(str(cacheitem), "%Y-%m-%d")
+            todaysdate = datetime.datetime.strptime(str(todaydate), "%Y-%m-%d")
+            if cachedate < todaysdate:
+                cache_to_kill.append(cacheitem)
+                self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "origin")
+                self.fhdhr.logger.info('Removing stale cache:  ' + str(cacheitem))
+        self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", [x for x in cache_list if x not in cache_to_kill], "origin")
+
+    def clear_cache(self):
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "origin") or []
+        for cacheitem in cache_list:
+            self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "origin")
+            self.fhdhr.logger.info('Removing cache:  ' + str(cacheitem))
+        self.fhdhr.db.delete_cacheitem_value("cache_list", "offline_cache", "origin")
