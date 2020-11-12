@@ -3,17 +3,17 @@ from flask import Response, request, stream_with_context, abort
 from fHDHR.exceptions import TunerError
 
 
-class Tuner():
-    endpoints = ['/tuner<tuner_number>/<channel>']
-    endpoint_name = "tuner"
+class Auto():
+    endpoints = ['/auto/<channel>']
+    endpoint_name = "auto"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-    def __call__(self, tuner_number, channel, *args):
-        return self.get(tuner_number, channel, *args)
+    def __call__(self, channel, *args):
+        return self.get(channel, *args)
 
-    def get(self, tuner_number, channel, *args):
+    def get(self, channel, *args):
 
         full_url = request.url
 
@@ -50,7 +50,7 @@ class Tuner():
                         }
 
         try:
-            tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number)
+            tunernum = self.fhdhr.device.tuners.first_available()
         except TunerError as e:
             self.fhdhr.logger.info("A %s stream request for channel %s was rejected due to %s"
                                    % (stream_args["method"], str(stream_args["channel"]), str(e)))

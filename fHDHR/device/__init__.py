@@ -1,7 +1,6 @@
 from .channels import Channels
 from .epg import EPG
 from .tuners import Tuners
-from .watch import WatchStream
 from .images import imageHandler
 from .station_scan import Station_Scan
 from .ssdp import SSDPServer
@@ -16,9 +15,7 @@ class fHDHR_Device():
 
         self.epg = EPG(fhdhr, self.channels, origin)
 
-        self.tuners = Tuners(fhdhr, self.epg)
-
-        self.watch = WatchStream(fhdhr, self.channels, self.tuners)
+        self.tuners = Tuners(fhdhr, self.epg, self.channels)
 
         self.images = imageHandler(fhdhr, self.epg)
 

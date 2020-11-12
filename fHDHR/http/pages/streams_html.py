@@ -31,11 +31,10 @@ class Streams_HTML():
         fakefile.write("    <th>Channel</th>\n")
         fakefile.write("    <th>Method</th>\n")
         fakefile.write("    <th>Time Active</th>\n")
+        fakefile.write("    <th>Options</th>\n")
         fakefile.write("  </tr>\n")
 
         tuner_status = self.fhdhr.device.tuners.status()
-        for tuner in list(tuner_status.keys()):
-            print(tuner_status[tuner])
         for tuner in list(tuner_status.keys()):
             fakefile.write("  <tr>\n")
             fakefile.write("    <td>%s</td>\n" % (str(tuner)))
@@ -49,6 +48,17 @@ class Streams_HTML():
                 fakefile.write("    <td>%s</td>\n" % "N/A")
                 fakefile.write("    <td>%s</td>\n" % "N/A")
                 fakefile.write("    <td>%s</td>\n" % "N/A")
+
+            fakefile.write("    <td>\n")
+            fakefile.write("        <div>\n")
+
+            if tuner_status[tuner]["status"] in ["Active", "Acquired"]:
+                fakefile.write(
+                    "  <button onclick=\"OpenLink('%s')\">%s</a></button>\n" %
+                    ("/api/watch?method=close&tuner=" + str(tuner) + "&redirect=%2Fstreams", "Close"))
+            fakefile.write("        </div>\n")
+            fakefile.write("    </td>\n")
+
             fakefile.write("  </tr>\n")
 
         for line in page_elements["end"]:
