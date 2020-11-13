@@ -49,6 +49,8 @@ class Direct_Stream():
                             self.fhdhr.logger.info("Passing Through Chunk #%s with size %s" % (chunk_counter, self.chunksize))
                             yield chunk
 
+                            chunk_counter += 1
+
                     self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
 
                 except GeneratorExit:
