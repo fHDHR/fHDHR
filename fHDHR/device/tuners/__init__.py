@@ -78,7 +78,7 @@ class Tuners():
         channelUri_headers = self.fhdhr.web.session.head(stream_args["channelUri"]).headers
         stream_args["true_content_type"] = channelUri_headers['Content-Type']
 
-        if stream_args["true_content_type"].startswith("application/"):
+        if stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
             stream_args["content_type"] = "video/mpeg"
         else:
             stream_args["content_type"] = stream_args["true_content_type"]
