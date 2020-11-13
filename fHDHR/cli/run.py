@@ -15,8 +15,8 @@ ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
 
 
-if sys.version_info.major == 2 or sys.version_info < (3, 3):
-    print('Error: fHDHR requires python 3.3+.')
+if sys.version_info.major == 2 or sys.version_info < (3, 7):
+    print('Error: fHDHR requires python 3.7+.')
     sys.exit(1)
 
 opersystem = platform.system()
