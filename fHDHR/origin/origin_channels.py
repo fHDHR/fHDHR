@@ -40,7 +40,7 @@ class OriginChannels():
         return cleaned_channels
 
     def get_channel_stream(self, chandict, allchandict):
-        caching = True
+        caching = False
         streamlist = []
         streamdict = {}
         videoUrl = ('https://api.locastnet.org/api/watch/station/' +
@@ -56,7 +56,7 @@ class OriginChannels():
         try:
             videoUrlReq = self.fhdhr.web.session.get(videoUrl, headers=videoUrl_headers)
             videoUrlReq.raise_for_status()
-        except self.fhdhr.web.fhdhr.exceptions.HTTPError as err:
+        except self.fhdhr.web.exceptions.HTTPError as err:
             self.fhdhr.logger.error('Error while getting station URL: %s' % err)
             return None
 
