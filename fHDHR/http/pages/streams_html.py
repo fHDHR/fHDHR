@@ -40,8 +40,14 @@ class Streams_HTML():
             fakefile.write("    <td>%s</td>\n" % (str(tuner)))
             fakefile.write("    <td>%s</td>\n" % (str(tuner_status[tuner]["status"])))
             if tuner_status[tuner]["status"] == "Active":
-                fakefile.write("    <td>%s<img src=\"%s\" alt=\"%s\" width=\"100\" height=\"100\">%s</td>\n" % (
-                    tuner_status[tuner]["epg"]["name"], tuner_status[tuner]["epg"]["thumbnail"], tuner_status[tuner]["epg"]["name"], str(tuner_status[tuner]["epg"]["number"])))
+                try:
+                    channel_name = tuner_status[tuner]["epg"]["name"]
+                    channel_number = tuner_status[tuner]["epg"]["number"]
+                    channel_thumbnail = tuner_status[tuner]["epg"]["thumbnail"]
+                    fakefile.write("    <td>%s<img src=\"%s\" alt=\"%s\" width=\"100\" height=\"100\">%s</td>\n" % (
+                        channel_name, channel_thumbnail, channel_name, str(channel_number)))
+                except TypeError:
+                    fakefile.write("    <td>%s</td>\n" % (str(tuner_status[tuner]["channel"])))
                 fakefile.write("    <td>%s</td>\n" % (str(tuner_status[tuner]["method"])))
                 fakefile.write("    <td>%s</td>\n" % (str(tuner_status[tuner]["Play Time"])))
             else:
