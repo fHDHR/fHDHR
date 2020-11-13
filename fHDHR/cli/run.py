@@ -3,6 +3,7 @@ import sys
 import argparse
 import time
 import multiprocessing
+import platform
 
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
@@ -17,6 +18,10 @@ ERR_CODE_NO_RESTART = 2
 if sys.version_info.major == 2 or sys.version_info < (3, 3):
     print('Error: fHDHR requires python 3.3+.')
     sys.exit(1)
+
+opersystem = platform.system()
+if opersystem in ["Windows"]:
+    print("WARNING: This script may fail on Windows.")
 
 
 def build_args_parser():
