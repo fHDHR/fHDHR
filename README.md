@@ -1,7 +1,7 @@
-# fHDHR_Locast
+<p align="center">fHDHR_Locast    <img src="docs/images/logo.ico" alt="Logo"/></p>
 
 
-Welcome to the world of streaming to Plex! We use some fancy python here to achieve a system of:
+Welcome to the world of streaming content as a DVR device! We use some fancy python here to achieve a system of:
 
 **f**un
 **H**ome
@@ -10,23 +10,13 @@ Welcome to the world of streaming to Plex! We use some fancy python here to achi
 **R**ecreation
 
 
-(based off of original code from
+Please Check the [Docs](docs/README.md) for Installation information.
 
-  * [tvhProxy by jkaberg](https://github.com/jkaberg/tvhProxy)
-  * [locast2plex by tgorgdotcom](https://github.com/tgorgdotcom/locast2plex)
-  * myself coding for locast2plex
-
-  )
-
-PRs welcome for:
-
-* Docker support
-
-
-Please Check the repository wiki for Installation information.
-
-Officially marking this Fork as Beta.
+fHDHR is labeled as beta until we reach v1.0.0
 
 Join us in `#fHDHR <irc://irc.freenode.net/#fHDHR>`_ on Freenode.
 
-Due to multiple issues, I'm dropping support for Windows. Sorry. I'll accept PRs to alleviate this.
+
+Due to multiple issues, I'm dropping support for Windows.
+
+Sorry. I will accept PRs to alleviate this.
