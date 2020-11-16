@@ -27,12 +27,20 @@ class OriginEPG():
 
                 cdict = fHDHR.tools.xmldictmaker(c, ["callSign", "name", "channelId"], list_items=[], str_items=[])
 
-                channel_number = str(cdict['callSign']).split(" ")[0]
+                # Typically this will be `2.1 KTTW` but occasionally Locast only provides a channel number here
+                # fHDHR device.channels will provide us a number if that is the case
+                callsign_split = str(c['callSign']).split(" ")
+                if len(callsign_split) > 1:
+                    channel_number = str(c['callSign']).split(" ")[0]
+                    channel_callsign = str(c['callSign']).split(" ")[1]
+                else:
+                    channel_callsign = str(c['callSign'])
+                    channel_number = fhdhr_channels.get_channel_dict(self, "callsign", channel_callsign)
 
                 if str(channel_number) not in list(programguide.keys()):
                     programguide[str(channel_number)] = {
                                                       "callsign": str(cdict['name']),
-                                                      "name": str(cdict['callSign']).split(" ")[1],
+                                                      "name": channel_callsign,
                                                       "number": channel_number,
                                                       "id": str(cdict["id"]),
                                                       "thumbnail": str(cdict['logo226Url']),
