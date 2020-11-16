@@ -21,21 +21,22 @@ class OriginChannels():
 
         stationsRes = stationsReq.json()
 
-        for index, locast_station in enumerate(stationsRes):
-            try:
-                assert(float(locast_station['callSign'].split()[0]))
-                stationsRes[index]['channel'] = locast_station['callSign'].split()[0]
-            except ValueError:
-                pass
-
         cleaned_channels = []
         for station_item in stationsRes:
             clean_station_item = {
                                  "name": station_item["name"],
-                                 "callsign": str(station_item['callSign']).split(" ")[1],
-                                 "number": str(station_item['callSign']).split(" ")[0],
                                  "id": station_item["id"],
                                  }
+
+            # Typically this will be `2.1 KTTW` but occasionally Locast only provides a channel number here
+            # fHDHR device.channels will provide us a number if that is the case
+            callsign_split = str(station_item['callSign']).split(" ")
+            if len(callsign_split) > 1:
+                clean_station_item["number"] = str(station_item['callSign']).split(" ")[0]
+                clean_station_item["callsign"] = str(station_item['callSign']).split(" ")[1]
+            else:
+                clean_station_item["callsign"] = str(station_item['callSign'])
+
             cleaned_channels.append(clean_station_item)
         return cleaned_channels
 
