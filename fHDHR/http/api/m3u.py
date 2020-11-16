@@ -61,7 +61,7 @@ class M3U():
                                           "tvg-name=\"" + str(channel_item['name']) + "\" " +
                                           "tvg-id=\"" + str(channel_item['number']) + "\" " +
                                           "tvg-logo=\"" + logourl + "\" " +
-                                          "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "," + str(channel_item['name']))
+                                          "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "\"," + str(channel_item['name']))
                                 )
 
                 fakefile.write(
