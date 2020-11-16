@@ -1,5 +1,7 @@
 import m3u8
 
+from fHDHR.tools import isint, isfloat
+
 
 class OriginChannels():
 
@@ -30,10 +32,10 @@ class OriginChannels():
 
             # Typically this will be `2.1 KTTW` but occasionally Locast only provides a channel number here
             # fHDHR device.channels will provide us a number if that is the case
-            callsign_split = str(station_item['callSign']).split(" ")
-            if len(callsign_split) > 1:
+            if (isint(str(station_item['callSign']).split(" ")[0])
+               or isfloat(str(station_item['callSign']).split(" ")[0])):
                 clean_station_item["number"] = str(station_item['callSign']).split(" ")[0]
-                clean_station_item["callsign"] = str(station_item['callSign']).split(" ")[1]
+                clean_station_item["callsign"] = str(" ".join(station_item['callSign']).split(" ")[1:])
             else:
                 clean_station_item["callsign"] = str(station_item['callSign'])
 
