@@ -35,7 +35,7 @@ class OriginChannels():
             if (isint(str(station_item['callSign']).split(" ")[0])
                or isfloat(str(station_item['callSign']).split(" ")[0])):
                 clean_station_item["number"] = str(station_item['callSign']).split(" ")[0]
-                clean_station_item["callsign"] = str(" ".join(station_item['callSign']).split(" ")[1:])
+                clean_station_item["callsign"] = str(" ".join(station_item['callSign'].split(" ")[1:]))
             else:
                 clean_station_item["callsign"] = str(station_item['callSign'])
 

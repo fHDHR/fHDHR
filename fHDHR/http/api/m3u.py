@@ -6,7 +6,7 @@ from io import StringIO
 class M3U():
     endpoints = ["/api/m3u", "/api/channels.m3u"]
     endpoint_name = "api_m3u"
-    xmltv_xml = None
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -75,7 +75,7 @@ class M3U():
 
             return Response(status=200,
                             response=channels_m3u,
-                            mimetype='text/plain')
+                            mimetype='audio/x-mpegurl')
 
         if redirect_url:
             return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
