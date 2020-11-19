@@ -14,8 +14,6 @@ class zap2itEPG():
 
         self.postalcode = self.fhdhr.config.dict["zap2it"]["postalcode"]
 
-        self.fhdhr.web_cache_dir = self.fhdhr.config.dict["filedir"]["epg_cache"]["zap2it"]["web_cache"]
-
     def get_location(self):
         self.fhdhr.logger.warning("Zap2it postalcode not set, attempting to retrieve.")
         if not self.postalcode:

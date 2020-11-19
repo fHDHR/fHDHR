@@ -17,9 +17,9 @@ class Index_HTML():
         max_tuners = self.fhdhr.device.tuners.max_tuners
 
         fhdhr_status_dict = {
-                            "Script Directory": str(self.fhdhr.config.dict["filedir"]["script_dir"]),
+                            "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),
                             "Config File": str(self.fhdhr.config.config_file),
-                            "Cache Path": str(self.fhdhr.config.dict["filedir"]["cache_dir"]),
+                            "Cache Path": str(self.fhdhr.config.internal["paths"]["cache_dir"]),
                             "Total Channels": str(self.fhdhr.device.channels.get_station_total()),
                             "Tuner Usage": ("%s/%s" % (str(tuners_in_use), str(max_tuners))),
                             }

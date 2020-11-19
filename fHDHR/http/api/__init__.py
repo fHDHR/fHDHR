@@ -1,5 +1,6 @@
 
 from .cluster import Cluster
+from .settings import Settings
 from .channels import Channels
 from .lineup_post import Lineup_Post
 from .xmltv import xmlTV
@@ -17,6 +18,7 @@ class fHDHR_API():
         self.fhdhr = fhdhr
 
         self.cluster = Cluster(fhdhr)
+        self.settings = Settings(fhdhr)
         self.channels = Channels(fhdhr)
         self.xmltv = xmlTV(fhdhr)
         self.m3u = M3U(fhdhr)
