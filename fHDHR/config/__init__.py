@@ -28,7 +28,6 @@ class Config():
 
         data_dir = pathlib.Path(script_dir).joinpath('data')
         www_dir = pathlib.Path(data_dir).joinpath('www')
-        www_images_dir = pathlib.Path(www_dir).joinpath('images')
 
         self.dict["filedir"] = {
                                     "script_dir": script_dir,
@@ -37,7 +36,8 @@ class Config():
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,
-                                    "www_images_dir": www_images_dir,
+                                    "www_images_dir": pathlib.Path(www_dir).joinpath('images'),
+                                    "www_templates_dir": pathlib.Path(www_dir).joinpath('templates'),
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
                                     "favicon": pathlib.Path(data_dir).joinpath('favicon.ico'),
                                     "epg_cache": {},
@@ -45,7 +45,8 @@ class Config():
 
         for conffile in os.listdir(self.dict["filedir"]["internal_config"]):
             conffilepath = os.path.join(self.dict["filedir"]["internal_config"], conffile)
-            self.read_config(conffilepath)
+            if str(conffilepath).endswith(".ini"):
+                self.read_config(conffilepath)
 
     def read_config(self, conffilepath):
         config_handler = configparser.ConfigParser()

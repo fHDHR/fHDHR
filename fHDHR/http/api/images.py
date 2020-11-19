@@ -4,6 +4,7 @@ from flask import request, Response, abort
 class Images():
     endpoints = ["/api/images"]
     endpoint_name = "api_images"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

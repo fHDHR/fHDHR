@@ -8,6 +8,7 @@ class Watch():
     """Methods to create xmltv.xml"""
     endpoints = ["/api/watch"]
     endpoint_name = "api_watch"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

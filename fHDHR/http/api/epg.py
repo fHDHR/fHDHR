@@ -7,6 +7,7 @@ class EPG():
     """Methods to create xmltv.xml"""
     endpoints = ["/api/epg"]
     endpoint_name = "api_epg"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

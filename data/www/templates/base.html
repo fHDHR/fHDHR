@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <title>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      table, th, td {border: 1px solid black;}
+    </style>
+    <link href="style.css" rel="stylesheet">
+  </head>
+    <body>
+      <h1 style="text-align: center;">
+        <span style="text-decoration: underline;"><strong><em>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</em></strong>
+        </span>
+        <img class="pull-left" src="/favicon.ico" alt="fHDHR Logo" width="100" height="100">
+      </h1>
+      <br><br>
+      <div>
+
+      <button class="pull-left" onclick="OpenLink('/')">fHDHR</a></button>
+      <button class="pull-left" onclick="OpenLink('/origin')">{{ fhdhr.config.dict["main"]["servicename"] }}</a></button>
+      <button class="pull-left" onclick="OpenLink('/guide')">Guide</a></button>
+      <button class="pull-left" onclick="OpenLink('/cluster')">Cluster</a></button>
+      <button class="pull-left" onclick="OpenLink('/streams')">Streams</a></button>
+      <button class="pull-left" onclick="OpenLink('/xmltv')">xmltv</a></button>
+      <button class="pull-left" onclick="OpenLink('/version')">Version</a></button>
+      <button class="pull-left" onclick="OpenLink('/diagnostics')">Diagnostics</a></button>
+
+      <a class="pull-right" style="padding: 5px;" href="/api/xmltv?method=get&source={{ fhdhr.device.epg.def_method }}">xmltv</a>
+      <a class="pull-right" style="padding: 5px;" href="/api/m3u?method=get&channel=all">m3u</a>
+
+      </div>
+      <hr align="center" width="100%">
+
+      {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
+      {% if locations %}
+        <div>
+        {% for location in locations %}
+            <button class="pull-left" onclick="OpenLink('{{ location["base_url"] }}')">{{ location["name"] }}</a></button>
+        {% endfor %}
+        </div>
+        <hr align="center" width="100%">
+      {% endif %}
+
+      {% set retmessage = request.args.get('retmessage', default=None) %}
+      {% if retmessage %}
+        <p>{{ retmessage }}</p>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </body>
+</html>
+<script>
+  function OpenLink(NewURL) {window.open(NewURL, "_self");}
+</script>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">fHDHR Version Information</h4>
+
+      <table class="center" style="width:50%">
+        <tr>
+          <th></th>
+          <th></th>
+        </tr>
+
+      {% for key in list(version_dict.keys()) %}
+        <tr>
+          <td>{{ key }}</td>
+          <td>{{ version_dict[key] }}</td>
+        </tr>
+      {% endfor %}
+
+{% endblock %}

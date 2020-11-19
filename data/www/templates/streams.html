@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">fHDHR Streams</h4>
+
+      <table class="center" style="width:100%">
+        <tr>
+          <th>Tuner</th>
+          <th>Status</th>
+          <th>Channel</th>
+          <th>Method</th>
+          <th>Time Active</th>
+          <th>Options</th>
+        </tr>
+
+      {% for tuner_dict in tuner_list %}
+        <tr>
+          <td>{{ tuner_dict["number"] }}</td>
+          <td>{{ tuner_dict["status"] }}</td>
+          {% if tuner_dict["status"] == "Active" %}
+            <td>{{ tuner_dict["channel_number"] }}</td>
+            <td>{{ tuner_dict["method"] }}</td>
+            <td>{{ tuner_dict["play_duration"] }}</td>
+          {% else %}
+            <td>N/A</td>
+            <td>N/A</td>
+            <td>N/A</td>
+          {% endif %}
+          <td>
+            <div>
+              {% if tuner_dict["status"] in ["Active", "Acquired"] %}
+                <button onclick="OpenLink('/api/watch?method=close&tuner={{ tuner_dict["number"] }}&redirect=%2Fstreams')">Close</a></button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+
+{% endblock %}
