@@ -10,7 +10,7 @@ class xmlTV():
     """Methods to create xmltv.xml"""
     endpoints = ["/api/xmltv", "/xmltv.xml"]
     endpoint_name = "api_xmltv"
-    xmltv_xml = None
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

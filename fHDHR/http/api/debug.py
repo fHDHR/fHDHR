@@ -5,6 +5,7 @@ import json
 class Debug_JSON():
     endpoints = ["/api/debug"]
     endpoint_name = "api_debug"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

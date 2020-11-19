@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">xmltv</h4>
+
+    <table class="center" style="width:50%">
+      <tr>
+        <th>Version</th>
+        <th>XMLTV Link</th>
+        <th>EPG Link</th>
+        <th>Options</th>
+      </tr>
+
+    {% for epg_method in fhdhr.config.dict["main"]["valid_epg_methods"] %}
+      {% if epg_method not in [None, "None"] %}
+        {% set epg_method_name = epg_method %}
+        {% if epg_method == "origin" %}
+          {% set epg_method_name = fhdhr.config.dict["main"]["dictpopname"] %}
+        {% endif %}
+
+        <tr>
+          <td>{{ epg_method_name }}</td>
+          <td><a href="/api/xmltv?method=get&source="{{ epg_method }}>{{ epg_method_name }}</a></td>
+          <td><a href="/api/epg?method=get&source="{{ epg_method }}>{{ epg_method_name }}</a></td>
+          <td>
+            <div>
+              <button onclick="OpenLink('/api/xmltv?method=update&source={{ epg_method }}&redirect=%2Fxmltv')">Update</a></button>
+              <button onclick="OpenLink('/api/xmltv?method=clearcache&source={{ epg_method }}&redirect=%2Fxmltv')">Clear Cache</a></button>
+            </div>
+          </td>
+        </tr>
+
+
+      {% endif %}
+    {% endfor %}
+
+{% endblock %}

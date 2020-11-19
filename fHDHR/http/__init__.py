@@ -13,7 +13,9 @@ class fHDHR_HTTP_Server():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.app = Flask("fHDHR")
+        self.template_folder = fhdhr.config.dict["filedir"]["www_templates_dir"]
+
+        self.app = Flask("fHDHR", template_folder=self.template_folder)
 
         self.pages = fHDHR_Pages(fhdhr)
         self.add_endpoints(self.pages, "pages")

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">Cluster</h4>
+    {% if not fhdhr.config.dict["fhdhr"]["discovery_address"] %}
+      <p style="text-align: center;">Discovery Address must be set for SSDP/Cluster</p>
+    {% else %}
+
+      <div style="text-align: center;">
+        <button onclick="OpenLink('/api/cluster?method=scan&redirect=%2Fcluster')">Force Scan</a></button>
+        <button onclick="OpenLink('/api/cluster?method=disconnect&redirect=%2Fcluster')">Disconnect</a></button>
+      </div>
+      <br>
+
+      <table class="center" style="width:50%">
+        <tr>
+          <th>Name</th>
+          <th>Location</th>
+          <th>Joined</th>
+          <th>Options</th>
+        </tr>
+
+      {% for location in locations_list %}
+        <tr>
+          <td>{{ location["name"] }}</td>
+          <td>{{ location["location"] }}</td>
+          <td>{{ location["joined"] }}</td>
+
+          <td>
+            <div>
+
+              {% if location["joined"] in ["True", "False"] %}
+                <button onclick="OpenLink('{{ location["location"] }}')">Visit</a></button>
+              {% endif %}
+
+              {% if location["joined"] == "True" %}
+                <button onclick="OpenLink('/api/cluster?method=del&location={{ location["url_query"] }}&redirect=%2Fcluster')">Remove</a></button>
+              {% elif location["joined"] == "False" %}
+                <button onclick="OpenLink('/api/cluster?method=add&location={{ location["url_query"] }}&redirect=%2Fcluster')">Add</a></button>
+              {% endif %}
+
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+
+    {% endif %}
+
+{% endblock %}

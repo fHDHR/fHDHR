@@ -6,6 +6,7 @@ import json
 class Cluster():
     endpoints = ["/api/cluster"]
     endpoint_name = "api_cluster"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

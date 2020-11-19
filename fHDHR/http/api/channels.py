@@ -5,6 +5,7 @@ import urllib.parse
 class Channels():
     endpoints = ["/api/channels"]
     endpoint_name = "api_channels"
+    endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

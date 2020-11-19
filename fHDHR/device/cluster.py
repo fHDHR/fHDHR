@@ -22,6 +22,22 @@ class fHDHR_Cluster():
     def cluster(self):
         return self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
 
+    def get_cluster_dicts_web(self):
+        fhdhr_list = self.cluster()
+        locations = []
+        for location in list(fhdhr_list.keys()):
+            item_dict = {
+                        "base_url": fhdhr_list[location]["base_url"],
+                        "name": fhdhr_list[location]["name"]
+                        }
+            if item_dict["base_url"] != self.location:
+                locations.append(item_dict)
+        if len(locations):
+            locations = sorted(locations, key=lambda i: i['name'])
+            return locations
+        else:
+            return None
+
     def get_list(self):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         return_dict = {}

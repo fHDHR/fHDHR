@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {% for button_item in button_list %}
+        <div style="text-align: center;">
+          <p><button onclick="OpenLink('{{ button_item[1] }}')">{{ button_item[0] }}</a></button></p>
+        </div>
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">What's On {{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</h4>
+
+      <table class="center" style="width:100%">
+        <tr>
+          <th>Play</th>
+          <th>Channel Name</th>
+          <th>Channel Number</th>
+          <th>Channel Thumbnail</th>
+          <th>Content Title</th>
+          <th>Content Thumbnail</th>
+          <th>Content Description</th>
+          <th>Content Remaining Time</th>
+        </tr>
+
+      {% for chan_dict in chan_guide_list %}
+        <tr>
+          <td><a href="{{ chan_dict["play_url"] }}">Play</a>
+          <td>{{ chan_dict["name"] }}</td>
+          <td>{{ chan_dict["number"] }}</td>
+          <td><img src="{{ chan_dict["chan_thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100">
+          <td>{{ chan_dict["listing_title"] }}</td>
+          <td><img src="{{ chan_dict["listing_thumbnail"] }}" alt="{{ chan_dict["listing_title"] }}" width="100" height="100">
+          <td>{{ chan_dict["listing_description"] }}</td>
+          <td>{{ chan_dict["remaining_time"] }}</td>
+        </tr>
+      {% endfor %}
+
+{% endblock %}
