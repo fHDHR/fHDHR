@@ -8,6 +8,7 @@ from .streams_html import Streams_HTML
 from .version_html import Version_HTML
 from .guide_html import Guide_HTML
 from .xmltv_html import xmlTV_HTML
+from .settings import Settings_HTML
 
 
 class fHDHR_Pages():
@@ -16,6 +17,7 @@ class fHDHR_Pages():
         self.fhdhr = fhdhr
 
         self.index = Index_HTML(fhdhr)
+        self.settings = Settings_HTML(fhdhr)
         self.origin = Origin_HTML(fhdhr)
         self.cluster = Cluster_HTML(fhdhr)
         self.diagnostics = Diagnostics_HTML(fhdhr)

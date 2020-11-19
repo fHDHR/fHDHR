@@ -104,7 +104,7 @@ class fHDHRdb(object):
             db_user = self.config.dict["database"]["user"]
             db_pass = self.config.dict["database"]["pass"]
             db_host = self.config.dict["database"]["host"]
-            db_port = self.config.dict["database"]["prt"]  # Optional
+            db_port = self.config.dict["database"]["port"]  # Optional
             db_name = self.config.dict["database"]["name"]  # Optional, depending on DB
 
             # Ensure we have all our variables defined

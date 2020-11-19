@@ -13,7 +13,7 @@ class fHDHR_HTTP_Server():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.template_folder = fhdhr.config.dict["filedir"]["www_templates_dir"]
+        self.template_folder = fhdhr.config.internal["paths"]["www_templates_dir"]
 
         self.app = Flask("fHDHR", template_folder=self.template_folder)
 

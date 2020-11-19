@@ -5,6 +5,7 @@ import pathlib
 import logging
 import subprocess
 import platform
+import json
 
 import fHDHR.exceptions
 from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
@@ -13,42 +14,148 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 class Config():
 
     def __init__(self, filename, script_dir):
+        self.internal = {}
+        self.conf_default = {}
         self.dict = {}
         self.config_file = filename
-        self.parser = configparser.RawConfigParser(allow_no_value=True)
 
-        self.load_defaults(script_dir)
-
-        print("Loading Configuration File: " + str(self.config_file))
-        self.read_config(self.config_file)
-
+        self.initial_load(script_dir)
         self.config_verification()
 
-    def load_defaults(self, script_dir):
+    def initial_load(self, script_dir):
 
         data_dir = pathlib.Path(script_dir).joinpath('data')
         www_dir = pathlib.Path(data_dir).joinpath('www')
 
-        self.dict["filedir"] = {
+        self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
-
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,
-                                    "www_images_dir": pathlib.Path(www_dir).joinpath('images'),
                                     "www_templates_dir": pathlib.Path(www_dir).joinpath('templates'),
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
-                                    "favicon": pathlib.Path(data_dir).joinpath('favicon.ico'),
-                                    "epg_cache": {},
                                     }
 
-        for conffile in os.listdir(self.dict["filedir"]["internal_config"]):
-            conffilepath = os.path.join(self.dict["filedir"]["internal_config"], conffile)
-            if str(conffilepath).endswith(".ini"):
-                self.read_config(conffilepath)
+        for conffile in os.listdir(self.internal["paths"]["internal_config"]):
+            conffilepath = os.path.join(self.internal["paths"]["internal_config"], conffile)
+            if str(conffilepath).endswith(".json"):
+                self.read_json_config(conffilepath)
 
-    def read_config(self, conffilepath):
+        print("Loading Configuration File: " + str(self.config_file))
+        self.read_ini_config(self.config_file)
+
+        self.load_versions()
+
+    def load_versions(self):
+
+        self.internal["versions"] = {
+                                    "opersystem": None,
+                                    "isdocker": False,
+                                    "ffmpeg": "N/A",
+                                    "vlc": "N/A"
+                                    }
+
+        opersystem = platform.system()
+        self.internal["versions"]["opersystem"] = opersystem
+        if opersystem in ["Linux", "Darwin"]:
+            # Linux/Mac
+            if os.getuid() == 0 or os.geteuid() == 0:
+                print('Warning: Do not run fHDHR with root privileges.')
+        elif opersystem in ["Windows"]:
+            # Windows
+            if os.environ.get("USERNAME") == "Administrator":
+                print('Warning: Do not run fHDHR as Administrator.')
+        else:
+            print("Uncommon Operating System, use at your own risk.")
+
+        isdocker = is_docker()
+        self.internal["versions"]["isdocker"] = isdocker
+
+        if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
+            try:
+                ffmpeg_command = [self.dict["ffmpeg"]["path"],
+                                  "-version",
+                                  "pipe:stdout"
+                                  ]
+
+                ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+                ffmpeg_version = ffmpeg_proc.stdout.read()
+                ffmpeg_proc.terminate()
+                ffmpeg_proc.communicate()
+                ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
+            except FileNotFoundError:
+                ffmpeg_version = "Missing"
+                print("Failed to find ffmpeg.")
+            self.internal["versions"]["ffmpeg"] = ffmpeg_version
+
+        if self.dict["fhdhr"]["stream_type"] == "vlc":
+            try:
+                vlc_command = [self.dict["vlc"]["path"],
+                               "--version",
+                               "pipe:stdout"
+                               ]
+
+                vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
+                vlc_version = vlc_proc.stdout.read()
+                vlc_proc.terminate()
+                vlc_proc.communicate()
+                vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
+            except FileNotFoundError:
+                vlc_version = "Missing"
+                print("Failed to find vlc.")
+            self.internal["versions"]["vlc"] = vlc_version
+
+    def read_json_config(self, conffilepath):
+        with open(conffilepath, 'r') as jsonconf:
+            confimport = json.load(jsonconf)
+        for section in list(confimport.keys()):
+
+            if section not in self.dict.keys():
+                self.dict[section] = {}
+
+            if section not in self.conf_default.keys():
+                self.conf_default[section] = {}
+
+            for key in list(confimport[section].keys()):
+
+                if key not in list(self.conf_default[section].keys()):
+                    self.conf_default[section][key] = {}
+
+                confvalue = confimport[section][key]["value"]
+                if isint(confvalue):
+                    confvalue = int(confvalue)
+                elif isfloat(confvalue):
+                    confvalue = float(confvalue)
+                elif is_arithmetic(confvalue):
+                    confvalue = eval(confvalue)
+                elif "," in confvalue:
+                    confvalue = confvalue.split(",")
+                elif str(confvalue).lower() in ["none"]:
+                    confvalue = None
+                elif str(confvalue).lower() in ["false"]:
+                    confvalue = False
+                elif str(confvalue).lower() in ["true"]:
+                    confvalue = True
+
+                self.dict[section][key] = confvalue
+
+                self.conf_default[section][key]["value"] = confvalue
+
+                for config_option in ["config_web_hidden", "config_file", "config_web"]:
+                    if config_option not in list(confimport[section][key].keys()):
+                        config_option_value = False
+                    else:
+                        config_option_value = confimport[section][key][config_option]
+                        if str(config_option_value).lower() in ["none"]:
+                            config_option_value = None
+                        elif str(config_option_value).lower() in ["false"]:
+                            config_option_value = False
+                        elif str(config_option_value).lower() in ["true"]:
+                            config_option_value = True
+                    self.conf_default[section][key][config_option] = config_option_value
+
+    def read_ini_config(self, conffilepath):
         config_handler = configparser.ConfigParser()
         config_handler.read(conffilepath)
         for each_section in config_handler.sections():
@@ -57,7 +164,9 @@ class Config():
             for (each_key, each_val) in config_handler.items(each_section):
                 if not each_val:
                     each_val = None
-                elif each_val.lower() in ["none", "false"]:
+                elif each_val.lower() in ["none"]:
+                    each_val = None
+                elif each_val.lower() in ["false"]:
                     each_val = False
                 elif each_val.lower() in ["true"]:
                     each_val = True
@@ -69,7 +178,15 @@ class Config():
                     each_val = eval(each_val)
                 elif "," in each_val:
                     each_val = each_val.split(",")
-                self.dict[each_section.lower()][each_key.lower()] = each_val
+
+                import_val = True
+                if each_section in list(self.conf_default.keys()):
+                    if each_key in list(self.conf_default[each_section].keys()):
+                        if not self.conf_default[each_section][each_key]["config_file"]:
+                            import_val = False
+
+                if import_val:
+                    self.dict[each_section.lower()][each_key.lower()] = each_val
 
     def write(self, section, key, value):
         if section == self.dict["main"]["dictpopname"]:
@@ -126,94 +243,25 @@ class Config():
                     raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
         self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
 
-        # generate UUID here for when we are not using docker
         if not self.dict["main"]["uuid"]:
-            # from https://pynative.com/python-generate-random-string/
-            # create a string that wouldn't be a real device uuid for
             self.dict["main"]["uuid"] = ''.join(random.choice("hijklmnopqrstuvwxyz") for i in range(8))
             self.write('main', 'uuid', self.dict["main"]["uuid"])
 
         if self.dict["main"]["cache_dir"]:
             if not pathlib.Path(self.dict["main"]["cache_dir"]).is_dir():
                 raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
-            self.dict["filedir"]["cache_dir"] = pathlib.Path(self.dict["main"]["cache_dir"])
-        cache_dir = self.dict["filedir"]["cache_dir"]
+            self.internal["paths"]["cache_dir"] = pathlib.Path(self.dict["main"]["cache_dir"])
+        cache_dir = self.internal["paths"]["cache_dir"]
 
         logs_dir = pathlib.Path(cache_dir).joinpath('logs')
-        self.dict["filedir"]["logs_dir"] = logs_dir
+        self.internal["paths"]["logs_dir"] = logs_dir
         if not logs_dir.is_dir():
             logs_dir.mkdir()
 
         self.dict["database"]["path"] = pathlib.Path(cache_dir).joinpath('fhdhr.db')
 
-        for epg_method in self.dict["main"]["valid_epg_methods"]:
-            if epg_method and epg_method != "None":
-                epg_cache_dir = pathlib.Path(cache_dir).joinpath(epg_method)
-                if not epg_cache_dir.is_dir():
-                    epg_cache_dir.mkdir()
-                if epg_method not in list(self.dict["filedir"]["epg_cache"].keys()):
-                    self.dict["filedir"]["epg_cache"][epg_method] = {}
-                self.dict["filedir"]["epg_cache"][epg_method]["top"] = epg_cache_dir
-                epg_web_cache_dir = pathlib.Path(epg_cache_dir).joinpath("web_cache")
-                if not epg_web_cache_dir.is_dir():
-                    epg_web_cache_dir.mkdir()
-                self.dict["filedir"]["epg_cache"][epg_method]["web_cache"] = epg_web_cache_dir
-                self.dict["filedir"]["epg_cache"][epg_method]["epg_json"] = pathlib.Path(epg_cache_dir).joinpath('epg.json')
-
         if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg", "vlc"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
-
-        opersystem = platform.system()
-        self.dict["main"]["opersystem"] = opersystem
-        if opersystem in ["Linux", "Darwin"]:
-            # Linux/Mac
-            if os.getuid() == 0 or os.geteuid() == 0:
-                print('Warning: Do not run fHDHR with root privileges.')
-        elif opersystem in ["Windows"]:
-            # Windows
-            if os.environ.get("USERNAME") == "Administrator":
-                print('Warning: Do not run fHDHR as Administrator.')
-        else:
-            print("Uncommon Operating System, use at your own risk.")
-
-        isdocker = is_docker()
-        self.dict["main"]["isdocker"] = isdocker
-
-        if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
-            try:
-                ffmpeg_command = [self.dict["ffmpeg"]["ffmpeg_path"],
-                                  "-version",
-                                  "pipe:stdout"
-                                  ]
-
-                ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
-                ffmpeg_version = ffmpeg_proc.stdout.read()
-                ffmpeg_proc.terminate()
-                ffmpeg_proc.communicate()
-                ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
-            except FileNotFoundError:
-                ffmpeg_version = None
-            self.dict["ffmpeg"]["version"] = ffmpeg_version
-        else:
-            self.dict["ffmpeg"]["version"] = "N/A"
-
-        if self.dict["fhdhr"]["stream_type"] == "vlc":
-            try:
-                vlc_command = [self.dict["vlc"]["vlc_path"],
-                               "--version",
-                               "pipe:stdout"
-                               ]
-
-                vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
-                vlc_version = vlc_proc.stdout.read()
-                vlc_proc.terminate()
-                vlc_proc.communicate()
-                vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
-            except FileNotFoundError:
-                vlc_version = None
-            self.dict["vlc"]["version"] = vlc_version
-        else:
-            self.dict["vlc"]["version"] = "N/A"
 
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
@@ -227,7 +275,7 @@ class Config():
         # Create a custom logger
         logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=log_level)
         logger = logging.getLogger('fHDHR')
-        log_file = os.path.join(self.dict["filedir"]["logs_dir"], 'fHDHR.log')
+        log_file = os.path.join(self.internal["paths"]["logs_dir"], 'fHDHR.log')
 
         # Create handlers
         # c_handler = logging.StreamHandler()

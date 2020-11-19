@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">fHDHR Settings</h4>
+
+    <h4 style="text-align: center;">Settings will require a manual restart.</h4>
+
+    {% for config_section in list(web_settings_dict.keys()) %}
+
+      {% if config_section == "origin" %}
+        <h4 style="text-align: center;">{{ fhdhr.config.dict["main"]["dictpopname"] }}</h4>
+      {% else %}
+        <h4 style="text-align: center;">{{ config_section }}</h4>
+      {% endif %}
+
+      <table class="center" style="width:100%">
+          <tr>
+              <th>Config Name</th>
+              <th>Config Default Value</th>
+              <th>Config Value</th>
+              <th>Update</th>
+              <th>Reset</th>
+          </tr>
+
+      {% for config_item in list(web_settings_dict[config_section].keys()) %}
+
+      <tr>
+        <td data-th="Config Name">{{ config_item }}</td>
+
+        <td data-th="Config Default Value">{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
+
+        <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
+          <input type="hidden" name="config_section" value={{ config_section }}>
+          <input type="hidden" name="config_name" value={{ config_item }}>
+          <input type="hidden" name="config_default" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
+            {% if web_settings_dict[config_section][config_item]["hide"] %}
+              <td data-th="Config Value"><input type="text" size="50" name="config_value" value=**************></td>
+            {% else %}
+              <td data-th="Config Value"><input type="text" size="50" name="config_value" value={{ web_settings_dict[config_section][config_item]["value"] }}></td>
+            {% endif %}
+            <td data-th="Update"><input type="submit" value="Update"></td>
+        </form>
+
+        <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
+          <input type="hidden" name="config_section" value={{ config_section }}>
+          <input type="hidden" name="config_name" value={{ config_item }}>
+          <input type="hidden" name="config_value" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
+          <input type="hidden" name="config_default" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
+            <td data-th="Reset"><input type="submit" value="Reset"></td>
+        </form>
+
+      </tr>
+
+      {% endfor %}
+      </table>
+
+    {% endfor %}
+
+{% endblock %}

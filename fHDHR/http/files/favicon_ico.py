@@ -13,6 +13,6 @@ class Favicon_ICO():
 
     def get(self, *args):
 
-        return send_from_directory(self.fhdhr.config.dict["filedir"]["www_dir"],
+        return send_from_directory(self.fhdhr.config.internal["paths"]["www_dir"],
                                    'favicon.ico',
                                    mimetype='image/vnd.microsoft.icon')

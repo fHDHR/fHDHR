@@ -13,5 +13,5 @@ class Style_CSS():
 
     def get(self, *args):
 
-        return send_from_directory(self.fhdhr.config.dict["filedir"]["www_dir"],
+        return send_from_directory(self.fhdhr.config.internal["paths"]["www_dir"],
                                    'style.css')

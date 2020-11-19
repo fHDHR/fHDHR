@@ -35,7 +35,7 @@ class imageHandler():
         colorBackground = "#228822"
         colorText = "#717D7E"
         colorOutline = "#717D7E"
-        fontname = str(self.fhdhr.config.dict["filedir"]["font"])
+        fontname = str(self.fhdhr.config.internal["paths"]["font"])
 
         font = PIL.ImageFont.truetype(fontname, fontsize)
         text_width, text_height = self.getSize(message, font)

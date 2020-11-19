@@ -17,9 +17,9 @@ class Version_HTML():
         version_dict = {
                         "fHDHR": self.fhdhr.version,
                         "Python": sys.version,
-                        "Operating System": self.fhdhr.config.dict["main"]["opersystem"],
-                        "Using Docker": self.fhdhr.config.dict["main"]["isdocker"],
-                        "ffmpeg": self.fhdhr.config.dict["ffmpeg"]["version"],
-                        "vlc": self.fhdhr.config.dict["vlc"]["version"],
+                        "Operating System": self.fhdhr.config.internal["versions"]["opersystem"],
+                        "Using Docker": self.fhdhr.config.internal["versions"]["isdocker"],
+                        "ffmpeg": self.fhdhr.config.internal["versions"]["ffmpeg"],
+                        "vlc": self.fhdhr.config.internal["versions"]["vlc"],
                         }
         return render_template('version.html', request=request, fhdhr=self.fhdhr, version_dict=version_dict, list=list)

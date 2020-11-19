@@ -42,7 +42,7 @@ class FFMPEG_Stream():
 
     def ffmpeg_command_assemble(self, stream_args):
         ffmpeg_command = [
-                          self.fhdhr.config.dict["ffmpeg"]["ffmpeg_path"],
+                          self.fhdhr.config.dict["ffmpeg"]["path"],
                           "-i", stream_args["channelUri"],
                           ]
         ffmpeg_command.extend(self.ffmpeg_duration(stream_args))

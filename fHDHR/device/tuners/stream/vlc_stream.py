@@ -44,7 +44,7 @@ class VLC_Stream():
 
     def vlc_command_assemble(self, stream_args):
         vlc_command = [
-                          self.fhdhr.config.dict["vlc"]["vlc_path"],
+                          self.fhdhr.config.dict["vlc"]["path"],
                           "-I", "dummy", stream_args["channelUri"],
                           ]
         vlc_command.extend(self.vlc_duration(stream_args))
