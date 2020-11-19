@@ -32,7 +32,7 @@ class OriginEPG():
                 if (fHDHR.tools.isint(str(cdict['callSign']).split(" ")[0])
                    or fHDHR.tools.isfloat(str(cdict['callSign']).split(" ")[0])):
                     channel_number = str(cdict['callSign']).split(" ")[0]
-                    channel_callsign = str(" ".join(cdict['callSign']).split(" ")[1:])
+                    channel_callsign = str(" ".join(cdict['callSign'].split(" ")[1:]))
                 else:
                     channel_callsign = str(c['callSign'])
                     channel_number = fhdhr_channels.get_channel_dict("callsign", channel_callsign)["number"]
