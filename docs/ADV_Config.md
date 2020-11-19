@@ -69,24 +69,24 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 ## ffmpeg
 
 The `ffmpeg` section includes:
-* `ffmpeg_path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
+* `path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
 * `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
 
 ````
 [ffmpeg]
-# ffmpeg_path = ffmpeg
+# path = ffmpeg
 # bytes_per_read = 1152000
 ````
 
 ## vlc
 
 The `vlc` section includes:
-* `vlc_path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
+* `path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
 * `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
 
 ````
 [vlc]
-# vlc_path = ffmpeg
+# path = ffmpeg
 # bytes_per_read = 1152000
 ````
 
