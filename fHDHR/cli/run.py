@@ -22,7 +22,7 @@ if sys.version_info.major == 2 or sys.version_info < (3, 7):
 
 opersystem = platform.system()
 if opersystem in ["Windows"]:
-    print("WARNING: This script may fail on Windows.")
+    print("WARNING: This script may fail on Windows. Try Setting the `thread_method` to `threading`")
 
 
 def build_args_parser():

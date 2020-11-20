@@ -88,3 +88,11 @@ This page will give valuable information about the environment the script is bei
 This page has various links to json/xml files that make the magic work, as well as debug and cluster information.
 
 <img src="screenshots/webui_diagnostics.PNG" alt="Diagnostics Page"/>
+
+# Settings
+
+This page allows viewing/changing all possible configuration options.
+
+* Note: This will require a restart of the script to have any effect.
+
+<img src="screenshots/webui_diagnostics.PNG" alt="Diagnostics Page"/>
