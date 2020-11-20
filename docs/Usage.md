@@ -74,7 +74,7 @@ services:
 docker-compose up --build -d locast
 ```
 
-After a short period of time (during which docker will build your new fHDHR container), you should now have a working build of fHDHR running inside a docker container. 
+After a short period of time (during which docker will build your new fHDHR container), you should now have a working build of fHDHR running inside a docker container.
 
 As the code changes and new versions / bug fixes are released, at any point you can pull the latest version of the code and rebuild your container with the following commands:
 ```
@@ -86,7 +86,7 @@ docker-compose up --build -d locast
 ```
 <hr />
 
-You can also run multiple instances of fHDHR to support additional sources by cloning the appropriate repo into your `~/fhdhr` directory and adding the necessary services to the docker-compose file we created above. 
+You can also run multiple instances of fHDHR to support additional sources by cloning the appropriate repo into your `~/fhdhr` directory and adding the necessary services to the docker-compose file we created above.
 
 * for example, if we also wanted PlutoTV support, you would clone the PlutoTV repository:
 ```
@@ -105,7 +105,7 @@ services:
     network_mode: host
     volumes:
       - ./fHDHR_Locast/config.ini:/app/config/config.ini
-      
+
   plutotv:
     build: ./fHDHR_PlutoTV
     container_name: plutotv
