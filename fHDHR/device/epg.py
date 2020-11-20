@@ -26,6 +26,7 @@ class EPG():
         self.epg_method_selfadd()
 
         self.epg_methods = self.fhdhr.config.dict["epg"]["method"]
+        self.valid_epg_methods = [x for x in self.fhdhr.config.dict["main"]["valid_epg_methods"] if x and x not in [None, "None"]]
         self.def_method = self.fhdhr.config.dict["epg"]["def_method"]
         self.sleeptime = {}
         for epg_method in self.epg_methods:
@@ -59,8 +60,8 @@ class EPG():
 
         self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
 
-    def whats_on_now(self, channel):
-        epgdict = self.get_epg()
+    def whats_on_now(self, channel, method=None):
+        epgdict = self.get_epg(method)
         listings = epgdict[channel]["listing"]
         for listing in listings:
             nowtime = datetime.datetime.utcnow()
@@ -72,10 +73,19 @@ class EPG():
                 return epgitem
         return None
 
-    def whats_on_allchans(self):
+    def whats_on_allchans(self, method=None):
+
+        if not method:
+            method = self.def_method
+        if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
+           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+            method = "origin"
+
         channel_guide_list = []
-        for channel in self.channels.get_channels():
-            whatson = self.whats_on_now(channel["number"])
+        epgdict = self.get_epg(method)
+        channels = list(epgdict.keys())
+        for channel in channels:
+            whatson = self.whats_on_now(epgdict[channel]["number"], method)
             if whatson:
                 channel_guide_list.append(whatson)
         return channel_guide_list

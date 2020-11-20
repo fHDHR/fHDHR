@@ -16,7 +16,14 @@ class Lineup_JSON():
 
         base_url = request.url_root[:-1]
 
-        jsonlineup = self.fhdhr.device.channels.get_station_list(base_url)
+        jsonlineup = []
+        for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+            channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
+            if channel_obj.enabled:
+                lineup_dict = channel_obj.lineup_dict()
+                lineup_dict["URL"] = base_url + lineup_dict["URL"]
+                jsonlineup.append(lineup_dict)
+
         lineup_json = json.dumps(jsonlineup, indent=4)
 
         return Response(status=200,

@@ -4,7 +4,7 @@ import urllib.parse
 
 class Cluster_HTML():
     endpoints = ["/cluster", "/cluster.html"]
-    endpoint_name = "cluster"
+    endpoint_name = "cluster_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

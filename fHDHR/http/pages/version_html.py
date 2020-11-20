@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class Version_HTML():
     endpoints = ["/version", "/version.html"]
-    endpoint_name = "version"
+    endpoint_name = "version_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

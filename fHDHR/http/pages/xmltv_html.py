@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class xmlTV_HTML():
     endpoints = ["/xmltv", "/xmltv.html"]
-    endpoint_name = "xmltv"
+    endpoint_name = "xmltv_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

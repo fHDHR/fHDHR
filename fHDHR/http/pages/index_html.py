@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class Index_HTML():
     endpoints = ["/", "/index", "/index.html"]
-    endpoint_name = "root"
+    endpoint_name = "root_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -20,7 +20,7 @@ class Index_HTML():
                             "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),
                             "Config File": str(self.fhdhr.config.config_file),
                             "Cache Path": str(self.fhdhr.config.internal["paths"]["cache_dir"]),
-                            "Total Channels": str(self.fhdhr.device.channels.get_station_total()),
+                            "Total Channels": len(self.fhdhr.device.channels.list),
                             "Tuner Usage": ("%s/%s" % (str(tuners_in_use), str(max_tuners))),
                             }
 

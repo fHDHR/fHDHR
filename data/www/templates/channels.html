@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">What's On {{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</h4>
+
+      <table class="center" style="width:100%">
+        <tr>
+          <th>Play</th>
+          <th>Channel Name</th>
+          <th>Channel CallSign</th>
+          <th>Channel Number</th>
+          <th>Status</th>
+          <th>Options</th>
+        </tr>
+
+      {% for chan_dict in channelslist %}
+        <tr>
+          <td>
+            {% if chan_dict["enabled"] %}
+              <a href="{{ chan_dict["play_url"] }}">Play</a>
+            {% endif %}
+          </td>
+          <td>{{ chan_dict["name"] }}</td>
+          <td>{{ chan_dict["callsign"] }}</td>
+          <td>{{ chan_dict["number"] }}</td>
+          <td>
+            {% if chan_dict["enabled"] %}
+              Enabled
+            {% elif not chan_dict["enabled"] %}
+              Disabled
+            {% endif %}
+          </td>
+          <td>
+            <div>
+              {% if chan_dict["enabled"] %}
+                <button onclick="OpenLink('/api/channels?method=disable&channel={{ chan_dict["number"] }}&redirect=%2Fchannels')">Disable</a></button>
+              {% elif not chan_dict["enabled"] %}
+                <button onclick="OpenLink('/api/channels?method=enable&channel={{ chan_dict["number"] }}&redirect=%2Fchannels')">Enable</a></button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+
+{% endblock %}

@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class Streams_HTML():
     endpoints = ["/streams", "/streams.html"]
-    endpoint_name = "streams"
+    endpoint_name = "streams_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

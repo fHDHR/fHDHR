@@ -19,7 +19,7 @@ class Debug_JSON():
 
         debugjson = {
                     "base_url": base_url,
-                    "total channels": self.fhdhr.device.channels.get_station_total(),
+                    "total channels": len(self.fhdhr.device.channels.list),
                     "tuner status": self.fhdhr.device.tuners.status(),
                     }
         cluster_json = json.dumps(debugjson, indent=4)

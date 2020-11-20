@@ -20,8 +20,8 @@ class OriginChannels_StandIN():
     def get_channels(self):
         return []
 
-    def get_channel_stream(self, chandict, allchandict):
-        return [{"number": chandict["number"], "stream_url": None}], False
+    def get_channel_stream(self, chandict):
+        return None
 
 
 class OriginServiceWrapper():
@@ -54,8 +54,8 @@ class OriginServiceWrapper():
     def get_channels(self):
         return self.channels.get_channels()
 
-    def get_channel_stream(self, chandict, allchandict):
-        return self.channels.get_channel_stream(chandict, allchandict)
+    def get_channel_stream(self, chandict):
+        return self.channels.get_channel_stream(chandict)
 
     def update_epg(self, channels):
         return self.epg.update_epg(channels)

@@ -38,44 +38,50 @@ class M3U():
                                      "x-tvg-url=\"" + xmltvurl + "\"")
                             )
 
-            channel_list = self.fhdhr.device.channels.get_channels()
-            channel_number_list = [x["number"] for x in channel_list]
+            channel_items = []
 
             if channel == "all":
-                channel_items = channel_list
-            elif channel in channel_number_list:
-                channel_items = [self.fhdhr.device.channels.get_channel_dict("number", channel)]
+                fileName = "channels.m3u"
+                for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+                    channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
+                    if channel_obj.enabled:
+                        channel_items.append(channel_obj)
+            elif channel in self.fhdhr.device.channels.get_channel_list("number"):
+                channel_obj = self.fhdhr.device.channels.get_channel_obj("number", channel)
+                fileName = str(channel_obj.number) + ".m3u"
+                if channel_obj.enabled:
+                    channel_items.append(channel_obj)
+                else:
+                    return "Channel Disabled"
             else:
                 return "Invalid Channel"
 
-            for channel_item in channel_items:
+            for channel_obj in channel_items:
 
-                logourl = ('%s/api/images?method=get&type=channel&id=%s' %
-                           (base_url, str(channel_item['id'])))
+                if self.fhdhr.config.dict["epg"]["images"] == "proxy" or not channel_obj.thumbnail:
+                    logourl = ('%s/api/images?method=get&type=channel&id=%s' %
+                               (base_url, str(channel_obj.dict['origin_id'])))
+                else:
+                    logourl = channel_obj.thumbnail
 
                 fakefile.write(
                                 "%s\n" % (
                                           RECORD_MARKER + ":0" + " " +
-                                          "channelID=\"" + str(channel_item['id']) + "\" " +
-                                          "tvg-chno=\"" + str(channel_item['number']) + "\" " +
-                                          "tvg-name=\"" + str(channel_item['name']) + "\" " +
-                                          "tvg-id=\"" + str(channel_item['number']) + "\" " +
+                                          "channelID=\"" + str(channel_obj.dict['origin_id']) + "\" " +
+                                          "tvg-chno=\"" + str(channel_obj.dict['number']) + "\" " +
+                                          "tvg-name=\"" + str(channel_obj.dict['name']) + "\" " +
+                                          "tvg-id=\"" + str(channel_obj.dict['number']) + "\" " +
                                           "tvg-logo=\"" + logourl + "\" " +
-                                          "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "\"," + str(channel_item['name']))
+                                          "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "\"," + str(channel_obj.dict['name']))
                                 )
 
-                fakefile.write(
-                                "%s\n" % (
-                                            ('%s/auto/v%s' %
-                                             (base_url, str(channel_item['number'])))
-                                 )
-                                )
+                fakefile.write("%s\n" % (base_url + channel_obj.stream_url()))
 
                 channels_m3u = fakefile.getvalue()
 
-            return Response(status=200,
-                            response=channels_m3u,
-                            mimetype='audio/x-mpegurl')
+            resp = Response(status=200, response=channels_m3u, mimetype='audio/x-mpegurl')
+            resp.headers["content-disposition"] = "attachment; filename=" + fileName
+            return resp
 
         if redirect_url:
             return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
