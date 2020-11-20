@@ -42,12 +42,9 @@ class OriginChannels():
             cleaned_channels.append(clean_station_item)
         return cleaned_channels
 
-    def get_channel_stream(self, chandict, allchandict):
-        caching = False
-        streamlist = []
-        streamdict = {}
+    def get_channel_stream(self, chandict):
         videoUrl = ('https://api.locastnet.org/api/watch/station/' +
-                    str(chandict["id"]) + '/' +
+                    str(chandict["origin_id"]) + '/' +
                     self.origin.location['latitude'] + '/' +
                     self.origin.location['longitude']
                     )
@@ -69,10 +66,7 @@ class OriginChannels():
             streamurl = self.m3u8_beststream(videoUrlRes['streamUrl'])
         else:
             streamurl = videoUrlRes['streamUrl']
-        streamdict = {"number": chandict["number"], "stream_url": streamurl}
-        streamlist.append(streamdict)
-
-        return streamlist, caching
+        return streamurl
 
     def m3u8_beststream(self, m3u8_url):
         bestStream = None

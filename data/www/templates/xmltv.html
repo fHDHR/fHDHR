@@ -21,8 +21,8 @@
 
         <tr>
           <td>{{ epg_method_name }}</td>
-          <td><a href="/api/xmltv?method=get&source="{{ epg_method }}>{{ epg_method_name }}</a></td>
-          <td><a href="/api/epg?method=get&source="{{ epg_method }}>{{ epg_method_name }}</a></td>
+          <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+          <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
           <td>
             <div>
               <button onclick="OpenLink('/api/xmltv?method=update&source={{ epg_method }}&redirect=%2Fxmltv')">Update</a></button>

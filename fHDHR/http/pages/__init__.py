@@ -2,6 +2,7 @@
 
 from .index_html import Index_HTML
 from .origin_html import Origin_HTML
+from .channels_html import Channels_HTML
 from .guide_html import Guide_HTML
 from .cluster_html import Cluster_HTML
 from .streams_html import Streams_HTML
@@ -18,6 +19,7 @@ class fHDHR_Pages():
 
         self.index_html = Index_HTML(fhdhr)
         self.origin_html = Origin_HTML(fhdhr)
+        self.channels_html = Channels_HTML(fhdhr)
         self.guide_html = Guide_HTML(fhdhr)
         self.cluster_html = Cluster_HTML(fhdhr)
         self.streams_html = Streams_HTML(fhdhr)
