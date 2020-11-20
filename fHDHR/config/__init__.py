@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import configparser
 import pathlib
@@ -8,6 +9,7 @@ import platform
 import json
 
 import fHDHR.exceptions
+from fHDHR import fHDHR_VERSION
 from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 
@@ -49,15 +51,14 @@ class Config():
 
     def load_versions(self):
 
-        self.internal["versions"] = {
-                                    "opersystem": None,
-                                    "isdocker": False,
-                                    "ffmpeg": "N/A",
-                                    "vlc": "N/A"
-                                    }
+        self.internal["versions"] = {}
+
+        self.internal["versions"]["fHDHR"] = fHDHR_VERSION
+
+        self.internal["versions"]["Python"] = sys.version
 
         opersystem = platform.system()
-        self.internal["versions"]["opersystem"] = opersystem
+        self.internal["versions"]["Operating System"] = opersystem
         if opersystem in ["Linux", "Darwin"]:
             # Linux/Mac
             if os.getuid() == 0 or os.geteuid() == 0:
@@ -70,7 +71,7 @@ class Config():
             print("Uncommon Operating System, use at your own risk.")
 
         isdocker = is_docker()
-        self.internal["versions"]["isdocker"] = isdocker
+        self.internal["versions"]["Docker"] = isdocker
 
         if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
             try:
