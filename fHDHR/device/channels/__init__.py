@@ -26,14 +26,14 @@ class Channels():
     def get_channel_list(self, keyfind):
         return [self.list[x].dict[keyfind] for x in list(self.list.keys())]
 
-    def set_channel_status(self, keyfind, valfind, enablement):
-        self.get_channel_obj(keyfind, valfind).set_status(enablement)
+    def set_channel_status(self, keyfind, valfind, updatedict):
+        self.get_channel_obj(keyfind, valfind).set_status(updatedict)
 
     def get_db_channels(self):
-        channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "IDs") or []
+        channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
         for channel_id in channel_ids:
             channel_obj = Channel(self.fhdhr, self.id_system, channel_id=channel_id)
-            channel_id = channel_obj.dict["fhdhr_id"]
+            channel_id = channel_obj.dict["id"]
             self.list[channel_id] = channel_obj
 
     def get_channels(self, forceupdate=False):
@@ -56,7 +56,7 @@ class Channels():
             channel_dict_list = self.origin.get_channels()
             for channel_info in channel_dict_list:
                 channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])
-                channel_id = channel_obj.dict["fhdhr_id"]
+                channel_id = channel_obj.dict["id"]
                 channel_obj.basics(channel_info)
                 self.list[channel_id] = channel_obj
 
