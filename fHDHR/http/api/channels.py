@@ -33,14 +33,23 @@ class Channels():
                             response=channels_info_json,
                             mimetype='application/json')
 
-        elif method in ["enable", "disable"]:
-            channel = request.args.get('channel', default=None, type=str)
-            if not channel:
-                if redirect_url:
-                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
-                else:
-                    return "%s Falied" % method
-            self.fhdhr.device.channels.set_channel_status("number", channel, method)
+        elif method == "update":
+            channel_id = request.form.get('id', None)
+            updatedict = {}
+            for key in list(request.form.keys()):
+                if key != "id":
+                    if key in ["name", "callsign"]:
+                        updatedict[key] = str(request.form.get(key))
+                    elif key in ["number"]:
+                        updatedict[key] = float(request.form.get(key))
+                    elif key in ["enabled"]:
+                        confvalue = request.form.get(key)
+                        if str(confvalue).lower() in ["false"]:
+                            confvalue = False
+                        elif str(confvalue).lower() in ["true"]:
+                            confvalue = True
+                        updatedict[key] = confvalue
+            self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
 
         elif method == "scan":
             self.fhdhr.device.station_scan.scan()
