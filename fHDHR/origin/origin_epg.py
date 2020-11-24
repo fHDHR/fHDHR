@@ -25,63 +25,58 @@ class OriginEPG():
 
             for c in result:
 
-                cdict = fHDHR.tools.xmldictmaker(c, ["callSign", "name", "channelId", "id", "number"], list_items=[], str_items=[])
+                cdict = fHDHR.tools.xmldictmaker(c, ["callSign", "name", "channelId"], list_items=[], str_items=[])
 
-                if (cdict["name"] and
-                   cdict["number"] and
-                   cdict["callsign"] and
-                   cdict["id"]):
+                chandict = fhdhr_channels.get_channel_dict("origin_id", cdict["id"])
 
-                    chandict = fhdhr_channels.get_channel_dict("origin_id", str(cdict["id"]))
+                if str(chandict["number"]) not in list(programguide.keys()):
+                    programguide[str(chandict['number'])] = {
+                                                        "callsign": chandict["callsign"],
+                                                        "name": chandict["name"] or chandict["callsign"],
+                                                        "number": chandict["number"],
+                                                        "id": str(chandict["origin_id"]),
+                                                        "thumbnail": str(cdict['logo226Url']),
+                                                        "listing": [],
+                                                        }
 
-                    if str(chandict["number"]) not in list(programguide.keys()):
-                        programguide[str(chandict['number'])] = {
-                                                            "callsign": chandict["callsign"],
-                                                            "name": chandict["name"] or chandict["callsign"],
-                                                            "number": chandict["number"],
-                                                            "id": str(chandict["origin_id"]),
-                                                            "thumbnail": str(cdict['logo226Url']),
-                                                            "listing": [],
-                                                            }
+                for event in c['listings']:
 
-                    for event in c['listings']:
+                    eventdict = fHDHR.tools.xmldictmaker(event, ["startTime", "endTime", "duration", "preferredImage",
+                                                                 "genres", "episodeTitle", "title", "sub-title",
+                                                                 "entityType", "releaseYear", "description", "shortDescription",
+                                                                 "rating", "isNew", "showType", "programId",
+                                                                 "seasonNumber", "episodeNumber"], str_items=["genres"])
 
-                        eventdict = fHDHR.tools.xmldictmaker(event, ["startTime", "endTime", "duration", "preferredImage",
-                                                                     "genres", "episodeTitle", "title", "sub-title",
-                                                                     "entityType", "releaseYear", "description", "shortDescription",
-                                                                     "rating", "isNew", "showType", "programId",
-                                                                     "seasonNumber", "episodeNumber"], str_items=["genres"])
+                    clean_prog_dict = {
+                                    "time_start": self.locast_xmltime(eventdict['startTime']),
+                                    "time_end": self.locast_xmltime((eventdict['startTime'] + (eventdict['duration'] * 1000))),
+                                    "duration_minutes": eventdict['duration'] * 1000,
+                                    "thumbnail": eventdict["preferredImage"],
+                                    "title": eventdict['title'] or "Unavailable",
+                                    "sub-title": eventdict['sub-title'] or "Unavailable",
+                                    "description": eventdict['description'] or eventdict['shortDescription'] or "Unavailable",
+                                    "rating": eventdict['rating'] or "N/A",
+                                    "episodetitle": eventdict['episodeTitle'],
+                                    "releaseyear": eventdict['releaseYear'],
+                                    "genres": eventdict['genres'].split(","),
+                                    "seasonnumber": eventdict['seasonNumber'],
+                                    "episodenumber": eventdict['episodeNumber'],
+                                    "isnew": eventdict['isNew'],
+                                    "id": str(eventdict['programId'])
+                                    }
 
-                        clean_prog_dict = {
-                                        "time_start": self.locast_xmltime(eventdict['startTime']),
-                                        "time_end": self.locast_xmltime((eventdict['startTime'] + (eventdict['duration'] * 1000))),
-                                        "duration_minutes": eventdict['duration'] * 1000,
-                                        "thumbnail": eventdict["preferredImage"],
-                                        "title": eventdict['title'] or "Unavailable",
-                                        "sub-title": eventdict['sub-title'] or "Unavailable",
-                                        "description": eventdict['description'] or eventdict['shortDescription'] or "Unavailable",
-                                        "rating": eventdict['rating'] or "N/A",
-                                        "episodetitle": eventdict['episodeTitle'],
-                                        "releaseyear": eventdict['releaseYear'],
-                                        "genres": eventdict['genres'].split(","),
-                                        "seasonnumber": eventdict['seasonNumber'],
-                                        "episodenumber": eventdict['episodeNumber'],
-                                        "isnew": eventdict['isNew'],
-                                        "id": str(eventdict['programId'])
-                                        }
+                    if eventdict["entityType"] == "Movie" and clean_prog_dict['releaseyear']:
+                        clean_prog_dict["sub-title"] = 'Movie: ' + str(clean_prog_dict['releaseyear'])
+                    elif clean_prog_dict['episodetitle']:
+                        clean_prog_dict["sub-title"] = clean_prog_dict['episodetitle']
 
-                        if eventdict["entityType"] == "Movie" and clean_prog_dict['releaseyear']:
-                            clean_prog_dict["sub-title"] = 'Movie: ' + str(clean_prog_dict['releaseyear'])
-                        elif clean_prog_dict['episodetitle']:
-                            clean_prog_dict["sub-title"] = clean_prog_dict['episodetitle']
+                    if eventdict["showType"]:
+                        clean_prog_dict["genres"].append(eventdict["showType"])
+                    if eventdict["entityType"]:
+                        clean_prog_dict["genres"].append(eventdict["entityType"])
 
-                        if eventdict["showType"]:
-                            clean_prog_dict["genres"].append(eventdict["showType"])
-                        if eventdict["entityType"]:
-                            clean_prog_dict["genres"].append(eventdict["entityType"])
-
-                        if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chandict["number"])]["listing"]):
-                            programguide[str(chandict["number"])]["listing"].append(clean_prog_dict)
+                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chandict["number"])]["listing"]):
+                        programguide[str(chandict["number"])]["listing"].append(clean_prog_dict)
 
         return programguide
 

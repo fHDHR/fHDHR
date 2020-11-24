@@ -90,7 +90,7 @@
           "force_best ":{
                     "value": false,
                     "config_file": true,
-                    "config_web": true
+                    "config_web": false
                 }
   }
 }
