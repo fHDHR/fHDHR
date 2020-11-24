@@ -39,13 +39,7 @@ class OriginChannels():
             else:
                 clean_station_item["callsign"] = str(station_item['callSign'])
 
-            if (clean_station_item["name"] and
-               clean_station_item["number"] and
-               clean_station_item["callsign"] and
-               clean_station_item["id"]):
-                cleaned_channels.append(clean_station_item)
-            else:
-                self.fhdhr.logger.error('Station Missing Info.')
+            cleaned_channels.append(clean_station_item)
         return cleaned_channels
 
     def get_channel_stream(self, chandict):
