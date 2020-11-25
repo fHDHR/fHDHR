@@ -41,7 +41,7 @@ class Channel():
             self.dict["tags"] = self.dict["origin_tags"]
 
         if "number" not in list(channel_info.keys()):
-            channel_info["number"] = self.id_system.get_number(channel_info["origin_id"])
+            channel_info["number"] = self.id_system.get_number(channel_info["id"])
         self.dict["origin_number"] = str(float(channel_info["number"]))
         if not self.dict["number"]:
             self.dict["number"] = self.dict["origin_number"]
