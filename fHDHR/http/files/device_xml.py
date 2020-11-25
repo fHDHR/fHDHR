@@ -7,7 +7,7 @@ from fHDHR.tools import sub_el
 
 class Device_XML():
     endpoints = ["/device.xml"]
-    endpoint_name = "device_xml"
+    endpoint_name = "file_device_xml"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

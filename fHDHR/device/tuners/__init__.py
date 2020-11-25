@@ -15,6 +15,8 @@ class Tuners():
 
         self.tuners = {}
 
+        self.fhdhr.logger.info("Creating %s tuners." % str(self.max_tuners))
+
         for i in range(1, self.max_tuners + 1):
             self.tuners[i] = Tuner(fhdhr, i, epg)
 

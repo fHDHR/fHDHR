@@ -4,7 +4,7 @@ import json
 
 class Lineup_Status_JSON():
     endpoints = ["/lineup_status.json"]
-    endpoint_name = "lineup_status_json"
+    endpoint_name = "file_lineup_status_json"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

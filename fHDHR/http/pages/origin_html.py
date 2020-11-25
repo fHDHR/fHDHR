@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class Origin_HTML():
     endpoints = ["/origin", "/origin.html"]
-    endpoint_name = "origin_html"
+    endpoint_name = "page_origin_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

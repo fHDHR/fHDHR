@@ -17,6 +17,7 @@ class Channels():
 
         self.list = {}
         self.list_update_time = None
+
         self.get_db_channels()
         self.get_channels()
 
@@ -30,7 +31,10 @@ class Channels():
         self.get_channel_obj(keyfind, valfind).set_status(updatedict)
 
     def get_db_channels(self):
+        self.fhdhr.logger.info("Checking for Channel information stored in the database.")
         channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
+        if len(channel_ids):
+            self.fhdhr.logger.info("Found %s existing channels in the database." % str(len(channel_ids)))
         for channel_id in channel_ids:
             channel_obj = Channel(self.fhdhr, self.id_system, channel_id=channel_id)
             channel_id = channel_obj.dict["id"]
@@ -53,6 +57,7 @@ class Channels():
             updatelist = True
 
         if updatelist:
+            self.fhdhr.logger.info("Performing Channel Scan.")
             channel_dict_list = self.origin.get_channels()
             for channel_info in channel_dict_list:
                 channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])

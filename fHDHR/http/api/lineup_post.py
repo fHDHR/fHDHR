@@ -3,7 +3,7 @@ from flask import request, abort, Response
 
 class Lineup_Post():
     endpoints = ["/lineup.post"]
-    endpoint_name = "lineup_post"
+    endpoint_name = "api_lineup_post"
     endpoint_methods = ["POST"]
 
     def __init__(self, fhdhr):
