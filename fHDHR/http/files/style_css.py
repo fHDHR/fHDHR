@@ -3,7 +3,7 @@ from flask import send_from_directory
 
 class Style_CSS():
     endpoints = ["/style.css"]
-    endpoint_name = "style"
+    endpoint_name = "file_style_css"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

@@ -4,7 +4,7 @@ import json
 
 class Discover_JSON():
     endpoints = ["/discover.json"]
-    endpoint_name = "discover_json"
+    endpoint_name = "file_discover_json"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

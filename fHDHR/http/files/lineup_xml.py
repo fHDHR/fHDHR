@@ -7,7 +7,7 @@ from fHDHR.tools import sub_el
 
 class Lineup_XML():
     endpoints = ["/lineup.xml"]
-    endpoint_name = "lineup_xml"
+    endpoint_name = "file_lineup_xml"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

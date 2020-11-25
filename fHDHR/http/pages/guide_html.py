@@ -6,7 +6,7 @@ from fHDHR.tools import humanized_time
 
 class Guide_HTML():
     endpoints = ["/guide", "/guide.html"]
-    endpoint_name = "guide_html"
+    endpoint_name = "page_guide_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

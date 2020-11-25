@@ -134,7 +134,9 @@ class EPG():
         return next(item for item in event_list if item["id"] == event_id)
 
     def epg_method_selfadd(self):
+        self.fhdhr.logger.info("Checking for Optional EPG methods.")
         for method in epgtype_list:
+            self.fhdhr.logger.info("Found %s EPG method." % method)
             exec("%s = %s" % ("self." + str(method), str(method) + "." + str(method) + "EPG(self.fhdhr, self.channels)"))
 
     def update(self, method=None):

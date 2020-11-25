@@ -15,17 +15,23 @@ class fHDHR_HTTP_Server():
 
         self.template_folder = fhdhr.config.internal["paths"]["www_templates_dir"]
 
+        self.fhdhr.logger.info("Loading Flask.")
+
         self.app = Flask("fHDHR", template_folder=self.template_folder)
 
+        self.fhdhr.logger.info("Loading HTTP Pages Endpoints.")
         self.pages = fHDHR_Pages(fhdhr)
         self.add_endpoints(self.pages, "pages")
 
+        self.fhdhr.logger.info("Loading HTTP Files Endpoints.")
         self.files = fHDHR_Files(fhdhr)
         self.add_endpoints(self.files, "files")
 
+        self.fhdhr.logger.info("Loading HTTP API Endpoints.")
         self.api = fHDHR_API(fhdhr)
         self.add_endpoints(self.api, "api")
 
+        self.fhdhr.logger.info("Loading HTTP Stream Endpoints.")
         self.watch = fHDHR_WATCH(fhdhr)
         self.add_endpoints(self.watch, "watch")
 
@@ -41,6 +47,7 @@ class fHDHR_HTTP_Server():
                 endpoint_methods = eval("self." + str(index_name) + "." + str(item) + ".endpoint_methods")
             except AttributeError:
                 endpoint_methods = ['GET']
+            self.fhdhr.logger.info("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
             for endpoint in endpoints:
                 self.add_endpoint(endpoint=endpoint,
                                   endpoint_name=endpoint_name,

@@ -3,7 +3,7 @@ from flask import request, render_template
 
 class Diagnostics_HTML():
     endpoints = ["/diagnostics", "/diagnostics.html"]
-    endpoint_name = "diagnostics_html"
+    endpoint_name = "page_diagnostics_html"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

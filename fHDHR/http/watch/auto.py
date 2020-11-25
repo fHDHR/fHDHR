@@ -4,7 +4,7 @@ import urllib.parse
 
 class Auto():
     endpoints = ['/auto/<channel>']
-    endpoint_name = "auto"
+    endpoint_name = "watch_auto"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

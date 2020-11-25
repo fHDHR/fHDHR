@@ -12,6 +12,7 @@ class fHDHR_Cluster():
         self.friendlyname = self.fhdhr.config.dict["fhdhr"]["friendlyname"]
         self.location = None
         self.location_url = None
+
         if fhdhr.config.dict["fhdhr"]["discovery_address"]:
             self.location = ('http://' + fhdhr.config.dict["fhdhr"]["discovery_address"] + ':' +
                              str(fhdhr.config.dict["fhdhr"]["port"]))
@@ -65,9 +66,15 @@ class fHDHR_Cluster():
         return defdict
 
     def startup_sync(self):
+        self.fhdhr.logger.info("Syncronizing with Cluster.")
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
+        if not len(list(cluster.keys())):
+            self.fhdhr.logger.info("No Cluster Found.")
+        else:
+            self.fhdhr.logger.info("Found %s clustered services." % str(len(list(cluster.keys()))))
         for location in list(cluster.keys()):
             if location != self.location:
+                self.fhdhr.logger.info("Checking Cluster Syncronization information from %s." % location)
                 sync_url = location + "/api/cluster?method=get"
                 try:
                     sync_open = self.fhdhr.web.session.get(sync_url)
@@ -78,12 +85,14 @@ class fHDHR_Cluster():
                     self.fhdhr.logger.error("Unreachable: " + location)
 
     def leave(self):
+        self.fhdhr.logger.info("Leaving cluster.")
         self.fhdhr.db.set_fhdhr_value("cluster", "dict", self.default_cluster())
 
     def disconnect(self):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         for location in list(cluster.keys()):
             if location != self.location:
+                self.fhdhr.logger.info("Informing %s that I am departing the Cluster." % location)
                 sync_url = location + "/api/cluster?method=del&location=" + self.location
                 try:
                     self.fhdhr.web.session.get(sync_url)
@@ -112,6 +121,7 @@ class fHDHR_Cluster():
     def add(self, location):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         if location not in list(cluster.keys()):
+            self.fhdhr.logger.info("Adding %s to cluster." % location)
             cluster[location] = {"base_url": location}
 
             location_info_url = location + "/discover.json"
@@ -144,6 +154,7 @@ class fHDHR_Cluster():
     def remove(self, location):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         if location in list(cluster.keys()):
+            self.fhdhr.logger.info("Removing %s from cluster." % location)
             del cluster[location]
             sync_url = location + "/api/cluster?method=leave"
             try:
