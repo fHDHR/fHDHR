@@ -61,7 +61,12 @@
                           "value": false,
                           "config_file": true,
                           "config_web": true
-                        }
+                        },
+          "chanscan_on_start":{
+                    "value": false,
+                    "config_file": true,
+                    "config_web": true
+                }
   },
   "epg":{
           "images":{
