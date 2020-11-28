@@ -96,7 +96,7 @@ class Direct_Stream():
                             self.fhdhr.logger.info("Loaded %s segments." % str(len(segments)))
 
                         if playlist.keys != [None]:
-                            keys = [{"url": key.uri, "method": key.method, "iv": key.iv} for key in playlist.keys if key]
+                            keys = [{"url": key.absolute_uri, "method": key.method, "iv": key.iv} for key in playlist.keys if key]
                         else:
                             keys = [None for i in range(0, len(segments))]
 
