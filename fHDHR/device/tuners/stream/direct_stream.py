@@ -103,7 +103,7 @@ class Direct_Stream():
                         for segment, key in zip(segments, keys):
                             chunkurl = segment.absolute_uri
 
-                            if chunkurl not in played_chunk_urls:
+                            if chunkurl and chunkurl not in played_chunk_urls:
                                 played_chunk_urls.append(chunkurl)
 
                                 if (not self.stream_args["duration"] == 0 and
@@ -116,9 +116,10 @@ class Direct_Stream():
                                     break
                                     # raise TunerError("807 - No Video Data")
                                 if key:
-                                    keyfile = self.fhdhr.web.session.get(key["url"]).content
-                                    cryptor = AES.new(keyfile, AES.MODE_CBC, keyfile)
-                                    chunk = cryptor.decrypt(chunk)
+                                    if key["url"]:
+                                        keyfile = self.fhdhr.web.session.get(key["url"]).content
+                                        cryptor = AES.new(keyfile, AES.MODE_CBC, keyfile)
+                                        chunk = cryptor.decrypt(chunk)
 
                                 self.fhdhr.logger.info("Passing Through Chunk: %s" % chunkurl)
                                 yield chunk
