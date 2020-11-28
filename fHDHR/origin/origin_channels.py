@@ -28,6 +28,7 @@ class OriginChannels():
             clean_station_item = {
                                  "name": station_item["name"],
                                  "id": station_item["id"],
+                                 "thumbnail": station_item["logo226Url"]
                                  }
 
             # Typically this will be `2.1 KTTW` but occasionally Locast only provides a channel number here
