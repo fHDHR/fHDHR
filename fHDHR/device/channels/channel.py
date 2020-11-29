@@ -84,6 +84,8 @@ class Channel():
 
     def set_status(self, updatedict):
         for key in list(updatedict.keys()):
+            if key == "number":
+                updatedict[key] = str(float(updatedict[key]))
             self.dict[key] = updatedict[key]
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
