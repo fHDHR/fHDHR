@@ -34,7 +34,7 @@ class Watch():
             if not channel_number:
                 return "Missing Channel"
 
-            if channel_number not in self.fhdhr.device.channels.get_channel_list("number"):
+            if str(channel_number) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
                 response = Response("Not Found", status=404)
                 response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
                 self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])

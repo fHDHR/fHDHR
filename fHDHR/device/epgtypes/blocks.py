@@ -29,7 +29,9 @@ class blocksEPG():
                                 }
                 timestamps.append(timestampdict)
 
-        for c in self.channels.get_channels():
+        for fhdhr_id in list(self.channels.list.keys()):
+            c = self.channels.list[fhdhr_id].dict
+
             if str(c["number"]) not in list(programguide.keys()):
                 programguide[str(c["number"])] = {
                                                     "callsign": c["callsign"],

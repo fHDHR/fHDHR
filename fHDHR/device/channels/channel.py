@@ -12,8 +12,18 @@ class Channel():
                 channel_id = id_system.get(origin_id)
             else:
                 channel_id = id_system.assign()
-        self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.create_empty_channel(channel_id)
+        self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict(channel_id)
+        self.verify_dict()
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
+
+    def verify_dict(self):
+        """Development Purposes
+        Add new Channel dict keys
+        """
+        default_dict = self.default_dict(self.dict["id"])
+        for key in list(default_dict.keys()):
+            if key not in list(self.dict.keys()):
+                self.dict[key] = default_dict[key]
 
     def basics(self, channel_info):
         """Some Channel Information is Critical"""
@@ -46,16 +56,23 @@ class Channel():
         if not self.dict["number"]:
             self.dict["number"] = self.dict["origin_number"]
 
+        if "thumbnail" not in list(channel_info.keys()):
+            channel_info["thumbnail"] = None
+        self.dict["origin_thumbnail"] = channel_info["thumbnail"]
+        if not self.dict["thumbnail"]:
+            self.dict["thumbnail"] = self.dict["origin_thumbnail"]
+
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
-    def create_empty_channel(self, channel_id):
+    def default_dict(self, channel_id):
         return {
                 "id": str(channel_id), "origin_id": None,
                 "name": None, "origin_name": None,
                 "callsign": None, "origin_callsign": None,
                 "number": None, "origin_number": None,
                 "tags": [], "origin_tags": [],
-                "enabled": True
+                "enabled": True,
+                "thumbnail": None, "origin_thumbnail": None
                 }
 
     def destroy(self):
@@ -67,6 +84,8 @@ class Channel():
 
     def set_status(self, updatedict):
         for key in list(updatedict.keys()):
+            if key == "number":
+                updatedict[key] = str(float(updatedict[key]))
             self.dict[key] = updatedict[key]
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 

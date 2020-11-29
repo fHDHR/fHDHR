@@ -46,7 +46,7 @@ class M3U():
                     channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
                     if channel_obj.enabled:
                         channel_items.append(channel_obj)
-            elif channel in self.fhdhr.device.channels.get_channel_list("number"):
+            elif str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
                 channel_obj = self.fhdhr.device.channels.get_channel_obj("number", channel)
                 fileName = str(channel_obj.number) + ".m3u"
                 if channel_obj.enabled:

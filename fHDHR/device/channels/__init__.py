@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from fHDHR.tools import hours_between_datetime
 
@@ -19,7 +20,9 @@ class Channels():
         self.list_update_time = None
 
         self.get_db_channels()
-        self.get_channels()
+        haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time")
+        if (self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"] or not haseverscanned):
+            self.get_channels()
 
     def get_channel_obj(self, keyfind, valfind):
         return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].dict[keyfind] == valfind)
@@ -68,6 +71,7 @@ class Channels():
             if not self.list_update_time:
                 self.fhdhr.logger.info("Found " + str(len(self.list)) + " channels for " + str(self.fhdhr.config.dict["main"]["servicename"]))
             self.list_update_time = datetime.datetime.now()
+            self.fhdhr.db.set_fhdhr_value("channels", "scanned_time", time.time())
 
         channel_list = []
         for chan_obj in list(self.list.keys()):
