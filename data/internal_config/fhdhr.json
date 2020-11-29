@@ -63,7 +63,7 @@
                           "config_web": true
                         },
           "chanscan_on_start":{
-                    "value": false,
+                    "value": true,
                     "config_file": true,
                     "config_web": true
                 }
