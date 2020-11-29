@@ -10,6 +10,7 @@
           <th>Channel Name</th>
           <th>Channel CallSign</th>
           <th>Channel Number</th>
+          <th>Channel Thumbnail</th>
           <th>Status</th>
           <th>Update</th>
           <th>Reset</th>
@@ -28,6 +29,7 @@
               <td data-th="Channel Name"><input type="text" name="name" value={{ chan_dict["name"] }}></td>
               <td data-th="Channel Calsign"><input type="text" name="callsign" value={{ chan_dict["callsign"] }}></td>
               <td data-th="Channel Number"><input type="text" name="number" value={{ chan_dict["number"] }}></td>
+              <td data-th="Channel Thumbnail"><input type="text" name="number" value={{ chan_dict["thumbnail"] }}></td>
               <td>
                 <select name="enabled">
                   {% if chan_dict["enabled"]  %}
@@ -47,6 +49,7 @@
             <input type="hidden" name="name" value={{ chan_dict["origin_name"] }}>
             <input type="hidden" name="callsign" value={{ chan_dict["origin_callsign"] }}>
             <input type="hidden" name="number" value={{ chan_dict["origin_number"] }}>
+            <input type="hidden" name="thumbnail" value={{ chan_dict["origin_thumbnail"] }}>
             <input type="hidden" name="enabled" value=True>
               <td data-th="Reset"><input type="submit" value="Reset"></td>
           </form>
