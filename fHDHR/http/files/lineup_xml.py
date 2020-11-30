@@ -19,17 +19,21 @@ class Lineup_XML():
 
         base_url = request.url_root[:-1]
 
+        show = request.args.get('show', default="all", type=str)
+
         out = xml.etree.ElementTree.Element('Lineup')
         for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
-            if channel_obj.enabled:
+            if channel_obj.enabled or show == "found":
+                program_out = sub_el(out, 'Program')
                 lineup_dict = channel_obj.lineup_dict()
                 lineup_dict["URL"] = base_url + lineup_dict["URL"]
-                program_out = sub_el(out, 'Program')
-                sub_el(program_out, 'GuideNumber', lineup_dict['GuideNumber'])
-                sub_el(program_out, 'GuideName', lineup_dict['GuideName'])
-                sub_el(program_out, 'Tags', lineup_dict['Tags'])
-                sub_el(program_out, 'URL', lineup_dict['URL'])
+                if show == "found" and channel_obj.enabled:
+                    lineup_dict["Enabled"] = 1
+                elif show == "found" and not channel_obj.enabled:
+                    lineup_dict["Enabled"] = 0
+                for key in list(lineup_dict.keys()):
+                    sub_el(program_out, str(key), str(lineup_dict[key]))
 
         fakefile = BytesIO()
         fakefile.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')

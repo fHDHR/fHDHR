@@ -1,4 +1,4 @@
-from flask import request, redirect, Response
+from flask import request, redirect, Response, abort
 import urllib.parse
 import json
 
@@ -33,6 +33,46 @@ class Channels():
                             response=channels_info_json,
                             mimetype='application/json')
 
+        elif method == "favorite":
+
+            channel = request.args.get('channel', default=None, type=str)
+            if not channel:
+                if redirect_url:
+                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
+                else:
+                    return "%s Falied" % method
+
+            if channel.startstwith(tuple(["+", "-", "x"])):
+
+                channel_method = channel[0]
+                channel_number = channel[1:]
+
+                if str(channel_number) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
+                    response = Response("Not Found", status=404)
+                    response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
+                    self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                    abort(response)
+
+                if channel_method == "+":
+                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, channel_method)
+                elif channel_method == "-":
+                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, channel_method)
+                elif channel_method == "x":
+                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, "toggle")
+
+            else:
+                self.fhdhr.logger.warning("Unknown favorite command " + request.args['favorite'])
+                return abort(200, "Not a valid favorite command")
+
+        elif method in ["enable", "disable"]:
+            channel = request.args.get('channel', default=None, type=str)
+            if not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
+                if redirect_url:
+                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
+                else:
+                    return "%s Falied" % method
+            self.fhdhr.device.channels.set_channel_enablement("number", channel, method)
+
         elif method == "update":
             channel_id = request.form.get('id', None)
             updatedict = {}
@@ -49,6 +89,8 @@ class Channels():
                         elif str(confvalue).lower() in ["true"]:
                             confvalue = True
                         updatedict[key] = confvalue
+                    elif key in ["favorite", "HD"]:
+                        updatedict[key] = int(request.form.get(key))
             self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
 
         elif method == "scan":
