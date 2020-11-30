@@ -9,6 +9,19 @@
     </div>
     <br>
 
+    <table class="center" style="width:50%">
+      <tr>
+        <th></th>
+        <th></th>
+      </tr>
+
+    {% for key in list(channels_dict.keys()) %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ channels_dict[key] }}</td>
+      </tr>
+    {% endfor %}
+
       <table class="center" style="width:100%">
         <tr>
           <th>Play</th>

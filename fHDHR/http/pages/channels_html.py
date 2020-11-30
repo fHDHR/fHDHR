@@ -15,7 +15,7 @@ class Channels_HTML():
 
         channels_dict = {
                         "Total Channels": len(list(self.fhdhr.device.channels.list.keys())),
-                        "enabled": 0,
+                        "Enabled": 0,
                         }
 
         channelslist = []
@@ -25,6 +25,6 @@ class Channels_HTML():
             channel_dict["play_url"] = channel_obj.play_url()
             channelslist.append(channel_dict)
             if channel_dict["enabled"]:
-                channels_dict["enabled"] += 1
+                channels_dict["Enabled"] += 1
 
-        return render_template('channels.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist, channels_dict=channels_dict)
+        return render_template('channels.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist, channels_dict=channels_dict, list=list)
