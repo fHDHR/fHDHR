@@ -94,7 +94,7 @@ class Channels():
             self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
 
         elif method == "scan":
-            self.fhdhr.device.station_scan.scan()
+            self.fhdhr.device.station_scan.scan(waitfordone=True)
 
         else:
             return "Invalid Method"

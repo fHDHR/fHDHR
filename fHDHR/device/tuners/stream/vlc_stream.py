@@ -1,3 +1,4 @@
+import sys
 import subprocess
 
 # from fHDHR.exceptions import TunerError
@@ -22,11 +23,13 @@ class VLC_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    videoData = vlc_proc.stdout.read(self.bytes_per_read)
-                    if not videoData:
+                    chunk = vlc_proc.stdout.read(self.bytes_per_read)
+                    if not chunk:
                         break
                         # raise TunerError("807 - No Video Data")
-                    yield videoData
+                    yield chunk
+                    chunk_size = int(sys.getsizeof(chunk))
+                    self.tuner.add_downloaded_size(chunk_size)
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
 
             except GeneratorExit:

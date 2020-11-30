@@ -1,3 +1,4 @@
+import sys
 import time
 import m3u8
 
@@ -48,6 +49,8 @@ class Direct_Stream():
 
                             self.fhdhr.logger.info("Passing Through Chunk #%s with size %s" % (chunk_counter, self.chunksize))
                             yield chunk
+                            chunk_size = int(sys.getsizeof(chunk))
+                            self.tuner.add_downloaded_size(chunk_size)
 
                             chunk_counter += 1
 
@@ -123,6 +126,8 @@ class Direct_Stream():
 
                                 self.fhdhr.logger.info("Passing Through Chunk: %s" % chunkurl)
                                 yield chunk
+                                chunk_size = int(sys.getsizeof(chunk))
+                                self.tuner.add_downloaded_size(chunk_size)
 
                         if playlist.target_duration:
                             time.sleep(int(playlist.target_duration))

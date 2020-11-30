@@ -4,6 +4,24 @@
 
     <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels</h4>
 
+    <div style="text-align: center;">
+      <button onclick="OpenLink('/api/channels?method=scan&redirect=%2Fchannels')">Force Channel Update</a></button><p> Note: This may take some time.</p>
+    </div>
+    <br>
+
+    <table class="center" style="width:50%">
+      <tr>
+        <th></th>
+        <th></th>
+      </tr>
+
+    {% for key in list(channels_dict.keys()) %}
+      <tr>
+        <td>{{ key }}</td>
+        <td>{{ channels_dict[key] }}</td>
+      </tr>
+    {% endfor %}
+
       <table class="center" style="width:100%">
         <tr>
           <th>Play</th>

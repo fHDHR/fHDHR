@@ -1,4 +1,5 @@
-from multiprocessing import Process
+import multiprocessing
+import threading
 
 
 class Station_Scan():
@@ -10,16 +11,24 @@ class Station_Scan():
 
         self.fhdhr.db.delete_fhdhr_value("station_scan", "scanning")
 
-    def scan(self):
+    def scan(self, waitfordone=False):
         self.fhdhr.logger.info("Channel Scan Requested by Client.")
 
         scan_status = self.fhdhr.db.get_fhdhr_value("station_scan", "scanning")
-        if not scan_status:
-            self.fhdhr.db.set_fhdhr_value("station_scan", "scanning", 1)
-            chanscan = Process(target=self.runscan)
-            chanscan.start()
-        else:
+        if scan_status:
             self.fhdhr.logger.info("Channel Scan Already In Progress!")
+        else:
+            self.fhdhr.db.set_fhdhr_value("station_scan", "scanning", 1)
+
+            if waitfordone:
+                self.runscan()
+            else:
+                if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing"]:
+                    chanscan = multiprocessing.Process(target=self.runscan)
+                elif self.fhdhr.config.dict["main"]["thread_method"] in ["threading"]:
+                    chanscan = threading.Thread(target=self.runscan)
+                if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
+                    chanscan.start()
 
     def runscan(self):
         self.channels.get_channels(forceupdate=True)
