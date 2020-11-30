@@ -33,6 +33,12 @@ class Channels():
     def set_channel_status(self, keyfind, valfind, updatedict):
         self.get_channel_obj(keyfind, valfind).set_status(updatedict)
 
+    def set_channel_enablement(self, keyfind, valfind, enablement):
+        self.get_channel_obj(keyfind, valfind).set_enablement(enablement)
+
+    def set_channel_favorite(self, keyfind, valfind, enablement):
+        self.get_channel_obj(keyfind, valfind).set_favorite(enablement)
+
     def get_db_channels(self):
         self.fhdhr.logger.info("Checking for Channel information stored in the database.")
         channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []

@@ -62,6 +62,10 @@ class Channel():
         if not self.dict["thumbnail"]:
             self.dict["thumbnail"] = self.dict["origin_thumbnail"]
 
+        if "HD" not in list(channel_info.keys()):
+            channel_info["HD"] = 0
+        self.dict["HD"] = channel_info["HD"]
+
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
     def default_dict(self, channel_id):
@@ -71,8 +75,9 @@ class Channel():
                 "callsign": None, "origin_callsign": None,
                 "number": None, "origin_number": None,
                 "tags": [], "origin_tags": [],
-                "enabled": True,
-                "thumbnail": None, "origin_thumbnail": None
+                "thumbnail": None, "origin_thumbnail": None,
+                "enabled": True, "favorite": 0,
+                "HD": 0,
                 }
 
     def destroy(self):
@@ -95,6 +100,8 @@ class Channel():
                  'GuideName': self.dict['name'],
                  'Tags': ",".join(self.dict['tags']),
                  'URL': self.stream_url(),
+                 'HD': self.dict["HD"],
+                 "Favorite": self.dict["favorite"],
                 }
 
     def stream_url(self):
@@ -102,6 +109,25 @@ class Channel():
 
     def play_url(self):
         return ('/api/m3u?method=get&channel=%s' % self.dict['number'])
+
+    def set_favorite(self, enablement):
+        if enablement == "+":
+            self.dict["favorite"] = 1
+        elif enablement == "+":
+            self.dict["favorite"] = 0
+        self.fhdhr.db.set_channel_value(self.dict["fhdhr_id"], "info", self.dict)
+
+    def set_enablement(self, enablement):
+        if enablement == "disable":
+            self.dict["enabled"] = False
+        elif enablement == "enable":
+            self.dict["enabled"] = True
+        elif enablement == "toggle":
+            if self.dict["enabled"]:
+                self.dict["enabled"] = False
+            else:
+                self.dict["enabled"] = True
+        self.fhdhr.db.set_channel_value(self.dict["fhdhr_id"], "info", self.dict)
 
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
