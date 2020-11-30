@@ -80,7 +80,7 @@ class Watch():
                 response.headers["X-fHDHR-Error"] = str(e)
                 self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
                 abort(response)
-            tuner = self.fhdhr.device.tuners.tuners[int(tunernum)]
+            tuner = self.fhdhr.device.tuners.tuners[str(tunernum)]
 
             try:
                 stream_args = self.fhdhr.device.tuners.get_stream_info(stream_args)
@@ -103,10 +103,10 @@ class Watch():
 
         elif method == "close":
 
-            if not tuner_number or int(tuner_number) not in list(self.fhdhr.device.tuners.tuners.keys()):
+            if not tuner_number or str(tuner_number) not in list(self.fhdhr.device.tuners.tuners.keys()):
                 return "%s Invalid tuner" % str(tuner_number)
 
-            tuner = self.fhdhr.device.tuners.tuners[int(tuner_number)]
+            tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
             tuner.close()
 
         else:

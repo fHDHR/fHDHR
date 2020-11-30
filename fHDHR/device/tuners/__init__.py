@@ -17,17 +17,17 @@ class Tuners():
 
         self.fhdhr.logger.info("Creating %s tuners." % str(self.max_tuners))
 
-        for i in range(1, self.max_tuners + 1):
-            self.tuners[i] = Tuner(fhdhr, i, epg)
+        for i in range(0, self.max_tuners):
+            self.tuners[str(i)] = Tuner(fhdhr, i, epg)
 
     def tuner_grab(self, tuner_number):
 
-        if int(tuner_number) not in list(self.tuners.keys()):
+        if str(tuner_number) not in list(self.tuners.keys()):
             self.fhdhr.logger.error("Tuner %s does not exist." % str(tuner_number))
             raise TunerError("806 - Tune Failed")
 
         # TunerError will raise if unavailable
-        self.tuners[int(tuner_number)].grab()
+        self.tuners[str(tuner_number)].grab()
 
         return tuner_number
 
@@ -38,7 +38,7 @@ class Tuners():
 
         for tunernum in list(self.tuners.keys()):
             try:
-                self.tuners[int(tunernum)].grab()
+                self.tuners[str(tunernum)].grab()
             except TunerError:
                 continue
             else:
@@ -47,18 +47,18 @@ class Tuners():
         raise TunerError("805 - All Tuners In Use")
 
     def tuner_close(self, tunernum):
-        self.tuners[int(tunernum)].close()
+        self.tuners[str(tunernum)].close()
 
     def status(self):
         all_status = {}
         for tunernum in list(self.tuners.keys()):
-            all_status[tunernum] = self.tuners[int(tunernum)].get_status()
+            all_status[tunernum] = self.tuners[str(tunernum)].get_status()
         return all_status
 
     def available_tuner_count(self):
         available_tuners = 0
         for tunernum in list(self.tuners.keys()):
-            tuner_status = self.tuners[int(tunernum)].get_status()
+            tuner_status = self.tuners[str(tunernum)].get_status()
             if tuner_status["status"] == "Inactive":
                 available_tuners += 1
         return available_tuners
@@ -66,7 +66,7 @@ class Tuners():
     def inuse_tuner_count(self):
         inuse_tuners = 0
         for tunernum in list(self.tuners.keys()):
-            tuner_status = self.tuners[int(tunernum)].get_status()
+            tuner_status = self.tuners[str(tunernum)].get_status()
             if tuner_status["status"] == "Active":
                 inuse_tuners += 1
         return inuse_tuners
