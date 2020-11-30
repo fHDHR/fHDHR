@@ -1,5 +1,7 @@
 from flask import request, render_template
 
+from fHDHR.tools import humanized_filesize
+
 
 class Streams_HTML():
     endpoints = ["/streams", "/streams.html"]
@@ -24,6 +26,7 @@ class Streams_HTML():
                 tuner_dict["channel_number"] = tuner_status[tuner]["channel"]
                 tuner_dict["method"] = tuner_status[tuner]["method"]
                 tuner_dict["play_duration"] = str(tuner_status[tuner]["Play Time"])
+                tuner_dict["downloaded"] = humanized_filesize(tuner_status[tuner]["downloaded"])
 
             tuner_list.append(tuner_dict)
 

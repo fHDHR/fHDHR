@@ -1,3 +1,4 @@
+import sys
 import subprocess
 
 # from fHDHR.exceptions import TunerError
@@ -21,11 +22,13 @@ class FFMPEG_Stream():
             try:
                 while self.tuner.tuner_lock.locked():
 
-                    videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
-                    if not videoData:
+                    chunk = ffmpeg_proc.stdout.read(self.bytes_per_read)
+                    if not chunk:
                         break
                         # raise TunerError("807 - No Video Data")
-                    yield videoData
+                    yield chunk
+                    chunk_size = int(sys.getsizeof(chunk))
+                    self.tuner.add_downloaded_size(chunk_size)
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
 
             except GeneratorExit:

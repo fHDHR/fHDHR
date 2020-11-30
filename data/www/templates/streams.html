@@ -11,6 +11,7 @@
           <th>Channel</th>
           <th>Method</th>
           <th>Time Active</th>
+          <th>Total Downloaded</th>
           <th>Options</th>
         </tr>
 
@@ -22,7 +23,9 @@
             <td>{{ tuner_dict["channel_number"] }}</td>
             <td>{{ tuner_dict["method"] }}</td>
             <td>{{ tuner_dict["play_duration"] }}</td>
+            <td>{{ tuner_dict["downloaded"] }}</td>
           {% else %}
+            <td>N/A</td>
             <td>N/A</td>
             <td>N/A</td>
             <td>N/A</td>

@@ -17,6 +17,10 @@ class Tuner():
         self.tuner_lock = threading.Lock()
         self.set_off_status()
 
+    def add_downloaded_size(self, bytes_count):
+        if "downloaded" in list(self.status.keys()):
+            self.status["downloaded"] += bytes_count
+
     def grab(self):
         if self.tuner_lock.locked():
             self.fhdhr.logger.error("Tuner #" + str(self.number) + " is not available.")
@@ -56,4 +60,5 @@ class Tuner():
                         "channel": stream_args["channel"],
                         "proxied_url": stream_args["channelUri"],
                         "time_start": datetime.datetime.utcnow(),
+                        "downloaded": 0
                         }

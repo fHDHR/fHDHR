@@ -89,6 +89,14 @@ def hours_between_datetime(first_time, later_time):
     return (timebetween.total_seconds() / 60 / 60)
 
 
+def humanized_filesize(size, decimal_places=2):
+    for unit in ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']:
+        if size < 1024.0 or unit == 'YiB':
+            break
+        size /= 1024.0
+    return f"{size:.{decimal_places}f} {unit}"
+
+
 def humanized_time(countdownseconds):
     time = float(countdownseconds)
     if time == 0:
