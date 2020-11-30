@@ -1,5 +1,6 @@
 from flask import Response, request, redirect, abort, stream_with_context
 import urllib.parse
+import uuid
 
 from fHDHR.exceptions import TunerError
 
@@ -63,7 +64,8 @@ class Watch():
                             "duration": duration,
                             "transcode": transcode,
                             "accessed": accessed_url,
-                            "client": client_address
+                            "client": client_address,
+                            "client_id": str(client_address) + "_" + str(uuid.uuid4())
                             }
 
             try:

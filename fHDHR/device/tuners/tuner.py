@@ -53,12 +53,19 @@ class Tuner():
         return stream.get()
 
     def set_status(self, stream_args):
-        self.status = {
-                        "status": "Active",
-                        "method": stream_args["method"],
-                        "accessed": stream_args["accessed"],
-                        "channel": stream_args["channel"],
-                        "proxied_url": stream_args["channelUri"],
-                        "time_start": datetime.datetime.utcnow(),
-                        "downloaded": 0
-                        }
+        if self.status["status"] != "Active":
+            self.status = {
+                            "status": "Active",
+                            "clients": [],
+                            "clients_id": [],
+                            "method": stream_args["method"],
+                            "accessed": [stream_args["accessed"]],
+                            "channel": stream_args["channel"],
+                            "proxied_url": stream_args["channelUri"],
+                            "time_start": datetime.datetime.utcnow(),
+                            "downloaded": 0
+                            }
+        if stream_args["client"] not in self.status["clients"]:
+            self.status["clients"].append(stream_args["client"])
+        if stream_args["client_id"] not in self.status["clients_id"]:
+            self.status["clients_id"].append(stream_args["client_id"])
