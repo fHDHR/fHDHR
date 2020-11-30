@@ -17,7 +17,7 @@ class Lineup_Post():
         if 'scan' in list(request.args.keys()):
 
             if request.args['scan'] == 'start':
-                self.fhdhr.device.station_scan.scan()
+                self.fhdhr.device.station_scan.scan(waitfordone=False)
                 return Response(status=200, mimetype='text/html')
 
             elif request.args['scan'] == 'abort':
