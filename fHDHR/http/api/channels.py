@@ -78,7 +78,7 @@ class Channels():
             updatedict = {}
             for key in list(request.form.keys()):
                 if key != "id":
-                    if key in ["name", "callsign"]:
+                    if key in ["name", "callsign", "thumbnail"]:
                         updatedict[key] = str(request.form.get(key))
                     elif key in ["number"]:
                         updatedict[key] = float(request.form.get(key))
