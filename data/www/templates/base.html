@@ -6,6 +6,9 @@
       table, th, td {border: 1px solid black;}
     </style>
     <link href="style.css" rel="stylesheet">
+    {% if fhdhr.config.dict["web_ui"]["theme"] %}
+      <link href={{ fhdhr.config.dict["web_ui"]["theme"] }} rel="stylesheet">
+    {% endif %}
   </head>
     <body>
       <h1 style="text-align: center;">

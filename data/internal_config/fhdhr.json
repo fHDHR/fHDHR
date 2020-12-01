@@ -68,6 +68,13 @@
                     "config_web": true
                 }
   },
+  "web_ui":{
+            "theme":{
+                      "value": "none",
+                      "config_file": true,
+                      "config_web": true
+                  }
+  },
   "epg":{
           "images":{
                     "value": "pass",
