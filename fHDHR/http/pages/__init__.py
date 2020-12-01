@@ -10,6 +10,7 @@ from .xmltv_html import xmlTV_HTML
 from .version_html import Version_HTML
 from .diagnostics_html import Diagnostics_HTML
 from .settings_html import Settings_HTML
+from .channels_editor import Channels_Editor_HTML
 
 
 class fHDHR_Pages():
@@ -20,6 +21,7 @@ class fHDHR_Pages():
         self.index_html = Index_HTML(fhdhr)
         self.origin_html = Origin_HTML(fhdhr)
         self.channels_html = Channels_HTML(fhdhr)
+        self.channels_editor = Channels_Editor_HTML(fhdhr)
         self.guide_html = Guide_HTML(fhdhr)
         self.cluster_html = Cluster_HTML(fhdhr)
         self.streams_html = Streams_HTML(fhdhr)

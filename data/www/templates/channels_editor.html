@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels Editor</h4>
+
+    <table class="center" style="width:100%">
+      <tr>
+        <th>Play</th>
+        <th>Channel Name</th>
+        <th>Channel CallSign</th>
+        <th>Channel Number</th>
+        <th>Channel Thumbnail</th>
+        <th>Enabled</th>
+        <th>Favorite</th>
+        <th>Update</th>
+        <th>Reset</th>
+      </tr>
+
+    {% for chan_dict in channelslist %}
+      <tr>
+        <td>
+          {% if chan_dict["enabled"] %}
+            <a href="{{ chan_dict["play_url"] }}">Play</a>
+          {% endif %}
+        </td>
+
+        <form method="post" action="/api/channels?method=update&redirect=%2Fchannels_editor">
+          <input type="hidden" name="id" value={{ chan_dict["id"] }}>
+            <td data-th="Channel Name"><input type="text" name="name" value={{ chan_dict["name"] }}></td>
+            <td data-th="Channel Calsign"><input type="text" name="callsign" value={{ chan_dict["callsign"] }}></td>
+            <td data-th="Channel Number"><input type="text" name="number" value={{ chan_dict["number"] }}></td>
+            <td data-th="Channel Thumbnail"><input type="text" name="thumbnail" value={{ chan_dict["thumbnail"] }}></td>
+            <td>
+              <select name="enabled">
+                {% if chan_dict["enabled"]  %}
+                  <option value=True selected>Enabled</option>
+                  <option value=False>Disabled</option>
+                {% else %}
+                  <option value=True>Enabled</option>
+                  <option value=False selected>Disabled</option>
+                {% endif %}
+              </select>
+            </td>
+            <td>
+              <select name="favorite">
+                {% if chan_dict["favorite"]  %}
+                  <option value=1 selected>Yes</option>
+                  <option value=0>No</option>
+                {% else %}
+                  <option value=1>Yes</option>
+                  <option value=0 selected>No</option>
+                {% endif %}
+              </select>
+            </td>
+            <td data-th="Update"><input type="submit" value="Update"></td>
+        </form>
+
+        <form method="post" action="/api/channels?method=update&redirect=%2Fchannels_editor">
+          <input type="hidden" name="id" value={{ chan_dict["id"] }}>
+          <input type="hidden" name="name" value={{ chan_dict["origin_name"] }}>
+          <input type="hidden" name="callsign" value={{ chan_dict["origin_callsign"] }}>
+          <input type="hidden" name="number" value={{ chan_dict["origin_number"] }}>
+          <input type="hidden" name="thumbnail" value={{ chan_dict["origin_thumbnail"] }}>
+          <input type="hidden" name="enabled" value=True>
+            <td data-th="Reset"><input type="submit" value="Reset"></td>
+        </form>
+
+      </tr>
+
+    {% endfor %}
+
+{% endblock %}
