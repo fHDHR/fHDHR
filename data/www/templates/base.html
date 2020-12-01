@@ -6,6 +6,9 @@
       table, th, td {border: 1px solid black;}
     </style>
     <link href="style.css" rel="stylesheet">
+    {% if fhdhr.config.dict["web_ui"]["theme"] %}
+      <link href={{ fhdhr.config.dict["web_ui"]["theme"] }} rel="stylesheet">
+    {% endif %}
   </head>
     <body>
       <h1 style="text-align: center;">
@@ -14,6 +17,7 @@
         <img class="pull-left" src="/favicon.ico" alt="fHDHR Logo" width="100" height="100">
       </h1>
       <br><br>
+      <p></p>
       <div>
 
       <button class="pull-left" onclick="OpenLink('/')">fHDHR</a></button>
