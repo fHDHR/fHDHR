@@ -1,5 +1,5 @@
 from gevent.pywsgi import WSGIServer
-from flask import Flask
+from flask import Flask, request
 
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
@@ -34,6 +34,16 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("Loading HTTP Stream Endpoints.")
         self.watch = fHDHR_WATCH(fhdhr)
         self.add_endpoints(self.watch, "watch")
+
+        self.app.before_request(self.before_request)
+        self.app.after_request(self.after_request)
+
+    def before_request(self):
+        self.fhdhr.logger.debug("")
+
+    def after_request(self, response):
+        self.fhdhr.logger.debug("")
+        return response
 
     def add_endpoints(self, index_list, index_name):
         item_list = [x for x in dir(index_list) if self.isapath(x)]
