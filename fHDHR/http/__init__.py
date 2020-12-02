@@ -39,10 +39,10 @@ class fHDHR_HTTP_Server():
         self.app.after_request(self.after_request)
 
     def before_request(self):
-        self.fhdhr.logger.debug("")
+        self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
-        self.fhdhr.logger.debug("")
+        self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
         return response
 
     def add_endpoints(self, index_list, index_name):
@@ -80,7 +80,7 @@ class fHDHR_HTTP_Server():
         self.http = WSGIServer((
                             self.fhdhr.config.dict["fhdhr"]["address"],
                             int(self.fhdhr.config.dict["fhdhr"]["port"])
-                            ), self.app.wsgi_app)
+                            ), self.app.wsgi_app, log=self.fhdhr.logger)
         try:
             self.http.serve_forever()
         except KeyboardInterrupt:
