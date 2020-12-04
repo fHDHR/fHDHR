@@ -1,0 +1,14 @@
+{
+  "ssdp":{
+          "enabled":{
+                "value": true,
+                "config_file": true,
+                "config_web": false
+              },
+          "refresh_frequency":{
+                "value": 1800,
+                "config_file": true,
+                "config_web": false
+                }
+  }
+}

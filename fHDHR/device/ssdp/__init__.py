@@ -1,6 +1,7 @@
 # Adapted from https://github.com/MoshiBin/ssdpy and https://github.com/ZeWaren/python-upnp-ssdp-example
 import socket
 import struct
+import time
 
 from .ssdp_detect import fHDHR_Detect
 from .rmg_ssdp import RMG_SSDP
@@ -14,7 +15,8 @@ class SSDPServer():
 
         self.detect_method = fHDHR_Detect(fhdhr)
 
-        if fhdhr.config.dict["fhdhr"]["discovery_address"]:
+        if (fhdhr.config.dict["fhdhr"]["discovery_address"] and
+           fhdhr.config.dict["ssdp"]["enabled"]):
 
             self.sock = None
             self.proto = "ipv4"
@@ -84,12 +86,50 @@ class SSDPServer():
             self.rmg_ssdp = RMG_SSDP(fhdhr, self._broadcast_ip)
             self.hdhr_ssdp = HDHR_SSDP(fhdhr, self._broadcast_ip)
 
+            self.refresh = int(fhdhr.config.dict["ssdp"]["refresh_frequency"])
+            self.refresh_last = None
+
+            self.do_alive()
             self.m_search()
+
+    def do_alive(self, forcealive=False):
+
+        send_alive = False
+        if not self.refresh_last:
+            send_alive = True
+        elif forcealive:
+            send_alive = True
+        elif time.time() >= (self.refresh_last + self.refresh):
+            send_alive = True
+
+        if send_alive:
+            self.fhdhr.logger.info("Sending Alive message to network.")
+            self.do_notify(('239.255.255.250', 1900))
+            self.refresh_last = time.time()
+
+    def do_notify(self, address):
+
+        notify_list = []
+
+        hdhr_notify = self.hdhr_ssdp.get()
+        notify_list.append(hdhr_notify)
+
+        if self.fhdhr.config.dict["rmg"]["enabled"]:
+            rmg_notify = self.rmg_ssdp.get()
+            notify_list.append(rmg_notify)
+
+        for notify in notify_list:
+
+            self.fhdhr.logger.debug("Created {}".format(notify))
+            try:
+                self.sock.sendto(notify, address)
+            except OSError as e:
+                # Most commonly: We received a multicast from an IP not in our subnet
+                self.fhdhr.logger.debug("Unable to send NOTIFY: %s" % e)
+                pass
 
     def on_recv(self, data, address):
         self.fhdhr.logger.debug("Received packet from {}: {}".format(address, data))
-
-        (host, port) = address
 
         try:
             header, payload = data.decode().split('\r\n\r\n')[:2]
@@ -110,24 +150,8 @@ class SSDPServer():
             self.fhdhr.logger.debug("Received qualifying M-SEARCH from {}".format(address))
             self.fhdhr.logger.debug("M-SEARCH data: {}".format(headers))
 
-            notify_list = []
+            self.do_notify(address)
 
-            hdhr_notify = self.hdhr_ssdp.get()
-            notify_list.append(hdhr_notify)
-
-            if self.fhdhr.config.dict["rmg"]["enabled"]:
-                rmg_notify = self.rmg_ssdp.get()
-                notify_list.append(rmg_notify)
-
-            for notify in notify_list:
-
-                self.fhdhr.logger.debug("Created NOTIFY: {}".format(notify))
-                try:
-                    self.sock.sendto(notify, address)
-                except OSError as e:
-                    # Most commonly: We received a multicast from an IP not in our subnet
-                    self.fhdhr.logger.debug("Unable to send NOTIFY to {}: {}".format(address, e))
-                    pass
         elif cmd[0] == 'NOTIFY' and cmd[1] == '*':
             # SSDP presence
             self.fhdhr.logger.debug("NOTIFY data: {}".format(headers))
@@ -169,5 +193,6 @@ class SSDPServer():
             while True:
                 data, address = self.sock.recvfrom(1024)
                 self.on_recv(data, address)
+                self.do_alive()
         except KeyboardInterrupt:
             self.sock.close()
