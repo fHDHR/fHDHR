@@ -1,0 +1,39 @@
+{
+  "database":{
+          "type":{
+                    "value": "sqlite",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "driver":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "user":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "pass":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "host":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "port":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "name":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                }
+  }
+}

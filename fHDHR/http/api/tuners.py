@@ -5,10 +5,9 @@ import uuid
 from fHDHR.exceptions import TunerError
 
 
-class Watch():
-    """Methods to create xmltv.xml"""
-    endpoints = ["/api/watch"]
-    endpoint_name = "api_watch"
+class Tuners():
+    endpoints = ["/api/tuners"]
+    endpoint_name = "api_tuners"
     endpoint_methods = ["GET", "POST"]
 
     def __init__(self, fhdhr):
@@ -70,9 +69,9 @@ class Watch():
 
             try:
                 if not tuner_number:
-                    tunernum = self.fhdhr.device.tuners.first_available()
+                    tunernum = self.fhdhr.device.tuners.first_available(channel_number)
                 else:
-                    tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number)
+                    tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, channel_number)
             except TunerError as e:
                 self.fhdhr.logger.info("A %s stream request for channel %s was rejected due to %s"
                                        % (stream_args["method"], str(stream_args["channel"]), str(e)))
@@ -108,6 +107,14 @@ class Watch():
 
             tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
             tuner.close()
+
+        elif method == "scan":
+
+            if not tuner_number:
+                self.fhdhr.device.tuners.tuner_scan()
+            else:
+                tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
+                tuner.channel_scan()
 
         else:
             return "%s Invalid Method" % method

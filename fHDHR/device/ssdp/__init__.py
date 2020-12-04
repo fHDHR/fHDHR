@@ -2,21 +2,9 @@
 import socket
 import struct
 
-
-class fHDHR_Detect():
-
-    def __init__(self, fhdhr):
-        self.fhdhr = fhdhr
-        self.fhdhr.db.delete_fhdhr_value("ssdp_detect", "list")
-
-    def set(self, location):
-        detect_list = self.fhdhr.db.get_fhdhr_value("ssdp_detect", "list") or []
-        if location not in detect_list:
-            detect_list.append(location)
-            self.fhdhr.db.set_fhdhr_value("ssdp_detect", "list", detect_list)
-
-    def get(self):
-        return self.fhdhr.db.get_fhdhr_value("ssdp_detect", "list") or []
+from .ssdp_detect import fHDHR_Detect
+from .rmg_ssdp import RMG_SSDP
+from .hdhr_ssdp import HDHR_SSDP
 
 
 class SSDPServer():
@@ -33,18 +21,14 @@ class SSDPServer():
             self.port = 1900
             self.iface = None
             self.address = None
-            self.server = 'fHDHR/%s UPnP/1.0' % fhdhr.version
 
             allowed_protos = ("ipv4", "ipv6")
             if self.proto not in allowed_protos:
                 raise ValueError("Invalid proto - expected one of {}".format(allowed_protos))
 
-            self.nt = 'urn:schemas-upnp-org:device:MediaServer:1'
-            self.usn = 'uuid:' + fhdhr.config.dict["main"]["uuid"] + '::' + self.nt
             self.location = ('http://' + fhdhr.config.dict["fhdhr"]["discovery_address"] + ':' +
                              str(fhdhr.config.dict["fhdhr"]["port"]) + '/device.xml')
-            self.al = self.location
-            self.max_age = 1800
+
             self._iface = None
 
             if self.proto == "ipv4":
@@ -95,8 +79,10 @@ class SSDPServer():
                 self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, 1)
             self.sock.bind((self.bind_address, self.port))
 
-            self.notify_payload = self.create_notify_payload()
             self.msearch_payload = self.create_msearch_payload()
+
+            self.rmg_ssdp = RMG_SSDP(fhdhr, self._broadcast_ip)
+            self.hdhr_ssdp = HDHR_SSDP(fhdhr, self._broadcast_ip)
 
             self.m_search()
 
@@ -123,21 +109,33 @@ class SSDPServer():
             # SSDP discovery
             self.fhdhr.logger.debug("Received qualifying M-SEARCH from {}".format(address))
             self.fhdhr.logger.debug("M-SEARCH data: {}".format(headers))
-            notify = self.notify_payload
-            self.fhdhr.logger.debug("Created NOTIFY: {}".format(notify))
-            try:
-                self.sock.sendto(notify, address)
-            except OSError as e:
-                # Most commonly: We received a multicast from an IP not in our subnet
-                self.fhdhr.logger.debug("Unable to send NOTIFY to {}: {}".format(address, e))
-                pass
+
+            notify_list = []
+
+            hdhr_notify = self.hdhr_ssdp.get()
+            notify_list.append(hdhr_notify)
+
+            if self.fhdhr.config.dict["rmg"]["enabled"]:
+                rmg_notify = self.rmg_ssdp.get()
+                notify_list.append(rmg_notify)
+
+            for notify in notify_list:
+
+                self.fhdhr.logger.debug("Created NOTIFY: {}".format(notify))
+                try:
+                    self.sock.sendto(notify, address)
+                except OSError as e:
+                    # Most commonly: We received a multicast from an IP not in our subnet
+                    self.fhdhr.logger.debug("Unable to send NOTIFY to {}: {}".format(address, e))
+                    pass
         elif cmd[0] == 'NOTIFY' and cmd[1] == '*':
             # SSDP presence
             self.fhdhr.logger.debug("NOTIFY data: {}".format(headers))
             try:
                 if headers["server"].startswith("fHDHR"):
                     if headers["location"] != self.location:
-                        self.detect_method.set(headers["location"].split("/device.xml")[0])
+                        savelocation = headers["location"].split("/device.xml")[0]
+                        self.detect_method.set(savelocation)
             except KeyError:
                 return
         else:
@@ -146,31 +144,6 @@ class SSDPServer():
     def m_search(self):
         data = self.msearch_payload
         self.sock.sendto(data, self._address)
-
-    def create_notify_payload(self):
-        if self.max_age is not None and not isinstance(self.max_age, int):
-            raise ValueError("max_age must by of type: int")
-        data = (
-            "NOTIFY * HTTP/1.1\r\n"
-            "HOST:{}\r\n"
-            "NT:{}\r\n"
-            "NTS:ssdp:alive\r\n"
-            "USN:{}\r\n"
-            "SERVER:{}\r\n"
-        ).format(
-                 self._broadcast_ip,
-                 self.nt,
-                 self.usn,
-                 self.server
-                 )
-        if self.location is not None:
-            data += "LOCATION:{}\r\n".format(self.location)
-        if self.al is not None:
-            data += "AL:{}\r\n".format(self.al)
-        if self.max_age is not None:
-            data += "Cache-Control:max-age={}\r\n".format(self.max_age)
-        data += "\r\n"
-        return data.encode("utf-8")
 
     def create_msearch_payload(self):
         data = (

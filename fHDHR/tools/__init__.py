@@ -19,8 +19,8 @@ def is_docker():
         return False
 
 
-def sub_el(parent, name, text=None, **kwargs):
-    el = xml.etree.ElementTree.SubElement(parent, name, **kwargs)
+def sub_el(parent, sub_el_item_name, text=None, **kwargs):
+    el = xml.etree.ElementTree.SubElement(parent, sub_el_item_name, **kwargs)
     if text:
         el.text = text
     return el

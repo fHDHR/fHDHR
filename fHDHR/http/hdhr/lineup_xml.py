@@ -1,10 +1,13 @@
 from flask import Response, request
-import json
+from io import BytesIO
+import xml.etree.ElementTree
+
+from fHDHR.tools import sub_el
 
 
-class Lineup_JSON():
-    endpoints = ["/lineup.json"]
-    endpoint_name = "file_lineup_json"
+class Lineup_XML():
+    endpoints = ["/lineup.xml", "/hdhr/lineup.xml"]
+    endpoint_name = "hdhr_lineup_xml"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -18,20 +21,25 @@ class Lineup_JSON():
 
         show = request.args.get('show', default="all", type=str)
 
-        jsonlineup = []
+        out = xml.etree.ElementTree.Element('Lineup')
         for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
+                program_out = sub_el(out, 'Program')
                 lineup_dict = channel_obj.lineup_dict()
                 lineup_dict["URL"] = base_url + lineup_dict["URL"]
                 if show == "found" and channel_obj.enabled:
                     lineup_dict["Enabled"] = 1
                 elif show == "found" and not channel_obj.enabled:
                     lineup_dict["Enabled"] = 0
-                jsonlineup.append(lineup_dict)
+                for key in list(lineup_dict.keys()):
+                    sub_el(program_out, str(key), str(lineup_dict[key]))
 
-        lineup_json = json.dumps(jsonlineup, indent=4)
+        fakefile = BytesIO()
+        fakefile.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
+        fakefile.write(xml.etree.ElementTree.tostring(out, encoding='UTF-8'))
+        lineup_xml = fakefile.getvalue()
 
         return Response(status=200,
-                        response=lineup_json,
-                        mimetype='application/json')
+                        response=lineup_xml,
+                        mimetype='application/xml')

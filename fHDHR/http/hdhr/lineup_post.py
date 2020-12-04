@@ -1,9 +1,11 @@
 from flask import request, abort, Response
 
+from fHDHR.exceptions import TunerError
+
 
 class Lineup_Post():
-    endpoints = ["/lineup.post"]
-    endpoint_name = "api_lineup_post"
+    endpoints = ["/lineup.post", "/hdhr/lineup.post"]
+    endpoint_name = "hdhr_lineup_post"
     endpoint_methods = ["POST"]
 
     def __init__(self, fhdhr):
@@ -17,10 +19,14 @@ class Lineup_Post():
         if 'scan' in list(request.args.keys()):
 
             if request.args['scan'] == 'start':
-                self.fhdhr.device.station_scan.scan(waitfordone=False)
+                try:
+                    self.fhdhr.device.tuners.tuner_scan()
+                except TunerError as e:
+                    self.fhdhr.logger.info(str(e))
                 return Response(status=200, mimetype='text/html')
 
             elif request.args['scan'] == 'abort':
+                self.fhdhr.device.tuners.stop_tuner_scan()
                 return Response(status=200, mimetype='text/html')
 
             else:

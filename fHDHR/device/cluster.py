@@ -124,7 +124,7 @@ class fHDHR_Cluster():
             self.fhdhr.logger.info("Adding %s to cluster." % location)
             cluster[location] = {"base_url": location}
 
-            location_info_url = location + "/discover.json"
+            location_info_url = "%s/hdhr/discover.json" % location
             try:
                 location_info_req = self.fhdhr.web.session.get(location_info_url)
             except self.fhdhr.web.exceptions.ConnectionError:

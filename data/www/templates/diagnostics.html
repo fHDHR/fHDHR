@@ -2,10 +2,35 @@
 
 {% block content %}
 
+  <h4 style="text-align: center;">fHDHR Diagnostic Links</h4>
+
+    <table class="center" style="width:100%">
+      <tr>
+        <th>Item</th>
+        <th>HDHR</th>
+        <th>RMG</th>
+        <th>Non-Specific</th>
+      </tr>
+
     {% for button_item in button_list %}
-        <div style="text-align: center;">
-          <p><button onclick="OpenLink('{{ button_item[1] }}')">{{ button_item[0] }}</a></button></p>
-        </div>
+      <tr>
+        <td>{{ button_item["label"] }}</td>
+        {% if button_item["hdhr"]  %}
+          <td><button onclick="OpenLink('{{ button_item["hdhr"] }}')">{{ button_item["label"] }}</a></button></td>
+        {% else %}
+          <td></td>
+        {% endif %}
+        {% if button_item["rmg"]  %}
+          <td><button onclick="OpenLink('{{ button_item["rmg"] }}')">{{ button_item["label"] }}</a></button></td>
+        {% else %}
+          <td></td>
+        {% endif %}
+        {% if button_item["other"]  %}
+          <td><button onclick="OpenLink('{{ button_item["other"] }}')">{{ button_item["label"] }}</a></button></td>
+        {% else %}
+          <td></td>
+        {% endif %}
+      </tr>
     {% endfor %}
 
 {% endblock %}

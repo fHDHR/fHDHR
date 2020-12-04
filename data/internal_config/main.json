@@ -1,0 +1,19 @@
+{
+  "main":{
+          "uuid":{
+                "value": "none",
+                "config_file": true,
+                "config_web": false
+                },
+          "cache_dir":{
+                      "value": "none",
+                      "config_file": true,
+                      "config_web": true
+                    },
+          "thread_method":{
+                          "value": "multiprocessing",
+                          "config_file": true,
+                          "config_web": true
+                        }
+  }
+}
