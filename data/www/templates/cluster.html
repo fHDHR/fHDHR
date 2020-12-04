@@ -2,13 +2,14 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">Cluster</h4>
+    <h4 style="text-align: center;">Cluster/SSDP</h4>
     {% if not fhdhr.config.dict["fhdhr"]["discovery_address"] %}
-      <p style="text-align: center;">Discovery Address must be set for SSDP/Cluster</p>
+      <p style="text-align: center;">Discovery Address must be set for Cluster/SSDP</p>
     {% else %}
 
       <div style="text-align: center;">
         <button onclick="OpenLink('/api/cluster?method=scan&redirect=%2Fcluster')">Force Scan</a></button>
+        <button onclick="OpenLink('/api/cluster?method=alive&redirect=%2Fcluster')">Send Alive</a></button>
         <button onclick="OpenLink('/api/cluster?method=disconnect&redirect=%2Fcluster')">Disconnect</a></button>
       </div>
       <br>

@@ -44,6 +44,9 @@ class Cluster():
         elif method == 'disconnect':
             self.fhdhr.device.cluster.disconnect()
 
+        elif method == 'alive':
+            self.fhdhr.device.ssdp.do_alive(forcealive=True)
+
         else:
             return "Invalid Method"
 
