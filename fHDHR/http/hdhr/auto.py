@@ -3,8 +3,8 @@ import urllib.parse
 
 
 class Auto():
-    endpoints = ['/auto/<channel>']
-    endpoint_name = "watch_auto"
+    endpoints = ['/auto/<channel>', '/hdhr/auto/<channel>']
+    endpoint_name = "hdhr_auto"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -16,7 +16,7 @@ class Auto():
 
         method = request.args.get('method', default=self.fhdhr.config.dict["fhdhr"]["stream_type"], type=str)
 
-        redirect_url = "/api/watch?method=%s" % (method)
+        redirect_url = "/api/tuners?method=%s" % (method)
 
         if channel.startswith("v"):
             channel_number = channel.replace('v', '')

@@ -1,3 +1,4 @@
+import multiprocessing
 import threading
 import datetime
 
@@ -17,17 +18,51 @@ class Tuner():
         self.tuner_lock = threading.Lock()
         self.set_off_status()
 
+        if fhdhr.config.dict["fhdhr"]["address"] == "0.0.0.0":
+            self.location = ('http://127.0.0.1:%s' % str(fhdhr.config.dict["fhdhr"]["port"]))
+        else:
+            self.location = ('http://%s:%s' % (fhdhr.config.dict["fhdhr"]["address"], str(fhdhr.config.dict["fhdhr"]["port"])))
+
+        self.chanscan_url = "%s/api/channels?method=scan" % (self.location)
+        self.close_url = "%s/api/tuners?method=close&tuner=%s" % (self.location, str(self.number))
+
+    def channel_scan(self):
+        if self.tuner_lock.locked():
+            self.fhdhr.logger.error("Tuner #%s is not available." % str(self.number))
+            raise TunerError("804 - Tuner In Use")
+
+        if self.status["status"] == "Scanning":
+            self.fhdhr.logger.info("Channel Scan Already In Progress!")
+        else:
+
+            self.tuner_lock.acquire()
+            self.status["status"] = "Scanning"
+            self.fhdhr.logger.info("Tuner #%s Performing Channel Scan." % str(self.number))
+
+            if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing"]:
+                chanscan = multiprocessing.Process(target=self.runscan)
+            elif self.fhdhr.config.dict["main"]["thread_method"] in ["threading"]:
+                chanscan = threading.Thread(target=self.runscan)
+            if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
+                chanscan.start()
+
+    def runscan(self):
+        self.fhdhr.web.session.get(self.chanscan_url)
+        self.fhdhr.logger.info("Requested Channel Scan Complete.")
+        self.fhdhr.web.session.get(self.close_url)
+
     def add_downloaded_size(self, bytes_count):
         if "downloaded" in list(self.status.keys()):
             self.status["downloaded"] += bytes_count
 
-    def grab(self):
+    def grab(self, channel_number):
         if self.tuner_lock.locked():
             self.fhdhr.logger.error("Tuner #" + str(self.number) + " is not available.")
             raise TunerError("804 - Tuner In Use")
         self.tuner_lock.acquire()
         self.status["status"] = "Acquired"
-        self.fhdhr.logger.info("Tuner #" + str(self.number) + " Acquired.")
+        self.status["channel"] = channel_number
+        self.fhdhr.logger.info("Tuner #%s Acquired." % str(self.number))
 
     def close(self):
         self.set_off_status()

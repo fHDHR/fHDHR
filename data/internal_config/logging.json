@@ -1,0 +1,9 @@
+{
+  "logging":{
+          "level":{
+                    "value": "WARNING",
+                    "config_file": true,
+                    "config_web": true
+                }
+  }
+}

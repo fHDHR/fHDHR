@@ -86,9 +86,6 @@ class Direct_M3U8_Stream():
                             yield chunk
                             self.tuner.add_downloaded_size(chunk_size)
 
-                    if playlist.target_duration:
-                        time.sleep(int(playlist.target_duration))
-
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
 
             except GeneratorExit:

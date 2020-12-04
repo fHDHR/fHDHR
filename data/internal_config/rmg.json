@@ -1,0 +1,9 @@
+{
+  "rmg":{
+          "enabled":{
+                "value": true,
+                "config_file": true,
+                "config_web": false
+                }
+  }
+}

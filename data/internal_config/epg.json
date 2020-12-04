@@ -1,0 +1,9 @@
+{
+  "epg":{
+          "images":{
+                    "value": "pass",
+                    "config_file": true,
+                    "config_web": true
+                }
+  }
+}

@@ -3,8 +3,8 @@ from flask import request, render_template
 from fHDHR.tools import humanized_filesize
 
 
-class Streams_HTML():
-    endpoints = ["/streams", "/streams.html"]
+class Tuners_HTML():
+    endpoints = ["/tuners", "/tuners.html"]
     endpoint_name = "page_streams_html"
 
     def __init__(self, fhdhr):
@@ -17,6 +17,7 @@ class Streams_HTML():
 
         tuner_list = []
         tuner_status = self.fhdhr.device.tuners.status()
+        tuner_scanning = 0
         for tuner in list(tuner_status.keys()):
             tuner_dict = {
                           "number": str(tuner),
@@ -27,7 +28,9 @@ class Streams_HTML():
                 tuner_dict["method"] = tuner_status[tuner]["method"]
                 tuner_dict["play_duration"] = str(tuner_status[tuner]["Play Time"])
                 tuner_dict["downloaded"] = humanized_filesize(tuner_status[tuner]["downloaded"])
+            elif tuner_status[tuner]["status"] == "Scanning":
+                tuner_scanning += 1
 
             tuner_list.append(tuner_dict)
 
-        return render_template('streams.html', request=request, fhdhr=self.fhdhr, tuner_list=tuner_list)
+        return render_template('tuners.html', request=request, fhdhr=self.fhdhr, tuner_list=tuner_list, tuner_scanning=tuner_scanning)
