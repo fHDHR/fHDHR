@@ -66,12 +66,15 @@ class Channels():
 
         elif method in ["enable", "disable"]:
             channel = request.args.get('channel', default=None, type=str)
-            if not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
+            if channel == "all":
+                self.fhdhr.device.channels.set_channel_enablement_all(method)
+            elif not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
                 if redirect_url:
                     return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
                 else:
                     return "%s Falied" % method
-            self.fhdhr.device.channels.set_channel_enablement("number", channel, method)
+            else:
+                self.fhdhr.device.channels.set_channel_enablement("number", channel, method)
 
         elif method == "update":
             channel_id = request.form.get('id', None)

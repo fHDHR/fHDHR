@@ -115,7 +115,7 @@ class Channel():
             self.dict["favorite"] = 1
         elif enablement == "+":
             self.dict["favorite"] = 0
-        self.fhdhr.db.set_channel_value(self.dict["fhdhr_id"], "info", self.dict)
+        self.fhdhr.db.set_channel_value(self.dict["id"], "info", self.dict)
 
     def set_enablement(self, enablement):
         if enablement == "disable":
@@ -127,7 +127,7 @@ class Channel():
                 self.dict["enabled"] = False
             else:
                 self.dict["enabled"] = True
-        self.fhdhr.db.set_channel_value(self.dict["fhdhr_id"], "info", self.dict)
+        self.fhdhr.db.set_channel_value(self.dict["id"], "info", self.dict)
 
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
