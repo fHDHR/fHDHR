@@ -33,6 +33,10 @@ class Channels():
     def set_channel_status(self, keyfind, valfind, updatedict):
         self.get_channel_obj(keyfind, valfind).set_status(updatedict)
 
+    def set_channel_enablement_all(self, enablement):
+        for fhdhr_id in list(self.list.keys()):
+            self.list[fhdhr_id].set_enablement(enablement)
+
     def set_channel_enablement(self, keyfind, valfind, enablement):
         self.get_channel_obj(keyfind, valfind).set_enablement(enablement)
 

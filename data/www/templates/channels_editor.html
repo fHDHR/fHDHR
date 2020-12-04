@@ -4,9 +4,13 @@
 
     <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels Editor</h4>
 
+    <div style="text-align: center;">
+      <button onclick="OpenLink('/api/channels?method=enable&channel=all&redirect=%2Fchannels_editor')">Enable All</a></button>
+      <button onclick="OpenLink('/api/channels?method=disable&channel=all&redirect=%2Fchannels_editor')">Disable All</a></button>
+    </div>
+
     <table class="center" style="width:100%">
       <tr>
-        <th>Play</th>
         <th>Channel Name</th>
         <th>Channel CallSign</th>
         <th>Channel Number</th>
@@ -18,12 +22,6 @@
       </tr>
 
     {% for chan_dict in channelslist %}
-      <tr>
-        <td>
-          {% if chan_dict["enabled"] %}
-            <a href="{{ chan_dict["play_url"] }}">Play</a>
-          {% endif %}
-        </td>
 
         <form method="post" action="/api/channels?method=update&redirect=%2Fchannels_editor">
           <input type="hidden" name="id" value={{ chan_dict["id"] }}>
