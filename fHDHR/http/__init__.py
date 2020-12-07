@@ -42,6 +42,10 @@ class fHDHR_HTTP_Server():
 
         self.app.before_request(self.before_request)
         self.app.after_request(self.after_request)
+        self.app.before_first_request(self.before_first_request)
+
+    def before_first_request(self):
+        self.fhdhr.logger.info("HTTP Server Online.")
 
     def before_request(self):
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))

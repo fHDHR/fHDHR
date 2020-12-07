@@ -13,6 +13,6 @@ class Origin_HTML():
 
     def get(self, *args):
 
-        origin_status_dict = self.fhdhr.origin.get_status_dict()
+        origin_status_dict = self.fhdhr.originwrapper.get_status_dict()
         origin_status_dict["Total Channels"] = len(self.fhdhr.device.channels.list)
         return render_template('origin.html', request=request, fhdhr=self.fhdhr, origin_status_dict=origin_status_dict, list=list)
