@@ -81,13 +81,13 @@ class xmlTV():
     def create_xmltv(self, base_url, epgdict, source):
         if not epgdict:
             return self.xmltv_empty()
-        epgdict.copy()
+        epgdict = epgdict.copy()
 
         out = self.xmltv_headers()
 
         if source in ["origin", "blocks", self.fhdhr.config.dict["main"]["dictpopname"]]:
             for c in list(epgdict.keys()):
-                chan_obj = self.fhdhr.channels.get_channel_obj("origin_id", c["id"])
+                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"])
                 epgdict[chan_obj.dict["number"]] = epgdict.pop(c)
                 epgdict[chan_obj.dict["number"]]["name"] = chan_obj.dict["name"]
                 epgdict[chan_obj.dict["number"]]["callsign"] = chan_obj.dict["callsign"]
