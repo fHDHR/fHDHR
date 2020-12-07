@@ -75,7 +75,7 @@ class M3U():
                                           "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "\"," + str(channel_obj.dict['name']))
                                 )
 
-                fakefile.write("%s\n" % (base_url + channel_obj.stream_url()))
+                fakefile.write("%s%s\n" % (base_url, channel_obj.stream_url))
 
                 channels_m3u = fakefile.getvalue()
 

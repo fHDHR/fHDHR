@@ -26,7 +26,7 @@ class Lineup_XML():
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
                 program_out = sub_el(out, 'Program')
-                lineup_dict = channel_obj.lineup_dict()
+                lineup_dict = channel_obj.lineup_dict
                 lineup_dict["URL"] = base_url + lineup_dict["URL"]
                 if show == "found" and channel_obj.enabled:
                     lineup_dict["Enabled"] = 1

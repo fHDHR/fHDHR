@@ -4,6 +4,16 @@
                     "value": "pass",
                     "config_file": true,
                     "config_web": true
+                },
+          "method":{
+                    "value": "blocks",
+                    "config_file": true,
+                    "config_web": true
+                },
+          "update_frequency":{
+                    "value": 14400,
+                    "config_file": true,
+                    "config_web": true
                 }
   }
 }

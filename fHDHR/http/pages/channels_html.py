@@ -22,7 +22,7 @@ class Channels_HTML():
         for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             channel_dict = channel_obj.dict.copy()
-            channel_dict["play_url"] = channel_obj.play_url()
+            channel_dict["play_url"] = channel_obj.play_url
             channelslist.append(channel_dict)
             if channel_dict["enabled"]:
                 channels_dict["Enabled"] += 1

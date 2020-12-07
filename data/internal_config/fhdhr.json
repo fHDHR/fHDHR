@@ -49,13 +49,26 @@
                     "value": true,
                     "config_file": true,
                     "config_web": true
-                }
-  },
-  "web_ui":{
-            "theme":{
-                      "value": "none",
-                      "config_file": true,
-                      "config_web": true
-                  }
+                },
+          "friendlyname":{
+                    "value": "fHDHR",
+                    "config_file": true,
+                    "config_web": true
+                },
+          "stream_type":{
+                              "value": "direct",
+                              "config_file": true,
+                              "config_web": true
+                              },
+          "tuner_count":{
+                  "value": 4,
+                  "config_file": true,
+                  "config_web": true
+                },
+          "reporting_firmware_name":{
+                                    "value": "fHDHR",
+                                    "config_file": true,
+                                    "config_web": true
+                                  }
   }
 }

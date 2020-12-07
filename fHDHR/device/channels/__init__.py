@@ -9,10 +9,10 @@ from .chan_ident import Channel_IDs
 
 class Channels():
 
-    def __init__(self, fhdhr, origin):
+    def __init__(self, fhdhr, originwrapper):
         self.fhdhr = fhdhr
 
-        self.origin = origin
+        self.origin = originwrapper
 
         self.id_system = Channel_IDs(fhdhr)
 
