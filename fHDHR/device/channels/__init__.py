@@ -70,13 +70,20 @@ class Channels():
             updatelist = True
 
         if updatelist:
+            channel_origin_id_list = [str(self.list[x].dict["origin_id"]) for x in list(self.list.keys())]
             self.fhdhr.logger.info("Performing Channel Scan.")
             channel_dict_list = self.origin.get_channels()
             for channel_info in channel_dict_list:
-                channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])
+                chan_existing = False
+                if str(channel_info["id"]) in channel_origin_id_list:
+                    chan_existing = True
+                    channel_obj = self.get_channel_obj("origin_id", channel_info["id"])
+                else:
+                    channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])
                 channel_id = channel_obj.dict["id"]
                 channel_obj.basics(channel_info)
-                self.list[channel_id] = channel_obj
+                if not chan_existing:
+                    self.list[channel_id] = channel_obj
 
             if not self.list_update_time:
                 self.fhdhr.logger.info("Found " + str(len(self.list)) + " channels for " + str(self.fhdhr.config.dict["main"]["servicename"]))

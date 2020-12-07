@@ -36,6 +36,13 @@ class EPG():
             if epg_method not in list(self.sleeptime.keys()):
                 self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
 
+        if self.fhdhr.config.dict["fhdhr"]["address"] == "0.0.0.0":
+            self.location = ('http://127.0.0.1:%s' % str(self.fhdhr.config.dict["fhdhr"]["port"]))
+        else:
+            self.location = ('http://%s:%s' % (self.fhdhr.config.dict["fhdhr"]["address"], str(self.fhdhr.config.dict["fhdhr"]["port"])))
+
+        self.epg_update_url = "%s/api/epg?method=update" % (self.location)
+
     def clear_epg_cache(self, method=None):
 
         if not method:
@@ -178,12 +185,12 @@ class EPG():
 
     def run(self):
         for epg_method in self.epg_methods:
-            self.update(epg_method)
+            self.fhdhr.web.session.get(self.epg_update_url)
         try:
             while True:
                 for epg_method in self.epg_methods:
                     if time.time() >= (self.fhdhr.db.get_fhdhr_value("update_time", epg_method) + self.sleeptime[epg_method]):
-                        self.update(epg_method)
-                time.sleep(3600)
+                        self.fhdhr.web.session.get(self.epg_update_url)
+                time.sleep(360)
         except KeyboardInterrupt:
             pass
