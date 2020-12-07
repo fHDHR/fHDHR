@@ -17,7 +17,7 @@ class Channels_Editor_HTML():
         for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             channel_dict = channel_obj.dict.copy()
-            channel_dict["play_url"] = channel_obj.play_url()
+            channel_dict["play_url"] = channel_obj.play_url
             channelslist.append(channel_dict)
 
         return render_template('channels_editor.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist)

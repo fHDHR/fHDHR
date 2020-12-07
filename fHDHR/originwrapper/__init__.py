@@ -1,6 +1,4 @@
-from .origin_service import OriginService
-from .origin_channels import OriginChannels
-from .origin_epg import OriginEPG
+
 
 import fHDHR.exceptions
 
@@ -26,8 +24,9 @@ class OriginChannels_StandIN():
 
 class OriginServiceWrapper():
 
-    def __init__(self, fhdhr):
+    def __init__(self, fhdhr, origin):
         self.fhdhr = fhdhr
+        self.origin = origin
 
         self.servicename = fhdhr.config.dict["main"]["servicename"]
 
@@ -37,7 +36,7 @@ class OriginServiceWrapper():
     def setup(self):
 
         try:
-            self.origin = OriginService(self.fhdhr)
+            self.originservice = self.origin.OriginService(self.fhdhr)
             self.setup_success = True
             self.fhdhr.logger.info("%s Setup Success" % self.servicename)
         except fHDHR.exceptions.OriginSetupError as e:
@@ -45,8 +44,8 @@ class OriginServiceWrapper():
             self.setup_success = False
 
         if self.setup_success:
-            self.channels = OriginChannels(self.fhdhr, self.origin)
-            self.epg = OriginEPG(self.fhdhr)
+            self.channels = self.origin.OriginChannels(self.fhdhr, self.originservice)
+            self.epg = self.origin.OriginEPG(self.fhdhr)
         else:
             self.channels = OriginChannels_StandIN()
             self.epg = OriginEPG_StandIN()
@@ -83,8 +82,8 @@ class OriginServiceWrapper():
         ''' will only get called for undefined attributes '''
         if hasattr(self.fhdhr, name):
             return eval("self.fhdhr." + name)
-        if hasattr(self.origin, name):
-            return eval("self.origin." + name)
+        if hasattr(self.originservice, name):
+            return eval("self.originservice." + name)
         elif hasattr(self.channels, name):
             return eval("self.channels." + name)
         elif hasattr(self.epg, name):

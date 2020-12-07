@@ -12,15 +12,38 @@ class Channel():
                 channel_id = id_system.get(origin_id)
             else:
                 channel_id = id_system.assign()
-        self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict(channel_id)
+        self.channel_id = channel_id
+        self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict
         self.verify_dict()
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
+
+    @property
+    def thumbnail(self):
+        if str(self.dict["thumbnail"]).lower() in ["none"]:
+            return self.generic_image_url
+        elif self.dict["thumbnail"]:
+            return self.dict["thumbnail"]
+        elif self.dict["origin_thumbnail"]:
+            return self.dict["origin_thumbnail"]
+        else:
+            return self.generic_image_url
+
+    @property
+    def epgdict(self):
+        return {
+                "callsign": self.dict["callsign"],
+                "name": self.dict["name"],
+                "number": self.dict["number"],
+                "id": self.dict["origin_id"],
+                "thumbnail": self.dict["thumbnail"],
+                "listing": [],
+                }
 
     def verify_dict(self):
         """Development Purposes
         Add new Channel dict keys
         """
-        default_dict = self.default_dict(self.dict["id"])
+        default_dict = self.default_dict
         for key in list(default_dict.keys()):
             if key not in list(self.dict.keys()):
                 self.dict[key] = default_dict[key]
@@ -68,9 +91,10 @@ class Channel():
 
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
-    def default_dict(self, channel_id):
+    @property
+    def default_dict(self):
         return {
-                "id": str(channel_id), "origin_id": None,
+                "id": str(self.channel_id), "origin_id": None,
                 "name": None, "origin_name": None,
                 "callsign": None, "origin_callsign": None,
                 "number": None, "origin_number": None,
@@ -94,21 +118,28 @@ class Channel():
             self.dict[key] = updatedict[key]
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
+    @property
     def lineup_dict(self):
         return {
                  'GuideNumber': self.dict['number'],
                  'GuideName': self.dict['name'],
                  'Tags': ",".join(self.dict['tags']),
-                 'URL': self.stream_url(),
+                 'URL': self.stream_url,
                  'HD': self.dict["HD"],
                  "Favorite": self.dict["favorite"],
                 }
 
-    def stream_url(self):
-        return ('/auto/v%s' % self.dict['number'])
+    @property
+    def generic_image_url(self):
+        return "/api/images?method=generate&type=channel&message=%s" % self.dict["number"]
 
+    @property
+    def stream_url(self):
+        return '/auto/v%s' % self.dict['number']
+
+    @property
     def play_url(self):
-        return ('/api/m3u?method=get&channel=%s' % self.dict['number'])
+        return '/api/m3u?method=get&channel=%s' % self.dict['number']
 
     def set_favorite(self, enablement):
         if enablement == "+":

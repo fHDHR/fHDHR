@@ -25,19 +25,10 @@ class OriginEPG():
 
             for c in result:
 
-                cdict = fHDHR.tools.xmldictmaker(c, ["callSign", "name", "channelId"], list_items=[], str_items=[])
+                chan_obj = fhdhr_channels.get_channel_obj("origin_id", c["id"])
 
-                chandict = fhdhr_channels.get_channel_dict("origin_id", cdict["id"])
-
-                if str(chandict["number"]) not in list(programguide.keys()):
-                    programguide[str(chandict['number'])] = {
-                                                        "callsign": chandict["callsign"],
-                                                        "name": chandict["name"] or chandict["callsign"],
-                                                        "number": chandict["number"],
-                                                        "id": str(chandict["origin_id"]),
-                                                        "thumbnail": str(cdict['logo226Url']),
-                                                        "listing": [],
-                                                        }
+                if str(chan_obj.dict["number"]) not in list(programguide.keys()):
+                    programguide[str(chan_obj.dict["number"])] = chan_obj.epgdict
 
                 for event in c['listings']:
 
@@ -75,8 +66,8 @@ class OriginEPG():
                     if eventdict["entityType"]:
                         clean_prog_dict["genres"].append(eventdict["entityType"])
 
-                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chandict["number"])]["listing"]):
-                        programguide[str(chandict["number"])]["listing"].append(clean_prog_dict)
+                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chan_obj.dict["number"])]["listing"]):
+                        programguide[str(chan_obj.dict["number"])]["listing"].append(clean_prog_dict)
 
         return programguide
 

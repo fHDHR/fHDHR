@@ -3,30 +3,30 @@ import time
 import datetime
 from collections import OrderedDict
 
-epgtype_list = []
-device_dir = os.path.dirname(__file__)
-for entry in os.scandir(device_dir + '/epgtypes'):
-    if entry.is_file():
-        if entry.name[0] != '_':
-            epgtype_list.append(str(entry.name[:-3]))
-            impstring = f'from .epgtypes import {entry.name}'[:-3]
-            exec(impstring)
+from .blocks import blocksEPG
 
 
 class EPG():
 
-    def __init__(self, fhdhr, channels, origin):
+    def __init__(self, fhdhr, channels, originwrapper, alternative_epg):
         self.fhdhr = fhdhr
 
-        self.origin = origin
+        self.origin = originwrapper
         self.channels = channels
+        self.alternative_epg = alternative_epg
 
         self.epgdict = {}
 
-        self.epg_method_selfadd()
-
         self.epg_methods = self.fhdhr.config.dict["epg"]["method"]
         self.valid_epg_methods = [x for x in self.fhdhr.config.dict["main"]["valid_epg_methods"] if x and x not in [None, "None"]]
+
+        self.blocks = blocksEPG(self.fhdhr, self.channels)
+        self.epg_handling = {
+                            "origin": self.origin,
+                            "blocks": self.blocks,
+                            }
+        self.epg_method_selfadd()
+
         self.def_method = self.fhdhr.config.dict["epg"]["def_method"]
         self.sleeptime = {}
         for epg_method in self.epg_methods:
@@ -50,10 +50,8 @@ class EPG():
 
         self.fhdhr.logger.info("Clearing " + epgtypename + " EPG cache.")
 
-        method_to_call = getattr(self, method)
-        if hasattr(method_to_call, 'clear_cache'):
-            func_to_call = getattr(method_to_call, 'clear_cache')
-            func_to_call()
+        if hasattr(self.epg_handling[method], 'clear_cache'):
+            self.epg_handling[method].clear_cache()
 
         if method in list(self.epgdict.keys()):
             del self.epgdict[method]
@@ -134,17 +132,23 @@ class EPG():
         return next(item for item in event_list if item["id"] == event_id)
 
     def epg_method_selfadd(self):
-        self.fhdhr.logger.info("Checking for Optional EPG methods.")
-        for method in epgtype_list:
+        self.fhdhr.logger.info("Checking for Alternative EPG methods.")
+        new_epgtype_list = []
+        for entry in os.scandir(self.fhdhr.config.internal["paths"]["alternative_epg"]):
+            if entry.is_file():
+                if entry.name[0] != '_' and entry.name.endswith(".py"):
+                    new_epgtype_list.append(str(entry.name[:-3]))
+        for method in new_epgtype_list:
             self.fhdhr.logger.info("Found %s EPG method." % method)
-            exec("%s = %s" % ("self." + str(method), str(method) + "." + str(method) + "EPG(self.fhdhr, self.channels)"))
+            self.epg_handling[method] = eval("self.alternative_epg.%s.%sEPG(self.fhdhr, self.channels)" % (method, method))
 
     def update(self, method=None):
 
-        if not method:
-            method = self.def_method
-        if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
+        if (not method or
            method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+            method = self.def_method
+
+        if method == self.fhdhr.config.dict["main"]["dictpopname"]:
             method = "origin"
 
         epgtypename = method
@@ -152,12 +156,10 @@ class EPG():
             epgtypename = self.fhdhr.config.dict["main"]["dictpopname"]
 
         self.fhdhr.logger.info("Updating " + epgtypename + " EPG cache.")
-        method_to_call = getattr(self, method)
-        func_to_call = getattr(method_to_call, 'update_epg')
         if method == 'origin':
-            programguide = func_to_call(self.channels)
+            programguide = self.epg_handling['origin'].update_epg(self.channels)
         else:
-            programguide = func_to_call()
+            programguide = self.epg_handling[method].update_epg()
 
         for chan in list(programguide.keys()):
             floatnum = str(float(chan))

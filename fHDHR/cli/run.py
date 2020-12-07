@@ -38,9 +38,9 @@ def get_configuration(args, script_dir):
     return fHDHR.config.Config(args.cfg, script_dir)
 
 
-def run(settings, logger, db):
+def run(settings, logger, db, alternative_epg, origin):
 
-    fhdhr = fHDHR_OBJ(settings, logger, db)
+    fhdhr = fHDHR_OBJ(settings, logger, db, alternative_epg, origin)
     fhdhrweb = fHDHR_HTTP_Server(fhdhr)
 
     try:
@@ -81,7 +81,7 @@ def run(settings, logger, db):
     return ERR_CODE
 
 
-def start(args, script_dir):
+def start(args, script_dir, alternative_epg, origin):
     """Get Configuration for fHDHR and start"""
 
     try:
@@ -94,17 +94,17 @@ def start(args, script_dir):
 
     db = fHDHRdb(settings)
 
-    return run(settings, logger, db)
+    return run(settings, logger, db, alternative_epg, origin)
 
 
-def main(script_dir):
+def main(script_dir, alternative_epg, origin):
     """fHDHR run script entry point"""
 
     print("Loading fHDHR " + fHDHR_VERSION)
 
     try:
         args = build_args_parser()
-        return start(args, script_dir)
+        return start(args, script_dir, alternative_epg, origin)
     except KeyboardInterrupt:
         print("\n\nInterrupted")
         return ERR_CODE
