@@ -38,7 +38,7 @@ class xmlTV():
         if method == "get":
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
-            xmltv_xml = self.create_xmltv(base_url, epgdict)
+            xmltv_xml = self.create_xmltv(base_url, epgdict, source)
 
             return Response(status=200,
                             response=xmltv_xml,
@@ -78,11 +78,22 @@ class xmlTV():
         """This method is called when creation of a full xmltv is not possible"""
         return self.xmltv_file(self.xmltv_headers())
 
-    def create_xmltv(self, base_url, epgdict):
+    def create_xmltv(self, base_url, epgdict, source):
         if not epgdict:
             return self.xmltv_empty()
+        epgdict.copy()
 
         out = self.xmltv_headers()
+
+        if source in ["origin", "blocks", self.fhdhr.config.dict["main"]["dictpopname"]]:
+            for c in list(epgdict.keys()):
+                chan_obj = self.fhdhr.channels.get_channel_obj("origin_id", c["id"])
+                epgdict[chan_obj.dict["number"]] = epgdict.pop(c)
+                epgdict[chan_obj.dict["number"]]["name"] = chan_obj.dict["name"]
+                epgdict[chan_obj.dict["number"]]["callsign"] = chan_obj.dict["callsign"]
+                epgdict[chan_obj.dict["number"]]["number"] = chan_obj.dict["number"]
+                epgdict[chan_obj.dict["number"]]["id"] = chan_obj.dict["origin_id"]
+                epgdict[chan_obj.dict["number"]]["thumbnail"] = chan_obj.thumbnail
 
         for c in list(epgdict.keys()):
 
@@ -95,13 +106,10 @@ class xmlTV():
             sub_el(c_out, 'display-name', text=epgdict[c]['callsign'])
             sub_el(c_out, 'display-name', text=epgdict[c]['name'])
 
-            if epgdict[c]["thumbnail"] is not None:
-                if self.fhdhr.config.dict["epg"]["images"] == "proxy":
-                    sub_el(c_out, 'icon', src=(str(base_url) + "/api/images?method=get&type=channel&id=" + str(epgdict[c]['id'])))
-                else:
-                    sub_el(c_out, 'icon', src=(epgdict[c]["thumbnail"]))
+            if self.fhdhr.config.dict["epg"]["images"] == "proxy":
+                sub_el(c_out, 'icon', src=(str(base_url) + "/api/images?method=get&type=channel&id=" + str(epgdict[c]['id'])))
             else:
-                sub_el(c_out, 'icon', src=(str(base_url) + "/api/images?method=generate&type=channel&message=" + urllib.parse.quote(epgdict[c]['name'])))
+                sub_el(c_out, 'icon', src=(epgdict[c]["thumbnail"]))
 
         for channelnum in list(epgdict.keys()):
 
