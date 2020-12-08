@@ -1,3 +1,4 @@
+import time
 
 
 class Channel():
@@ -15,6 +16,7 @@ class Channel():
         self.channel_id = channel_id
         self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict
         self.verify_dict()
+
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
     @property
@@ -88,6 +90,13 @@ class Channel():
         if "HD" not in list(channel_info.keys()):
             channel_info["HD"] = 0
         self.dict["HD"] = channel_info["HD"]
+
+        if "enabled" in list(channel_info.keys()):
+            if "created" not in list(self.dict.keys()):
+                self.dict["enabled"] = channel_info["enabled"]
+
+        if "created" not in list(self.dict.keys()):
+            self.dict["created"] = time.time()
 
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 

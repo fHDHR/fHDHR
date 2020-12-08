@@ -18,13 +18,8 @@ class Tuner():
         self.tuner_lock = threading.Lock()
         self.set_off_status()
 
-        if fhdhr.config.dict["fhdhr"]["address"] == "0.0.0.0":
-            self.location = ('http://127.0.0.1:%s' % str(fhdhr.config.dict["fhdhr"]["port"]))
-        else:
-            self.location = ('http://%s:%s' % (fhdhr.config.dict["fhdhr"]["address"], str(fhdhr.config.dict["fhdhr"]["port"])))
-
-        self.chanscan_url = "%s/api/channels?method=scan" % (self.location)
-        self.close_url = "%s/api/tuners?method=close&tuner=%s" % (self.location, str(self.number))
+        self.chanscan_url = "%s/api/channels?method=scan" % (self.fhdhr.api.base)
+        self.close_url = "%s/api/tuners?method=close&tuner=%s" % (self.fhdhr.api.base, str(self.number))
 
     def channel_scan(self):
         if self.tuner_lock.locked():

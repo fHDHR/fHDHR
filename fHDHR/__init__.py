@@ -2,10 +2,11 @@
 
 from .originwrapper import OriginServiceWrapper
 from .device import fHDHR_Device
+from .api import fHDHR_API_URLs
 
 import fHDHR.tools
 
-fHDHR_VERSION = "v0.4.5-beta"
+fHDHR_VERSION = "v0.4.6-beta"
 
 
 class fHDHR_INT_OBJ():
@@ -18,10 +19,12 @@ class fHDHR_INT_OBJ():
 
         self.web = fHDHR.tools.WebReq()
 
+        self.api = fHDHR_API_URLs(settings)
+
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, alternative_epg, origin):
+    def __init__(self, settings, logger, db, origin, alternative_epg):
         self.fhdhr = fHDHR_INT_OBJ(settings, logger, db)
 
         self.originwrapper = OriginServiceWrapper(self.fhdhr, origin)

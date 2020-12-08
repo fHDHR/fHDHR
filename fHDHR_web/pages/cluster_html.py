@@ -10,9 +10,9 @@ class Cluster_HTML():
         self.fhdhr = fhdhr
         self.location_dict = {
                               "name": self.fhdhr.config.dict["fhdhr"]["friendlyname"],
-                              "location": self.fhdhr.device.cluster.location,
+                              "location": self.fhdhr.api.base,
                               "joined": "N/A",
-                              "url_query": self.fhdhr.device.cluster.location_url
+                              "url_query": self.fhdhr.api.base_quoted
                               }
 
     def __call__(self, *args):

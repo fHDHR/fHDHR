@@ -15,7 +15,10 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir):
+    def __init__(self, filename, script_dir, origin, fHDHR_web):
+        self.origin = origin
+        self.fHDHR_web = fHDHR_web
+
         self.internal = {}
         self.conf_default = {}
         self.dict = {}
@@ -27,7 +30,8 @@ class Config():
     def initial_load(self, script_dir):
 
         data_dir = pathlib.Path(script_dir).joinpath('data')
-        www_dir = pathlib.Path(data_dir).joinpath('www')
+        fHDHR_web_dir = pathlib.Path(script_dir).joinpath('fHDHR_web')
+        www_dir = pathlib.Path(fHDHR_web_dir).joinpath('www_dir')
 
         self.internal["paths"] = {
                                     "script_dir": script_dir,
@@ -37,7 +41,7 @@ class Config():
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,
-                                    "www_templates_dir": pathlib.Path(www_dir).joinpath('templates'),
+                                    "www_templates_dir": pathlib.Path(fHDHR_web_dir).joinpath('templates'),
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
                                     }
 
@@ -63,6 +67,10 @@ class Config():
         self.internal["versions"] = {}
 
         self.internal["versions"]["fHDHR"] = fHDHR_VERSION
+
+        self.internal["versions"]["fHDHR_web"] = self.fHDHR_web.fHDHR_web_VERSION
+
+        self.internal["versions"][self.origin.ORIGIN_NAME] = self.origin.ORIGIN_VERSION
 
         self.internal["versions"]["Python"] = sys.version
 

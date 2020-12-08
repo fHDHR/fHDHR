@@ -8,6 +8,9 @@ from .rmg import fHDHR_RMG
 from .api import fHDHR_API
 
 
+fHDHR_web_VERSION = "v0.4.0-beta"
+
+
 class fHDHR_HTTP_Server():
     app = None
 
@@ -86,10 +89,11 @@ class fHDHR_HTTP_Server():
         self.app.add_url_rule(endpoint, endpoint_name, handler, methods=methods)
 
     def run(self):
-        self.http = WSGIServer((
-                            self.fhdhr.config.dict["fhdhr"]["address"],
-                            int(self.fhdhr.config.dict["fhdhr"]["port"])
-                            ), self.app.wsgi_app, log=self.fhdhr.logger)
+
+        self.http = WSGIServer(self.fhdhr.api.address_tuple,
+                               self.app.wsgi_app,
+                               log=self.fhdhr.logger)
+
         try:
             self.http.serve_forever()
         except KeyboardInterrupt:
