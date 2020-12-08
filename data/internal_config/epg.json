@@ -11,9 +11,14 @@
                     "config_web": true
                 },
           "update_frequency":{
-                    "value": 14400,
+                    "value": 43200,
                     "config_file": true,
                     "config_web": true
-                }
+                },
+          "valid_epg_methods":{
+                          "value": "None,blocks",
+                          "config_file": false,
+                          "config_web": false
+                        }
   }
 }

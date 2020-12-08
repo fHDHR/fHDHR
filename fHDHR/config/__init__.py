@@ -243,8 +243,8 @@ class Config():
 
         self.dict["origin"] = self.dict.pop(self.dict["main"]["dictpopname"])
 
-        if isinstance(self.dict["main"]["valid_epg_methods"], str):
-            self.dict["main"]["valid_epg_methods"] = [self.dict["main"]["valid_epg_methods"]]
+        if isinstance(self.dict["epg"]["valid_epg_methods"], str):
+            self.dict["epg"]["valid_epg_methods"] = [self.dict["epg"]["valid_epg_methods"]]
 
         if self.dict["epg"]["method"] and self.dict["epg"]["method"] not in ["None"]:
             if isinstance(self.dict["epg"]["method"], str):
