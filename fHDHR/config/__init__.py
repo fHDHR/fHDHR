@@ -15,7 +15,9 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir):
+    def __init__(self, filename, script_dir, origin):
+        self.origin = origin
+
         self.internal = {}
         self.conf_default = {}
         self.dict = {}
@@ -63,6 +65,8 @@ class Config():
         self.internal["versions"] = {}
 
         self.internal["versions"]["fHDHR"] = fHDHR_VERSION
+
+        self.internal["versions"][self.origin.ORIGIN_NAME] = self.origin.ORIGIN_VERSION
 
         self.internal["versions"]["Python"] = sys.version
 

@@ -5,7 +5,7 @@ from .device import fHDHR_Device
 
 import fHDHR.tools
 
-fHDHR_VERSION = "v0.4.5-beta"
+fHDHR_VERSION = "v0.4.6-beta"
 
 
 class fHDHR_INT_OBJ():
