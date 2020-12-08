@@ -5,10 +5,25 @@
                 "config_file": true,
                 "config_web": false
               },
-          "refresh_frequency":{
+          "max_age":{
                 "value": 1800,
                 "config_file": true,
                 "config_web": false
-                }
+                },
+            "proto":{
+                  "value": "ipv4",
+                  "config_file": true,
+                  "config_web": false
+                  },
+              "iface":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                    },
+                "multicast_address":{
+                      "value": "none",
+                      "config_file": true,
+                      "config_web": false
+                      }
   }
 }

@@ -1,4 +1,3 @@
-import urllib.parse
 from collections import OrderedDict
 
 
@@ -10,14 +9,8 @@ class fHDHR_Cluster():
         self.ssdp = ssdp
 
         self.friendlyname = self.fhdhr.config.dict["fhdhr"]["friendlyname"]
-        self.location = None
-        self.location_url = None
 
-        if fhdhr.config.dict["fhdhr"]["discovery_address"]:
-            self.location = ('http://' + fhdhr.config.dict["fhdhr"]["discovery_address"] + ':' +
-                             str(fhdhr.config.dict["fhdhr"]["port"]))
-            self.location_url = urllib.parse.quote(self.location)
-
+        if self.fhdhr.config.dict["fhdhr"]["discovery_address"]:
             self.startup_sync()
 
     def cluster(self):
@@ -31,7 +24,7 @@ class fHDHR_Cluster():
                         "base_url": fhdhr_list[location]["base_url"],
                         "name": fhdhr_list[location]["name"]
                         }
-            if item_dict["base_url"] != self.location:
+            if item_dict["base_url"] != self.fhdhr.api.base:
                 locations.append(item_dict)
         if len(locations):
             locations = sorted(locations, key=lambda i: i['name'])
@@ -43,7 +36,7 @@ class fHDHR_Cluster():
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         return_dict = {}
         for location in list(cluster.keys()):
-            if location != self.location:
+            if location != self.fhdhr.api.base:
                 return_dict[location] = {
                                         "Joined": True
                                         }
@@ -59,8 +52,8 @@ class fHDHR_Cluster():
 
     def default_cluster(self):
         defdict = {}
-        defdict[self.location] = {
-                                "base_url": self.location,
+        defdict[self.fhdhr.api.base] = {
+                                "base_url": self.fhdhr.api.base,
                                 "name": self.friendlyname
                                 }
         return defdict
@@ -73,13 +66,13 @@ class fHDHR_Cluster():
         else:
             self.fhdhr.logger.info("Found %s clustered services." % str(len(list(cluster.keys()))))
         for location in list(cluster.keys()):
-            if location != self.location:
+            if location != self.fhdhr.api.base:
                 self.fhdhr.logger.info("Checking Cluster Syncronization information from %s." % location)
                 sync_url = location + "/api/cluster?method=get"
                 try:
                     sync_open = self.fhdhr.web.session.get(sync_url)
                     retrieved_cluster = sync_open.json()
-                    if self.location not in list(retrieved_cluster.keys()):
+                    if self.fhdhr.api.base not in list(retrieved_cluster.keys()):
                         return self.leave()
                 except self.fhdhr.web.exceptions.ConnectionError:
                     self.fhdhr.logger.error("Unreachable: " + location)
@@ -91,9 +84,9 @@ class fHDHR_Cluster():
     def disconnect(self):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         for location in list(cluster.keys()):
-            if location != self.location:
+            if location != self.fhdhr.api.base:
                 self.fhdhr.logger.info("Informing %s that I am departing the Cluster." % location)
-                sync_url = location + "/api/cluster?method=del&location=" + self.location
+                sync_url = location + "/api/cluster?method=del&location=" + self.fhdhr.api.base
                 try:
                     self.fhdhr.web.session.get(sync_url)
                 except self.fhdhr.web.exceptions.ConnectionError:
@@ -111,8 +104,8 @@ class fHDHR_Cluster():
     def push_sync(self):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         for location in list(cluster.keys()):
-            if location != self.location:
-                sync_url = location + "/api/cluster?method=sync&location=" + self.location_url
+            if location != self.fhdhr.api.base:
+                sync_url = location + "/api/cluster?method=sync&location=" + self.fhdhr.api.base_quoted
                 try:
                     self.fhdhr.web.session.get(sync_url)
                 except self.fhdhr.web.exceptions.ConnectionError:

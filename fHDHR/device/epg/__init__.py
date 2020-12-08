@@ -36,12 +36,7 @@ class EPG():
             if epg_method not in list(self.sleeptime.keys()):
                 self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
 
-        if self.fhdhr.config.dict["fhdhr"]["address"] == "0.0.0.0":
-            self.location = ('http://127.0.0.1:%s' % str(self.fhdhr.config.dict["fhdhr"]["port"]))
-        else:
-            self.location = ('http://%s:%s' % (self.fhdhr.config.dict["fhdhr"]["address"], str(self.fhdhr.config.dict["fhdhr"]["port"])))
-
-        self.epg_update_url = "%s/api/epg?method=update" % (self.location)
+        self.epg_update_url = "%s/api/epg?method=update" % (self.fhdhr.api.base)
 
     def clear_epg_cache(self, method=None):
 

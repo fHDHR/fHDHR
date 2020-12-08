@@ -2,6 +2,7 @@
 
 from .originwrapper import OriginServiceWrapper
 from .device import fHDHR_Device
+from .api import fHDHR_API_URLs
 
 import fHDHR.tools
 
@@ -17,6 +18,8 @@ class fHDHR_INT_OBJ():
         self.db = db
 
         self.web = fHDHR.tools.WebReq()
+
+        self.api = fHDHR_API_URLs(settings)
 
 
 class fHDHR_OBJ():
