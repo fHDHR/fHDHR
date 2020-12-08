@@ -31,10 +31,10 @@ def build_args_parser():
     return parser.parse_args()
 
 
-def get_configuration(args, script_dir, origin):
+def get_configuration(args, script_dir, origin, fHDHR_web):
     if not os.path.isfile(args.cfg):
         raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
-    return fHDHR.config.Config(args.cfg, script_dir, origin)
+    return fHDHR.config.Config(args.cfg, script_dir, origin, fHDHR_web)
 
 
 def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
@@ -84,7 +84,7 @@ def start(args, script_dir, fHDHR_web, origin, alternative_epg):
     """Get Configuration for fHDHR and start"""
 
     try:
-        settings = get_configuration(args, script_dir, origin)
+        settings = get_configuration(args, script_dir, origin, fHDHR_web)
     except fHDHR.exceptions.ConfigurationError as e:
         print(e)
         return ERR_CODE_NO_RESTART

@@ -15,8 +15,9 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir, origin):
+    def __init__(self, filename, script_dir, origin, fHDHR_web):
         self.origin = origin
+        self.fHDHR_web = fHDHR_web
 
         self.internal = {}
         self.conf_default = {}
@@ -66,6 +67,8 @@ class Config():
         self.internal["versions"] = {}
 
         self.internal["versions"]["fHDHR"] = fHDHR_VERSION
+
+        self.internal["versions"]["fHDHR_web"] = self.fHDHR_web.fHDHR_web_VERSION
 
         self.internal["versions"][self.origin.ORIGIN_NAME] = self.origin.ORIGIN_VERSION
 
