@@ -12,6 +12,9 @@
 
       <table class="center" style="width:100%">
         <tr>
+          {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
+            <th>Play</th>
+          {% endif %}
           <th>Channel Name</th>
           <th>Channel Number</th>
           <th>Channel Thumbnail</th>
@@ -23,6 +26,13 @@
 
       {% for chan_dict in chan_guide_list %}
         <tr>
+          {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
+            <td>
+              {% if chan_dict["enabled"] %}
+                <a href="{{ chan_dict["play_url"] }}">Play</a>
+              {% endif %}
+            </td>
+          {% endif %}
           <td>{{ chan_dict["name"] }}</td>
           <td>{{ chan_dict["number"] }}</td>
           <td><img src="{{ chan_dict["chan_thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>

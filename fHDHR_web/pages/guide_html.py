@@ -38,6 +38,15 @@ class Guide_HTML():
                          "listing_description": channel["listing"][0]["description"],
                          "remaining_time": str(remaining_time)
                          }
+            if source in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", channel["id"])
+
+                chan_dict["name"] = chan_obj.dict["name"]
+                chan_dict["number"] = chan_obj.dict["number"]
+                chan_dict["chan_thumbnail"] = chan_obj.thumbnail
+                chan_dict["enabled"] = chan_obj.dict["enabled"]
+                chan_dict["play_url"] = chan_obj.play_url
+
             chan_guide_list.append(chan_dict)
 
-        return render_template('guide.html', request=request, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods)
+        return render_template('guide.html', request=request, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source)
