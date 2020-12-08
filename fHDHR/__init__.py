@@ -21,7 +21,7 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, alternative_epg, origin):
+    def __init__(self, settings, logger, db, origin, alternative_epg):
         self.fhdhr = fHDHR_INT_OBJ(settings, logger, db)
 
         self.originwrapper = OriginServiceWrapper(self.fhdhr, origin)
