@@ -15,11 +15,6 @@
                           "config_file": false,
                           "config_web": false
                         },
-          "valid_epg_methods":{
-                          "value": "None,blocks,origin,zap2it",
-                          "config_file": false,
-                          "config_web": false
-                        },
           "required":{
                           "value": "locast/username,locast/password",
                           "config_file": false,
@@ -32,11 +27,6 @@
                     "config_file": true,
                     "config_web": true
                 },
-          "stream_type":{
-                              "value": "direct",
-                              "config_file": true,
-                              "config_web": true
-                              },
           "tuner_count":{
                   "value": 3,
                   "config_file": true,
@@ -54,11 +44,11 @@
                     "config_file": true,
                     "config_web": true
                 },
-          "update_frequency":{
-                    "value": 43200,
-                    "config_file": true,
-                    "config_web": true
-                }
+          "valid_epg_methods":{
+                          "value": "None,blocks,origin,zap2it",
+                          "config_file": false,
+                          "config_web": false
+                        }
   },
   "locast":{
           "username":{

@@ -30,11 +30,6 @@
                           "config_file": false,
                           "config_web": false
                         },
-          "valid_epg_methods":{
-                          "value": "None,blocks",
-                          "config_file": false,
-                          "config_web": false
-                        },
           "required":{
                           "value": "none",
                           "config_file": false,

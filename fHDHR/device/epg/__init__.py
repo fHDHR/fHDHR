@@ -18,7 +18,7 @@ class EPG():
         self.epgdict = {}
 
         self.epg_methods = self.fhdhr.config.dict["epg"]["method"]
-        self.valid_epg_methods = [x for x in self.fhdhr.config.dict["main"]["valid_epg_methods"] if x and x not in [None, "None"]]
+        self.valid_epg_methods = [x for x in self.fhdhr.config.dict["epg"]["valid_epg_methods"] if x and x not in [None, "None"]]
 
         self.blocks = blocksEPG(self.fhdhr, self.channels)
         self.epg_handling = {
@@ -43,7 +43,7 @@ class EPG():
         if not method:
             method = self.def_method
         if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
-           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+           method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = "origin"
 
         epgtypename = method
@@ -78,7 +78,7 @@ class EPG():
         if not method:
             method = self.def_method
         if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
-           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+           method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = "origin"
 
         channel_guide_list = []
@@ -95,7 +95,7 @@ class EPG():
         if not method:
             method = self.def_method
         if (method == self.fhdhr.config.dict["main"]["dictpopname"] or
-           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+           method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = "origin"
 
         if method not in list(self.epgdict.keys()):
@@ -147,7 +147,7 @@ class EPG():
     def update(self, method=None):
 
         if (not method or
-           method not in self.fhdhr.config.dict["main"]["valid_epg_methods"]):
+           method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = self.def_method
 
         if method == self.fhdhr.config.dict["main"]["dictpopname"]:
