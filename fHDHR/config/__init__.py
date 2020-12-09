@@ -53,9 +53,15 @@ class Config():
         for dir_type in ["alternative_epg", "origin"]:
 
             for file_item in os.listdir(self.internal["paths"][dir_type]):
-                file_item_path = os.path.join(self.internal["paths"][dir_type], file_item)
-                if str(file_item_path).endswith("_conf.json"):
-                    self.read_json_config(file_item_path)
+                file_item_path = pathlib.Path(self.internal["paths"][dir_type]).joinpath(file_item)
+                if file_item_path.is_dir():
+                    for sub_file_item in os.listdir(file_item_path):
+                        sub_file_item_path = pathlib.Path(file_item_path).joinpath(sub_file_item)
+                        if str(sub_file_item_path).endswith("_conf.json"):
+                            self.read_json_config(sub_file_item_path)
+                else:
+                    if str(file_item_path).endswith("_conf.json"):
+                        self.read_json_config(file_item_path)
 
         print("Loading Configuration File: " + str(self.config_file))
         self.read_ini_config(self.config_file)
