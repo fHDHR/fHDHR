@@ -12,19 +12,19 @@ class zap2itEPG():
 
         self.channels = channels
 
-        self.postalcode = self.fhdhr.config.dict["zap2it"]["postalcode"]
-
-    def get_location(self):
-        self.fhdhr.logger.warning("Zap2it postalcode not set, attempting to retrieve.")
-        if not self.postalcode:
-            try:
-                postalcode_url = 'http://ipinfo.io/json'
-                postalcode_req = self.fhdhr.web.session.get(postalcode_url)
-                data = postalcode_req.json()
-                self.postalcode = data["postal"]
-            except Exception as e:
-                raise EPGSetupError("Unable to automatically optain zap2it postalcode: " + str(e))
-        return self.postalcode
+    @property
+    def postalcode(self):
+        if self.fhdhr.config.dict["zap2it"]["postalcode"]:
+            return self.fhdhr.config.dict["zap2it"]["postalcode"]
+        try:
+            postalcode_url = 'http://ipinfo.io/json'
+            postalcode_req = self.fhdhr.web.session.get(postalcode_url)
+            data = postalcode_req.json()
+            postalcode = data["postal"]
+        except Exception as e:
+            raise EPGSetupError("Unable to automatically optain postalcode: " + str(e))
+            postalcode = None
+        return postalcode
 
     def update_epg(self):
         programguide = {}
@@ -119,7 +119,7 @@ class zap2itEPG():
                 'timespan': self.fhdhr.config.dict["zap2it"]['timespan'],
                 'timezone': self.fhdhr.config.dict["zap2it"]['timezone'],
                 'userId': self.fhdhr.config.dict["zap2it"]['userid'],
-                'postalCode': str(self.postalcode or self.get_location()),
+                'postalCode': str(self.postalcode),
                 'lineupId': '%s-%s-DEFAULT' % (self.fhdhr.config.dict["zap2it"]['country'], self.fhdhr.config.dict["zap2it"]['device']),
                 'time': i_time,
                 'Activity_ID': 1,
