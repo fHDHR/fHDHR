@@ -25,10 +25,23 @@ class OriginChannels():
 
         cleaned_channels = []
         for station_item in stationsRes:
+
+            thumbnails = []
+            for thumb_opt in ["logo226Url", "logoUrl"]:
+
+                try:
+                    thumbnail = station_item[thumb_opt]
+                except TypeError:
+                    thumbnail = None
+                if thumbnail:
+                    thumbnails.append(thumbnail)
+            if not len(thumbnails):
+                thumbnails = [None]
+
             clean_station_item = {
                                  "name": station_item["name"],
                                  "id": station_item["id"],
-                                 "thumbnail": station_item["logo226Url"]
+                                 "thumbnail": thumbnails[0]
                                  }
 
             # Typically this will be `2.1 KTTW` but occasionally Locast only provides a channel number here
