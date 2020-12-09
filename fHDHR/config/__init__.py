@@ -255,7 +255,7 @@ class Config():
                     epg_methods.append("origin")
                 elif epg_method in ["None"]:
                     raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
-                elif epg_method in self.dict["main"]["valid_epg_methods"]:
+                elif epg_method in self.dict["epg"]["valid_epg_methods"]:
                     epg_methods.append(epg_method)
                 else:
                     raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
