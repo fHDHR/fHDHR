@@ -4,6 +4,11 @@
                       "value": "none",
                       "config_file": true,
                       "config_web": true
+                  },
+            "advanced":{
+                      "value": false,
+                      "config_file": true,
+                      "config_web": true
                   }
   }
 }

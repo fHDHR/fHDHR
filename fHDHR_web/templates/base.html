@@ -17,19 +17,47 @@
       <p></p>
       <div>
 
-      <button class="pull-left" onclick="OpenLink('/')">fHDHR</a></button>
+      <button class="pull-left" onclick="OpenLink('/index')">fHDHR</a></button>
+
       <button class="pull-left" onclick="OpenLink('/origin')">{{ fhdhr.config.dict["main"]["servicename"] }}</a></button>
+
       <button class="pull-left" onclick="OpenLink('/channels')">Channels</a></button>
+
       <button class="pull-left" onclick="OpenLink('/guide')">Guide</a></button>
+
       <button class="pull-left" onclick="OpenLink('/cluster')">Cluster/SSDP</a></button>
+
       <button class="pull-left" onclick="OpenLink('/tuners')">Tuners</a></button>
+
       <button class="pull-left" onclick="OpenLink('/xmltv')">xmltv</a></button>
-      <button class="pull-left" onclick="OpenLink('/version')">Version</a></button>
-      <button class="pull-left" onclick="OpenLink('/diagnostics')">Diagnostics</a></button>
+
+      {% if fhdhr.config.dict["web_ui"]["advanced"] %}
+        <button class="pull-left" onclick="OpenLink('/version')">Version</a></button>
+      {% endif %}
+
+      {% if fhdhr.config.dict["web_ui"]["advanced"] %}
+        <button class="pull-left" onclick="OpenLink('/diagnostics')">Diagnostics</a></button>
+      {% endif %}
+
       <button class="pull-left" onclick="OpenLink('/settings')">Settings</a></button>
 
       <a class="pull-right" style="padding: 5px;" href="/api/xmltv?method=get&source={{ fhdhr.device.epg.def_method }}">xmltv</a>
       <a class="pull-right" style="padding: 5px;" href="/api/m3u?method=get&channel=all">m3u</a>
+      <form  class="pull-right" style="padding: 5px;"  method="post" action="/api/settings?method=update&redirect={{ request.path }}">
+        <input type="hidden" name="config_section" value="web_ui">
+        <input type="hidden" name="config_name" value="advanced">
+        {% if fhdhr.config.dict["web_ui"]["advanced"] %}
+          <input type="hidden" name="config_value" value=False>
+        {% else %}
+          <input type="hidden" name="config_value" value=True>
+        {% endif %}
+        <input type="hidden" name="config_default" value=False>
+        {% if fhdhr.config.dict["web_ui"]["advanced"] %}
+          <a data-th="Reset"><input type="submit" value="Basic"></a>
+        {% else %}
+          <a data-th="Reset"><input type="submit" value="Advanced"></a>
+        {% endif %}
+      </form>
 
       </div>
       <hr align="center" width="100%">
