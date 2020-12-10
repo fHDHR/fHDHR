@@ -60,15 +60,18 @@ class EPG():
 
         self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
 
-    def whats_on_now(self, channel, method=None):
+    def whats_on_now(self, channel_number, method=None):
+        nowtime = datetime.datetime.utcnow()
         epgdict = self.get_epg(method)
-        listings = epgdict[channel]["listing"]
+        try:
+            listings = epgdict[channel_number]["listing"]
+        except KeyError:
+            listings = []
         for listing in listings:
-            nowtime = datetime.datetime.utcnow()
             start_time = datetime.datetime.strptime(listing["time_start"], '%Y%m%d%H%M%S +0000')
             end_time = datetime.datetime.strptime(listing["time_end"], '%Y%m%d%H%M%S +0000')
             if start_time <= nowtime <= end_time:
-                epgitem = epgdict[channel].copy()
+                epgitem = epgdict[channel_number].copy()
                 epgitem["listing"] = [listing]
                 return epgitem
         return None
@@ -83,9 +86,18 @@ class EPG():
 
         channel_guide_list = []
         epgdict = self.get_epg(method)
-        channels = list(epgdict.keys())
-        for channel in channels:
-            whatson = self.whats_on_now(epgdict[channel]["number"], method)
+        if method in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+            epgdict = epgdict.copy()
+            for c in list(epgdict.keys()):
+                chan_obj = self.channels.get_channel_obj("origin_id", epgdict[c]["id"])
+                epgdict[chan_obj.number] = epgdict.pop(c)
+                epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
+                epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
+                epgdict[chan_obj.number]["number"] = chan_obj.number
+                epgdict[chan_obj.number]["id"] = chan_obj.dict["origin_id"]
+                epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+        for channel_number in list(epgdict.keys()):
+            whatson = self.whats_on_now(channel_number, method)
             if whatson:
                 channel_guide_list.append(whatson)
         return channel_guide_list
@@ -121,17 +133,15 @@ class EPG():
 
     def find_channel_dict(self, channel_id):
         epgdict = self.get_epg()
-        channel_list = []
-        for channel in list(epgdict.keys()):
-            channel_list.append(epgdict[channel])
-        return next(item for item in channel_list if item["id"] == channel_id)
+        channel_list = [epgdict[x] for x in list(epgdict.keys())]
+        return next(item for item in channel_list if item["id"] == channel_id) or None
 
     def find_program_dict(self, event_id):
         epgdict = self.get_epg()
         event_list = []
         for channel in list(epgdict.keys()):
             event_list.extend(epgdict[channel]["listing"])
-        return next(item for item in event_list if item["id"] == event_id)
+        return next(item for item in event_list if item["id"] == event_id) or None
 
     def epg_method_selfadd(self):
         self.fhdhr.logger.info("Checking for Alternative EPG methods.")
@@ -165,11 +175,6 @@ class EPG():
             programguide = self.epg_handling['origin'].update_epg(self.channels)
         else:
             programguide = self.epg_handling[method].update_epg()
-
-        for chan in list(programguide.keys()):
-            floatnum = str(float(chan))
-            programguide[floatnum] = programguide.pop(chan)
-            programguide[floatnum]["number"] = floatnum
 
         programguide = OrderedDict(sorted(programguide.items()))
 

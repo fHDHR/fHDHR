@@ -20,15 +20,24 @@ class OriginEPG():
 
         self.remove_stale_cache(todaydate)
 
+        url = "https://api.locastnet.org/api/watch/epg/%s" % fhdhr_channels.origin.location["DMA"]
+        self.fhdhr.logger.info('Fetching:  ' + url)
+        try:
+            resp = self.fhdhr.web.session.get(url)
+        except self.fhdhr.web.exceptions.HTTPError:
+            self.fhdhr.logger.info('Got an error!  Ignoring it.')
+        uncached_result = resp.json()
+
         cached_items = self.get_cached(dates_to_pull, fhdhr_channels.origin.location["DMA"])
+        cached_items.insert(0, uncached_result)
         for result in cached_items:
 
             for c in result:
 
                 chan_obj = fhdhr_channels.get_channel_obj("origin_id", c["id"])
 
-                if str(chan_obj.dict["number"]) not in list(programguide.keys()):
-                    programguide[str(chan_obj.dict["number"])] = chan_obj.epgdict
+                if str(chan_obj.number) not in list(programguide.keys()):
+                    programguide[str(chan_obj.number)] = chan_obj.epgdict
 
                 for event in c['listings']:
 
@@ -66,8 +75,14 @@ class OriginEPG():
                     if eventdict["entityType"]:
                         clean_prog_dict["genres"].append(eventdict["entityType"])
 
-                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chan_obj.dict["number"])]["listing"]):
-                        programguide[str(chan_obj.dict["number"])]["listing"].append(clean_prog_dict)
+                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(chan_obj.number)]["listing"]):
+                        programguide[str(chan_obj.number)]["listing"].append(clean_prog_dict)
+
+        missing_channels = []
+        for fhdhr_id in list(fhdhr_channels.list.keys()):
+            channel_number = fhdhr_channels.list[fhdhr_id].number
+            if channel_number not in list(programguide.keys()):
+                missing_channels.append(channel_number)
 
         return programguide
 

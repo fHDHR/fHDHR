@@ -42,7 +42,7 @@ class Guide_HTML():
                 chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", channel["id"])
 
                 chan_dict["name"] = chan_obj.dict["name"]
-                chan_dict["number"] = chan_obj.dict["number"]
+                chan_dict["number"] = chan_obj.number
                 chan_dict["chan_thumbnail"] = chan_obj.thumbnail
                 chan_dict["enabled"] = chan_obj.dict["enabled"]
                 chan_dict["play_url"] = chan_obj.play_url

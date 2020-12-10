@@ -16,12 +16,12 @@ class blocksEPG():
         for fhdhr_id in list(self.channels.list.keys()):
             chan_obj = self.channels.list[fhdhr_id]
 
-            if str(chan_obj.dict["number"]) not in list(programguide.keys()):
-                programguide[str(chan_obj.dict["number"])] = chan_obj.epgdict
+            if str(chan_obj.number) not in list(programguide.keys()):
+                programguide[str(chan_obj.number)] = chan_obj.epgdict
 
             clean_prog_dicts = self.empty_channel_epg(timestamps, chan_obj)
             for clean_prog_dict in clean_prog_dicts:
-                programguide[str(chan_obj.dict["number"])]["listing"].append(clean_prog_dict)
+                programguide[str(chan_obj.number)]["listing"].append(clean_prog_dict)
 
         return programguide
 

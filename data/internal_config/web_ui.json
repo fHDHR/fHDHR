@@ -1,9 +1,0 @@
-{
-  "web_ui":{
-            "theme":{
-                      "value": "none",
-                      "config_file": true,
-                      "config_web": true
-                  }
-  }
-}

@@ -42,6 +42,7 @@ class Config():
                                     "origin_web": pathlib.Path(origin_dir).joinpath('origin_web'),
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
+                                    "fHDHR_web_dir": fHDHR_web_dir,
                                     "www_dir": www_dir,
                                     "www_templates_dir": pathlib.Path(fHDHR_web_dir).joinpath('templates'),
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
@@ -51,6 +52,11 @@ class Config():
             conffilepath = os.path.join(self.internal["paths"]["internal_config"], conffile)
             if str(conffilepath).endswith(".json"):
                 self.read_json_config(conffilepath)
+
+        for file_item in os.listdir(self.internal["paths"]["fHDHR_web_dir"]):
+            file_item_path = pathlib.Path(self.internal["paths"]["fHDHR_web_dir"]).joinpath(file_item)
+            if str(file_item_path).endswith("_conf.json"):
+                self.read_json_config(file_item_path)
 
         for dir_type in ["alternative_epg", "origin"]:
 
@@ -215,6 +221,22 @@ class Config():
                     self.dict[each_section.lower()][each_key.lower()] = each_val
 
     def write(self, section, key, value):
+
+        if not value:
+            value = None
+        if value.lower() in ["none"]:
+            value = None
+        elif value.lower() in ["false"]:
+            value = False
+        elif value.lower() in ["true"]:
+            value = True
+        elif isint(value):
+            value = int(value)
+        elif isfloat(value):
+            value = float(value)
+        elif isinstance(value, list):
+            ",".join(value)
+
         if section == self.dict["main"]["dictpopname"]:
             self.dict["origin"][key] = value
         else:
@@ -226,7 +248,7 @@ class Config():
         if not config_handler.has_section(section):
             config_handler.add_section(section)
 
-        config_handler.set(section, key, value)
+        config_handler.set(section, key, str(value))
 
         with open(self.config_file, 'w') as config_file:
             config_handler.write(config_file)

@@ -25,10 +25,16 @@ class Channels():
             self.get_channels()
 
     def get_channel_obj(self, keyfind, valfind):
-        return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].dict[keyfind] == valfind)
+        if keyfind == "number":
+            return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].number == valfind) or None
+        else:
+            return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].dict[keyfind] == valfind) or None
 
     def get_channel_list(self, keyfind):
-        return [self.list[x].dict[keyfind] for x in list(self.list.keys())]
+        if keyfind == "number":
+            return [self.list[x].number for x in list(self.list.keys())]
+        else:
+            return [self.list[x].dict[keyfind] for x in list(self.list.keys())]
 
     def set_channel_status(self, keyfind, valfind, updatedict):
         self.get_channel_obj(keyfind, valfind).set_status(updatedict)

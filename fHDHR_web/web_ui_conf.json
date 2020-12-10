@@ -1,0 +1,20 @@
+{
+  "web_ui":{
+            "theme":{
+                      "value": "none",
+                      "config_file": true,
+                      "config_web": true
+                  },
+            "advanced":{
+                      "value": false,
+                      "config_file": true,
+                      "config_web": true
+                  }
+                  ,
+            "cluster_bar":{
+                      "value": true,
+                      "config_file": true,
+                      "config_web": true
+                  }
+  }
+}
