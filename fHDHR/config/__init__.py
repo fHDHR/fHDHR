@@ -32,12 +32,14 @@ class Config():
         data_dir = pathlib.Path(script_dir).joinpath('data')
         fHDHR_web_dir = pathlib.Path(script_dir).joinpath('fHDHR_web')
         www_dir = pathlib.Path(fHDHR_web_dir).joinpath('www_dir')
+        origin_dir = pathlib.Path(script_dir).joinpath('origin')
 
         self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
                                     "alternative_epg": pathlib.Path(script_dir).joinpath('alternative_epg'),
-                                    "origin": pathlib.Path(script_dir).joinpath('origin'),
+                                    "origin": origin_dir,
+                                    "origin_web": pathlib.Path(origin_dir).joinpath('origin_web'),
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,

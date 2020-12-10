@@ -96,18 +96,6 @@ class OriginService():
 
         return token
 
-    def get_status_dict(self):
-        ret_status_dict = {
-            "Login": "Success",
-            "Username": self.fhdhr.config.dict["origin"]["username"],
-            "DMA": self.location["DMA"],
-            "City": self.location["city"],
-            "Latitude": self.location["latitude"],
-            "Longitude": self.location["longitude"],
-            "Donation Expiration": fHDHR.tools.humanized_time(int((self.status_dict["donateExp"] - datetime.datetime.utcnow()).total_seconds()))
-            }
-        return ret_status_dict
-
     def set_location(self, geoRes):
         self.location["latitude"] = str(geoRes['latitude'])
         self.location["longitude"] = str(geoRes['longitude'])
