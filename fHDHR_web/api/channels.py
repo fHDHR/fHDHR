@@ -84,7 +84,12 @@ class Channels():
                     if key in ["name", "callsign", "thumbnail"]:
                         updatedict[key] = str(request.form.get(key))
                     elif key in ["number"]:
-                        updatedict[key] = float(request.form.get(key))
+                        number = str(request.form.get(key))
+                        if "." in number:
+                            updatedict["subnumber"] = number.split(".")[1]
+                            updatedict["number"] = number.split(".")[0]
+                        else:
+                            updatedict["number"] = number
                     elif key in ["enabled"]:
                         confvalue = request.form.get(key)
                         if str(confvalue).lower() in ["false"]:

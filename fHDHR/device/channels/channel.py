@@ -14,10 +14,18 @@ class Channel():
             else:
                 channel_id = id_system.assign()
         self.channel_id = channel_id
+
         self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict
         self.verify_dict()
 
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
+
+    @property
+    def number(self):
+        if self.dict["subnumber"]:
+            return "%s.%s" % (self.dict["number"], self.dict["subnumber"])
+        else:
+            return self.dict["number"]
 
     @property
     def thumbnail(self):
@@ -35,9 +43,9 @@ class Channel():
         return {
                 "callsign": self.dict["callsign"],
                 "name": self.dict["name"],
-                "number": self.dict["number"],
+                "number": self.number,
                 "id": self.dict["origin_id"],
-                "thumbnail": self.dict["thumbnail"],
+                "thumbnail": self.thumbnail,
                 "listing": [],
                 }
 
@@ -49,6 +57,10 @@ class Channel():
         for key in list(default_dict.keys()):
             if key not in list(self.dict.keys()):
                 self.dict[key] = default_dict[key]
+        if self.dict["number"]:
+            if "." in self.dict["number"]:
+                self.dict["subnumber"] = self.dict["number"].split(".")[1]
+                self.dict["number"] = self.dict["number"].split(".")[0]
 
     def basics(self, channel_info):
         """Some Channel Information is Critical"""
@@ -77,9 +89,17 @@ class Channel():
 
         if "number" not in list(channel_info.keys()):
             channel_info["number"] = self.id_system.get_number(channel_info["id"])
-        self.dict["origin_number"] = str(float(channel_info["number"]))
+        self.dict["origin_number"] = str(channel_info["number"])
         if not self.dict["number"]:
-            self.dict["number"] = self.dict["origin_number"]
+            self.dict["number"] = self.dict["origin_number"].split(".")[0]
+            try:
+                self.dict["subnumber"] = self.dict["origin_number"].split(".")[1]
+            except IndexError:
+                self.dict["subnumber"] = None
+        else:
+            if "." in self.dict["number"]:
+                self.dict["subnumber"] = self.dict["number"].split(".")[1]
+                self.dict["number"] = self.dict["number"].split(".")[0]
 
         if "thumbnail" not in list(channel_info.keys()):
             channel_info["thumbnail"] = None
@@ -106,7 +126,7 @@ class Channel():
                 "id": str(self.channel_id), "origin_id": None,
                 "name": None, "origin_name": None,
                 "callsign": None, "origin_callsign": None,
-                "number": None, "origin_number": None,
+                "number": None, "subnumber": None, "origin_number": None,
                 "tags": [], "origin_tags": [],
                 "thumbnail": None, "origin_thumbnail": None,
                 "enabled": True, "favorite": 0,
@@ -123,14 +143,14 @@ class Channel():
     def set_status(self, updatedict):
         for key in list(updatedict.keys()):
             if key == "number":
-                updatedict[key] = str(float(updatedict[key]))
+                updatedict[key] = str(updatedict[key])
             self.dict[key] = updatedict[key]
         self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
 
     @property
     def lineup_dict(self):
         return {
-                 'GuideNumber': self.dict['number'],
+                 'GuideNumber': self.number,
                  'GuideName': self.dict['name'],
                  'Tags': ",".join(self.dict['tags']),
                  'URL': self.stream_url,
@@ -140,15 +160,15 @@ class Channel():
 
     @property
     def generic_image_url(self):
-        return "/api/images?method=generate&type=channel&message=%s" % self.dict["number"]
+        return "/api/images?method=generate&type=channel&message=%s" % self.number
 
     @property
     def stream_url(self):
-        return '/auto/v%s' % self.dict['number']
+        return '/auto/v%s' % self.number
 
     @property
     def play_url(self):
-        return '/api/m3u?method=get&channel=%s' % self.dict['number']
+        return '/api/m3u?method=get&channel=%s' % self.number
 
     def set_favorite(self, enablement):
         if enablement == "+":

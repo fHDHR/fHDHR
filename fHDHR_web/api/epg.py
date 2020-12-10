@@ -32,12 +32,12 @@ class EPG():
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
                     chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"])
-                    epgdict[chan_obj.dict["number"]] = epgdict.pop(c)
-                    epgdict[chan_obj.dict["number"]]["name"] = chan_obj.dict["name"]
-                    epgdict[chan_obj.dict["number"]]["callsign"] = chan_obj.dict["callsign"]
-                    epgdict[chan_obj.dict["number"]]["number"] = chan_obj.dict["number"]
-                    epgdict[chan_obj.dict["number"]]["id"] = chan_obj.dict["origin_id"]
-                    epgdict[chan_obj.dict["number"]]["thumbnail"] = chan_obj.thumbnail
+                    epgdict[chan_obj.number] = epgdict.pop(c)
+                    epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
+                    epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
+                    epgdict[chan_obj.number]["number"] = chan_obj.number
+                    epgdict[chan_obj.number]["id"] = chan_obj.dict["origin_id"]
+                    epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
 
             epg_json = json.dumps(epgdict, indent=4)
 
