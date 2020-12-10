@@ -26,8 +26,11 @@ class Guide_HTML():
             source = self.fhdhr.device.epg.def_method
 
         for channel in self.fhdhr.device.epg.whats_on_allchans(source):
-            end_time = datetime.datetime.strptime(channel["listing"][0]["time_end"], '%Y%m%d%H%M%S +0000')
-            remaining_time = humanized_time(int((end_time - nowtime).total_seconds()))
+            if channel["listing"][0]["time_end"]:
+                end_time = datetime.datetime.strptime(channel["listing"][0]["time_end"], '%Y%m%d%H%M%S +0000')
+                remaining_time = humanized_time(int((end_time - nowtime).total_seconds()))
+            else:
+                remaining_time = "N/A"
 
             chan_dict = {
                          "name": channel["name"],

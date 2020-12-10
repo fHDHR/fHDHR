@@ -74,7 +74,25 @@ class EPG():
                 epgitem = epgdict[channel_number].copy()
                 epgitem["listing"] = [listing]
                 return epgitem
-        return None
+        epgitem = epgdict[channel_number].copy()
+        epgitem["listing"] = [{
+                                "time_start": None,
+                                "time_end": None,
+                                "duration_minutes": None,
+                                "thumbnail": None,
+                                "title": "Unavailable",
+                                "sub-title": "Unavailable",
+                                "description": "Unavailable",
+                                "rating": "N/A",
+                                "episodetitle": None,
+                                "releaseyear": None,
+                                "genres": [],
+                                "seasonnumber": None,
+                                "episodenumber": None,
+                                "isnew": False,
+                                "id": None,
+                            }]
+        return epgitem
 
     def whats_on_allchans(self, method=None):
 
@@ -180,6 +198,14 @@ class EPG():
 
         for cnum in programguide:
             programguide[cnum]["listing"] = sorted(programguide[cnum]["listing"], key=lambda i: i['time_start'])
+
+        if method in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+
+            for fhdhr_id in list(self.channels.list.keys()):
+                chan_obj = self.channels.list[fhdhr_id]
+
+                if str(chan_obj.number) not in list(programguide.keys()):
+                    programguide[str(chan_obj.number)] = chan_obj.epgdict
 
         self.epgdict = programguide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
