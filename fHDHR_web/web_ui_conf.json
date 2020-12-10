@@ -10,5 +10,11 @@
                       "config_file": true,
                       "config_web": true
                   }
+                  ,
+            "cluster_bar":{
+                      "value": true,
+                      "config_file": true,
+                      "config_web": true
+                  }
   }
 }

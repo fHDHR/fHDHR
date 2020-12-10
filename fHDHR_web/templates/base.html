@@ -62,14 +62,16 @@
       </div>
       <hr align="center" width="100%">
 
-      {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
-      {% if locations %}
-        <div>
-        {% for location in locations %}
-            <button class="pull-left" onclick="OpenLink('{{ location["base_url"] }}')">{{ location["name"] }}</a></button>
-        {% endfor %}
-        </div>
-        <hr align="center" width="100%">
+      {% if fhdhr.config.dict["web_ui"]["cluster_bar"] %}
+        {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
+        {% if locations %}
+          <div>
+          {% for location in locations %}
+              <button class="pull-left" onclick="OpenLink('{{ location["base_url"] }}')">{{ location["name"] }}</a></button>
+          {% endfor %}
+          </div>
+          <hr align="center" width="100%">
+        {% endif %}
       {% endif %}
 
       {% set retmessage = request.args.get('retmessage', default=None) %}
