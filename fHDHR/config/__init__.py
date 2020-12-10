@@ -215,6 +215,22 @@ class Config():
                     self.dict[each_section.lower()][each_key.lower()] = each_val
 
     def write(self, section, key, value):
+
+        if not value:
+            value = None
+        if value.lower() in ["none"]:
+            value = None
+        elif value.lower() in ["false"]:
+            value = False
+        elif value.lower() in ["true"]:
+            value = True
+        elif isint(value):
+            value = int(value)
+        elif isfloat(value):
+            value = float(value)
+        elif isinstance(value, list):
+            ",".join(value)
+
         if section == self.dict["main"]["dictpopname"]:
             self.dict["origin"][key] = value
         else:
@@ -226,7 +242,7 @@ class Config():
         if not config_handler.has_section(section):
             config_handler.add_section(section)
 
-        config_handler.set(section, key, value)
+        config_handler.set(section, key, str(value))
 
         with open(self.config_file, 'w') as config_file:
             config_handler.write(config_file)
