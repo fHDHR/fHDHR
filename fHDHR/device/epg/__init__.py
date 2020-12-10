@@ -140,6 +140,9 @@ class EPG():
             if entry.is_file():
                 if entry.name[0] != '_' and entry.name.endswith(".py"):
                     new_epgtype_list.append(str(entry.name[:-3]))
+            elif entry.is_dir():
+                if entry.name[0] != '_':
+                    new_epgtype_list.append(str(entry.name))
         for method in new_epgtype_list:
             self.fhdhr.logger.info("Found %s EPG method." % method)
             self.epg_handling[method] = eval("self.alternative_epg.%s.%sEPG(self.fhdhr, self.channels)" % (method, method))

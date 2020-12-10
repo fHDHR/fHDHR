@@ -45,7 +45,7 @@
                     "config_web": true
                 },
           "valid_epg_methods":{
-                          "value": "None,blocks,origin,zap2it",
+                          "value": "None,blocks,origin,zap2it,tvtv",
                           "config_file": false,
                           "config_web": false
                         }

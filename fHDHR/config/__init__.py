@@ -32,12 +32,14 @@ class Config():
         data_dir = pathlib.Path(script_dir).joinpath('data')
         fHDHR_web_dir = pathlib.Path(script_dir).joinpath('fHDHR_web')
         www_dir = pathlib.Path(fHDHR_web_dir).joinpath('www_dir')
+        origin_dir = pathlib.Path(script_dir).joinpath('origin')
 
         self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
                                     "alternative_epg": pathlib.Path(script_dir).joinpath('alternative_epg'),
-                                    "origin": pathlib.Path(script_dir).joinpath('origin'),
+                                    "origin": origin_dir,
+                                    "origin_web": pathlib.Path(origin_dir).joinpath('origin_web'),
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "www_dir": www_dir,
@@ -53,9 +55,15 @@ class Config():
         for dir_type in ["alternative_epg", "origin"]:
 
             for file_item in os.listdir(self.internal["paths"][dir_type]):
-                file_item_path = os.path.join(self.internal["paths"][dir_type], file_item)
-                if str(file_item_path).endswith("_conf.json"):
-                    self.read_json_config(file_item_path)
+                file_item_path = pathlib.Path(self.internal["paths"][dir_type]).joinpath(file_item)
+                if file_item_path.is_dir():
+                    for sub_file_item in os.listdir(file_item_path):
+                        sub_file_item_path = pathlib.Path(file_item_path).joinpath(sub_file_item)
+                        if str(sub_file_item_path).endswith("_conf.json"):
+                            self.read_json_config(sub_file_item_path)
+                else:
+                    if str(file_item_path).endswith("_conf.json"):
+                        self.read_json_config(file_item_path)
 
         print("Loading Configuration File: " + str(self.config_file))
         self.read_ini_config(self.config_file)

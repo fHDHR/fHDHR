@@ -1,0 +1,14 @@
+{
+  "tvtv":{
+          "postalcode":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                },
+          "lineuptype":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false
+                }
+  }
+}

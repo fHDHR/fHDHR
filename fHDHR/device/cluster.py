@@ -67,7 +67,7 @@ class fHDHR_Cluster():
             self.fhdhr.logger.info("Found %s clustered services." % str(len(list(cluster.keys()))))
         for location in list(cluster.keys()):
             if location != self.fhdhr.api.base:
-                self.fhdhr.logger.info("Checking Cluster Syncronization information from %s." % location)
+                self.fhdhr.logger.debug("Checking Cluster Syncronization information from %s." % location)
                 sync_url = location + "/api/cluster?method=get"
                 try:
                     sync_open = self.fhdhr.web.session.get(sync_url)

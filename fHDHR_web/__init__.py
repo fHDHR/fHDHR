@@ -43,6 +43,10 @@ class fHDHR_HTTP_Server():
         self.api = fHDHR_API(fhdhr)
         self.add_endpoints(self.api, "api")
 
+        self.fhdhr.logger.info("Loading HTTP Origin Endpoints.")
+        self.origin_endpoints = self.fhdhr.originwrapper.origin.origin_web.fHDHR_Origin_Web(fhdhr)
+        self.add_endpoints(self.origin_endpoints, "origin_endpoints")
+
         self.app.before_request(self.before_request)
         self.app.after_request(self.after_request)
         self.app.before_first_request(self.before_first_request)
@@ -69,7 +73,7 @@ class fHDHR_HTTP_Server():
                 endpoint_methods = eval("self." + str(index_name) + "." + str(item) + ".endpoint_methods")
             except AttributeError:
                 endpoint_methods = ['GET']
-            self.fhdhr.logger.info("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
+            self.fhdhr.logger.debug("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
             for endpoint in endpoints:
                 self.add_endpoint(endpoint=endpoint,
                                   endpoint_name=endpoint_name,
