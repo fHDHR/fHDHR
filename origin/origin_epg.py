@@ -20,7 +20,16 @@ class OriginEPG():
 
         self.remove_stale_cache(todaydate)
 
+        url = "https://api.locastnet.org/api/watch/epg/%s" % fhdhr_channels.origin.location["DMA"]
+        self.fhdhr.logger.info('Fetching:  ' + url)
+        try:
+            resp = self.fhdhr.web.session.get(url)
+        except self.fhdhr.web.exceptions.HTTPError:
+            self.fhdhr.logger.info('Got an error!  Ignoring it.')
+        uncached_result = resp.json()
+
         cached_items = self.get_cached(dates_to_pull, fhdhr_channels.origin.location["DMA"])
+        cached_items.insert(0, uncached_result)
         for result in cached_items:
 
             for c in result:
