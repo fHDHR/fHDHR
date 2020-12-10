@@ -42,6 +42,7 @@ class Config():
                                     "origin_web": pathlib.Path(origin_dir).joinpath('origin_web'),
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
+                                    "fHDHR_web_dir": fHDHR_web_dir,
                                     "www_dir": www_dir,
                                     "www_templates_dir": pathlib.Path(fHDHR_web_dir).joinpath('templates'),
                                     "font": pathlib.Path(data_dir).joinpath('garamond.ttf'),
@@ -51,6 +52,11 @@ class Config():
             conffilepath = os.path.join(self.internal["paths"]["internal_config"], conffile)
             if str(conffilepath).endswith(".json"):
                 self.read_json_config(conffilepath)
+
+        for file_item in os.listdir(self.internal["paths"]["fHDHR_web_dir"]):
+            file_item_path = pathlib.Path(self.internal["paths"]["fHDHR_web_dir"]).joinpath(file_item)
+            if str(file_item_path).endswith("_conf.json"):
+                self.read_json_config(file_item_path)
 
         for dir_type in ["alternative_epg", "origin"]:
 
