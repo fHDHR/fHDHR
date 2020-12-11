@@ -2,6 +2,7 @@ from flask import Response, request, redirect
 import xml.etree.ElementTree
 from io import BytesIO
 import urllib.parse
+import datetime
 
 from fHDHR.tools import sub_el
 
@@ -90,6 +91,18 @@ class xmlTV():
         """This method is called when creation of a full xmltv is not possible"""
         return self.xmltv_file(self.xmltv_headers())
 
+    def timestamp_to_datetime(self, time_start, time_end):
+        xmltvtimetamps = {}
+
+        for time_item, time_value in zip(["time_start", "time_end"], [time_start, time_end]):
+
+            if str(time_value).endswith(tuple(["+0000", "+00:00"])):
+                xmltvtimetamps[time_item] = str(time_value)
+            else:
+                xmltvtimetamps[time_item] = str(datetime.datetime.fromtimestamp(time_value)) + " +0000"
+
+        return xmltvtimetamps
+
     def create_xmltv(self, base_url, epgdict, source):
         if not epgdict:
             return self.xmltv_empty()
@@ -129,9 +142,11 @@ class xmlTV():
 
             for program in channel_listing:
 
+                xmltvtimetamps = self.timestamp_to_datetime(program['time_start'], program['time_end'])
+
                 prog_out = sub_el(out, 'programme',
-                                       start=program['time_start'],
-                                       stop=program['time_end'],
+                                       start=xmltvtimetamps['time_start'],
+                                       stop=xmltvtimetamps['time_end'],
                                        channel=str(channelnum))
 
                 sub_el(prog_out, 'title', lang='en', text=program['title'])
