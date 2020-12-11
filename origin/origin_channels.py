@@ -33,6 +33,8 @@ class OriginChannels():
                     thumbnail = station_item[thumb_opt]
                 except TypeError:
                     thumbnail = None
+                except KeyError:
+                    thumbnail = None
                 if thumbnail:
                     thumbnails.append(thumbnail)
             if not len(thumbnails):

@@ -24,4 +24,6 @@ class Channels_Editor_HTML():
 
             channelslist.append(channel_dict)
 
+        channelslist = sorted(channelslist, key=lambda i: i['number'])
+
         return render_template('channels_editor.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist)

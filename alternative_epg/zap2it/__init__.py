@@ -63,9 +63,11 @@ class zap2itEPG():
                     eventdict = xmldictmaker(event, ["startTime", "endTime", "duration", "rating", "flag"], list_items=["filter", "flag"])
                     progdict = xmldictmaker(event['program'], ["title", "sub-title", "releaseYear", "episodeTitle", "shortDesc", "season", "episode", "id"])
 
+                    timestamp = self.zap2it_timestamps(eventdict['startTime'], eventdict['endTime'])
+
                     clean_prog_dict = {
-                                    "time_start": self.xmltimestamp_zap(eventdict['startTime']),
-                                    "time_end": self.xmltimestamp_zap(eventdict['endTime']),
+                                    "time_start": timestamp['time_start'],
+                                    "time_end": timestamp['time_end'],
                                     "duration_minutes": eventdict['duration'],
                                     "thumbnail": str("https://zap2it.tmsimg.com/assets/" + str(eventdict['thumbnail']) + ".jpg"),
                                     "title": progdict['title'] or "Unavailable",
@@ -78,7 +80,7 @@ class zap2itEPG():
                                     "seasonnumber": progdict['season'],
                                     "episodenumber": progdict['episode'],
                                     "isnew": False,
-                                    "id": str(progdict['id'] or self.xmltimestamp_zap(eventdict['startTime'])),
+                                    "id": str(progdict['id'] or "%s_%s" % (cdict["channelId"], timestamp['time_start'])),
                                     }
 
                     for f in eventdict['filter']:
@@ -92,16 +94,16 @@ class zap2itEPG():
                     if 'New' in eventdict['flag'] and 'live' not in eventdict['flag']:
                         clean_prog_dict["isnew"] = True
 
-                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[str(cdict["channelNo"])]["listing"]):
+                    if not any((d['time_start'] == clean_prog_dict['time_start'] and d['id'] == clean_prog_dict['id']) for d in programguide[str(cdict["channelNo"])]["listing"]):
                         programguide[str(cdict["channelNo"])]["listing"].append(clean_prog_dict)
 
         return programguide
 
-    def xmltimestamp_zap(self, inputtime):
-        xmltime = inputtime.replace('Z', '+00:00')
-        xmltime = datetime.datetime.fromisoformat(xmltime)
-        xmltime = xmltime.strftime('%Y%m%d%H%M%S %z')
-        return xmltime
+    def zap2it_timestamps(self, starttime, endtime):
+        timestamp = {}
+        for time_item, time_value in zip(["time_start", "time_end"], [starttime, endtime]):
+            timestamp[time_item] = datetime.datetime.fromisoformat(time_value.replace('Z', '+00:00')).timestamp()
+        return timestamp
 
     def get_cached(self, i_times):
 
@@ -129,11 +131,11 @@ class zap2itEPG():
             url = 'https://tvlistings.zap2it.com/api/grid?'
             url += urllib.parse.urlencode(parameters)
             self.get_cached_item(str(i_time), url)
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "zap2it") or []
-        return [self.fhdhr.db.get_cacheitem_value(x, "offline_cache", "zap2it") for x in cache_list]
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
+        return [self.fhdhr.db.get_cacheitem_value(x, "epg_cache", "zap2it") for x in cache_list]
 
     def get_cached_item(self, cache_key, url):
-        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "offline_cache", "zap2it")
+        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "epg_cache", "zap2it")
         if cacheitem:
             self.fhdhr.logger.info('FROM CACHE:  ' + str(cache_key))
             return cacheitem
@@ -146,26 +148,26 @@ class zap2itEPG():
                 return
             result = resp.json()
 
-            self.fhdhr.db.set_cacheitem_value(cache_key, "offline_cache", result, "zap2it")
-            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "zap2it") or []
+            self.fhdhr.db.set_cacheitem_value(cache_key, "epg_cache", result, "zap2it")
+            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
             cache_list.append(cache_key)
-            self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", cache_list, "zap2it")
+            self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", cache_list, "zap2it")
 
     def remove_stale_cache(self, zap_time):
 
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "zap2it") or []
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
         cache_to_kill = []
         for cacheitem in cache_list:
             cachedate = int(cacheitem)
             if cachedate < zap_time:
                 cache_to_kill.append(cacheitem)
-                self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "zap2it")
+                self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "zap2it")
                 self.fhdhr.logger.info('Removing stale cache:  ' + str(cacheitem))
-        self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", [x for x in cache_list if x not in cache_to_kill], "zap2it")
+        self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "zap2it")
 
     def clear_cache(self):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "zap2it") or []
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
         for cacheitem in cache_list:
-            self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "zap2it")
+            self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "zap2it")
             self.fhdhr.logger.info('Removing cache:  ' + str(cacheitem))
-        self.fhdhr.db.delete_cacheitem_value("cache_list", "offline_cache", "zap2it")
+        self.fhdhr.db.delete_cacheitem_value("cache_list", "epg_cache", "zap2it")

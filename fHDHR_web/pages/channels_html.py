@@ -31,4 +31,6 @@ class Channels_HTML():
             if channel_dict["enabled"]:
                 channels_dict["Enabled"] += 1
 
+        channelslist = sorted(channelslist, key=lambda i: i['number'])
+
         return render_template('channels.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist, channels_dict=channels_dict, list=list)

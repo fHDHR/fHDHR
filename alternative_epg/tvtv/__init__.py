@@ -63,9 +63,12 @@ class tvtvEPG():
                                                         "name": chan_item["channel"]["name"],
                                                         "number": channel_number,
                                                         "id": str(chan_item["channel"]["stationID"]),
-                                                        "thumbnail": "https://cdn.tvpassport.com/image/station/100x100/%s" % chan_item["channel"]["logoFilename"],
+                                                        "thumbnail": None,
                                                         "listing": [],
                                                         }
+                    if chan_item["channel"]["logoFilename"]:
+                        programguide[channel_number]["thumbnail"] = "https://cdn.tvpassport.com/image/station/100x100/%s" % chan_item["channel"]["logoFilename"]
+
                 for listing in chan_item["listings"]:
 
                     timestamp = self.tvtv_timestamps(listing["listDateTime"], listing["duration"])
@@ -74,7 +77,7 @@ class tvtvEPG():
                                         "time_start": timestamp['time_start'],
                                         "time_end": timestamp['time_end'],
                                         "duration_minutes": listing["duration"],
-                                        "thumbnail": "https://cdn.tvpassport.com/image/show/480x720/%s" % listing["artwork"]["poster"],
+                                        "thumbnail": None,
                                         "title": listing["showName"],
                                         "sub-title": listing["episodeTitle"],
                                         "description": listing["description"],
@@ -88,19 +91,19 @@ class tvtvEPG():
                                         "id": listing["listingID"],
                                         }
 
-                    if not any(d['id'] == clean_prog_dict['id'] for d in programguide[channel_number]["listing"]):
+                    if listing["artwork"]["poster"]:
+                        listing["artwork"]["poster"] = "https://cdn.tvpassport.com/image/show/480x720/%s" % listing["artwork"]["poster"]
+
+                    if not any((d['time_start'] == clean_prog_dict['time_start'] and d['id'] == clean_prog_dict['id']) for d in programguide[channel_number]["listing"]):
                         programguide[channel_number]["listing"].append(clean_prog_dict)
 
         return programguide
 
     def tvtv_timestamps(self, starttime, duration):
-        start_time = datetime.datetime.strptime(starttime, '%Y-%m-%d %H:%M:%S')
-        end_time = start_time + datetime.timedelta(minutes=duration)
-        start_time = start_time.strftime('%Y%m%d%H%M%S +0000')
-        end_time = end_time.strftime('%Y%m%d%H%M%S +0000')
+        start_time = datetime.datetime.strptime(starttime, '%Y-%m-%d %H:%M:%S').timestamp()
         timestamp = {
                     "time_start": start_time,
-                    "time_end": end_time
+                    "time_end": start_time + (duration * 60)
                     }
         return timestamp
 
@@ -110,11 +113,11 @@ class tvtvEPG():
             stoptime = str(datesdict["stop"]) + "T00%3A00%3A00.000Z"
             url = "https://www.tvtv.us/tvm/t/tv/v4/lineups/%s/listings/grid?start=%s&end=%s" % (self.lineup_id, starttime, stoptime)
             self.get_cached_item(str(datesdict["start"]), url)
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "tvtv") or []
-        return [self.fhdhr.db.get_cacheitem_value(x, "offline_cache", "tvtv") for x in cache_list]
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
+        return [self.fhdhr.db.get_cacheitem_value(x, "epg_cache", "tvtv") for x in cache_list]
 
     def get_cached_item(self, cache_key, url):
-        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "offline_cache", "tvtv")
+        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "epg_cache", "tvtv")
         if cacheitem:
             self.fhdhr.logger.info('FROM CACHE:  ' + str(cache_key))
             return cacheitem
@@ -127,26 +130,26 @@ class tvtvEPG():
                 return
             result = resp.json()
 
-            self.fhdhr.db.set_cacheitem_value(cache_key, "offline_cache", result, "tvtv")
-            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "tvtv") or []
+            self.fhdhr.db.set_cacheitem_value(cache_key, "epg_cache", result, "tvtv")
+            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
             cache_list.append(cache_key)
-            self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", cache_list, "tvtv")
+            self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", cache_list, "tvtv")
 
     def remove_stale_cache(self, todaydate):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "tvtv") or []
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
         cache_to_kill = []
         for cacheitem in cache_list:
             cachedate = datetime.datetime.strptime(str(cacheitem), "%Y-%m-%d")
             todaysdate = datetime.datetime.strptime(str(todaydate), "%Y-%m-%d")
             if cachedate < todaysdate:
                 cache_to_kill.append(cacheitem)
-                self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "tvtv")
+                self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "tvtv")
                 self.fhdhr.logger.info('Removing stale cache:  ' + str(cacheitem))
-        self.fhdhr.db.set_cacheitem_value("cache_list", "offline_cache", [x for x in cache_list if x not in cache_to_kill], "tvtv")
+        self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "tvtv")
 
     def clear_cache(self):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "offline_cache", "tvtv") or []
+        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
         for cacheitem in cache_list:
-            self.fhdhr.db.delete_cacheitem_value(cacheitem, "offline_cache", "tvtv")
+            self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "tvtv")
             self.fhdhr.logger.info('Removing cache:  ' + str(cacheitem))
-        self.fhdhr.db.delete_cacheitem_value("cache_list", "offline_cache", "tvtv")
+        self.fhdhr.db.delete_cacheitem_value("cache_list", "epg_cache", "tvtv")

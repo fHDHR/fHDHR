@@ -1,7 +1,6 @@
 import os
 import time
 import datetime
-from collections import OrderedDict
 
 from .blocks import blocksEPG
 
@@ -61,20 +60,20 @@ class EPG():
         self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
 
     def whats_on_now(self, channel_number, method=None):
-        nowtime = datetime.datetime.utcnow()
+        nowtime = time.time()
         epgdict = self.get_epg(method)
         try:
             listings = epgdict[channel_number]["listing"]
         except KeyError:
             listings = []
         for listing in listings:
-            start_time = datetime.datetime.strptime(listing["time_start"], '%Y%m%d%H%M%S +0000')
-            end_time = datetime.datetime.strptime(listing["time_end"], '%Y%m%d%H%M%S +0000')
-            if start_time <= nowtime <= end_time:
+            if listing["time_start"] <= nowtime <= listing["time_end"]:
                 epgitem = epgdict[channel_number].copy()
                 epgitem["listing"] = [listing]
                 return epgitem
-        return None
+        epgitem = epgdict[channel_number].copy()
+        epgitem["listing"] = [self.blocks.empty_listing()]
+        return epgitem
 
     def whats_on_allchans(self, method=None):
 
@@ -84,7 +83,7 @@ class EPG():
            method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = "origin"
 
-        channel_guide_list = []
+        channel_guide_dict = {}
         epgdict = self.get_epg(method)
         if method in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
             epgdict = epgdict.copy()
@@ -99,8 +98,8 @@ class EPG():
         for channel_number in list(epgdict.keys()):
             whatson = self.whats_on_now(channel_number, method)
             if whatson:
-                channel_guide_list.append(whatson)
-        return channel_guide_list
+                channel_guide_dict[channel_number] = whatson
+        return channel_guide_dict
 
     def get_epg(self, method=None):
 
@@ -176,10 +175,97 @@ class EPG():
         else:
             programguide = self.epg_handling[method].update_epg()
 
-        programguide = OrderedDict(sorted(programguide.items()))
+        # Sort the channels
+        clean_prog_guide = {}
+        sorted_chan_list = sorted(list(programguide.keys()))
+        for cnum in sorted_chan_list:
+            if cnum not in list(clean_prog_guide.keys()):
+                clean_prog_guide[cnum] = programguide[cnum].copy()
+        programguide = clean_prog_guide.copy()
 
-        for cnum in programguide:
+        # sort the channel listings by time stamp
+        for cnum in list(programguide.keys()):
             programguide[cnum]["listing"] = sorted(programguide[cnum]["listing"], key=lambda i: i['time_start'])
+
+        # Gernate Block periods for between EPG data, if missing
+        clean_prog_guide = {}
+        nowtime = time.time()
+        for cnum in list(programguide.keys()):
+
+            if cnum not in list(clean_prog_guide.keys()):
+                clean_prog_guide[cnum] = programguide[cnum].copy()
+                clean_prog_guide[cnum]["listing"] = []
+
+            first_prog_time = programguide[cnum]["listing"][0]['time_start']
+            if nowtime < first_prog_time:
+                timestampdict = {
+                                "time_start": nowtime,
+                                "time_end": first_prog_time,
+                                }
+                clean_prog_dict = self.blocks.single_channel_epg(timestampdict, chan_dict=programguide[cnum])
+                clean_prog_guide[cnum]["listing"].append(clean_prog_dict)
+
+            progindex = 0
+            for program_item in programguide[cnum]["listing"]:
+
+                try:
+                    nextprog_dict = programguide[cnum]["listing"][progindex + 1]
+                except IndexError:
+                    nextprog_dict = None
+
+                if not nextprog_dict:
+                    clean_prog_guide[cnum]["listing"].append(program_item)
+                else:
+
+                    if nextprog_dict['time_start'] > program_item['time_end']:
+
+                        timestampdict = {
+                                        "time_start": program_item['time_end'],
+                                        "time_end": nextprog_dict['time_start'],
+                                        }
+                        clean_prog_dict = self.blocks.single_channel_epg(timestampdict, chan_dict=programguide[cnum])
+                        clean_prog_guide[cnum]["listing"].append(clean_prog_dict)
+                    else:
+                        clean_prog_guide[cnum]["listing"].append(program_item)
+                    progindex += 1
+
+            end_prog_time = programguide[cnum]["listing"][progindex]['time_end']
+            desired_end_time = (datetime.datetime.utcnow() + datetime.timedelta(days=6)).timestamp()
+            if nowtime < first_prog_time:
+                timestampdict = {
+                                "time_start": end_prog_time,
+                                "time_end": desired_end_time,
+                                }
+                clean_prog_dict = self.blocks.single_channel_epg(timestampdict, chan_dict=programguide[cnum])
+                clean_prog_guide[cnum]["listing"].append(clean_prog_dict)
+
+        programguide = clean_prog_guide.copy()
+
+        # if a stock method, generate Blocks EPG for missing channels
+        if method in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+
+            timestamps = self.blocks.timestamps
+
+            for fhdhr_id in list(self.channels.list.keys()):
+                chan_obj = self.channels.list[fhdhr_id]
+
+                if str(chan_obj.number) not in list(programguide.keys()):
+                    programguide[str(chan_obj.number)] = chan_obj.epgdict
+
+                    clean_prog_dicts = self.blocks.empty_channel_epg(timestamps, chan_obj=chan_obj)
+                    for clean_prog_dict in clean_prog_dicts:
+                        programguide[str(chan_obj.number)]["listing"].append(clean_prog_dict)
+
+        # Make Thumbnails for missing thumbnails
+        for cnum in list(programguide.keys()):
+            if not programguide[cnum]["thumbnail"]:
+                programguide[cnum]["thumbnail"] = "/api/images?method=generate&type=channel&message=%s" % programguide[cnum]["number"]
+            programguide[cnum]["listing"] = sorted(programguide[cnum]["listing"], key=lambda i: i['time_start'])
+            prog_index = 0
+            for program_item in programguide[cnum]["listing"]:
+                if not programguide[cnum]["listing"][prog_index]["thumbnail"]:
+                    programguide[cnum]["listing"][prog_index]["thumbnail"] = programguide[cnum]["thumbnail"]
+                prog_index += 1
 
         self.epgdict = programguide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
