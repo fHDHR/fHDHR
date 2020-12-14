@@ -31,7 +31,14 @@ class Channel_IDs():
         if cnumber:
             return cnumber
 
-        used_numbers = [existing_channel["number"] for existing_channel in existing_channel_info]
+        used_numbers = []
+        for existing_channel in existing_channel_info:
+            if existing_channel["subnumber"]:
+                number = "%s.%s" % (existing_channel["number"], existing_channel["subnumber"])
+            else:
+                number = existing_channel["number"]
+            used_numbers.append(number)
+
         for i in range(1000, 2000):
             if str(float(i)) not in used_numbers:
                 break
