@@ -95,12 +95,17 @@ class Tuners():
         if not stream_args["channelUri"]:
             raise TunerError("806 - Tune Failed")
 
-        channelUri_headers = self.fhdhr.web.session.head(stream_args["channelUri"]).headers
-        stream_args["true_content_type"] = channelUri_headers['Content-Type']
-
-        if stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
+        if stream_args["channelUri"].startswith("udp://"):
+            stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
         else:
-            stream_args["content_type"] = stream_args["true_content_type"]
+
+            channelUri_headers = self.fhdhr.web.session.head(stream_args["channelUri"]).headers
+            stream_args["true_content_type"] = channelUri_headers['Content-Type']
+
+            if stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
+                stream_args["content_type"] = "video/mpeg"
+            else:
+                stream_args["content_type"] = stream_args["true_content_type"]
 
         return stream_args

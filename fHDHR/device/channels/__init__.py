@@ -1,7 +1,7 @@
 import datetime
 import time
 
-from fHDHR.tools import hours_between_datetime
+from fHDHR.tools import hours_between_datetime, humanized_time
 
 from .channel import Channel
 from .chan_ident import Channel_IDs
@@ -83,7 +83,10 @@ class Channels():
             channel_dict_list = self.origin.get_channels()
             self.fhdhr.logger.info("Found %s channels for %s." % (len(channel_dict_list), self.fhdhr.config.dict["main"]["servicename"]))
 
+            self.fhdhr.logger.info("Performing Channel Import, This can take some time, Please wait.")
+
             newchan = 0
+            chan_scan_start = time.time()
             for channel_info in channel_dict_list:
 
                 chan_existing = False
@@ -98,6 +101,8 @@ class Channels():
                 if not chan_existing:
                     self.list[channel_id] = channel_obj
                     newchan += 1
+
+            self.fhdhr.logger.info("Channel Import took %s" % humanized_time(time.time() - chan_scan_start))
 
             if not newchan:
                 newchan = "no"
