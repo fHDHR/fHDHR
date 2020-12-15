@@ -44,7 +44,7 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
 
     try:
 
-        print("HTTP Server Starting")
+        fhdhr.logger.info("HTTP Server Starting")
         if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
             fhdhr_web = multiprocessing.Process(target=fhdhrweb.run)
         elif settings.dict["main"]["thread_method"] in ["threading"]:
@@ -52,8 +52,15 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
         if settings.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
             fhdhr_web.start()
 
+        # Perform some actions now that HTTP Server is running, but don't wait for response
+        # Hit EPG Update API URL without waiting
+        try:
+            fhdhr.web.session.get("%s/api/startup_tasks" % (fhdhr.api.base))
+        except fhdhr.web.exceptions.ReadTimeout:
+            pass
+
         if settings.dict["fhdhr"]["discovery_address"]:
-            print("SSDP Server Starting")
+            fhdhr.logger.info("SSDP Server Starting")
             if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
                 fhdhr_ssdp = multiprocessing.Process(target=fhdhr.device.ssdp.run)
             elif settings.dict["main"]["thread_method"] in ["threading"]:
@@ -62,7 +69,7 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
                 fhdhr_ssdp.start()
 
         if settings.dict["epg"]["method"]:
-            print("EPG Update Starting")
+            fhdhr.logger.info("EPG Update Starting")
             if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
                 fhdhr_epg = multiprocessing.Process(target=fhdhr.device.epg.run)
             elif settings.dict["main"]["thread_method"] in ["threading"]:

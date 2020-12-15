@@ -20,9 +20,6 @@ class Channels():
         self.list_update_time = None
 
         self.get_db_channels()
-        haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time")
-        if (self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"] or not haseverscanned):
-            self.get_channels()
 
     def get_channel_obj(self, keyfind, valfind):
         if keyfind == "number":
