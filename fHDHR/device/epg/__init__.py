@@ -291,8 +291,7 @@ class EPG():
         self.fhdhr.logger.info("Wrote " + epgtypename + " EPG cache.")
 
     def run(self):
-        for epg_method in self.epg_methods:
-            self.fhdhr.web.session.get(self.epg_update_url)
+        time.sleep(1800)
         try:
             while True:
                 for epg_method in self.epg_methods:
