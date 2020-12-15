@@ -1,6 +1,7 @@
 from flask import Response, request, redirect, abort, stream_with_context
 import urllib.parse
 import uuid
+import json
 
 from fHDHR.exceptions import TunerError
 
@@ -115,6 +116,21 @@ class Tuners():
             else:
                 tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
                 tuner.channel_scan()
+
+        elif method == "status":
+
+            if not tuner_number:
+                tuner_status = self.fhdhr.device.tuners.status()
+            elif str(tuner_number) in list(self.fhdhr.device.tuners.tuners.keys()):
+                tuner_status = self.fhdhr.device.tuners.tuners[str(tuner_number)].get_status()
+            else:
+                tuner_status = ["Invalid Tuner %s" % tuner_number]
+
+            tuner_status_json = json.dumps(tuner_status, indent=4)
+
+            return Response(status=200,
+                            response=tuner_status_json,
+                            mimetype='application/json')
 
         else:
             return "%s Invalid Method" % method
