@@ -70,17 +70,10 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
             if settings.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
                 fhdhr_epg.start()
 
-        # Perform some actions now that HTTP Server is running, but don't wait for response
-        # Hit EPG Update API URL without waiting
+        # Perform some actions now that HTTP Server is running
         fhdhr.logger.info("Waiting 3 seconds to send startup tasks trigger.")
         time.sleep(3)
-        try:
-            fhdhr.web.session.get("%s/api/startup_tasks" % (fhdhr.api.base))
-        except fhdhr.web.exceptions.ReadTimeout:
-            pass
-        except fhdhr.web.exceptions.ConnectionError as e:
-            fhdhr.logger.warning("Startup tasks failed: %s" % e)
-            pass
+        fhdhr.api.client.get("/api/startup_tasks")
 
         # wait forever
         while True:
