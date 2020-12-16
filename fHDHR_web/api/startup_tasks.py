@@ -16,20 +16,18 @@ class Startup_Tasks():
 
     def get(self, *args):
 
-        # Hit Channel Update API URL without waiting unless we've never scanned before
+        # Hit Channel Update API
         haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time")
+        updatechannels = False
         if not haseverscanned:
-            self.fhdhr.web.session.get(self.channel_update_url)
+            updatechannels = True
         elif self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]:
-            try:
-                self.fhdhr.web.session.get(self.channel_update_url, timeout=0.0000000001)
-            except self.fhdhr.web.exceptions.ReadTimeout:
-                pass
+            updatechannels = True
 
-        # Hit EPG Update API URL without waiting
-        try:
-            self.fhdhr.web.session.get(self.epg_update_url, timeout=0.0000000001)
-        except self.fhdhr.web.exceptions.ReadTimeout:
-            pass
+        if updatechannels:
+            self.fhdhr.api.client.get(self.channel_update_url)
+
+        # Hit EPG Update API
+        self.fhdhr.api.client.get(self.epg_update_url)
 
         return "Success"

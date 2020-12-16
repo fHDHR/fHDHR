@@ -19,7 +19,7 @@ class fHDHR_INT_OBJ():
 
         self.web = fHDHR.tools.WebReq()
 
-        self.api = fHDHR_API_URLs(settings)
+        self.api = fHDHR_API_URLs(settings, self.web)
 
 
 class fHDHR_OBJ():

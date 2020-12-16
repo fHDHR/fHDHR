@@ -1,10 +1,26 @@
 import urllib.parse
 
 
+class Fillin_Client():
+
+    def __init__(self, settings, web):
+        self.config = settings
+        self.web = web
+
+    def __getattr__(self, name):
+        ''' will only get called for undefined attributes '''
+        if hasattr(self.web.session, name):
+            return eval("self.web.session." + name)
+
+
 class fHDHR_API_URLs():
 
-    def __init__(self, settings):
+    def __init__(self, settings, web):
         self.config = settings
+        self.web = web
+
+        # Replaced later
+        self.client = Fillin_Client(settings, web)
 
         self.address = self.config.dict["fhdhr"]["address"]
         self.discovery_address = self.config.dict["fhdhr"]["discovery_address"]

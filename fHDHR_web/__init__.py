@@ -21,7 +21,9 @@ class fHDHR_HTTP_Server():
 
         self.fhdhr.logger.info("Loading Flask.")
 
-        self.app = Flask("fHDHR", template_folder=self.template_folder)
+        self.fhdhr.app = Flask("fHDHR", template_folder=self.template_folder)
+        self.fhdhr.app.testing = True
+        self.fhdhr.api.client = self.fhdhr.app.test_client()
 
         self.fhdhr.logger.info("Loading HTTP Pages Endpoints.")
         self.pages = fHDHR_Pages(fhdhr)
@@ -47,9 +49,9 @@ class fHDHR_HTTP_Server():
         self.origin_endpoints = self.fhdhr.originwrapper.origin.origin_web.fHDHR_Origin_Web(fhdhr)
         self.add_endpoints(self.origin_endpoints, "origin_endpoints")
 
-        self.app.before_request(self.before_request)
-        self.app.after_request(self.after_request)
-        self.app.before_first_request(self.before_first_request)
+        self.fhdhr.app.before_request(self.before_request)
+        self.fhdhr.app.after_request(self.after_request)
+        self.fhdhr.app.before_first_request(self.before_first_request)
 
     def before_first_request(self):
         self.fhdhr.logger.info("HTTP Server Online.")
@@ -90,12 +92,12 @@ class fHDHR_HTTP_Server():
             return True
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, methods=['GET']):
-        self.app.add_url_rule(endpoint, endpoint_name, handler, methods=methods)
+        self.fhdhr.app.add_url_rule(endpoint, endpoint_name, handler, methods=methods)
 
     def run(self):
 
         self.http = WSGIServer(self.fhdhr.api.address_tuple,
-                               self.app.wsgi_app,
+                               self.fhdhr.app.wsgi_app,
                                log=self.fhdhr.logger)
 
         try:
