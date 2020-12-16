@@ -296,10 +296,18 @@ class EPG():
             while True:
                 for epg_method in self.epg_methods:
                     last_update_time = self.fhdhr.db.get_fhdhr_value("update_time", epg_method)
+                    updatetheepg = False
                     if not last_update_time:
-                        self.fhdhr.web.session.get(self.epg_update_url)
+                        updatetheepg = True
                     elif time.time() >= (last_update_time + self.sleeptime[epg_method]):
-                        self.fhdhr.web.session.get(self.epg_update_url)
-                time.sleep(360)
+                        updatetheepg = True
+                    if updatetheepg:
+                        try:
+                            self.fhdhr.web.session.get(self.epg_update_url, timeout=0.0000000001)
+                        except self.fhdhr.web.exceptions.ReadTimeout:
+                            pass
+                        except self.fhdhr.web.exceptions.ConnectionError as e:
+                            self.fhdhr.logger.error("Error updating %s EPG cache: %s" % (epg_method, e))
+                time.sleep(1800)
         except KeyboardInterrupt:
             pass
