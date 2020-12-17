@@ -111,6 +111,8 @@ class blocksEPG():
             clean_prog_dict["thumbnail"] = chan_obj.thumbnail
         elif chan_dict:
             clean_prog_dict["thumbnail"] = chan_dict["thumbnail"]
+        else:
+            clean_prog_dict["thumbnail"] = None
         if not clean_prog_dict["thumbnail"]:
             clean_prog_dict["thumbnail"] = "/api/images?method=generate&type=content&message=Unavailable"
 

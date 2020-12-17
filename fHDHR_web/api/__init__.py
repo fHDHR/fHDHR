@@ -10,6 +10,7 @@ from .m3u import M3U
 from .epg import EPG
 from .tuners import Tuners
 from .debug import Debug_JSON
+from .tools import API_Tools
 
 from .images import Images
 
@@ -30,5 +31,6 @@ class fHDHR_API():
         self.epg = EPG(fhdhr)
         self.tuners = Tuners(fhdhr)
         self.debug = Debug_JSON(fhdhr)
+        self.tools = API_Tools(fhdhr)
 
         self.images = Images(fhdhr)
