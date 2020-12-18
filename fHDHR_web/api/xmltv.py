@@ -99,7 +99,8 @@ class xmlTV():
             if str(time_value).endswith(tuple(["+0000", "+00:00"])):
                 xmltvtimetamps[time_item] = str(time_value)
             else:
-                xmltvtimetamps[time_item] = str(datetime.datetime.fromtimestamp(time_value)) + " +0000"
+                timestampval = datetime.datetime.fromtimestamp(time_value)
+                xmltvtimetamps[time_item] = str(timestampval.strftime('%Y%m%d%H%M%S')) + " +0000"
 
         return xmltvtimetamps
 
