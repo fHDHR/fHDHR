@@ -28,8 +28,12 @@ class EPG():
 
         self.def_method = self.fhdhr.config.dict["epg"]["def_method"]
         self.sleeptime = {}
-        for epg_method in list(self.epg_handling.keys()):
-            self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
+        for epg_method in self.epg_methods:
+            if epg_method in list(self.fhdhr.config.dict.keys()):
+                if "update_frequency" in list(self.fhdhr.config.dict[epg_method].keys()):
+                    self.sleeptime[epg_method] = self.fhdhr.config.dict[epg_method]["update_frequency"]
+            if epg_method not in list(self.sleeptime.keys()):
+                self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
 
         self.epg_update_url = "%s/api/epg?method=update" % (self.fhdhr.api.base)
 
@@ -303,7 +307,7 @@ class EPG():
                         updatetheepg = True
                     if updatetheepg:
                         try:
-                            self.fhdhr.web.session.get(self.epg_update_url, timeout=0.0000000001)
+                            self.fhdhr.web.session.get("%s?sorurce=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
                         except self.fhdhr.web.exceptions.ReadTimeout:
                             pass
                         except self.fhdhr.web.exceptions.ConnectionError as e:

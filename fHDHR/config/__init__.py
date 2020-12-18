@@ -155,7 +155,9 @@ class Config():
                     self.conf_default[section][key] = {}
 
                 confvalue = confimport[section][key]["value"]
-                if isint(confvalue):
+                if key == "xmltv_offset":
+                    confvalue = str(confvalue)
+                elif isint(confvalue):
                     confvalue = int(confvalue)
                 elif isfloat(confvalue):
                     confvalue = float(confvalue)
@@ -196,6 +198,8 @@ class Config():
             for (each_key, each_val) in config_handler.items(each_section):
                 if not each_val:
                     each_val = None
+                elif each_key == "xmltv_offset":
+                    each_val = str(each_val)
                 elif each_val.lower() in ["none"]:
                     each_val = None
                 elif each_val.lower() in ["false"]:

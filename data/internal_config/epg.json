@@ -35,5 +35,11 @@
                           "config_file": false,
                           "config_web": false
                         }
+                        ,
+          "xmltv_offset": {
+                          "value": "+0000",
+                          "config_file": false,
+                          "config_web": false
+                        }
   }
 }
