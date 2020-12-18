@@ -16,6 +16,14 @@ class xmlTV():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
+        self.xmltv_offset = {}
+        for epg_method in list(self.fhdhr.device.epg.epg_handling.keys()):
+            if epg_method in list(self.fhdhr.config.dict.keys()):
+                if "xmltv_offset" in list(self.fhdhr.config.dict[epg_method].keys()):
+                    self.xmltv_offset[epg_method] = self.fhdhr.config.dict[epg_method]["xmltv_offset"]
+            if epg_method not in list(self.xmltv_offset.keys()):
+                self.xmltv_offset[epg_method] = self.fhdhr.config.dict["epg"]["xmltv_offset"]
+
     def __call__(self, *args):
         return self.get(*args)
 
@@ -91,17 +99,12 @@ class xmlTV():
         """This method is called when creation of a full xmltv is not possible"""
         return self.xmltv_file(self.xmltv_headers())
 
-    def timestamp_to_datetime(self, time_start, time_end):
+    def timestamp_to_datetime(self, time_start, time_end, source):
         xmltvtimetamps = {}
-
+        source_offset = self.xmltv_offset[source]
         for time_item, time_value in zip(["time_start", "time_end"], [time_start, time_end]):
-
-            if str(time_value).endswith(tuple(["+0000", "+00:00"])):
-                xmltvtimetamps[time_item] = str(time_value)
-            else:
-                timestampval = datetime.datetime.fromtimestamp(time_value)
-                xmltvtimetamps[time_item] = str(timestampval.strftime('%Y%m%d%H%M%S')) + " +0000"
-
+            timestampval = datetime.datetime.fromtimestamp(time_value).strftime('%Y%m%d%H%M%S')
+            xmltvtimetamps[time_item] = "%s %s" % (timestampval, source_offset)
         return xmltvtimetamps
 
     def create_xmltv(self, base_url, epgdict, source):
@@ -143,7 +146,7 @@ class xmlTV():
 
             for program in channel_listing:
 
-                xmltvtimetamps = self.timestamp_to_datetime(program['time_start'], program['time_end'])
+                xmltvtimetamps = self.timestamp_to_datetime(program['time_start'], program['time_end'], source)
 
                 prog_out = sub_el(out, 'programme',
                                        start=xmltvtimetamps['time_start'],
