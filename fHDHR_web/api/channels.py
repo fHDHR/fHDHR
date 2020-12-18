@@ -101,6 +101,32 @@ class Channels():
                         updatedict[key] = int(request.form.get(key))
             self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
 
+        elif method == "modify":
+            channels_list = request.form.get('channels', [])
+            for channel in channels_list:
+                updatedict = {}
+                for key in list(channel.keys()):
+                    if key != "id":
+                        if key in ["name", "callsign", "thumbnail"]:
+                            updatedict[key] = str(channel[key])
+                        elif key in ["number"]:
+                            number = str(channel[key])
+                            if "." in number:
+                                updatedict["subnumber"] = number.split(".")[1]
+                                updatedict["number"] = number.split(".")[0]
+                            else:
+                                updatedict["number"] = number
+                        elif key in ["enabled"]:
+                            confvalue = channel[key]
+                            if str(confvalue).lower() in ["false"]:
+                                confvalue = False
+                            elif str(confvalue).lower() in ["true"]:
+                                confvalue = True
+                            updatedict[key] = confvalue
+                        elif key in ["favorite", "HD"]:
+                            updatedict[key] = int(channel[key])
+                self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
+
         elif method == "scan":
             self.fhdhr.device.channels.get_channels(forceupdate=True)
 
