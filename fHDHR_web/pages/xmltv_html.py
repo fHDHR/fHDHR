@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class xmlTV_HTML():
@@ -13,4 +13,4 @@ class xmlTV_HTML():
 
     def get(self, *args):
 
-        return render_template('xmltv.html', request=request, fhdhr=self.fhdhr)
+        return render_template('xmltv.html', session=session, request=request, fhdhr=self.fhdhr)

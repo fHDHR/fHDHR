@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 import datetime
 
 from fHDHR.tools import humanized_time
@@ -92,4 +92,4 @@ class Guide_HTML():
 
             chan_guide_list.append(chan_dict)
 
-        return render_template('guide.html', request=request, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source)
+        return render_template('guide.html', session=session, request=request, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source)

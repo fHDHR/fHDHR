@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 from fHDHR.tools import humanized_filesize
 
@@ -33,4 +33,4 @@ class Tuners_HTML():
 
             tuner_list.append(tuner_dict)
 
-        return render_template('tuners.html', request=request, fhdhr=self.fhdhr, tuner_list=tuner_list, tuner_scanning=tuner_scanning)
+        return render_template('tuners.html', session=session, request=request, fhdhr=self.fhdhr, tuner_list=tuner_list, tuner_scanning=tuner_scanning)

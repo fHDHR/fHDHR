@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class Diagnostics_HTML():
@@ -122,4 +122,4 @@ class Diagnostics_HTML():
                             "other": None,
                             })
 
-        return render_template('diagnostics.html', request=request, fhdhr=self.fhdhr, button_list=button_list)
+        return render_template('diagnostics.html', session=session, request=request, fhdhr=self.fhdhr, button_list=button_list)

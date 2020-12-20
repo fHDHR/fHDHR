@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class Channels_Editor_HTML():
@@ -26,4 +26,4 @@ class Channels_Editor_HTML():
 
         channelslist = sorted(channelslist, key=lambda i: i['number'])
 
-        return render_template('channels_editor.html', request=request, fhdhr=self.fhdhr, channelslist=channelslist)
+        return render_template('channels_editor.html', session=session, request=request, fhdhr=self.fhdhr, channelslist=channelslist)

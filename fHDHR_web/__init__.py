@@ -1,5 +1,5 @@
 from gevent.pywsgi import WSGIServer
-from flask import Flask, request
+from flask import Flask, request, session
 
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
@@ -22,8 +22,13 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("Loading Flask.")
 
         self.fhdhr.app = Flask("fHDHR", template_folder=self.template_folder)
+
+        # Allow Internal API Usage
         self.fhdhr.app.testing = True
         self.fhdhr.api.client = self.fhdhr.app.test_client()
+
+        # Set Secret Key For Sessions
+        self.fhdhr.app.secret_key = self.fhdhr.config.dict["fhdhr"]["friendlyname"]
 
         self.fhdhr.logger.info("Loading HTTP Pages Endpoints.")
         self.pages = fHDHR_Pages(fhdhr)
@@ -57,11 +62,40 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("HTTP Server Online.")
 
     def before_request(self):
+
+        session["is_mobile"] = self.detect_mobile(request)
+        if session["is_mobile"]:
+            self.fhdhr.logger.debug("Client is a mobile device.")
+
+        session["is_plexmediaserver"] = self.detect_plexmediaserver(request)
+        if session["is_plexmediaserver"]:
+            self.fhdhr.logger.debug("Client is a Plex Media Server.")
+
+        session["deviceauth"] = self.detect_plexmediaserver(request)
+
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
         return response
+
+    def detect_deviceauth(self, request):
+        return request.args.get('DeviceAuth', default=None, type=str)
+
+    def detect_mobile(self, request):
+        user_agent = request.headers.get('User-Agent')
+        phones = ["iphone", "android", "blackberry"]
+        if any(phone in user_agent.lower() for phone in phones):
+            return True
+        else:
+            return False
+
+    def detect_plexmediaserver(self, request):
+        user_agent = request.headers.get('User-Agent')
+        if str(user_agent).lower().startswith("plexmediaserver"):
+            return True
+        else:
+            return False
 
     def add_endpoints(self, index_list, index_name):
         item_list = [x for x in dir(index_list) if self.isapath(x)]
@@ -83,7 +117,7 @@ class fHDHR_HTTP_Server():
                                   methods=endpoint_methods)
 
     def isapath(self, item):
-        not_a_page_list = ["fhdhr", "htmlerror", "page_elements"]
+        not_a_page_list = ["fhdhr"]
         if item in not_a_page_list:
             return False
         elif item.startswith("__") and item.endswith("__"):
