@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class Index_HTML():
@@ -24,4 +24,4 @@ class Index_HTML():
                             "Tuner Usage": ("%s/%s" % (str(tuners_in_use), str(max_tuners))),
                             }
 
-        return render_template('index.html', request=request, fhdhr=self.fhdhr, fhdhr_status_dict=fhdhr_status_dict, list=list)
+        return render_template('index.html', session=session, request=request, fhdhr=self.fhdhr, fhdhr_status_dict=fhdhr_status_dict, list=list)

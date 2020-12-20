@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class Settings_HTML():
@@ -30,4 +30,4 @@ class Settings_HTML():
             if not len(web_settings_dict[config_section].keys()):
                 del web_settings_dict[config_section]
 
-        return render_template('settings.html', request=request, fhdhr=self.fhdhr, web_settings_dict=web_settings_dict, list=list)
+        return render_template('settings.html', session=session, request=request, fhdhr=self.fhdhr, web_settings_dict=web_settings_dict, list=list)

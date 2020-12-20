@@ -1,4 +1,4 @@
-from flask import request, render_template
+from flask import request, render_template, session
 
 
 class Tools_HTML():
@@ -13,4 +13,4 @@ class Tools_HTML():
 
     def get(self, *args):
 
-        return render_template('tools.html', request=request, fhdhr=self.fhdhr)
+        return render_template('tools.html', session=session, request=request, fhdhr=self.fhdhr)
