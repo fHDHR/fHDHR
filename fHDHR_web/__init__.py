@@ -71,11 +71,16 @@ class fHDHR_HTTP_Server():
         if session["is_plexmediaserver"]:
             self.fhdhr.logger.debug("Client is a Plex Media Server.")
 
+        session["deviceauth"] = self.detect_plexmediaserver(request)
+
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
         return response
+
+    def detect_deviceauth(self, request):
+        return request.args.get('DeviceAuth', default=None, type=str)
 
     def detect_mobile(self, request):
         user_agent = request.headers.get('User-Agent')

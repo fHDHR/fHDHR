@@ -1,4 +1,4 @@
-from flask import Response, request, redirect
+from flask import Response, request, redirect, session
 import xml.etree.ElementTree
 from io import BytesIO
 import urllib.parse
@@ -30,8 +30,7 @@ class xmlTV():
     def get(self, *args):
 
         if self.fhdhr.config.dict["fhdhr"]["require_auth"]:
-            DeviceAuth = request.args.get('DeviceAuth', default=None, type=str)
-            if DeviceAuth != self.fhdhr.config.dict["fhdhr"]["device_auth"]:
+            if session["deviceauth"] != self.fhdhr.config.dict["fhdhr"]["device_auth"]:
                 return "not subscribed"
 
         base_url = request.url_root[:-1]
