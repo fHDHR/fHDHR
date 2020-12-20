@@ -83,7 +83,7 @@ class fHDHR_HTTP_Server():
                                   methods=endpoint_methods)
 
     def isapath(self, item):
-        not_a_page_list = ["fhdhr", "htmlerror", "page_elements"]
+        not_a_page_list = ["fhdhr"]
         if item in not_a_page_list:
             return False
         elif item.startswith("__") and item.endswith("__"):
