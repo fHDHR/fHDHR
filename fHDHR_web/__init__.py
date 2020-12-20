@@ -62,7 +62,15 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("HTTP Server Online.")
 
     def before_request(self):
+
         session["is_mobile"] = self.detect_mobile(request)
+        if session["is_mobile"]:
+            self.fhdhr.logger.debug("Client is a mobile device.")
+
+        session["is_plexmediaserver"] = self.detect_plexmediaserver(request)
+        if session["is_plexmediaserver"]:
+            self.fhdhr.logger.debug("Client is a Plex Media Server.")
+
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
@@ -70,9 +78,16 @@ class fHDHR_HTTP_Server():
         return response
 
     def detect_mobile(self, request):
-        agent = request.headers.get('User-Agent')
+        user_agent = request.headers.get('User-Agent')
         phones = ["iphone", "android", "blackberry"]
-        if any(phone in agent.lower() for phone in phones):
+        if any(phone in user_agent.lower() for phone in phones):
+            return True
+        else:
+            return False
+
+    def detect_plexmediaserver(self, request):
+        user_agent = request.headers.get('User-Agent')
+        if str(user_agent).lower().startswith("plexmediaserver"):
             return True
         else:
             return False

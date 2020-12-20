@@ -1,4 +1,4 @@
-from flask import request, redirect
+from flask import redirect, session
 
 
 class Device_XML():
@@ -13,9 +13,7 @@ class Device_XML():
 
     def get(self, *args):
 
-        user_agent = request.headers.get('User-Agent')
-        if (self.fhdhr.config.dict["rmg"]["enabled"] and
-           str(user_agent).lower().startswith("plexmediaserver")):
+        if self.fhdhr.config.dict["rmg"]["enabled"] and session["is_plexmediaserver"]:
             return redirect("/rmg/device.xml")
         else:
             return redirect("/hdhr/device.xml")

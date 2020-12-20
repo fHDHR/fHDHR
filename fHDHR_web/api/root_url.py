@@ -1,4 +1,4 @@
-from flask import redirect, request
+from flask import redirect, request, session
 
 
 class Root_URL():
@@ -17,10 +17,10 @@ class Root_URL():
         user_agent = request.headers.get('User-Agent')
 
         # Client Devices Discovering Device Information
-        if not user_agent or str(user_agent).lower().startswith("plexmediaserver"):
+        if not user_agent or session["is_plexmediaserver"]:
 
             # Plex Remote Media Grabber redirect
-            if self.fhdhr.config.dict["rmg"]["enabled"] and str(user_agent).lower().startswith("plexmediaserver"):
+            if self.fhdhr.config.dict["rmg"]["enabled"] and session["is_plexmediaserver"]:
                 return redirect("/rmg")
 
             # Client Device is looking for HDHR type device
