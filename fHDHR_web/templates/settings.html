@@ -31,22 +31,22 @@
         <td data-th="Config Default Value">{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
 
         <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
-          <input type="hidden" name="config_section" value={{ config_section }}>
-          <input type="hidden" name="config_name" value={{ config_item }}>
-          <input type="hidden" name="config_default" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
+          <input type="hidden" name="config_section" value="{{ config_section }}">
+          <input type="hidden" name="config_name" value="{{ config_item }}">
+          <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
             {% if web_settings_dict[config_section][config_item]["hide"] %}
               <td data-th="Config Value"><input type="text" size="50" name="config_value" value=**************></td>
             {% else %}
-              <td data-th="Config Value"><input type="text" size="50" name="config_value" value={{ web_settings_dict[config_section][config_item]["value"] }}></td>
+              <td data-th="Config Value"><input type="text" size="50" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}"></td>
             {% endif %}
             <td data-th="Update"><input type="submit" value="Update"></td>
         </form>
 
         <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
-          <input type="hidden" name="config_section" value={{ config_section }}>
-          <input type="hidden" name="config_name" value={{ config_item }}>
-          <input type="hidden" name="config_value" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
-          <input type="hidden" name="config_default" value={{ web_settings_dict[config_section][config_item]["value_default"] }}>
+          <input type="hidden" name="config_section" value="{{ config_section }}">
+          <input type="hidden" name="config_name" value="{{ config_item }}">
+          <input type="hidden" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
+          <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
             <td data-th="Reset"><input type="submit" value="Reset"></td>
         </form>
 
