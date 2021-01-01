@@ -14,12 +14,12 @@ class Channels_HTML():
     def get(self, *args):
 
         channels_dict = {
-                        "Total Channels": len(list(self.fhdhr.device.channels.list.keys())),
-                        "Enabled": 0,
+                        "Total Channels": len(self.fhdhr.device.channels.get_channels()),
+                        "Enabled": 0
                         }
 
         channelslist = []
-        for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+        for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             channel_dict = channel_obj.dict.copy()
 

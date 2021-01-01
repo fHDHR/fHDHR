@@ -21,7 +21,7 @@ class Channels():
 
         if method == "get":
             channels_info = []
-            for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+            for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
                 channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
                 channel_dict = channel_obj.dict.copy()
                 channel_dict["play_url"] = channel_obj.play_url

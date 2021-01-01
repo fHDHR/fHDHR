@@ -22,7 +22,7 @@ class RMG_Devices_DeviceKey_Channels():
         out = xml.etree.ElementTree.Element('MediaContainer')
         if devicekey == self.fhdhr.config.dict["main"]["uuid"]:
             out.set('size', str(len(self.fhdhr.device.channels.list)))
-            for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+            for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
                 channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
                 if channel_obj.enabled:
                     sub_el(out, 'Channel',

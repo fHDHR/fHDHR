@@ -1,7 +1,6 @@
-import datetime
 import time
 
-from fHDHR.tools import hours_between_datetime, humanized_time
+from fHDHR.tools import humanized_time
 
 from .channel import Channel
 from .chan_ident import Channel_IDs
@@ -17,27 +16,26 @@ class Channels():
         self.id_system = Channel_IDs(fhdhr)
 
         self.list = {}
-        self.list_update_time = None
 
         self.get_db_channels()
 
     def get_channel_obj(self, keyfind, valfind):
         if keyfind == "number":
-            return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].number == valfind) or None
+            return next(self.list[fhdhr_id] for fhdhr_id in [x["id"] for x in self.get_channels()] if self.list[fhdhr_id].number == valfind) or None
         else:
-            return next(self.list[fhdhr_id] for fhdhr_id in list(self.list.keys()) if self.list[fhdhr_id].dict[keyfind] == valfind) or None
+            return next(self.list[fhdhr_id] for fhdhr_id in [x["id"] for x in self.get_channels()] if self.list[fhdhr_id].dict[keyfind] == valfind) or None
 
     def get_channel_list(self, keyfind):
         if keyfind == "number":
-            return [self.list[x].number for x in list(self.list.keys())]
+            return [self.list[x].number for x in [x["id"] for x in self.get_channels()]]
         else:
-            return [self.list[x].dict[keyfind] for x in list(self.list.keys())]
+            return [self.list[x].dict[keyfind] for x in [x["id"] for x in self.get_channels()]]
 
     def set_channel_status(self, keyfind, valfind, updatedict):
         self.get_channel_obj(keyfind, valfind).set_status(updatedict)
 
     def set_channel_enablement_all(self, enablement):
-        for fhdhr_id in list(self.list.keys()):
+        for fhdhr_id in [x["id"] for x in self.get_channels()]:
             self.list[fhdhr_id].set_enablement(enablement)
 
     def set_channel_enablement(self, keyfind, valfind, enablement):
@@ -56,6 +54,10 @@ class Channels():
             channel_id = channel_obj.dict["id"]
             self.list[channel_id] = channel_obj
 
+    def save_db_channels(self):
+        channel_ids = [x["id"] for x in self.get_channels()]
+        self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids)
+
     def get_channels(self, forceupdate=False):
         """Pull Channels from origin.
 
@@ -64,56 +66,50 @@ class Channels():
         Don't pull more often than 12 hours.
         """
 
-        updatelist = False
-        if not self.list_update_time:
-            updatelist = True
-        elif hours_between_datetime(self.list_update_time, datetime.datetime.now()) > 12:
-            updatelist = True
-        elif forceupdate:
-            updatelist = True
+        if not len(list(self.list.keys())):
+            self.get_db_channels()
 
-        if updatelist:
-            channel_origin_id_list = [str(self.list[x].dict["origin_id"]) for x in list(self.list.keys())]
+        if not forceupdate:
+            return [self.list[x].dict for x in list(self.list.keys())]
 
-            self.fhdhr.logger.info("Performing Channel Scan.")
+        channel_origin_id_list = [str(self.list[x].dict["origin_id"]) for x in list(self.list.keys())]
 
-            channel_dict_list = self.origin.get_channels()
-            self.fhdhr.logger.info("Found %s channels for %s." % (len(channel_dict_list), self.fhdhr.config.dict["main"]["servicename"]))
+        self.fhdhr.logger.info("Performing Channel Scan.")
 
-            self.fhdhr.logger.info("Performing Channel Import, This can take some time, Please wait.")
+        channel_dict_list = self.origin.get_channels()
+        self.fhdhr.logger.info("Found %s channels for %s." % (len(channel_dict_list), self.fhdhr.config.dict["main"]["servicename"]))
 
-            newchan = 0
-            chan_scan_start = time.time()
-            for channel_info in channel_dict_list:
+        self.fhdhr.logger.info("Performing Channel Import, This can take some time, Please wait.")
 
-                chan_existing = False
-                if str(channel_info["id"]) in channel_origin_id_list:
-                    chan_existing = True
-                    channel_obj = self.get_channel_obj("origin_id", channel_info["id"])
-                else:
-                    channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])
+        newchan = 0
+        chan_scan_start = time.time()
+        for channel_info in channel_dict_list:
 
-                channel_id = channel_obj.dict["id"]
-                channel_obj.basics(channel_info)
-                if not chan_existing:
-                    self.list[channel_id] = channel_obj
-                    newchan += 1
+            chan_existing = str(channel_info["id"]) in channel_origin_id_list
 
-            self.fhdhr.logger.info("Channel Import took %s" % humanized_time(time.time() - chan_scan_start))
+            if chan_existing:
+                channel_obj = self.get_channel_obj("origin_id", channel_info["id"])
+            else:
+                channel_obj = Channel(self.fhdhr, self.id_system, origin_id=channel_info["id"])
 
-            if not newchan:
-                newchan = "no"
-            self.fhdhr.logger.info("Found %s NEW channels." % newchan)
+            channel_id = channel_obj.dict["id"]
+            channel_obj.basics(channel_info)
+            if not chan_existing:
+                self.list[channel_id] = channel_obj
+                newchan += 1
 
-            self.fhdhr.logger.info("Total Channel Count: %s" % len(self.list.keys()))
+        self.fhdhr.logger.info("Channel Import took %s" % humanized_time(time.time() - chan_scan_start))
 
-            self.list_update_time = datetime.datetime.now()
-            self.fhdhr.db.set_fhdhr_value("channels", "scanned_time", time.time())
+        if not newchan:
+            newchan = "no"
+        self.fhdhr.logger.info("Found %s NEW channels." % newchan)
 
-        channel_list = []
-        for chan_obj in list(self.list.keys()):
-            channel_list.append(self.list[chan_obj].dict)
-        return channel_list
+        self.fhdhr.logger.info("Total Channel Count: %s" % len(self.list.keys()))
+        self.save_db_channels()
+
+        self.fhdhr.db.set_fhdhr_value("channels", "scanned_time", time.time())
+
+        return [self.list[x].dict for x in list(self.list.keys())]
 
     def get_channel_stream(self, channel_number):
         return self.origin.get_channel_stream(self.get_channel_dict("number", channel_number))

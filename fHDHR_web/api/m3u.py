@@ -42,7 +42,7 @@ class M3U():
 
             if channel == "all":
                 fileName = "channels.m3u"
-                for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+                for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
                     channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
                     if channel_obj.enabled:
                         channel_items.append(channel_obj)
