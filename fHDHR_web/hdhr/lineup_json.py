@@ -19,7 +19,7 @@ class Lineup_JSON():
         show = request.args.get('show', default="all", type=str)
 
         jsonlineup = []
-        for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+        for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
                 lineup_dict = channel_obj.lineup_dict

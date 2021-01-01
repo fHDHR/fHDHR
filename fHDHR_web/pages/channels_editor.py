@@ -14,7 +14,7 @@ class Channels_Editor_HTML():
     def get(self, *args):
 
         channelslist = []
-        for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+        for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             channel_dict = channel_obj.dict.copy()
 

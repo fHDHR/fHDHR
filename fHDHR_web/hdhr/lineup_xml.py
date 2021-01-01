@@ -22,7 +22,7 @@ class Lineup_XML():
         show = request.args.get('show', default="all", type=str)
 
         out = xml.etree.ElementTree.Element('Lineup')
-        for fhdhr_id in list(self.fhdhr.device.channels.list.keys()):
+        for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
                 program_out = sub_el(out, 'Program')

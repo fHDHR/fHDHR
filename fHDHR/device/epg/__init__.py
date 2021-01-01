@@ -271,7 +271,7 @@ class EPG():
         # if a stock method, generate Blocks EPG for missing channels
         if method in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
             timestamps = self.blocks.timestamps
-            for fhdhr_id in list(self.channels.list.keys()):
+            for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
                 chan_obj = self.channels.list[fhdhr_id]
                 if str(chan_obj.number) not in list(programguide.keys()):
                     programguide[str(chan_obj.number)] = chan_obj.epgdict
