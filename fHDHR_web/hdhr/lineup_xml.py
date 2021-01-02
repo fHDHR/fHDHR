@@ -2,7 +2,7 @@ from flask import Response, request
 from io import BytesIO
 import xml.etree.ElementTree
 
-from fHDHR.tools import sub_el
+from fHDHR.tools import channel_sort, sub_el
 
 
 class Lineup_XML():
@@ -21,19 +21,30 @@ class Lineup_XML():
 
         show = request.args.get('show', default="all", type=str)
 
-        out = xml.etree.ElementTree.Element('Lineup')
+        channelslist = {}
         for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
-                program_out = sub_el(out, 'Program')
                 lineup_dict = channel_obj.lineup_dict
-                lineup_dict["URL"] = base_url + lineup_dict["URL"]
+                lineup_dict["URL"] = "%s%s" % (base_url, lineup_dict["URL"])
                 if show == "found" and channel_obj.enabled:
                     lineup_dict["Enabled"] = 1
                 elif show == "found" and not channel_obj.enabled:
                     lineup_dict["Enabled"] = 0
-                for key in list(lineup_dict.keys()):
-                    sub_el(program_out, str(key), str(lineup_dict[key]))
+
+            channelslist[channel_obj.number] = lineup_dict
+
+        # Sort the channels
+        sorted_channel_list = channel_sort(list(channelslist.keys()))
+        sorted_chan_guide = []
+        for channel in sorted_channel_list:
+            sorted_chan_guide.append(channelslist[channel])
+
+        out = xml.etree.ElementTree.Element('Lineup')
+        for lineup_dict in sorted_chan_guide:
+            program_out = sub_el(out, 'Program')
+            for key in list(lineup_dict.keys()):
+                sub_el(program_out, str(key), str(lineup_dict[key]))
 
         fakefile = BytesIO()
         fakefile.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')

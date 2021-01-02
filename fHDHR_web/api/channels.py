@@ -2,6 +2,8 @@ from flask import request, redirect, Response, abort
 import urllib.parse
 import json
 
+from fHDHR.tools import channel_sort
+
 
 class Channels():
     endpoints = ["/api/channels"]
@@ -20,14 +22,21 @@ class Channels():
         redirect_url = request.args.get('redirect', default=None, type=str)
 
         if method == "get":
-            channels_info = []
+            channels_info = {}
             for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
                 channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
                 channel_dict = channel_obj.dict.copy()
                 channel_dict["play_url"] = channel_obj.play_url
                 channel_dict["stream_url"] = channel_obj.stream_url
-                channels_info.append(channel_dict)
-            channels_info_json = json.dumps(channels_info, indent=4)
+                channels_info[channel_obj.number] = channel_dict
+
+            # Sort the channels
+            sorted_channel_list = channel_sort(list(channels_info.keys()))
+            sorted_chan_guide = []
+            for channel in sorted_channel_list:
+                sorted_chan_guide.append(channels_info[channel])
+
+            channels_info_json = json.dumps(sorted_chan_guide, indent=4)
 
             return Response(status=200,
                             response=channels_info_json,
