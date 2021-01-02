@@ -31,7 +31,7 @@ class Lineup_JSON():
                 elif show == "found" and not channel_obj.enabled:
                     lineup_dict["Enabled"] = 0
 
-            channelslist[channel_obj.number] = lineup_dict
+                channelslist[channel_obj.number] = lineup_dict
 
         # Sort the channels
         sorted_channel_list = channel_sort(list(channelslist.keys()))
