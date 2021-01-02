@@ -85,14 +85,18 @@ class fHDHR_HTTP_Server():
     def detect_mobile(self, request):
         user_agent = request.headers.get('User-Agent')
         phones = ["iphone", "android", "blackberry"]
-        if any(phone in user_agent.lower() for phone in phones):
+        if not user_agent:
+            return False
+        elif any(phone in user_agent.lower() for phone in phones):
             return True
         else:
             return False
 
     def detect_plexmediaserver(self, request):
         user_agent = request.headers.get('User-Agent')
-        if str(user_agent).lower().startswith("plexmediaserver"):
+        if not user_agent:
+            return False
+        elif str(user_agent).lower().startswith("plexmediaserver"):
             return True
         else:
             return False
