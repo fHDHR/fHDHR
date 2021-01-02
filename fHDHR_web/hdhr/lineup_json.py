@@ -1,6 +1,8 @@
 from flask import Response, request
 import json
 
+from fHDHR.tools import channel_sort
+
 
 class Lineup_JSON():
     endpoints = ["/lineup.json", "/hdhr/lineup.json"]
@@ -18,7 +20,7 @@ class Lineup_JSON():
 
         show = request.args.get('show', default="all", type=str)
 
-        jsonlineup = []
+        channelslist = {}
         for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels()]:
             channel_obj = self.fhdhr.device.channels.list[fhdhr_id]
             if channel_obj.enabled or show == "found":
@@ -28,9 +30,16 @@ class Lineup_JSON():
                     lineup_dict["Enabled"] = 1
                 elif show == "found" and not channel_obj.enabled:
                     lineup_dict["Enabled"] = 0
-                jsonlineup.append(lineup_dict)
 
-        lineup_json = json.dumps(jsonlineup, indent=4)
+            channelslist[channel_obj.number] = lineup_dict
+
+        # Sort the channels
+        sorted_channel_list = channel_sort(list(channelslist.keys()))
+        sorted_chan_guide = []
+        for channel in sorted_channel_list:
+            sorted_chan_guide.append(channelslist[channel])
+
+        lineup_json = json.dumps(sorted_chan_guide, indent=4)
 
         return Response(status=200,
                         response=lineup_json,

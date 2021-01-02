@@ -1,7 +1,7 @@
 from flask import request, render_template, session
 import datetime
 
-from fHDHR.tools import humanized_time
+from fHDHR.tools import humanized_time, channel_sort
 
 
 class Guide_HTML():
@@ -13,25 +13,6 @@ class Guide_HTML():
 
     def __call__(self, *args):
         return self.get(*args)
-
-    def number_sort(self, chan_dict):
-        for channel in list(chan_dict.keys()):
-            number = chan_dict[channel]["number"]
-            chan_dict[channel]["number"] = number.split(".")[0]
-            try:
-                chan_dict[channel]["subnumber"] = number.split(".")[1]
-            except IndexError:
-                chan_dict[channel]["subnumber"] = None
-        sorted_chan_list = sorted(list(chan_dict.keys()), key=lambda i: (int(chan_dict[i]['number']), int(chan_dict[i]['subnumber'] or 0)))
-        sorted_chan_dict = {}
-        for cnum in sorted_chan_list:
-            if cnum not in list(sorted_chan_dict.keys()):
-                sorted_chan_dict[cnum] = chan_dict[cnum].copy()
-                if sorted_chan_dict[cnum]["subnumber"]:
-                    sorted_chan_dict[cnum]["number"] = "%s.%s" % (sorted_chan_dict[cnum]["number"], sorted_chan_dict[cnum]["subnumber"])
-                del sorted_chan_dict[cnum]["subnumber"]
-        chan_dict = sorted_chan_dict.copy()
-        return chan_dict
 
     def get(self, *args):
 
@@ -47,7 +28,10 @@ class Guide_HTML():
         whatson = self.fhdhr.device.epg.whats_on_allchans(source)
 
         # Sort the channels
-        sorted_chan_guide = self.number_sort(whatson)
+        sorted_channel_list = channel_sort(list(whatson.keys()))
+        sorted_chan_guide = {}
+        for channel in sorted_channel_list:
+            sorted_chan_guide[channel] = whatson[channel]
 
         for channel in list(sorted_chan_guide.keys()):
             if sorted_chan_guide[channel]["listing"][0]["time_end"]:

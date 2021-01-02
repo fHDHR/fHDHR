@@ -2,6 +2,8 @@ import os
 import time
 import datetime
 
+from fHDHR.tools import channel_sort
+
 from .blocks import blocksEPG
 
 
@@ -120,17 +122,12 @@ class EPG():
            method not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]):
             method = "origin"
 
-        if method not in list(self.epgdict.keys()):
+        if method in list(self.epgdict.keys()):
+            return self.epgdict[method]
 
-            epgdict = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or None
-            if not epgdict:
-                self.update(method)
-                self.epgdict[method] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
-            else:
-                self.epgdict[method] = epgdict
-            return self.epgdict[method]
-        else:
-            return self.epgdict[method]
+        self.update(method)
+        self.epgdict[method] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
+        return self.epgdict[method]
 
     def get_thumbnail(self, itemtype, itemid):
         if itemtype == "channel":
@@ -185,14 +182,6 @@ class EPG():
             programguide = self.epg_handling['origin'].update_epg(self.channels)
         else:
             programguide = self.epg_handling[method].update_epg()
-
-        # Sort the channels
-        clean_prog_guide = {}
-        sorted_chan_list = sorted(list(programguide.keys()))
-        for cnum in sorted_chan_list:
-            if cnum not in list(clean_prog_guide.keys()):
-                clean_prog_guide[cnum] = programguide[cnum].copy()
-        programguide = clean_prog_guide.copy()
 
         # sort the channel listings by time stamp
         for cnum in list(programguide.keys()):
@@ -289,7 +278,13 @@ class EPG():
                     programguide[cnum]["listing"][prog_index]["thumbnail"] = programguide[cnum]["thumbnail"]
                 prog_index += 1
 
-        self.epgdict = programguide
+        # Sort the channels
+        sorted_channel_list = channel_sort(list(programguide.keys()))
+        sorted_chan_guide = {}
+        for channel in sorted_channel_list:
+            sorted_chan_guide[channel] = programguide[channel]
+
+        self.epgdict[method] = sorted_chan_guide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
         self.fhdhr.logger.info("Wrote " + epgtypename + " EPG cache.")

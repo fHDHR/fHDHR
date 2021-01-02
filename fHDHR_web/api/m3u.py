@@ -2,6 +2,8 @@ from flask import Response, request, redirect
 import urllib.parse
 from io import StringIO
 
+from fHDHR.tools import channel_sort
+
 
 class M3U():
     endpoints = ["/api/m3u", "/api/channels.m3u"]
@@ -56,6 +58,7 @@ class M3U():
             else:
                 return "Invalid Channel"
 
+            channels_info = {}
             for channel_obj in channel_items:
 
                 if self.fhdhr.config.dict["epg"]["images"] == "proxy" or not channel_obj.thumbnail:
@@ -64,18 +67,31 @@ class M3U():
                 else:
                     logourl = channel_obj.thumbnail
 
-                fakefile.write(
-                                "%s\n" % (
-                                          RECORD_MARKER + ":0" + " " +
-                                          "channelID=\"" + str(channel_obj.dict['origin_id']) + "\" " +
-                                          "tvg-chno=\"" + str(channel_obj.dict['number']) + "\" " +
-                                          "tvg-name=\"" + str(channel_obj.dict['name']) + "\" " +
-                                          "tvg-id=\"" + str(channel_obj.dict['number']) + "\" " +
-                                          "tvg-logo=\"" + logourl + "\" " +
-                                          "group-title=\"" + self.fhdhr.config.dict["fhdhr"]["friendlyname"] + "\"," + str(channel_obj.dict['name']))
-                                )
+                channels_info[channel_obj.number] = {
+                                                    "channelID": str(channel_obj.dict['origin_id']),
+                                                    "tvg-chno": str(channel_obj.number),
+                                                    "tvg-name": str(channel_obj.dict['name']),
+                                                    "tvg-id": str(channel_obj.number),
+                                                    "tvg-logo": logourl,
+                                                    "group-title": self.fhdhr.config.dict["fhdhr"]["friendlyname"],
+                                                    "group-titleb": str(channel_obj.dict['name']),
+                                                    "stream_url": "%s%s" % (base_url, channel_obj.stream_url)
+                                                    }
 
-                fakefile.write("%s%s\n" % (base_url, channel_obj.stream_url))
+            # Sort the channels
+            sorted_channel_list = channel_sort(list(channels_info.keys()))
+            sorted_chan_guide = []
+            for channel in sorted_channel_list:
+                sorted_chan_guide.append(channels_info[channel])
+
+            for channel_item_dict in sorted_chan_guide:
+                m3ustring = "%s:0 " % (RECORD_MARKER)
+                for chan_key in list(channel_item_dict.keys()):
+                    if not chan_key.startswith(tuple(["group-title", "stream_url"])):
+                        m3ustring += "%s=\"%s\" " % (chan_key, channel_item_dict[chan_key])
+                m3ustring += "group-title=\"%s\"%s\n" % (channel_item_dict["group-title"], channel_item_dict["group-titleb"])
+                m3ustring += "%s\n" % channel_item_dict["stream_url"]
+                fakefile.write(m3ustring)
 
                 channels_m3u = fakefile.getvalue()
 
