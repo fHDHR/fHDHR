@@ -39,6 +39,7 @@ class VLC_Stream():
             finally:
                 vlc_proc.terminate()
                 vlc_proc.communicate()
+                vlc_proc.kill()
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")

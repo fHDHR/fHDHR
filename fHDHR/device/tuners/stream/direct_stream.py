@@ -57,6 +57,7 @@ class Direct_Stream():
                 self.fhdhr.logger.info("Connection Closed: " + str(e))
             finally:
                 req.close()
+                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")
 
