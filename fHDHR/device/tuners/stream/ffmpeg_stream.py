@@ -38,6 +38,8 @@ class FFMPEG_Stream():
             finally:
                 ffmpeg_proc.terminate()
                 ffmpeg_proc.communicate()
+                ffmpeg_proc.kill()
+                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")
 
