@@ -63,6 +63,10 @@ class fHDHR_HTTP_Server():
 
     def before_request(self):
 
+        session["is_internal_api"] = self.detect_internal_api(request)
+        if session["is_internal_api"]:
+            self.fhdhr.logger.debug("Client is using internal API call.")
+
         session["is_mobile"] = self.detect_mobile(request)
         if session["is_mobile"]:
             self.fhdhr.logger.debug("Client is a mobile device.")
@@ -78,6 +82,15 @@ class fHDHR_HTTP_Server():
     def after_request(self, response):
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
         return response
+
+    def detect_internal_api(self, request):
+        user_agent = request.headers.get('User-Agent')
+        if not user_agent:
+            return False
+        elif str(user_agent).lower().startswith("fhdhr"):
+            return True
+        else:
+            return False
 
     def detect_deviceauth(self, request):
         return request.args.get('DeviceAuth', default=None, type=str)
