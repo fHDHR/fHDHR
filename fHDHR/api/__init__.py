@@ -28,6 +28,34 @@ class fHDHR_API_URLs():
         self.discovery_address = self.config.dict["fhdhr"]["discovery_address"]
         self.port = self.config.dict["fhdhr"]["port"]
 
+    def get(self, url, *args):
+
+        req_method = type(self.client).__name__
+
+        if not url.startswith("http"):
+            if not url.startswith("/"):
+                url = "/%s" % url
+            url = "%s%s" % (self.base, url)
+
+        if req_method == "FlaskClient":
+            self.client.get(url, headers=self.headers, *args)
+        else:
+            self.client.get(url, headers=self.headers, *args)
+
+    def post(self, url, *args):
+
+        req_method = type(self.client).__name__
+
+        if not url.startswith("http"):
+            if not url.startswith("/"):
+                url = "/%s" % url
+            url = "%s%s" % (self.base, url)
+
+        if req_method == "FlaskClient":
+            self.client.post(url, headers=self.headers, *args)
+        else:
+            self.client.post(url, headers=self.headers, *args)
+
     @property
     def base(self):
         if self.discovery_address:

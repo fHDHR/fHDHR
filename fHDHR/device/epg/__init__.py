@@ -37,7 +37,7 @@ class EPG():
             if epg_method not in list(self.sleeptime.keys()):
                 self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
 
-        self.epg_update_url = "%s/api/epg?method=update" % (self.fhdhr.api.base)
+        self.epg_update_url = "/api/epg?method=update"
 
     def clear_epg_cache(self, method=None):
 
@@ -301,12 +301,7 @@ class EPG():
                     elif time.time() >= (last_update_time + self.sleeptime[epg_method]):
                         updatetheepg = True
                     if updatetheepg:
-                        try:
-                            self.fhdhr.web.session.get("%s&source=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
-                        except self.fhdhr.web.exceptions.ReadTimeout:
-                            pass
-                        except self.fhdhr.web.exceptions.ConnectionError as e:
-                            self.fhdhr.logger.error("Error updating %s EPG cache: %s" % (epg_method, e))
+                        self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
                 time.sleep(1800)
         except KeyboardInterrupt:
             pass
