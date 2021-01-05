@@ -259,9 +259,6 @@ class Config():
 
     def config_verification(self):
 
-        if self.dict["main"]["thread_method"] not in ["threading", "multiprocessing"]:
-            raise fHDHR.exceptions.ConfigurationError("Invalid Threading Method. Exiting...")
-
         if self.dict["main"]["required"]:
             required_missing = []
             if isinstance(self.dict["main"]["required"], str):

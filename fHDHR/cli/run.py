@@ -2,9 +2,7 @@ import os
 import sys
 import argparse
 import time
-import multiprocessing
 import threading
-import platform
 
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
@@ -18,10 +16,6 @@ ERR_CODE_NO_RESTART = 2
 if sys.version_info.major == 2 or sys.version_info < (3, 7):
     print('Error: fHDHR requires python 3.7+.')
     sys.exit(1)
-
-opersystem = platform.system()
-if opersystem in ["Windows"]:
-    print("WARNING: This script may fail on Windows. Try Setting the `thread_method` to `threading`")
 
 
 def build_args_parser():
@@ -45,30 +39,18 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
     try:
 
         fhdhr.logger.info("HTTP Server Starting")
-        if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
-            fhdhr_web = multiprocessing.Process(target=fhdhrweb.run)
-        elif settings.dict["main"]["thread_method"] in ["threading"]:
-            fhdhr_web = threading.Thread(target=fhdhrweb.run)
-        if settings.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
-            fhdhr_web.start()
+        fhdhr_web = threading.Thread(target=fhdhrweb.run)
+        fhdhr_web.start()
 
         if settings.dict["fhdhr"]["discovery_address"]:
             fhdhr.logger.info("SSDP Server Starting")
-            if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
-                fhdhr_ssdp = multiprocessing.Process(target=fhdhr.device.ssdp.run)
-            elif settings.dict["main"]["thread_method"] in ["threading"]:
-                fhdhr_ssdp = threading.Thread(target=fhdhr.device.ssdp.run)
-            if settings.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
-                fhdhr_ssdp.start()
+            fhdhr_ssdp = threading.Thread(target=fhdhr.device.ssdp.run)
+            fhdhr_ssdp.start()
 
         if settings.dict["epg"]["method"]:
             fhdhr.logger.info("EPG Update Thread Starting")
-            if settings.dict["main"]["thread_method"] in ["multiprocessing"]:
-                fhdhr_epg = multiprocessing.Process(target=fhdhr.device.epg.run)
-            elif settings.dict["main"]["thread_method"] in ["threading"]:
-                fhdhr_epg = threading.Thread(target=fhdhr.device.epg.run)
-            if settings.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
-                fhdhr_epg.start()
+            fhdhr_epg = threading.Thread(target=fhdhr.device.epg.run)
+            fhdhr_epg.start()
 
         # Perform some actions now that HTTP Server is running
         fhdhr.logger.info("Waiting 3 seconds to send startup tasks trigger.")
