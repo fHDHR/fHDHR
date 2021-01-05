@@ -4,33 +4,37 @@
 
   <h4 style="text-align: center;">fHDHR Diagnostic Links</h4>
 
-    <table class="center" style="width:100%">
-      <tr>
+    <div class="container">
+    <table class="table-medium center">
+    <tbody>
+     <tr>
         <th>Item</th>
         <th>HDHR</th>
         <th>RMG</th>
         <th>Non-Specific</th>
-      </tr>
+     </tr>
 
     {% for button_item in button_list %}
-      <tr>
+    <tr>
         <td>{{ button_item["label"] }}</td>
         {% if button_item["hdhr"]  %}
-          <td><button onclick="OpenLink('{{ button_item["hdhr"] }}')">{{ button_item["label"] }}</a></button></td>
+        <td><button onclick="OpenLink('{{ button_item["hdhr"] }}')">{{ button_item["label"] }}</a></button></td>
         {% else %}
-          <td></td>
+        <td></td>
         {% endif %}
         {% if button_item["rmg"]  %}
-          <td><button onclick="OpenLink('{{ button_item["rmg"] }}')">{{ button_item["label"] }}</a></button></td>
+        <td><button onclick="OpenLink('{{ button_item["rmg"] }}')">{{ button_item["label"] }}</a></button></td>
         {% else %}
-          <td></td>
+        <td> </td>
         {% endif %}
         {% if button_item["other"]  %}
-          <td><button onclick="OpenLink('{{ button_item["other"] }}')">{{ button_item["label"] }}</a></button></td>
+        <td><button onclick="OpenLink('{{ button_item["other"] }}')">{{ button_item["label"] }}</a></button></td>
         {% else %}
-          <td></td>
+        <td></td>
         {% endif %}
-      </tr>
+    </tr>
     {% endfor %}
-
+    </tbody>
+    </table>
+    </div>
 {% endblock %}

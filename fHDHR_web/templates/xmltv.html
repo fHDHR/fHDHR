@@ -4,12 +4,14 @@
 
     <h4 style="text-align: center;">xmltv</h4>
 
-    <table class="center" style="width:50%">
+    <div class="container">
+    <table class="table-medium center action-col">
+    <tbody>
       <tr>
         <th>Version</th>
         <th>XMLTV Link</th>
         <th>EPG Link</th>
-        <th>Options</th>
+        <th>Actions</th>
       </tr>
 
     {% for epg_method in fhdhr.config.dict["epg"]["valid_epg_methods"] %}
@@ -20,19 +22,21 @@
         {% endif %}
 
         <tr>
-          <td>{{ epg_method_name }}</td>
-          <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
-          <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
-          <td>
-            <div>
+           <td> {{ epg_method_name }}</td>
+           <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+           <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+
+           <td>
               <button onclick="OpenLink('/api/xmltv?method=update&source={{ epg_method }}&redirect=%2Fxmltv')">Update</a></button>
               <button onclick="OpenLink('/api/xmltv?method=clearcache&source={{ epg_method }}&redirect=%2Fxmltv')">Clear Cache</a></button>
-            </div>
-          </td>
+           </td>
         </tr>
 
 
       {% endif %}
-    {% endfor %}
 
+    {% endfor %}
+    </body>
+    </table>
+    </div>
 {% endblock %}

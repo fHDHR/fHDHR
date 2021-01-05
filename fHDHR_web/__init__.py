@@ -3,6 +3,7 @@ from flask import Flask, request, session
 
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
+from .brython import fHDHR_Brython
 from .hdhr import fHDHR_HDHR
 from .rmg import fHDHR_RMG
 from .api import fHDHR_API
@@ -37,6 +38,10 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("Loading HTTP Files Endpoints.")
         self.files = fHDHR_Files(fhdhr)
         self.add_endpoints(self.files, "files")
+
+        self.fhdhr.logger.info("Loading HTTP Brython Endpoints.")
+        self.brython = fHDHR_Brython(fhdhr)
+        self.add_endpoints(self.brython, "brython")
 
         self.fhdhr.logger.info("Loading HTTP HDHR Endpoints.")
         self.hdhr = fHDHR_HDHR(fhdhr)
