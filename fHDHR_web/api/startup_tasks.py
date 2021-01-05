@@ -29,6 +29,6 @@ class Startup_Tasks():
 
         # Hit EPG Update API
         for epg_method in self.fhdhr.device.epg.epg_methods:
-            self.fhdhr.api.client.get("%s?sorurce=%s" % (self.epg_update_url, epg_method), headers=self.fhdhr.api.headers)
+            self.fhdhr.api.client.get("%s&source=%s" % (self.epg_update_url, epg_method), headers=self.fhdhr.api.headers)
 
         return "Success"
