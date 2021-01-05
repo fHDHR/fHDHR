@@ -1,4 +1,3 @@
-import multiprocessing
 import threading
 import datetime
 
@@ -35,12 +34,8 @@ class Tuner():
             self.status["status"] = "Scanning"
             self.fhdhr.logger.info("Tuner #%s Performing Channel Scan." % str(self.number))
 
-            if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing"]:
-                chanscan = multiprocessing.Process(target=self.runscan)
-            elif self.fhdhr.config.dict["main"]["thread_method"] in ["threading"]:
-                chanscan = threading.Thread(target=self.runscan)
-            if self.fhdhr.config.dict["main"]["thread_method"] in ["multiprocessing", "threading"]:
-                chanscan.start()
+            chanscan = threading.Thread(target=self.runscan)
+            chanscan.start()
 
     def runscan(self):
         self.fhdhr.api.client.get(self.chanscan_url)

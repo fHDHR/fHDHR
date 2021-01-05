@@ -10,11 +10,6 @@
                       "config_file": true,
                       "config_web": true
                     },
-          "thread_method":{
-                          "value": "multiprocessing",
-                          "config_file": true,
-                          "config_web": true
-                        },
           "servicename":{
                 "value": "fHDHR",
                 "config_file": false,
