@@ -84,11 +84,11 @@ class fHDHR_HTTP_Server():
     def after_request(self, response):
 
         # Close Tuner if it was in use, and did not close already
-        if session["tuner_used"] is not None:
-            tuner = self.fhdhr.device.tuners.tuners[str(session["tuner_used"])]
-            if tuner.tuner_lock.locked():
-                self.fhdhr.logger.info("Shutting down Tuner #" + str(session["tuner_used"]) + " after Request.")
-                tuner.close()
+        # if session["tuner_used"] is not None:
+        #    tuner = self.fhdhr.device.tuners.tuners[str(session["tuner_used"])]
+        #    if tuner.tuner_lock.locked():
+        #        self.fhdhr.logger.info("Shutting down Tuner #" + str(session["tuner_used"]) + " after Request.")
+        #        tuner.close()
 
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
         return response
