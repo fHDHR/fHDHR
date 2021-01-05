@@ -1,4 +1,4 @@
-from flask import Response, request, redirect, abort, stream_with_context
+from flask import Response, request, redirect, abort, stream_with_context, session
 import urllib.parse
 import uuid
 import json
@@ -80,6 +80,7 @@ class Tuners():
                 response.headers["X-fHDHR-Error"] = str(e)
                 self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
                 abort(response)
+
             tuner = self.fhdhr.device.tuners.tuners[str(tunernum)]
 
             try:
@@ -95,6 +96,7 @@ class Tuners():
 
             self.fhdhr.logger.info("Tuner #" + str(tunernum) + " to be used for stream.")
             tuner.set_status(stream_args)
+            session["tuner_used"] = tunernum
 
             if stream_args["method"] == "direct":
                 return Response(tuner.get_stream(stream_args, tuner), content_type=stream_args["content_type"], direct_passthrough=True)
@@ -106,16 +108,19 @@ class Tuners():
             if not tuner_number or str(tuner_number) not in list(self.fhdhr.device.tuners.tuners.keys()):
                 return "%s Invalid tuner" % str(tuner_number)
 
+            session["tuner_used"] = tuner_number
+
             tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
             tuner.close()
 
         elif method == "scan":
 
             if not tuner_number:
-                self.fhdhr.device.tuners.tuner_scan()
+                tunernum = self.fhdhr.device.tuners.first_available(None)
             else:
-                tuner = self.fhdhr.device.tuners.tuners[str(tuner_number)]
-                tuner.channel_scan()
+                tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, None)
+            tuner = self.fhdhr.device.tuners.tuners[str(tunernum)]
+            tuner.channel_scan(grabbed=True)
 
         elif method == "status":
 

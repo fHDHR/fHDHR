@@ -53,7 +53,7 @@ class Tuners():
 
         return tuner_number
 
-    def first_available(self, channel_number):
+    def first_available(self, channel_number, dograb=True):
 
         if not self.available_tuner_count():
             raise TunerError("805 - All Tuners In Use")

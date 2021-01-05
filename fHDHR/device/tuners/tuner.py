@@ -21,8 +21,8 @@ class Tuner():
         self.chanscan_url = "%s/api/channels?method=scan" % (self.fhdhr.api.base)
         self.close_url = "%s/api/tuners?method=close&tuner=%s" % (self.fhdhr.api.base, str(self.number))
 
-    def channel_scan(self):
-        if self.tuner_lock.locked():
+    def channel_scan(self, grabbed=False):
+        if self.tuner_lock.locked() and not grabbed:
             self.fhdhr.logger.error("Tuner #%s is not available." % str(self.number))
             raise TunerError("804 - Tuner In Use")
 
@@ -30,7 +30,8 @@ class Tuner():
             self.fhdhr.logger.info("Channel Scan Already In Progress!")
         else:
 
-            self.tuner_lock.acquire()
+            if not grabbed:
+                self.tuner_lock.acquire()
             self.status["status"] = "Scanning"
             self.fhdhr.logger.info("Tuner #%s Performing Channel Scan." % str(self.number))
 
@@ -42,9 +43,10 @@ class Tuner():
                 chanscan.start()
 
     def runscan(self):
-        self.fhdhr.web.session.get(self.chanscan_url)
+        self.fhdhr.api.client.get(self.chanscan_url)
         self.fhdhr.logger.info("Requested Channel Scan Complete.")
-        self.fhdhr.web.session.get(self.close_url)
+        self.close()
+        self.fhdhr.api.client.get(self.close_url)
 
     def add_downloaded_size(self, bytes_count):
         if "downloaded" in list(self.status.keys()):
@@ -63,7 +65,7 @@ class Tuner():
         self.set_off_status()
         if self.tuner_lock.locked():
             self.tuner_lock.release()
-        self.fhdhr.logger.info("Tuner #" + str(self.number) + " Released.")
+            self.fhdhr.logger.info("Tuner #" + str(self.number) + " Released.")
 
     def get_status(self):
         current_status = self.status.copy()
