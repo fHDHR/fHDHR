@@ -19,6 +19,8 @@ class fHDHR_API_URLs():
         self.config = settings
         self.web = web
 
+        self.headers = {'User-Agent': "fHDHR/%s" % self.config.internal["versions"]["fHDHR"]}
+
         # Replaced later
         self.client = Fillin_Client(settings, web)
 
