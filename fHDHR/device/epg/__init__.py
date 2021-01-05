@@ -302,7 +302,7 @@ class EPG():
                         updatetheepg = True
                     if updatetheepg:
                         try:
-                            self.fhdhr.web.session.get("%s?sorurce=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
+                            self.fhdhr.web.session.get("%s&source=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
                         except self.fhdhr.web.exceptions.ReadTimeout:
                             pass
                         except self.fhdhr.web.exceptions.ConnectionError as e:

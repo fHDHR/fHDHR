@@ -17,6 +17,9 @@ class OriginChannels():
         try:
             stationsReq = self.fhdhr.web.session.get(stations_url, headers=url_headers)
             stationsReq.raise_for_status()
+        except self.fhdhr.web.exceptions.SSLError as err:
+            self.fhdhr.logger.error('Error while getting stations: %s' % err)
+            return []
         except self.fhdhr.web.exceptions.HTTPError as err:
             self.fhdhr.logger.error('Error while getting stations: %s' % err)
             return []
