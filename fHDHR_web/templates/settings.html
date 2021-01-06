@@ -14,46 +14,54 @@
         <h4 style="text-align: center;">{{ config_section }}</h4>
       {% endif %}
 
-      <table class="center" style="width:100%">
-          <tr>
-              <th>Config Name</th>
-              <th>Config Default Value</th>
-              <th>Config Value</th>
-              <th>Update</th>
-              <th>Reset</th>
-          </tr>
+    <div class="container">
+    <table class="table-settings center action-col text-edit-cols">
+    <thead>
+      <tr>
+        <th>Config Name</th>
+        <th>Config Default Value</th>
+        <th>Config Value</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
 
       {% for config_item in list(web_settings_dict[config_section].keys()) %}
 
       <tr>
-        <td data-th="Config Name">{{ config_item }}</td>
+        <td>{{ config_item }}</td>
 
-        <td data-th="Config Default Value">{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
+        <td>{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
 
+	<td>
         <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
           <input type="hidden" name="config_section" value="{{ config_section }}">
           <input type="hidden" name="config_name" value="{{ config_item }}">
           <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
             {% if web_settings_dict[config_section][config_item]["hide"] %}
-              <td data-th="Config Value"><input type="text" size="50" name="config_value" value=**************></td>
+              <input type="text" size="25" name="config_value" value="**************">
             {% else %}
-              <td data-th="Config Value"><input type="text" size="50" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}"></td>
+              <input type="text" size="25" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}">
             {% endif %}
-            <td data-th="Update"><input type="submit" value="Update"></td>
-        </form>
-
-        <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
-          <input type="hidden" name="config_section" value="{{ config_section }}">
+        </td>
+	<td style="display:flex;">
+	<span style="margin:auto">
+		<input type="submit" value="Update">
+	</form>
+	</span>
+	<form style="margin:auto">
+	  <input type="hidden" name="config_section" value="{{ config_section }}">
           <input type="hidden" name="config_name" value="{{ config_item }}">
           <input type="hidden" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
           <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
-            <td data-th="Reset"><input type="submit" value="Reset"></td>
+	  <input type="submit" value="Reset">
         </form>
+        </td>
 
-      </tr>
+    </tr>
 
       {% endfor %}
-      </table>
+      </div>
 
     {% endfor %}
 

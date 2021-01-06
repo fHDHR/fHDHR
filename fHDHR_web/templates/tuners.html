@@ -4,15 +4,17 @@
 
     <h4 style="text-align: center;">fHDHR Streams</h4>
 
-      <table class="center" style="width:100%">
-        <tr>
-          <th>Tuner</th>
+    <div class="container">
+    <table class="table-medium center action-col">
+    <tbody>
+	<tr>
           <th>Status</th>
           <th>Channel</th>
           <th>Method</th>
           <th>Time Active</th>
           <th>Total Downloaded</th>
           <th>Options</th>
+          <th>Action</th>
         </tr>
 
       {% for tuner_dict in tuner_list %}
@@ -20,30 +22,31 @@
           <td>{{ tuner_dict["number"] }}</td>
           <td>{{ tuner_dict["status"] }}</td>
           {% if tuner_dict["status"] in ["Active", "Acquired"] %}
-            <td>{{ tuner_dict["channel_number"] }}</td>
+          <td>{{ tuner_dict["channel_number"] }}</td>
           {% else %}
-            <td>N/A</td>
+          <td>N/A</td>
           {% endif %}
           {% if tuner_dict["status"] == "Active" %}
-            <td>{{ tuner_dict["method"] }}</td>
-            <td>{{ tuner_dict["play_duration"] }}</td>
-            <td>{{ tuner_dict["downloaded"] }}</td>
+          <td>{{ tuner_dict["method"] }}</td>
+          <td>{{ tuner_dict["play_duration"] }}</td>
+          <td>{{ tuner_dict["downloaded"] }}</td>
           {% else %}
-            <td>N/A</td>
-            <td>N/A</td>
-            <td>N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
+          <td>N/A</td>
           {% endif %}
           <td>
-            <div>
               {% if tuner_dict["status"] != "Inactive" %}
                 <button onclick="OpenLink('/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&redirect=%2Ftuners')">Close</a></button>
               {% endif %}
               {% if not tuner_scanning and tuner_dict["status"] == "Inactive" %}
                 <button onclick="OpenLink('/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&redirect=%2Ftuners')">Channel Scan</a></button>
               {% endif %}
-            </div>
           </td>
         </tr>
       {% endfor %}
+    </tbody>
+    </table>
+    </div>
 
 {% endblock %}

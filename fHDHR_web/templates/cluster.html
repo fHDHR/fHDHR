@@ -14,7 +14,10 @@
       </div>
       <br>
 
-      <table class="center" style="width:50%">
+    <div class="container">
+    <table class="table-medium center action-col">
+    <tbody>
+
         <tr>
           <th>Name</th>
           <th>Location</th>
@@ -22,15 +25,12 @@
           <th>Options</th>
         </tr>
 
-      {% for location in locations_list %}
+        {% for location in locations_list %}
         <tr>
-          <td>{{ location["name"] }}</td>
-          <td>{{ location["location"] }}</td>
-          <td>{{ location["joined"] }}</td>
-
-          <td>
-            <div>
-
+        <td>{{ location["name"] }}</td>
+            <td>{{ location["location"] }}</td>
+        <td>{{ location["joined"] }}</td>
+            <td>
               {% if location["joined"] in ["True", "False"] %}
                 <button onclick="OpenLink('{{ location["location"] }}')">Visit</a></button>
               {% endif %}
@@ -41,11 +41,12 @@
                 <button onclick="OpenLink('/api/cluster?method=add&location={{ location["url_query"] }}&redirect=%2Fcluster')">Add</a></button>
               {% endif %}
 
-            </div>
-          </td>
-        </tr>
+            </td>
+          </tr>
       {% endfor %}
-
+    </tbody>
+    </table>
+    </div>
     {% endif %}
 
 {% endblock %}

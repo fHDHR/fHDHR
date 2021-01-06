@@ -10,8 +10,10 @@
       {% endfor %}
     </p>
 
-      <table class="center" style="width:100%">
-        <tr>
+    <div class="container">
+    <table class="table-scroll">
+    <thead>
+      <tr>
           {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
             <th>Play</th>
           {% endif %}
@@ -24,14 +26,18 @@
           <th>Start Time (UTC)</th>
           <th>End Time (UTC)</th>
           <th>Content Remaining Time</th>
-        </tr>
+      </tr>
+    </thead>
 
+    <tbody class="body-half-screen">
       {% for chan_dict in chan_guide_list %}
-        <tr>
+      <tr>
           {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
-            <td>
+          <td>
               {% if chan_dict["enabled"] %}
                 <a href="{{ chan_dict["play_url"] }}">Play</a>
+              {% else %}
+                <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
               {% endif %}
             </td>
           {% endif %}
@@ -44,7 +50,10 @@
           <td>{{ chan_dict["listing_time_start"] }}</td>
           <td>{{ chan_dict["listing_time_end"] }}</td>
           <td>{{ chan_dict["listing_remaining_time"] }}</td>
-        </tr>
+      </tr>
       {% endfor %}
+    </tbody>
+    </table>
+    </div>
 
 {% endblock %}
