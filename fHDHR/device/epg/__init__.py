@@ -301,7 +301,7 @@ class EPG():
                     elif time.time() >= (last_update_time + self.sleeptime[epg_method]):
                         updatetheepg = True
                     if updatetheepg:
-                        self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method), timeout=0.0000000001)
+                        self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
                 time.sleep(1800)
         except KeyboardInterrupt:
             pass
