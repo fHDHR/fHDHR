@@ -6,7 +6,7 @@ from .api import fHDHR_API_URLs
 
 import fHDHR.tools
 
-fHDHR_VERSION = "v0.4.6-beta"
+fHDHR_VERSION = "v0.6.0-beta"
 
 
 class fHDHR_INT_OBJ():

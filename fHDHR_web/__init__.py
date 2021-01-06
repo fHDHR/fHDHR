@@ -9,7 +9,7 @@ from .rmg import fHDHR_RMG
 from .api import fHDHR_API
 
 
-fHDHR_web_VERSION = "v0.4.0-beta"
+fHDHR_web_VERSION = "v0.8.0-beta"
 
 
 class fHDHR_HTTP_Server():
