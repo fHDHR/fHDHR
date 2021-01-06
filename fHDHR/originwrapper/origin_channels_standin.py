@@ -7,5 +7,5 @@ class OriginChannels_StandIN():
     def get_channels(self):
         return []
 
-    def get_channel_stream(self, chandict):
+    def get_channel_stream(self, chandict, stream_args):
         return None

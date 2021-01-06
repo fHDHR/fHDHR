@@ -14,7 +14,7 @@ class Direct_M3U8_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.chunksize = int(self.fhdhr.config.dict["direct_stream"]['chunksize'])
+        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
     def get(self):
 
@@ -23,14 +23,14 @@ class Direct_M3U8_Stream():
 
         self.fhdhr.logger.info("Detected stream URL is m3u8: %s" % self.stream_args["true_content_type"])
 
-        channelUri = self.stream_args["channelUri"]
+        channel_stream_url = self.stream_args["stream_info"]["url"]
         while True:
 
-            self.fhdhr.logger.info("Opening m3u8 for reading %s" % channelUri)
-            videoUrlM3u = m3u8.load(channelUri)
+            self.fhdhr.logger.info("Opening m3u8 for reading %s" % channel_stream_url)
+            videoUrlM3u = m3u8.load(channel_stream_url)
             if len(videoUrlM3u.playlists):
                 self.fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))
-                channelUri = videoUrlM3u.playlists[0].absolute_uri
+                channel_stream_url = videoUrlM3u.playlists[0].absolute_uri
             else:
                 break
 
@@ -42,7 +42,7 @@ class Direct_M3U8_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    playlist = m3u8.load(channelUri)
+                    playlist = m3u8.load(channel_stream_url)
                     segments = playlist.segments
 
                     if len(played_chunk_urls):

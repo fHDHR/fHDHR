@@ -88,7 +88,7 @@ class Tuner():
                             "method": stream_args["method"],
                             "accessed": [stream_args["accessed"]],
                             "channel": stream_args["channel"],
-                            "proxied_url": stream_args["channelUri"],
+                            "proxied_url": stream_args["stream_info"]["url"],
                             "time_start": datetime.datetime.utcnow(),
                             "downloaded": 0
                             }

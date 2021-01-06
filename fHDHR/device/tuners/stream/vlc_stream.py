@@ -11,7 +11,7 @@ class VLC_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["vlc"]["bytes_per_read"])
+        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
         self.vlc_command = self.vlc_command_assemble(stream_args)
 
     def get(self):
@@ -49,7 +49,7 @@ class VLC_Stream():
     def vlc_command_assemble(self, stream_args):
         vlc_command = [
                           self.fhdhr.config.dict["vlc"]["path"],
-                          "-I", "dummy", stream_args["channelUri"],
+                          "-I", "dummy", stream_args["stream_info"]["url"],
                           ]
         vlc_command.extend(self.vlc_duration(stream_args))
         vlc_command.extend(self.vlc_loglevel())

@@ -11,7 +11,7 @@ class FFMPEG_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["ffmpeg"]["bytes_per_read"])
+        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
         self.ffmpeg_command = self.ffmpeg_command_assemble(stream_args)
 
     def get(self):
@@ -48,7 +48,7 @@ class FFMPEG_Stream():
     def ffmpeg_command_assemble(self, stream_args):
         ffmpeg_command = [
                           self.fhdhr.config.dict["ffmpeg"]["path"],
-                          "-i", stream_args["channelUri"],
+                          "-i", stream_args["stream_info"]["url"],
                           ]
         ffmpeg_command.extend(self.ffmpeg_duration(stream_args))
         ffmpeg_command.extend(self.transcode_profiles(stream_args))

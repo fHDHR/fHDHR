@@ -36,8 +36,8 @@ class OriginServiceWrapper():
     def get_channels(self):
         return self.channels.get_channels()
 
-    def get_channel_stream(self, chandict):
-        return self.channels.get_channel_stream(chandict)
+    def get_channel_stream(self, chandict, stream_args):
+        return self.channels.get_channel_stream(chandict, stream_args)
 
     def update_epg(self, channels):
         return self.epg.update_epg(channels)
