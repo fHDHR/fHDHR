@@ -17,45 +17,36 @@
       <p></p>
       <div>
 
-      <button class="pull-left" onclick="OpenLink('/index')">fHDHR</a></button>
+      <button class="pull-left" onclick="OpenLink('/index')">fHDHR</button>
+      <button class="pull-left" onclick="OpenLink('/origin')">{{ fhdhr.config.dict["main"]["servicename"] }}</button>
 
-      <button class="pull-left" onclick="OpenLink('/origin')">{{ fhdhr.config.dict["main"]["servicename"] }}</a></button>
-
-      <button class="pull-left" onclick="OpenLink('/channels')">Channels</a></button>
-
-      <button class="pull-left" onclick="OpenLink('/guide')">Guide</a></button>
-
-      <button class="pull-left" onclick="OpenLink('/cluster')">Cluster/SSDP</a></button>
-
-      <button class="pull-left" onclick="OpenLink('/tuners')">Tuners</a></button>
-
-      <button class="pull-left" onclick="OpenLink('/xmltv')">xmltv</a></button>
-
-      {% if fhdhr.config.dict["web_ui"]["advanced"] %}
-        <button class="pull-left" onclick="OpenLink('/version')">Version</a></button>
-      {% endif %}
-
-      {% if fhdhr.config.dict["web_ui"]["advanced"] %}
-        <button class="pull-left" onclick="OpenLink('/diagnostics')">Diagnostics</a></button>
-      {% endif %}
-
-      <button class="pull-left" onclick="OpenLink('/settings')">Settings</a></button>
+      {% for page_dict in session["route_list"]["pages"] %}
+        {% if session["route_list"]["pages"][page_dict]["name"] != "page_index_html" and fhdhr.config.dict["web_ui"]["access_level"] >= session["route_list"]["pages"][page_dict]["endpoint_access_level"] %}
+          <button class="pull-left" onclick="OpenLink('{{ session["route_list"]["pages"][page_dict]["endpoints"][0] }}')">{{ session["route_list"]["pages"][page_dict]["pretty_name"] }}</button>
+        {% endif %}
+      {% endfor %}
 
       <a class="pull-right" style="padding: 5px;" href="/api/xmltv?method=get&source={{ fhdhr.device.epg.def_method }}">xmltv</a>
       <a class="pull-right" style="padding: 5px;" href="/api/m3u?method=get&channel=all">m3u</a>
       <form  class="pull-right" style="padding: 5px;"  method="post" action="/api/settings?method=update&redirect={{ request.path }}">
         <input type="hidden" name="config_section" value="web_ui">
-        <input type="hidden" name="config_name" value="advanced">
-        {% if fhdhr.config.dict["web_ui"]["advanced"] %}
-          <input type="hidden" name="config_value" value=False>
+        <input type="hidden" name="config_name" value="access_level">
+
+        {% if fhdhr.config.dict["web_ui"]["access_level"] == 2 %}
+          <input type="hidden" name="config_value" value=0>
+        {% elif fhdhr.config.dict["web_ui"]["access_level"] == 1 %}
+          <input type="hidden" name="config_value" value=2>
         {% else %}
-          <input type="hidden" name="config_value" value=True>
+          <input type="hidden" name="config_value" value=1>
         {% endif %}
-        <input type="hidden" name="config_default" value=False>
-        {% if fhdhr.config.dict["web_ui"]["advanced"] %}
-          <a data-th="Reset"><input type="submit" value="Basic"></a>
+
+        <input type="hidden" name="config_default" value=0>
+        {% if fhdhr.config.dict["web_ui"]["access_level"] == 2 %}
+          <a><input type="submit" value="Extra Advanced"></a>
+        {% elif fhdhr.config.dict["web_ui"]["access_level"] == 1 %}
+          <a><input type="submit" value="Advanced"></a>
         {% else %}
-          <a data-th="Reset"><input type="submit" value="Advanced"></a>
+          <a><input type="submit" value="Basic"></a>
         {% endif %}
       </form>
 

@@ -6,6 +6,8 @@ from fHDHR.tools import humanized_filesize
 class Tuners_HTML():
     endpoints = ["/tuners", "/tuners.html"]
     endpoint_name = "page_streams_html"
+    endpoint_access_level = 0
+    pretty_name = "Tuners"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

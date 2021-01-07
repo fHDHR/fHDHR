@@ -7,6 +7,8 @@ from fHDHR.tools import humanized_time, channel_sort
 class Guide_HTML():
     endpoints = ["/guide", "/guide.html"]
     endpoint_name = "page_guide_html"
+    endpoint_access_level = 0
+    pretty_name = "Guide"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

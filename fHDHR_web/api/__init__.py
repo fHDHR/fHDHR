@@ -12,6 +12,8 @@ from .tuners import Tuners
 from .debug import Debug_JSON
 from .tools import API_Tools
 
+from .route_list import Route_List
+
 from .images import Images
 
 
@@ -32,5 +34,7 @@ class fHDHR_API():
         self.tuners = Tuners(fhdhr)
         self.debug = Debug_JSON(fhdhr)
         self.tools = API_Tools(fhdhr)
+
+        self.route_list = Route_List(fhdhr)
 
         self.images = Images(fhdhr)
