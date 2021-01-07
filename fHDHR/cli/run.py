@@ -1,8 +1,6 @@
 import os
 import sys
 import argparse
-import time
-import threading
 
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
@@ -38,28 +36,24 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
 
     try:
 
-        fhdhr.logger.info("HTTP Server Starting")
-        fhdhr_web = threading.Thread(target=fhdhrweb.run)
-        fhdhr_web.start()
+        # Start Flask Thread
+        fhdhrweb.start()
 
+        # Start SSDP Thread
         if settings.dict["fhdhr"]["discovery_address"]:
-            fhdhr.logger.info("SSDP Server Starting")
-            fhdhr_ssdp = threading.Thread(target=fhdhr.device.ssdp.run)
-            fhdhr_ssdp.start()
+            fhdhr.device.ssdp.start()
 
+        # Start EPG Thread
         if settings.dict["epg"]["method"]:
-            fhdhr.logger.info("EPG Update Thread Starting")
-            fhdhr_epg = threading.Thread(target=fhdhr.device.epg.run)
-            fhdhr_epg.start()
+            fhdhr.device.epg.start()
 
         # Perform some actions now that HTTP Server is running
-        fhdhr.logger.info("Waiting 3 seconds to send startup tasks trigger.")
-        time.sleep(3)
         fhdhr.api.get("/api/startup_tasks")
 
         # wait forever
-        while True:
-            time.sleep(3600)
+        while fhdhr.threads["flask"].is_alive():
+            restart_code = "restart"
+        return restart_code
 
     except KeyboardInterrupt:
         return ERR_CODE_NO_RESTART
@@ -92,7 +86,10 @@ def main(script_dir, fHDHR_web, origin, alternative_epg):
 
     try:
         args = build_args_parser()
-        return start(args, script_dir, fHDHR_web, origin, alternative_epg)
+        while True:
+            returned_code = start(args, script_dir, fHDHR_web, origin, alternative_epg)
+            if returned_code not in ["restart"]:
+                return returned_code
     except KeyboardInterrupt:
         print("\n\nInterrupted")
         return ERR_CODE

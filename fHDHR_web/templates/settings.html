@@ -2,67 +2,72 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">fHDHR Settings</h4>
+  <h4 style="text-align: center;">fHDHR Settings</h4>
 
-    <h4 style="text-align: center;">Settings will require a manual restart.</h4>
+  <h4 style="text-align: center;">Some Settings will require a manual restart.</h4>
 
-    {% for config_section in list(web_settings_dict.keys()) %}
+  <div style="text-align: center;">
+    <button onclick="OpenLink('/api/settings?method=restart&instance_id={{ session["instance_id"] }}&redirect=%2Fsettings')">Restart fHDHR</a></button><p> Note: This may take some time, and you will have to refresh your page.</p>
+  </div>
+  <br>
 
-      {% if config_section == "origin" %}
-        <h4 style="text-align: center;">{{ fhdhr.config.dict["main"]["dictpopname"] }}</h4>
-      {% else %}
-        <h4 style="text-align: center;">{{ config_section }}</h4>
-      {% endif %}
+  {% for config_section in list(web_settings_dict.keys()) %}
+
+    {% if config_section == "origin" %}
+      <h4 style="text-align: center;">{{ fhdhr.config.dict["main"]["dictpopname"] }}</h4>
+    {% else %}
+      <h4 style="text-align: center;">{{ config_section }}</h4>
+    {% endif %}
 
     <div class="container">
-    <table class="table-settings center action-col text-edit-cols">
-    <thead>
-      <tr>
-        <th>Config Name</th>
-        <th>Config Default Value</th>
-        <th>Config Value</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
+      <table class="table-settings center action-col text-edit-cols">
+      <thead>
+        <tr>
+          <th>Config Name</th>
+          <th>Config Default Value</th>
+          <th>Config Value</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
 
       {% for config_item in list(web_settings_dict[config_section].keys()) %}
 
-      <tr>
-        <td>{{ config_item }}</td>
+        <tr>
+          <td>{{ config_item }}</td>
 
-        <td>{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
+          <td>{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
 
-	<td>
-        <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
-          <input type="hidden" name="config_section" value="{{ config_section }}">
-          <input type="hidden" name="config_name" value="{{ config_item }}">
-          <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
-            {% if web_settings_dict[config_section][config_item]["hide"] %}
-              <input type="text" size="25" name="config_value" value="**************">
-            {% else %}
-              <input type="text" size="25" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}">
-            {% endif %}
-        </td>
-	<td style="display:flex;">
-	<span style="margin:auto">
-		<input type="submit" value="Update">
-	</form>
-	</span>
-	<form style="margin:auto">
-	  <input type="hidden" name="config_section" value="{{ config_section }}">
-          <input type="hidden" name="config_name" value="{{ config_item }}">
-          <input type="hidden" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
-          <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
-	  <input type="submit" value="Reset">
-        </form>
-        </td>
+    	    <td>
+            <form method="post" action="/api/settings?method=update&redirect=%2Fsettings">
+              <input type="hidden" name="config_section" value="{{ config_section }}">
+              <input type="hidden" name="config_name" value="{{ config_item }}">
+              <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
+                {% if web_settings_dict[config_section][config_item]["hide"] %}
+                  <input type="text" size="25" name="config_value" value="**************">
+                {% else %}
+                  <input type="text" size="25" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}">
+                {% endif %}
+            </td>
+    	    <td style="display:flex;">
+    	      <span style="margin:auto">
+      		    <input type="submit" value="Update">
+      	      </form>
+    	      </span>
+    	      <form style="margin:auto">
+    	        <input type="hidden" name="config_section" value="{{ config_section }}">
+              <input type="hidden" name="config_name" value="{{ config_item }}">
+              <input type="hidden" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
+              <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
+    	        <input type="submit" value="Reset">
+            </form>
+          </td>
 
-    </tr>
+        </tr>
 
       {% endfor %}
-      </div>
+    </div>
 
-    {% endfor %}
+  {% endfor %}
 
 {% endblock %}

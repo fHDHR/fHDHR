@@ -1,6 +1,7 @@
 import os
 import time
 import datetime
+import threading
 
 from fHDHR.tools import channel_sort
 
@@ -38,6 +39,8 @@ class EPG():
                 self.sleeptime[epg_method] = self.fhdhr.config.dict["epg"]["update_frequency"]
 
         self.epg_update_url = "/api/epg?method=update"
+
+        self.fhdhr.threads["epg"] = threading.Thread(target=self.run)
 
     def clear_epg_cache(self, method=None):
 
@@ -294,19 +297,25 @@ class EPG():
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
         self.fhdhr.logger.info("Wrote %s EPG cache. %s Programs for %s Channels" % (epgtypename, total_programs, total_channels))
 
+    def start(self):
+        self.fhdhr.logger.info("EPG Update Thread Starting")
+        self.fhdhr.threads["epg"].start()
+
+    def stop(self):
+        self.fhdhr.logger.info("EPG Update Thread Stopping")
+
     def run(self):
         time.sleep(1800)
-        try:
-            while True:
-                for epg_method in self.epg_methods:
-                    last_update_time = self.fhdhr.db.get_fhdhr_value("update_time", epg_method)
-                    updatetheepg = False
-                    if not last_update_time:
-                        updatetheepg = True
-                    elif time.time() >= (last_update_time + self.sleeptime[epg_method]):
-                        updatetheepg = True
-                    if updatetheepg:
-                        self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
-                time.sleep(1800)
-        except KeyboardInterrupt:
-            pass
+        while True:
+            for epg_method in self.epg_methods:
+                last_update_time = self.fhdhr.db.get_fhdhr_value("update_time", epg_method)
+                updatetheepg = False
+                if not last_update_time:
+                    updatetheepg = True
+                elif time.time() >= (last_update_time + self.sleeptime[epg_method]):
+                    updatetheepg = True
+                if updatetheepg:
+                    self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
+            time.sleep(1800)
+
+        self.stop()

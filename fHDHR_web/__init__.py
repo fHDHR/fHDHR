@@ -1,5 +1,7 @@
 from gevent.pywsgi import WSGIServer
 from flask import Flask, request, session
+import threading
+import uuid
 
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
@@ -23,6 +25,7 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.info("Loading Flask.")
 
         self.fhdhr.app = Flask("fHDHR", template_folder=self.template_folder)
+        self.instance_id = str(uuid.uuid4())
 
         # Allow Internal API Usage
         self.fhdhr.app.testing = True
@@ -63,10 +66,23 @@ class fHDHR_HTTP_Server():
         self.fhdhr.app.after_request(self.after_request)
         self.fhdhr.app.before_first_request(self.before_first_request)
 
+        self.fhdhr.threads["flask"] = threading.Thread(target=self.run)
+
+    def start(self):
+        self.fhdhr.logger.info("Flask HTTP Thread Starting")
+        self.fhdhr.threads["flask"].start()
+
+    def stop(self):
+        self.fhdhr.logger.info("Flask HTTP Thread Stopping")
+        self.http.stop()
+
     def before_first_request(self):
         self.fhdhr.logger.info("HTTP Server Online.")
 
     def before_request(self):
+
+        session["session_id"] = str(uuid.uuid4())
+        session["instance_id"] = self.instance_id
 
         session["is_internal_api"] = self.detect_internal_api(request)
         if session["is_internal_api"]:
@@ -84,6 +100,8 @@ class fHDHR_HTTP_Server():
 
         session["tuner_used"] = None
 
+        session["restart"] = False
+
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
@@ -96,7 +114,10 @@ class fHDHR_HTTP_Server():
         #        tuner.close()
 
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
-        return response
+        if not session["restart"]:
+            return response
+        else:
+            return self.stop()
 
     def detect_internal_api(self, request):
         user_agent = request.headers.get('User-Agent')
@@ -165,8 +186,8 @@ class fHDHR_HTTP_Server():
         self.http = WSGIServer(self.fhdhr.api.address_tuple,
                                self.fhdhr.app.wsgi_app,
                                log=self.fhdhr.logger)
-
         try:
             self.http.serve_forever()
-        except KeyboardInterrupt:
-            self.http.stop()
+            self.stop()
+        except AttributeError:
+            self.fhdhr.logger.info("HTTP Server Offline")

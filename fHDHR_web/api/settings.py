@@ -1,4 +1,4 @@
-from flask import request, redirect
+from flask import request, redirect, session
 import urllib.parse
 
 
@@ -33,6 +33,11 @@ class Settings():
                 config_section = self.fhdhr.config.dict["main"]["dictpopname"]
 
             self.fhdhr.config.write(config_section, config_name, config_value)
+
+        elif method == "restart":
+            instance_id = request.args.get('instance_id', default=None, type=str)
+            if instance_id == session["instance_id"]:
+                session["restart"] = True
 
         if redirect_url:
             return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))

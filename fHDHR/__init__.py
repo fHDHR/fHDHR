@@ -21,6 +21,8 @@ class fHDHR_INT_OBJ():
 
         self.api = fHDHR_API_URLs(settings, self.web)
 
+        self.threads = {}
+
 
 class fHDHR_OBJ():
 
