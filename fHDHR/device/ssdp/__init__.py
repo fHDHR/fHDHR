@@ -2,6 +2,7 @@
 import socket
 import struct
 import time
+import threading
 
 from .ssdp_detect import fHDHR_Detect
 from .rmg_ssdp import RMG_SSDP
@@ -14,6 +15,8 @@ class SSDPServer():
         self.fhdhr = fhdhr
 
         self.detect_method = fHDHR_Detect(fhdhr)
+
+        self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
 
         if (self.fhdhr.config.dict["fhdhr"]["discovery_address"] and
            self.fhdhr.config.dict["ssdp"]["enabled"]):
@@ -31,6 +34,21 @@ class SSDPServer():
 
             self.do_alive()
             self.m_search()
+
+    def start(self):
+        self.fhdhr.logger.info("SSDP Server Starting")
+        self.fhdhr.threads["ssdp"].start()
+
+    def stop(self):
+        self.fhdhr.logger.info("SSDP Server Stopping")
+        self.sock.close()
+
+    def run(self):
+        while True:
+            data, address = self.sock.recvfrom(1024)
+            self.on_recv(data, address)
+            self.do_alive()
+        self.stop()
 
     def do_alive(self, forcealive=False):
 
@@ -131,15 +149,6 @@ class SSDPServer():
         data += "\r\n"
 
         return data.encode("utf-8")
-
-    def run(self):
-        try:
-            while True:
-                data, address = self.sock.recvfrom(1024)
-                self.on_recv(data, address)
-                self.do_alive()
-        except KeyboardInterrupt:
-            self.sock.close()
 
     def setup_ssdp(self):
         self.sock = None
