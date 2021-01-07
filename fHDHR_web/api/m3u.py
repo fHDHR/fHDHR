@@ -89,7 +89,7 @@ class M3U():
                 for chan_key in list(channel_item_dict.keys()):
                     if not chan_key.startswith(tuple(["group-title", "stream_url"])):
                         m3ustring += "%s=\"%s\" " % (chan_key, channel_item_dict[chan_key])
-                m3ustring += "group-title=\"%s\"%s\n" % (channel_item_dict["group-title"], channel_item_dict["group-titleb"])
+                m3ustring += "group-title=\"%s\",%s\n" % (channel_item_dict["group-title"], channel_item_dict["group-titleb"])
                 m3ustring += "%s\n" % channel_item_dict["stream_url"]
                 fakefile.write(m3ustring)
 
