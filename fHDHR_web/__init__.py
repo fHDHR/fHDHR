@@ -34,6 +34,8 @@ class fHDHR_HTTP_Server():
         # Set Secret Key For Sessions
         self.fhdhr.app.secret_key = self.fhdhr.config.dict["fhdhr"]["friendlyname"]
 
+        self.route_list = {}
+
         self.fhdhr.logger.info("Loading HTTP Pages Endpoints.")
         self.pages = fHDHR_Pages(fhdhr)
         self.add_endpoints(self.pages, "pages")
@@ -83,6 +85,7 @@ class fHDHR_HTTP_Server():
 
         session["session_id"] = str(uuid.uuid4())
         session["instance_id"] = self.instance_id
+        session["route_list"] = self.route_list
 
         session["is_internal_api"] = self.detect_internal_api(request)
         if session["is_internal_api"]:
@@ -151,6 +154,10 @@ class fHDHR_HTTP_Server():
             return False
 
     def add_endpoints(self, index_list, index_name):
+
+        if index_name not in list(self.route_list.keys()):
+            self.route_list[index_name] = {}
+
         item_list = [x for x in dir(index_list) if self.isapath(x)]
         for item in item_list:
             endpoints = eval("self." + str(index_name) + "." + str(item) + ".endpoints")
@@ -158,11 +165,38 @@ class fHDHR_HTTP_Server():
                 endpoints = [endpoints]
             handler = eval("self." + str(index_name) + "." + str(item))
             endpoint_name = eval("self." + str(index_name) + "." + str(item) + ".endpoint_name")
+
             try:
                 endpoint_methods = eval("self." + str(index_name) + "." + str(item) + ".endpoint_methods")
             except AttributeError:
                 endpoint_methods = ['GET']
+
+            try:
+                endpoint_access_level = eval("self." + str(index_name) + "." + str(item) + ".endpoint_access_level")
+            except AttributeError:
+                endpoint_access_level = 0
+
+            try:
+                pretty_name = eval("self." + str(index_name) + "." + str(item) + ".pretty_name")
+            except AttributeError:
+                pretty_name = endpoint_name
+
+            try:
+                endpoint_default_parameters = eval("self." + str(index_name) + "." + str(item) + ".endpoint_default_parameters")
+            except AttributeError:
+                endpoint_default_parameters = {}
+
             self.fhdhr.logger.debug("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
+
+            if endpoint_name not in list(self.route_list[index_name].keys()):
+                self.route_list[index_name][endpoint_name] = {}
+            self.route_list[index_name][endpoint_name]["name"] = endpoint_name
+            self.route_list[index_name][endpoint_name]["endpoints"] = endpoints
+            self.route_list[index_name][endpoint_name]["endpoint_methods"] = endpoint_methods
+            self.route_list[index_name][endpoint_name]["endpoint_access_level"] = endpoint_access_level
+            self.route_list[index_name][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
+            self.route_list[index_name][endpoint_name]["pretty_name"] = pretty_name
+
             for endpoint in endpoints:
                 self.add_endpoint(endpoint=endpoint,
                                   endpoint_name=endpoint_name,

@@ -4,37 +4,30 @@
 
   <h4 style="text-align: center;">fHDHR Diagnostic Links</h4>
 
-    <div class="container">
-    <table class="table-medium center">
-    <tbody>
-     <tr>
-        <th>Item</th>
-        <th>HDHR</th>
-        <th>RMG</th>
-        <th>Non-Specific</th>
-     </tr>
+  {% for route_group in list(button_dict.keys()) %}
 
-    {% for button_item in button_list %}
-    <tr>
-        <td>{{ button_item["label"] }}</td>
-        {% if button_item["hdhr"]  %}
-        <td><button onclick="OpenLink('{{ button_item["hdhr"] }}')">{{ button_item["label"] }}</a></button></td>
-        {% else %}
-        <td></td>
-        {% endif %}
-        {% if button_item["rmg"]  %}
-        <td><button onclick="OpenLink('{{ button_item["rmg"] }}')">{{ button_item["label"] }}</a></button></td>
-        {% else %}
-        <td> </td>
-        {% endif %}
-        {% if button_item["other"]  %}
-        <td><button onclick="OpenLink('{{ button_item["other"] }}')">{{ button_item["label"] }}</a></button></td>
-        {% else %}
-        <td></td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-    </tbody>
-    </table>
+    <h4 style="text-align: center;">{{ route_group }}</h4>
+
+    <div class="container">
+      <table class="table-settings center action-col text-edit-cols">
+        <thead>
+          <tr>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for button_item in button_dict[route_group] %}
+
+            <tr>
+              <td><button onclick="OpenLink('{{ button_item["link"] }}')">{{ button_item["label"] }}</a></button></td>
+            </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+
+  {% endfor %}
+
 {% endblock %}

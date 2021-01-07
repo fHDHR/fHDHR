@@ -4,6 +4,8 @@ from flask import request, render_template, session
 class Version_HTML():
     endpoints = ["/version", "/version.html"]
     endpoint_name = "page_version_html"
+    endpoint_access_level = 1
+    pretty_name = "Version"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

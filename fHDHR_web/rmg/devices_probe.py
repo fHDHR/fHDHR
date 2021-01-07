@@ -9,6 +9,9 @@ class RMG_Devices_Probe():
     endpoints = ["/devices/probe", "/rmg/devices/probe"]
     endpoint_name = "rmg_devices_probe"
     endpoint_methods = ["GET", "POST"]
+    endpoint_default_parameters = {
+                                    "uri": "<base_url>"
+                                    }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr

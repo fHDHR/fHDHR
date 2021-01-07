@@ -4,6 +4,8 @@ from flask import request, render_template, session
 class Settings_HTML():
     endpoints = ["/settings", "/settings.html"]
     endpoint_name = "page_settings_html"
+    endpoint_access_level = 1
+    pretty_name = "Settings"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
