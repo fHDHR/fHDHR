@@ -11,16 +11,16 @@ class Direct_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.chunksize = int(self.fhdhr.config.dict["direct_stream"]['chunksize'])
+        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
     def get(self):
 
         if not self.stream_args["duration"] == 0:
             self.stream_args["time_end"] = self.stream_args["duration"] + time.time()
 
-        self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["channelUri"]))
+        self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
 
-        req = self.fhdhr.web.session.get(self.stream_args["channelUri"], stream=True)
+        req = self.fhdhr.web.session.get(self.stream_args["stream_info"]["url"], stream=True)
 
         def generate():
 
@@ -30,7 +30,7 @@ class Direct_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    for chunk in req.iter_content(chunk_size=self.chunksize):
+                    for chunk in req.iter_content(chunk_size=self.bytes_per_read):
 
                         if (not self.stream_args["duration"] == 0 and
                            not time.time() < self.stream_args["time_end"]):

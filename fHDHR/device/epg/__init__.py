@@ -278,16 +278,21 @@ class EPG():
                     programguide[cnum]["listing"][prog_index]["thumbnail"] = programguide[cnum]["thumbnail"]
                 prog_index += 1
 
+        # Get Totals
+        total_channels = len(list(programguide.keys()))
+        total_programs = 0
+
         # Sort the channels
         sorted_channel_list = channel_sort(list(programguide.keys()))
         sorted_chan_guide = {}
         for channel in sorted_channel_list:
+            total_programs += len(programguide[cnum]["listing"])
             sorted_chan_guide[channel] = programguide[channel]
 
         self.epgdict[method] = sorted_chan_guide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
-        self.fhdhr.logger.info("Wrote " + epgtypename + " EPG cache.")
+        self.fhdhr.logger.info("Wrote %s EPG cache. %s Programs for %s Channels" % (epgtypename, total_programs, total_channels))
 
     def run(self):
         time.sleep(1800)

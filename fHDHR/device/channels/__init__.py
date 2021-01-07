@@ -111,8 +111,8 @@ class Channels():
 
         return [self.list[x].dict for x in list(self.list.keys())]
 
-    def get_channel_stream(self, channel_number):
-        return self.origin.get_channel_stream(self.get_channel_dict("number", channel_number))
+    def get_channel_stream(self, stream_args):
+        return self.origin.get_channel_stream(self.get_channel_dict("number", stream_args["channel"]), stream_args)
 
     def get_channel_dict(self, keyfind, valfind):
         return self.get_channel_obj(keyfind, valfind).dict
