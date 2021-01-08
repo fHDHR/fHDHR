@@ -30,7 +30,7 @@ class Lineup_Post():
                 return Response(status=200, mimetype='text/html')
 
             else:
-                self.fhdhr.logger.warning("Unknown scan command " + request.args['scan'])
+                self.fhdhr.logger.warning("Unknown scan command %s" % request.args['scan'])
                 return abort(200, "Not a valid scan command")
 
         elif 'favorite' in list(request.args.keys()):
@@ -53,7 +53,7 @@ class Lineup_Post():
                     self.fhdhr.device.channels.set_channel_enablement("number", channel_number, "toggle")
 
             else:
-                self.fhdhr.logger.warning("Unknown favorite command " + request.args['favorite'])
+                self.fhdhr.logger.warning("Unknown favorite command %s" % request.args['favorite'])
                 return abort(200, "Not a valid favorite command")
 
         else:

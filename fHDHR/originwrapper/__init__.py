@@ -45,12 +45,12 @@ class OriginServiceWrapper():
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
         if hasattr(self.fhdhr, name):
-            return eval("self.fhdhr." + name)
+            return eval("self.fhdhr.%s" % name)
         if hasattr(self.originservice, name):
-            return eval("self.originservice." + name)
+            return eval("self.originservice.%s" % name)
         elif hasattr(self.channels, name):
-            return eval("self.channels." + name)
+            return eval("self.channels.%s" % name)
         elif hasattr(self.epg, name):
-            return eval("self.epg." + name)
+            return eval("self.epg.%s" % name)
         else:
             raise AttributeError(name)

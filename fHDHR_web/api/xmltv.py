@@ -74,7 +74,7 @@ class xmlTV():
             return "%s Invalid Method" % method
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method
 
@@ -84,7 +84,7 @@ class xmlTV():
         xmltvgen.set('source-info-url', self.fhdhr.config.dict["fhdhr"]["friendlyname"])
         xmltvgen.set('source-info-name', self.fhdhr.config.dict["main"]["servicename"])
         xmltvgen.set('generator-info-name', 'fHDHR')
-        xmltvgen.set('generator-info-url', 'fHDHR/' + self.fhdhr.config.dict["main"]["reponame"])
+        xmltvgen.set('generator-info-url', 'fHDHR/%s' % self.fhdhr.config.dict["main"]["reponame"])
         return xmltvgen
 
     def xmltv_file(self, xmltvgen):
@@ -135,7 +135,7 @@ class xmlTV():
             sub_el(c_out, 'display-name', text=epgdict[c]['name'])
 
             if self.fhdhr.config.dict["epg"]["images"] == "proxy":
-                sub_el(c_out, 'icon', src=(str(base_url) + "/api/images?method=get&type=channel&id=" + str(epgdict[c]['id'])))
+                sub_el(c_out, 'icon', src=("%s/api/images?method=get&type=channel&id=%s" % (base_url, epgdict[c]['id'])))
             else:
                 sub_el(c_out, 'icon', src=(epgdict[c]["thumbnail"]))
 
@@ -156,7 +156,7 @@ class xmlTV():
 
                 sub_el(prog_out, 'desc', lang='en', text=program['description'])
 
-                sub_el(prog_out, 'sub-title', lang='en', text='Movie: ' + program['sub-title'])
+                sub_el(prog_out, 'sub-title', lang='en', text='Movie: %s' % program['sub-title'])
 
                 sub_el(prog_out, 'length', units='minutes', text=str(int(program['duration_minutes'])))
 
@@ -178,11 +178,11 @@ class xmlTV():
 
                 if program["thumbnail"]:
                     if self.fhdhr.config.dict["epg"]["images"] == "proxy":
-                        sub_el(prog_out, 'icon', src=(str(base_url) + "/api/images?method=get&type=content&id=" + str(program['id'])))
+                        sub_el(prog_out, 'icon', src=("%s/api/images?method=get&type=content&id=%s" % (base_url, program['id'])))
                     else:
                         sub_el(prog_out, 'icon', src=(program["thumbnail"]))
                 else:
-                    sub_el(prog_out, 'icon', src=(str(base_url) + "/api/images?method=generate&type=content&message=" + urllib.parse.quote(program['title'])))
+                    sub_el(prog_out, 'icon', src=("%s/api/images?method=generate&type=content&message=%s" % (base_url, urllib.parse.quote(program['title']))))
 
                 if program['rating']:
                     rating_out = sub_el(prog_out, 'rating', system="MPAA")

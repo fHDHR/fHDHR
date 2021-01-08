@@ -113,7 +113,7 @@ class fHDHR_HTTP_Server():
         # if session["tuner_used"] is not None:
         #    tuner = self.fhdhr.device.tuners.tuners[str(session["tuner_used"])]
         #    if tuner.tuner_lock.locked():
-        #        self.fhdhr.logger.info("Shutting down Tuner #" + str(session["tuner_used"]) + " after Request.")
+        #        self.fhdhr.logger.info("Shutting down Tuner #%s after Request." % session["tuner_used"])
         #        tuner.close()
 
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
@@ -160,29 +160,29 @@ class fHDHR_HTTP_Server():
 
         item_list = [x for x in dir(index_list) if self.isapath(x)]
         for item in item_list:
-            endpoints = eval("self." + str(index_name) + "." + str(item) + ".endpoints")
+            endpoints = eval("self.%s.%s.%s" % (index_name, item, "endpoints"))
             if isinstance(endpoints, str):
                 endpoints = [endpoints]
-            handler = eval("self." + str(index_name) + "." + str(item))
-            endpoint_name = eval("self." + str(index_name) + "." + str(item) + ".endpoint_name")
+            handler = eval("self.%s.%s" % (index_name, item))
+            endpoint_name = eval("self.%s.%s.%s" % (index_name, item, "endpoint_name"))
 
             try:
-                endpoint_methods = eval("self." + str(index_name) + "." + str(item) + ".endpoint_methods")
+                endpoint_methods = eval("self.%s.%s.%s" % (index_name, item, "endpoint_methods"))
             except AttributeError:
                 endpoint_methods = ['GET']
 
             try:
-                endpoint_access_level = eval("self." + str(index_name) + "." + str(item) + ".endpoint_access_level")
+                endpoint_access_level = eval("self.%s.%s.%s" % (index_name, item, "endpoint_access_level"))
             except AttributeError:
                 endpoint_access_level = 0
 
             try:
-                pretty_name = eval("self." + str(index_name) + "." + str(item) + ".pretty_name")
+                pretty_name = eval("self.%s.%s.%s" % (index_name, item, "pretty_name"))
             except AttributeError:
                 pretty_name = endpoint_name
 
             try:
-                endpoint_default_parameters = eval("self." + str(index_name) + "." + str(item) + ".endpoint_default_parameters")
+                endpoint_default_parameters = eval("self.%s.%s.%s" % (index_name, item, "endpoint_default_parameters"))
             except AttributeError:
                 endpoint_default_parameters = {}
 

@@ -41,7 +41,7 @@ class HDHR_Device_XML():
 
         sub_el(device_out, 'serialNumber')
 
-        sub_el(device_out, 'UDN', "uuid:" + self.fhdhr.config.dict["main"]["uuid"])
+        sub_el(device_out, 'UDN', "uuid:%s" % self.fhdhr.config.dict["main"]["uuid"])
 
         fakefile = BytesIO()
         fakefile.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')

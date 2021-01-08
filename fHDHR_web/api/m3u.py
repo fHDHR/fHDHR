@@ -33,12 +33,7 @@ class M3U():
 
             xmltvurl = ('%s/api/xmltv' % base_url)
 
-            fakefile.write(
-                            "%s\n" % (
-                                     FORMAT_DESCRIPTOR + " " +
-                                     "url-tvg=\"" + xmltvurl + "\"" + " " +
-                                     "x-tvg-url=\"" + xmltvurl + "\"")
-                            )
+            fakefile.write("%s url-tvg=\"%s\" x-tvg-url=\"%s\"\n" % (FORMAT_DESCRIPTOR, xmltvurl, xmltvurl))
 
             channel_items = []
 
@@ -50,7 +45,7 @@ class M3U():
                         channel_items.append(channel_obj)
             elif str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
                 channel_obj = self.fhdhr.device.channels.get_channel_obj("number", channel)
-                fileName = str(channel_obj.number) + ".m3u"
+                fileName = "%s.m3u" % channel_obj.number
                 if channel_obj.enabled:
                     channel_items.append(channel_obj)
                 else:
@@ -96,10 +91,10 @@ class M3U():
                 channels_m3u = fakefile.getvalue()
 
             resp = Response(status=200, response=channels_m3u, mimetype='audio/x-mpegurl')
-            resp.headers["content-disposition"] = "attachment; filename=" + fileName
+            resp.headers["content-disposition"] = "attachment; filename=%s" % fileName
             return resp
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method

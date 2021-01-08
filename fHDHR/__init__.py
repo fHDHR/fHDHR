@@ -36,4 +36,4 @@ class fHDHR_OBJ():
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
         if hasattr(self.fhdhr, name):
-            return eval("self.fhdhr." + name)
+            return eval("self.fhdhr.%s" % name)

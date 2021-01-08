@@ -35,7 +35,7 @@ class VLC_Stream():
             except GeneratorExit:
                 self.fhdhr.logger.info("Connection Closed.")
             except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: " + str(e))
+                self.fhdhr.logger.info("Connection Closed: %s" % e)
             finally:
                 vlc_proc.terminate()
                 vlc_proc.communicate()
@@ -96,7 +96,7 @@ class VLC_Stream():
         vlc_command = []
 
         if stream_args["transcode"]:
-            self.fhdhr.logger.info("Client requested a " + stream_args["transcode"] + " transcode for stream.")
+            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode"])
             stream_args["transcode"] = None
 
         vlc_transcode_string = "#std{mux=ts,access=file,dst=-}"

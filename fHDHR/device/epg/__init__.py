@@ -54,7 +54,7 @@ class EPG():
         if method in [self.fhdhr.config.dict["main"]["dictpopname"], "origin"]:
             epgtypename = self.fhdhr.config.dict["main"]["dictpopname"]
 
-        self.fhdhr.logger.info("Clearing " + epgtypename + " EPG cache.")
+        self.fhdhr.logger.info("Clearing %s EPG cache." % epgtypename)
 
         if hasattr(self.epg_handling[method], 'clear_cache'):
             self.epg_handling[method].clear_cache()
@@ -180,7 +180,7 @@ class EPG():
         if method in [self.fhdhr.config.dict["main"]["dictpopname"], "origin"]:
             epgtypename = self.fhdhr.config.dict["main"]["dictpopname"]
 
-        self.fhdhr.logger.info("Updating " + epgtypename + " EPG cache.")
+        self.fhdhr.logger.info("Updating %s EPG cache." % epgtypename)
         if method == 'origin':
             programguide = self.epg_handling['origin'].update_epg(self.channels)
         else:

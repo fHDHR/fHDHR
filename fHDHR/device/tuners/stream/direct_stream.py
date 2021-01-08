@@ -54,7 +54,7 @@ class Direct_Stream():
             except GeneratorExit:
                 self.fhdhr.logger.info("Connection Closed.")
             except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: " + str(e))
+                self.fhdhr.logger.info("Connection Closed: %s" % e)
             finally:
                 req.close()
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")

@@ -71,7 +71,7 @@ class Config():
                     if str(file_item_path).endswith("_conf.json"):
                         self.read_json_config(file_item_path)
 
-        print("Loading Configuration File: " + str(self.config_file))
+        print("Loading Configuration File: %s" % self.config_file)
         self.read_ini_config(self.config_file)
 
         self.load_versions()
@@ -270,7 +270,7 @@ class Config():
                     if not self.dict[req_section][req_key]:
                         required_missing.append(req_item)
             if len(required_missing):
-                raise fHDHR.exceptions.ConfigurationError("Required configuration options missing: " + ", ".join(required_missing))
+                raise fHDHR.exceptions.ConfigurationError("Required configuration options missing: %s" % ", ".join(required_missing))
 
         self.dict["origin"] = self.dict.pop(self.dict["main"]["dictpopname"])
 

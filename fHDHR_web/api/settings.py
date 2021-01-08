@@ -52,7 +52,7 @@ class Settings():
 
             if not config_section or not config_name or not config_value:
                 if redirect_url:
-                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
+                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
                     return "%s Falied" % method
 
@@ -64,13 +64,13 @@ class Settings():
         elif method == "restart":
             restart_thread = threading.Thread(target=self.restart_thread)
             restart_thread.start()
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("Restarting in %s seconds" % self.restart_sleep))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("Restarting in %s seconds" % self.restart_sleep)))
 
         elif method == "restart_actual":
             session["restart"] = True
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method
 
