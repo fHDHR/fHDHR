@@ -2,12 +2,12 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">fHDHR Streams</h4>
+  <h4 style="text-align: center;">fHDHR Streams</h4>
 
-    <div class="container">
+  <div class="container">
     <table class="table-medium center action-col">
-    <tbody>
-	<tr>
+      <tbody>
+	      <tr>
           <th>Status</th>
           <th>Channel</th>
           <th>Method</th>
@@ -17,36 +17,36 @@
           <th>Action</th>
         </tr>
 
-      {% for tuner_dict in tuner_list %}
-        <tr>
-          <td>{{ tuner_dict["number"] }}</td>
-          <td>{{ tuner_dict["status"] }}</td>
-          {% if tuner_dict["status"] in ["Active", "Acquired"] %}
-          <td>{{ tuner_dict["channel_number"] }}</td>
-          {% else %}
-          <td>N/A</td>
-          {% endif %}
-          {% if tuner_dict["status"] == "Active" %}
-          <td>{{ tuner_dict["method"] }}</td>
-          <td>{{ tuner_dict["play_duration"] }}</td>
-          <td>{{ tuner_dict["downloaded"] }}</td>
-          {% else %}
-          <td>N/A</td>
-          <td>N/A</td>
-          <td>N/A</td>
-          {% endif %}
-          <td>
+        {% for tuner_dict in tuner_list %}
+          <tr>
+            <td>{{ tuner_dict["number"] }}</td>
+            <td>{{ tuner_dict["status"] }}</td>
+            {% if tuner_dict["status"] in ["Active", "Acquired"] %}
+              <td>{{ tuner_dict["channel_number"] }}</td>
+            {% else %}
+              <td>N/A</td>
+            {% endif %}
+            {% if tuner_dict["status"] == "Active" %}
+              <td>{{ tuner_dict["method"] }}</td>
+              <td>{{ tuner_dict["play_duration"] }}</td>
+              <td>{{ tuner_dict["downloaded"] }}</td>
+            {% else %}
+              <td>N/A</td>
+              <td>N/A</td>
+              <td>N/A</td>
+            {% endif %}
+            <td>
               {% if tuner_dict["status"] != "Inactive" %}
-                <button onclick="OpenLink('/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&redirect=%2Ftuners')">Close</a></button>
+                <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&redirect=/tuners'" type="button">Close</button>
               {% endif %}
               {% if not tuner_scanning and tuner_dict["status"] == "Inactive" %}
-                <button onclick="OpenLink('/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&redirect=%2Ftuners')">Channel Scan</a></button>
+                <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&redirect=/tuners'" type="button">Channel Scan</button>
               {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 
 {% endblock %}

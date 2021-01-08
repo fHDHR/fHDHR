@@ -2,21 +2,21 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">fHDHR Status</h4>
+  <h4 style="text-align: center;">fHDHR Status</h4>
 
 
-    <td class="container">
+  <div class="container">
     <table class="table-medium center">
-    <tbody>
+      <tbody>
 
-      {% for key in list(fhdhr_status_dict.keys()) %}
-      <tr>
-          <td class="rTableCell">{{ key }}</td>
-          <td class="rTableCell">{{ fhdhr_status_dict[key] }}</td>
-      </tr>
-      {% endfor %}
+        {% for key in list(fhdhr_status_dict.keys()) %}
+          <tr>
+            <td class="rTableCell">{{ key }}</td>
+            <td class="rTableCell">{{ fhdhr_status_dict[key] }}</td>
+          </tr>
+        {% endfor %}
 
-    </tbody>
+      </tbody>
     </table>
-    </div>
+  </div>
 {% endblock %}

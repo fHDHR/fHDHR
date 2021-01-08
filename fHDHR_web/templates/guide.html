@@ -2,18 +2,18 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">What's On {{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</h4>
+  <h4 style="text-align: center;">What's On {{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</h4>
 
-    <p>
-      {% for epg_method in epg_methods %}
-        <button onclick="OpenLink('/guide?source={{ epg_method }}')">{{ epg_method }}</a></button>
-      {% endfor %}
-    </p>
+  <p>
+    {% for epg_method in epg_methods %}
+      <button onclick="location.href='/guide?source={{ epg_method }}'" type="button">{{ epg_method }}</button>
+    {% endfor %}
+  </p>
 
-    <div class="container">
+  <div class="container">
     <table class="table-scroll">
-    <thead>
-      <tr>
+      <thead>
+        <tr>
           {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
             <th>Play</th>
           {% endif %}
@@ -26,34 +26,34 @@
           <th>Start Time (UTC)</th>
           <th>End Time (UTC)</th>
           <th>Content Remaining Time</th>
-      </tr>
-    </thead>
+        </tr>
+      </thead>
 
-    <tbody class="body-half-screen">
-      {% for chan_dict in chan_guide_list %}
-      <tr>
-          {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
-          <td>
-              {% if chan_dict["enabled"] %}
-                <a href="{{ chan_dict["play_url"] }}">Play</a>
-              {% else %}
-                <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
-              {% endif %}
-            </td>
-          {% endif %}
-          <td>{{ chan_dict["name"] }}</td>
-          <td>{{ chan_dict["number"] }}</td>
-          <td><img src="{{ chan_dict["chan_thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>
-          <td>{{ chan_dict["listing_title"] }}</td>
-          <td><img src="{{ chan_dict["listing_thumbnail"] }}" alt="{{ chan_dict["listing_title"] }}" width="100" height="100"></td>
-          <td>{{ chan_dict["listing_description"] }}</td>
-          <td>{{ chan_dict["listing_time_start"] }}</td>
-          <td>{{ chan_dict["listing_time_end"] }}</td>
-          <td>{{ chan_dict["listing_remaining_time"] }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
+      <tbody class="body-half-screen">
+        {% for chan_dict in chan_guide_list %}
+          <tr>
+            {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
+              <td>
+                {% if chan_dict["enabled"] %}
+                  <a href="{{ chan_dict["play_url"] }}">Play</a>
+                {% else %}
+                  <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
+                {% endif %}
+              </td>
+            {% endif %}
+            <td>{{ chan_dict["name"] }}</td>
+            <td>{{ chan_dict["number"] }}</td>
+            <td><img src="{{ chan_dict["chan_thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>
+            <td>{{ chan_dict["listing_title"] }}</td>
+            <td><img src="{{ chan_dict["listing_thumbnail"] }}" alt="{{ chan_dict["listing_title"] }}" width="100" height="100"></td>
+            <td>{{ chan_dict["listing_description"] }}</td>
+            <td>{{ chan_dict["listing_time_start"] }}</td>
+            <td>{{ chan_dict["listing_time_end"] }}</td>
+            <td>{{ chan_dict["listing_remaining_time"] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 
 {% endblock %}

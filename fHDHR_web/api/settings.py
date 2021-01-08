@@ -1,5 +1,7 @@
 from flask import request, redirect, session
 import urllib.parse
+import threading
+import time
 
 
 class Settings():
@@ -9,6 +11,9 @@ class Settings():
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
+
+        self.restart_url = "/api/settings?method=restart_actual"
+        self.restart_sleep = 5
 
     def __call__(self, *args):
         return self.get(*args)
@@ -35,11 +40,18 @@ class Settings():
             self.fhdhr.config.write(config_section, config_name, config_value)
 
         elif method == "restart":
-            instance_id = request.args.get('instance_id', default=None, type=str)
-            if instance_id == session["instance_id"]:
-                session["restart"] = True
+            restart_thread = threading.Thread(target=self.restart_thread)
+            restart_thread.start()
+            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("Restarting in %s seconds" % self.restart_sleep))
+
+        elif method == "restart_actual":
+            session["restart"] = True
 
         if redirect_url:
             return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
         else:
             return "%s Success" % method
+
+    def restart_thread(self):
+        time.sleep(self.restart_sleep)
+        self.fhdhr.api.get(self.restart_url)

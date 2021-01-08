@@ -1,28 +1,28 @@
 <html>
+
   <head>
     <title>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      table, th, td {border: 1px solid black;}
-    </style>
     <link href="style.css" rel="stylesheet">
-  </head>
-    <body>
-      <h1 style="text-align: center;">
-        <span style="text-decoration: underline;"><strong><em>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</em></strong>
-        </span>
-        <img class="pull-left" src="/favicon.ico" alt="fHDHR Logo" width="100" height="100">
-      </h1>
-      <br><br>
-      <p></p>
-      <div>
 
-      <button class="pull-left" onclick="OpenLink('/index')">fHDHR</button>
-      <button class="pull-left" onclick="OpenLink('/origin')">{{ fhdhr.config.dict["main"]["servicename"] }}</button>
+  </head>
+
+  <body>
+    <h1 style="text-align: center;">
+      <span style="text-decoration: underline;"><strong><em>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</em></strong>
+      </span>
+      <img class="pull-left" src="/favicon.ico" alt="fHDHR Logo" width="100" height="100">
+    </h1>
+    <br><br>
+    <p></p>
+
+    <div>
+      <button onclick="location.href='/index'" type="button">fHDHR</button>
+      <button onclick="location.href='/origin'" type="button">{{ fhdhr.config.dict["main"]["servicename"] }}</button>
 
       {% for page_dict in session["route_list"]["pages"] %}
         {% if session["route_list"]["pages"][page_dict]["name"] != "page_index_html" and fhdhr.config.dict["web_ui"]["access_level"] >= session["route_list"]["pages"][page_dict]["endpoint_access_level"] %}
-          <button class="pull-left" onclick="OpenLink('{{ session["route_list"]["pages"][page_dict]["endpoints"][0] }}')">{{ session["route_list"]["pages"][page_dict]["pretty_name"] }}</button>
+          <button onclick="location.href='{{ session["route_list"]["pages"][page_dict]["endpoints"][0] }}'" type="button">{{ session["route_list"]["pages"][page_dict]["pretty_name"] }}</button>
         {% endif %}
       {% endfor %}
 
@@ -50,29 +50,26 @@
         {% endif %}
       </form>
 
-      </div>
-      <hr align="center" width="100%">
+    </div>
+    <hr align="center" width="100%">
 
-      {% if fhdhr.config.dict["web_ui"]["cluster_bar"] %}
-        {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
-        {% if locations %}
-          <div>
+    {% if fhdhr.config.dict["web_ui"]["cluster_bar"] %}
+      {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
+      {% if locations %}
+        <div>
           {% for location in locations %}
-              <button class="pull-left" onclick="OpenLink('{{ location["base_url"] }}')">{{ location["name"] }}</a></button>
+            <button onclick="location.href='{{ location["base_url"] }}'" type="button">{{ location["name"] }}</button>
           {% endfor %}
-          </div>
-          <hr align="center" width="100%">
-        {% endif %}
+        </div>
+        <hr align="center" width="100%">
       {% endif %}
+    {% endif %}
 
-      {% set retmessage = request.args.get('retmessage', default=None) %}
-      {% if retmessage %}
-        <p>{{ retmessage }}</p>
-      {% endif %}
+    {% set retmessage = request.args.get('retmessage', default=None) %}
+    {% if retmessage %}
+      <p>{{ retmessage }}</p>
+    {% endif %}
 
-      {% block content %}{% endblock %}
-    </body>
+    {% block content %}{% endblock %}
+  </body>
 </html>
-<script>
-  function OpenLink(NewURL) {window.open(NewURL, "_self");}
-</script>

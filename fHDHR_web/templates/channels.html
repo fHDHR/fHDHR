@@ -2,82 +2,82 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels</h4>
+  <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels</h4>
 
-    <div style="text-align: center;">
-      <button onclick="OpenLink('/api/tuners?method=scan&redirect=%2Fchannels')">Force Channel Update</a></button><p> Note: This may take some time.</p>
-    </div>
-    <br>
+  <div style="text-align: center;">
+    <button onclick="location.href='/api/tuners?method=scan&redirect=/channels'" type="button">Force Channel Update</button>
+    <p> Note: This may take some time.</p>
+  </div>
+  <br>
 
-    <div class="container">
-    <table class="table-small center">
-    <tbody>
-    {% for key in list(channels_dict.keys()) %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ channels_dict[key] }}</td>
-      </tr>
-    {% endfor %}
-    </tbody>
+  <div class="container">
+  <table class="table-small center">
+      <tbody>
+        {% for key in list(channels_dict.keys()) %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ channels_dict[key] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 
-    <br>
-    <div style="text-align: center;">
-      <button onclick="OpenLink('/channels_editor')">Edit Channels</a></button>
-    </div>
-    <br>
+  <br>
+  <div style="text-align: center;">
+    <button onclick="location.href='/channels_editor'" type="button">Edit Channels</button>
+  </div>
+  <br>
 
-    <div class="container">
+  <div class="container">
     <table class="table-scroll center small-first-col">
       <thead>
-      <tr>
-        <th>Play</th>
-        <th>Channel Name</th>
-        <th>Channel CallSign</th>
-        <th>Channel Number</th>
-        <th>Channel Thumbnail</th>
-        <th>Enabled</th>
-        <th>Favorite</th>
-      </tr>
+        <tr>
+          <th>Play</th>
+          <th>Channel Name</th>
+          <th>Channel CallSign</th>
+          <th>Channel Number</th>
+          <th>Channel Thumbnail</th>
+          <th>Enabled</th>
+          <th>Favorite</th>
+        </tr>
       </thead>
 
-    <tbody class="body-half-screen">
-    {% for chan_dict in channelslist %}
-    <tr>
+      <tbody class="body-half-screen">
+        {% for chan_dict in channelslist %}
+          <tr>
+            <td>
+              {% if chan_dict["enabled"] %}
+                <a href="{{ chan_dict["play_url"] }}">Play</a>
+	            {% else %}
+	               <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
+              {% endif %}
+            </td>
 
-         <td>
-          {% if chan_dict["enabled"] %}
-            <a href="{{ chan_dict["play_url"] }}">Play</a>
-	  {% else %}
-	    <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
-          {% endif %}
-         </td>
+            <td>{{ chan_dict["name"] }}</td>
+            <td>{{ chan_dict["callsign"] }}</td>
+            <td>{{ chan_dict["number"] }}</td>
 
-        <td>{{ chan_dict["name"] }}</td>
-        <td>{{ chan_dict["callsign"] }}</td>
-        <td>{{ chan_dict["number"] }}</td>
+            {% if chan_dict["thumbnail"]  %}
+              <td><img src="{{ chan_dict["thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>
+            {% else %}
+              <td>No Image Available</td>
+            {% endif %}
 
-        {% if chan_dict["thumbnail"]  %}
-        <td><img src="{{ chan_dict["thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>
-        {% else %}
-        <td>No Image Available</td>
-        {% endif %}
+            {% if chan_dict["enabled"]  %}
+              <td>Enabled</td>
+            {% else %}
+              <td>Disabled</td>
+            {% endif %}
 
-        {% if chan_dict["enabled"]  %}
-        <td>Enabled</td>
-        {% else %}
-        <td>Disabled</td>
-        {% endif %}
-
-        {% if chan_dict["favorite"]  %}
-        <td>Yes</td>
-        {% else %}
-         <td>No</td>
-        {% endif %}
-      </tr>
-    {% endfor %}
-    </tbody>
+            {% if chan_dict["favorite"]  %}
+              <td>Yes</td>
+            {% else %}
+              <td>No</td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
   </div>
 {% endblock %}
