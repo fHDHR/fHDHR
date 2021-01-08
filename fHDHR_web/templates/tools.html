@@ -2,11 +2,11 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Tools</h4>
+  <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Tools</h4>
 
-    <form method="post" action="/api/tools?method=prettyjson&redirect=%2Ftools">
-      <a data-th="URL"><input type="text" name="url" value=""></a>
-        <a data-th="Convert Json url to tabbbed"><input type="submit" value="Convert Json url to tabbbed"></a>
-    </form>
+  <form method="post" action="/api/tools?method=prettyjson&redirect=/tools">
+    <a data-th="URL"><input type="text" name="url" value=""></a>
+    <a data-th="Convert Json url to tabbbed"><input type="submit" value="Convert Json url to tabbbed"></a>
+  </form>
 
 {% endblock %}

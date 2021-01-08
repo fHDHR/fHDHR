@@ -2,41 +2,36 @@
 
 {% block content %}
 
-    <h4 style="text-align: center;">xmltv</h4>
+  <h4 style="text-align: center;">xmltv</h4>
 
-    <div class="container">
+  <div class="container">
     <table class="table-medium center action-col">
-    <tbody>
-      <tr>
-        <th>Version</th>
-        <th>XMLTV Link</th>
-        <th>EPG Link</th>
-        <th>Actions</th>
-      </tr>
-
-    {% for epg_method in fhdhr.config.dict["epg"]["valid_epg_methods"] %}
-      {% if epg_method not in [None, "None"] %}
-        {% set epg_method_name = epg_method %}
-        {% if epg_method == "origin" %}
-          {% set epg_method_name = fhdhr.config.dict["main"]["dictpopname"] %}
-        {% endif %}
-
+      <tbody>
         <tr>
-           <td> {{ epg_method_name }}</td>
-           <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
-           <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
-
-           <td>
-              <button onclick="OpenLink('/api/xmltv?method=update&source={{ epg_method }}&redirect=%2Fxmltv')">Update</a></button>
-              <button onclick="OpenLink('/api/xmltv?method=clearcache&source={{ epg_method }}&redirect=%2Fxmltv')">Clear Cache</a></button>
-           </td>
+          <th>Version</th>
+          <th>XMLTV Link</th>
+          <th>EPG Link</th>
+          <th>Actions</th>
         </tr>
 
-
-      {% endif %}
-
-    {% endfor %}
-    </body>
+        {% for epg_method in fhdhr.config.dict["epg"]["valid_epg_methods"] %}
+          {% if epg_method not in [None, "None"] %}
+            {% set epg_method_name = epg_method %}
+            {% if epg_method == "origin" %}
+              {% set epg_method_name = fhdhr.config.dict["main"]["dictpopname"] %}
+            {% endif %}
+            <tr>
+              <td> {{ epg_method_name }}</td>
+              <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+              <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+              <td>
+                <button onclick="location.href='/api/xmltv?method=update&source={{ epg_method }}&redirect=/xmltv'" type="button">Update</button>
+                <button onclick="location.href='/api/xmltv?method=clearcache&source={{ epg_method }}&redirect=/xmltv'" type="button">Clear Cache</button>
+              </td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 {% endblock %}

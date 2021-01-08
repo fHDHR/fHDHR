@@ -1,129 +1,128 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <body onload="brython({debug: 1, indexedDB: false})">
-    <script type="text/javascript" src="/brython.js"></script>
-    <script type="text/javascript" src="/brython_stdlib.js"></script>
-    <script type="text/python" id="enable0">
-       from browser import document, alert, window, bind
+  <body onload="brython({debug: 1, indexedDB: false})">
+  <script type="text/javascript" src="/brython.js"></script>
+  <script type="text/javascript" src="/brython_stdlib.js"></script>
+  <script type="text/python" id="enable0">
+    from browser import document, alert, window, bind
 
-       @bind("#enable_button", "click")
-       def enable_all(event):
-         for element in document.get(selector='input[type="checkbox"]'):
-            if element.name.endswith("enabled"):
-               if document["enable_button"].value == "0":
-                 element.checked = False
-                 element.value = False
-               else:
-                 element.checked = True
-                 element.value = True
+    @bind("#enable_button", "click")
+    def enable_all(event):
+      for element in document.get(selector='input[type="checkbox"]'):
+        if element.name.endswith("enabled"):
+          if document["enable_button"].value == "0":
+            element.checked = False
+            element.value = False
+          else:
+            element.checked = True
+            element.value = True
 
-         if document["enable_button"].value == "0":
-           document["enable_button"].value = "1"
-           document["enable_button"].text = "Enable All"
-         else:
-           document["enable_button"].value = "0"
-           document["enable_button"].text = "Disable All"
+        if document["enable_button"].value == "0":
+          document["enable_button"].value = "1"
+          document["enable_button"].text = "Enable All"
+        else:
+          document["enable_button"].value = "0"
+          document["enable_button"].text = "Disable All"
+
+      @bind("#chanSubmit", "submit")
+      def submit_fixup(evt):
+        for element in document.get(selector='input[type="checkbox"]'):
+          if element.name.endswith("enabled"):
+            if element.checked == False:
+              element.checked = True
+              element.value = False
+            if element.name.endswith("favorite"):
+              if element.checked == False:
+                element.checked = True
+                element.value = 0
+
+        items = document.select(".channels")
+	      chanlist = []
+	      chandict = {}
+
+        for element in items:
+          if element.name == "id":
+            if len(chandict.keys()):
+              chanlist.append(chandict)
+            chandict = {}
+          chandict[element.name] = element.value
+          element.clear()
+
+        postForm = document.createElement('form')
+        postData = document.createElement('input')
+        postForm.method = "POST"
+        postForm.action = "/api/channels?method=modify&redirect=/channels_editor"
+        postForm.setRequestHeader = "('Content-Type', 'application/json')"
+        postData.name = "channels"
+        postData.value = chanlist
+        postForm.appendChild(postData)
+
+        document.body.appendChild(postForm)
+
+        postForm.submit()
+
+        evt.preventDefault()
+
+  </script>
+
+  <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels Editor</h4>
+
+  <div style="text-align: center;">
+    <form id="chanSubmit" method="post">
+      <button type="Submit" id="modify_button" value="0">Modify All</button>
+      <button type="button" id="enable_button" value="0">Disable All</button>
+    </form>
+  </div>
 
 
-       @bind("#chanSubmit", "submit")
-       def submit_fixup(evt):
-          for element in document.get(selector='input[type="checkbox"]'):
-             if element.name.endswith("enabled"):
-                if element.checked == False:
-                   element.checked = True
-                   element.value = False
-             if element.name.endswith("favorite"):
-                if element.checked == False:
-                   element.checked = True
-                   element.value = 0
-
-          items = document.select(".channels")
-	  chanlist = []
-	  chandict = {}
-
-          for element in items:
-            if element.name == "id":
-              if len(chandict.keys()):
-                chanlist.append(chandict)
-              chandict = {}
-            chandict[element.name] = element.value
-            element.clear()
-
-          postForm = document.createElement('form')
-          postData = document.createElement('input')
-          postForm.method = "POST"
-          postForm.action = "/api/channels?method=modify&redirect=%2Fchannels_editor"
-          postForm.setRequestHeader = "('Content-Type', 'application/json')"
-          postData.name = "channels"
-          postData.value = chanlist
-          postForm.appendChild(postData)
-
-          document.body.appendChild(postForm)
-
-          postForm.submit()
-
-          evt.preventDefault()
-
-    </script>
-
-    <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels Editor</h4>
-
-    <div style="text-align: center;">
-       <form id="chanSubmit" method="post">
-       <button type="Submit" id="modify_button" value="0">Modify All</button>
-       <button type="button" id="enable_button" value="0">Disable All</button>
-       </form>
-    </div>
-
-
-    <div class="container">
-      <table class="table-scroll center text-edit-cols">
+  <div class="container">
+    <table class="table-scroll center text-edit-cols">
       <thead>
-      <tr>
-        <th>Channel Name</th>
-        <th>Channel CallSign</th>
-        <th>Channel Number</th>
-        <th>Channel Thumbnail</th>
-        <th>Enabled</th>
-        <th>Favorite</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>Channel Name</th>
+          <th>Channel CallSign</th>
+          <th>Channel Number</th>
+          <th>Channel Thumbnail</th>
+          <th>Enabled</th>
+          <th>Favorite</th>
+          <th>Actions</th>
+        </tr>
       </thead>
 
-    <tbody class="body-half-screen">
-    {% for chan_dict in channelslist %}
-        <tr>
-          <td><input type="hidden" name="id" class="channels" value={{ chan_dict["id"] }}>
-          <input type="text" class="channels" name="name" value="{{ chan_dict["name"] }}"></td>
-          <td><input type="text"  class="channels" name="callsign" value="{{ chan_dict["callsign"] }}"></td>
-          <td><input type="text"  class="channels" name="number" value="{{ chan_dict["number"] }}"></td>
-          <td><input type="text"  class="channels" name="thumbnail" value="{{ chan_dict["thumbnail"] }}"></td>
-          {% if chan_dict["enabled"]  %}
-	  <td><input type="checkbox"  class="channels" name="enabled" value=True checked></td>
-          {% else %}
-	  <td><input type="checkbox"  class="channels" name="enabled" value=True ></td>
-          {% endif %}
-          {% if chan_dict["favorite"]  %}
-	  <td><input type="checkbox"  class="channels" name="favorite" value=1 checked></td>
-          {% else %}
-	  <td><input type="checkbox"  class="channels" name="favorite" value=1 ></td>
-          {% endif %}
-	  <td>
-             <form method="post" action="/api/channels?method=update&redirect=%2Fchannels_editor">
-             <input type="hidden" class="reset" name="id" value="{{ chan_dict["id"] }}">
-             <input type="hidden" class="reset" name="name" value="{{ chan_dict["origin_name"] }}">
-             <input type="hidden" class="reset" name="callsign" value="{{ chan_dict["origin_callsign"] }}">
-             <input type="hidden" class="reset" name="number" value="{{ chan_dict["origin_number"] }}">
-             <input type="hidden" class="reset" name="thumbnail" value="{{ chan_dict["origin_thumbnail"] }}">
-             <input type="hidden" class="reset" name="enabled" value=True>
-              <input type="submit"  value="Reset">
-             </form>
-	  </td>
-         </tr>
-
-    {% endfor %}
-    </tbody>
+      <tbody class="body-half-screen">
+        {% for chan_dict in channelslist %}
+          <tr>
+            <td><input type="hidden" name="id" class="channels" value={{ chan_dict["id"] }}>
+              <input type="text" class="channels" name="name" value="{{ chan_dict["name"] }}">
+            </td>
+            <td><input type="text"  class="channels" name="callsign" value="{{ chan_dict["callsign"] }}"></td>
+            <td><input type="text"  class="channels" name="number" value="{{ chan_dict["number"] }}"></td>
+            <td><input type="text"  class="channels" name="thumbnail" value="{{ chan_dict["thumbnail"] }}"></td>
+            {% if chan_dict["enabled"]  %}
+    	        <td><input type="checkbox"  class="channels" name="enabled" value=True checked></td>
+            {% else %}
+    	        <td><input type="checkbox"  class="channels" name="enabled" value=True ></td>
+            {% endif %}
+            {% if chan_dict["favorite"]  %}
+    	        <td><input type="checkbox"  class="channels" name="favorite" value=1 checked></td>
+            {% else %}
+    	        <td><input type="checkbox"  class="channels" name="favorite" value=1 ></td>
+            {% endif %}
+    	      <td>
+              <form method="post" action="/api/channels?method=update&redirect=/channels_editor">
+                <input type="hidden" class="reset" name="id" value="{{ chan_dict["id"] }}">
+                <input type="hidden" class="reset" name="name" value="{{ chan_dict["origin_name"] }}">
+                <input type="hidden" class="reset" name="callsign" value="{{ chan_dict["origin_callsign"] }}">
+                <input type="hidden" class="reset" name="number" value="{{ chan_dict["origin_number"] }}">
+                <input type="hidden" class="reset" name="thumbnail" value="{{ chan_dict["origin_thumbnail"] }}">
+                <input type="hidden" class="reset" name="enabled" value=True>
+                <input type="submit"  value="Reset">
+              </form>
+    	      </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    </div>
+  </div>
 {% endblock %}

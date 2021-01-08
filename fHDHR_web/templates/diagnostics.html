@@ -16,13 +16,10 @@
           </tr>
         </thead>
         <tbody>
-
           {% for button_item in button_dict[route_group] %}
-
             <tr>
-              <td><button onclick="OpenLink('{{ button_item["link"] }}')">{{ button_item["label"] }}</a></button></td>
+              <td><button onclick="location.href='{{ button_item["link"] }}'" type="button">{{ button_item["label"] }}</button></td>
             </tr>
-
           {% endfor %}
         </tbody>
       </table>
