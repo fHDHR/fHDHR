@@ -67,7 +67,7 @@ class Guide_HTML():
                 chan_dict["number"] = chan_obj.number
                 chan_dict["chan_thumbnail"] = chan_obj.thumbnail
                 chan_dict["enabled"] = chan_obj.dict["enabled"]
-                chan_dict["play_url"] = chan_obj.play_url
+                chan_dict["m3u_url"] = chan_obj.m3u_url
 
                 chan_dict["listing_thumbnail"] = chan_dict["listing_thumbnail"] or chan_obj.thumbnail
             else:

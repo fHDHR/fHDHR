@@ -35,9 +35,9 @@
             {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
               <td>
                 {% if chan_dict["enabled"] %}
-                  <a href="{{ chan_dict["play_url"] }}">Play</a>
+                  <a href="{{ chan_dict["m3u_url"] }}">Play</a>
                 {% else %}
-                  <a href="{{ chan_dict["play_url"] }}" style="visibility:hidden">Play</a>
+                  <a href="{{ chan_dict["m3u_url"] }}" style="visibility:hidden">Play</a>
                 {% endif %}
               </td>
             {% endif %}
