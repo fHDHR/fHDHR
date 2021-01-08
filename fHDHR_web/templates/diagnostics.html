@@ -13,12 +13,20 @@
         <thead>
           <tr>
             <th>Link</th>
+            <th>Methods</th>
           </tr>
         </thead>
         <tbody>
           {% for button_item in button_dict[route_group] %}
             <tr>
-              <td><button onclick="location.href='{{ button_item["link"] }}'" type="button">{{ button_item["label"] }}</button></td>
+              <td>
+                {% if button_item["button"] %}
+                  <button onclick="location.href='{{ button_item["link"] }}'" type="button">{{ button_item["label"] }}</button>
+                {% else %}
+                  <a>{{ button_item["link"] }}</a>
+                {% endif %}
+              </td>
+              <td><a>{{ button_item["methods"] }}</a></td>
             </tr>
           {% endfor %}
         </tbody>

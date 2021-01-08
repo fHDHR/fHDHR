@@ -7,6 +7,9 @@ class API_Tools():
     endpoints = ["/api/tools"]
     endpoint_name = "api_tools"
     endpoint_methods = ["GET", "POST"]
+    endpoint_default_parameters = {
+                                    "method": "get"
+                                    }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -20,7 +23,15 @@ class API_Tools():
 
         redirect_url = request.args.get('redirect', default=None, type=str)
 
-        if method == "prettyjson":
+        if method == "get":
+
+            return_json = json.dumps({"tools": "api for tools page"}, indent=4)
+
+            return Response(status=200,
+                            response=return_json,
+                            mimetype='application/json')
+
+        elif method == "prettyjson":
 
             dirty_json_url = request.form.get('url', None)
 

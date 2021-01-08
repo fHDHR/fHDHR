@@ -35,9 +35,15 @@ class Diagnostics_HTML():
                             button_link += "%s=%s" % (parameter, parameter_val)
                         button_link = button_link.replace("<devicekey>", self.fhdhr.config.dict["main"]["uuid"])
                         button_link = button_link.replace("<base_url>", base_url)
-                        button_dict[route_group].append({
+                        curr_button_dict = {
                                             "label": session["route_list"][route_group][route_item]["pretty_name"],
                                             "link": button_link,
-                                            })
+                                            "methods": ",".join(session["route_list"][route_group][route_item]["endpoint_methods"]),
+                                            "button": True
+                                            }
+                        if ("GET" not in session["route_list"][route_group][route_item]["endpoint_methods"]
+                           or "<tuner_number>" in button_link or "<channel>" in button_link):
+                            curr_button_dict["button"] = False
+                        button_dict[route_group].append(curr_button_dict)
 
         return render_template('diagnostics.html', session=session, request=request, fhdhr=self.fhdhr, button_dict=button_dict, list=list)

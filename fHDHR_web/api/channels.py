@@ -9,6 +9,9 @@ class Channels():
     endpoints = ["/api/channels"]
     endpoint_name = "api_channels"
     endpoint_methods = ["GET", "POST"]
+    endpoint_default_parameters = {
+                                    "method": "get"
+                                    }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
