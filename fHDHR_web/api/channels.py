@@ -50,7 +50,7 @@ class Channels():
             channel = request.args.get('channel', default=None, type=str)
             if not channel:
                 if redirect_url:
-                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
+                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
                     return "%s Falied" % method
 
@@ -73,7 +73,7 @@ class Channels():
                     self.fhdhr.device.channels.set_channel_enablement("number", channel_number, "toggle")
 
             else:
-                self.fhdhr.logger.warning("Unknown favorite command " + request.args['favorite'])
+                self.fhdhr.logger.warning("Unknown favorite command %s" % request.args['favorite'])
                 return abort(200, "Not a valid favorite command")
 
         elif method in ["enable", "disable"]:
@@ -82,7 +82,7 @@ class Channels():
                 self.fhdhr.device.channels.set_channel_enablement_all(method)
             elif not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number")]:
                 if redirect_url:
-                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Failed" % method))
+                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
                     return "%s Falied" % method
             else:
@@ -148,7 +148,7 @@ class Channels():
             return "Invalid Method"
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             if method == "scan":
                 return redirect('/lineup_status.json')

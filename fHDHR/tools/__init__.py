@@ -133,9 +133,9 @@ def humanized_time(countdownseconds):
             if currenttimevar > 1:
                 timetype = str(x+"s")
             if displaymsg:
-                displaymsg = str(displaymsg + " " + str(int(currenttimevar)) + " " + timetype)
+                displaymsg = "%s %s %s" % (displaymsg, int(currenttimevar), timetype)
             else:
-                displaymsg = str(str(int(currenttimevar)) + " " + timetype)
+                displaymsg = "%s %s" % (int(currenttimevar), timetype)
     if not displaymsg:
         return "just now"
     return displaymsg
@@ -151,4 +151,4 @@ class WebReq():
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
         if hasattr(self.session, name):
-            return eval("self.session." + name)
+            return eval("self.session.%s" % name)

@@ -10,7 +10,7 @@ class Fillin_Client():
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
         if hasattr(self.web.session, name):
-            return eval("self.web.session." + name)
+            return eval("self.web.session.%s" % name)
 
 
 class fHDHR_API_URLs():

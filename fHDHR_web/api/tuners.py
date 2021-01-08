@@ -75,7 +75,7 @@ class Tuners():
                             "transcode": transcode,
                             "accessed": accessed_url,
                             "client": client_address,
-                            "client_id": str(client_address) + "_" + str(uuid.uuid4())
+                            "client_id": "%s_%s" % (client_address, uuid.uuid4())
                             }
 
             try:
@@ -104,7 +104,7 @@ class Tuners():
                 tuner.close()
                 abort(response)
 
-            self.fhdhr.logger.info("Tuner #" + str(tunernum) + " to be used for stream.")
+            self.fhdhr.logger.info("Tuner #%s to be used for stream." % tunernum)
             tuner.set_status(stream_args)
             session["tuner_used"] = tunernum
 
@@ -148,6 +148,6 @@ class Tuners():
             return "%s Invalid Method" % method
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method

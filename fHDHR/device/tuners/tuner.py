@@ -49,7 +49,7 @@ class Tuner():
 
     def grab(self, channel_number):
         if self.tuner_lock.locked():
-            self.fhdhr.logger.error("Tuner #" + str(self.number) + " is not available.")
+            self.fhdhr.logger.error("Tuner #%s is not available." % self.number)
             raise TunerError("804 - Tuner In Use")
         self.tuner_lock.acquire()
         self.status["status"] = "Acquired"
@@ -60,7 +60,7 @@ class Tuner():
         self.set_off_status()
         if self.tuner_lock.locked():
             self.tuner_lock.release()
-            self.fhdhr.logger.info("Tuner #" + str(self.number) + " Released.")
+            self.fhdhr.logger.info("Tuner #%s Released." % self.number)
 
     def get_status(self):
         current_status = self.status.copy()

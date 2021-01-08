@@ -35,12 +35,12 @@ class Cluster_HTML():
                     location_name = self.fhdhr.device.cluster.cluster()[location]["name"]
                 else:
                     try:
-                        location_info_url = location + "/discover.json"
+                        location_info_url = "%s/discover.json" % location
                         location_info_req = self.fhdhr.web.session.get(location_info_url)
                         location_info = location_info_req.json()
                         location_name = location_info["FriendlyName"]
                     except self.fhdhr.web.exceptions.ConnectionError:
-                        self.fhdhr.logger.error("Unreachable: " + location)
+                        self.fhdhr.logger.error("Unreachable: %s" % location)
                 location_dict = {
                                 "name": location_name,
                                 "location": location,

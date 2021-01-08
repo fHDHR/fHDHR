@@ -68,14 +68,14 @@ class fHDHR_Cluster():
         for location in list(cluster.keys()):
             if location != self.fhdhr.api.base:
                 self.fhdhr.logger.debug("Checking Cluster Syncronization information from %s." % location)
-                sync_url = location + "/api/cluster?method=get"
+                sync_url = "%s/api/cluster?method=get" % location
                 try:
                     sync_open = self.fhdhr.web.session.get(sync_url)
                     retrieved_cluster = sync_open.json()
                     if self.fhdhr.api.base not in list(retrieved_cluster.keys()):
                         return self.leave()
                 except self.fhdhr.web.exceptions.ConnectionError:
-                    self.fhdhr.logger.error("Unreachable: " + location)
+                    self.fhdhr.logger.error("Unreachable: %s" % location)
 
     def leave(self):
         self.fhdhr.logger.info("Leaving cluster.")
@@ -86,30 +86,30 @@ class fHDHR_Cluster():
         for location in list(cluster.keys()):
             if location != self.fhdhr.api.base:
                 self.fhdhr.logger.info("Informing %s that I am departing the Cluster." % location)
-                sync_url = location + "/api/cluster?method=del&location=" + self.fhdhr.api.base
+                sync_url = "%s/api/cluster?method=del&location=%s" % (location, self.fhdhr.api.base)
                 try:
                     self.fhdhr.web.session.get(sync_url)
                 except self.fhdhr.web.exceptions.ConnectionError:
-                    self.fhdhr.logger.error("Unreachable: " + location)
+                    self.fhdhr.logger.error("Unreachable: %s" % location)
         self.leave()
 
     def sync(self, location):
-        sync_url = location + "/api/cluster?method=get"
+        sync_url = "%s/api/cluster?method=get" % location
         try:
             sync_open = self.fhdhr.web.session.get(sync_url)
             self.fhdhr.db.set_fhdhr_value("cluster", "dict", sync_open.json())
         except self.fhdhr.web.exceptions.ConnectionError:
-            self.fhdhr.logger.error("Unreachable: " + location)
+            self.fhdhr.logger.error("Unreachable: %s" % location)
 
     def push_sync(self):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
         for location in list(cluster.keys()):
             if location != self.fhdhr.api.base:
-                sync_url = location + "/api/cluster?method=sync&location=" + self.fhdhr.api.base_quoted
+                sync_url = "%s/api/cluster?method=sync&location=%s" % (location, self.fhdhr.api.base_quoted)
                 try:
                     self.fhdhr.web.session.get(sync_url)
                 except self.fhdhr.web.exceptions.ConnectionError:
-                    self.fhdhr.logger.error("Unreachable: " + location)
+                    self.fhdhr.logger.error("Unreachable: %s" % location)
 
     def add(self, location):
         cluster = self.fhdhr.db.get_fhdhr_value("cluster", "dict") or self.default_cluster()
@@ -121,18 +121,18 @@ class fHDHR_Cluster():
             try:
                 location_info_req = self.fhdhr.web.session.get(location_info_url)
             except self.fhdhr.web.exceptions.ConnectionError:
-                self.fhdhr.logger.error("Unreachable: " + location)
+                self.fhdhr.logger.error("Unreachable: %s" % location)
                 del cluster[location]
                 self.fhdhr.db.set_fhdhr_value("cluster", "dict", cluster)
                 return
             location_info = location_info_req.json()
             cluster[location]["name"] = location_info["FriendlyName"]
 
-            cluster_info_url = location + "/api/cluster?method=get"
+            cluster_info_url = "%s/api/cluster?method=get" % location
             try:
                 cluster_info_req = self.fhdhr.web.session.get(cluster_info_url)
             except self.fhdhr.web.exceptions.ConnectionError:
-                self.fhdhr.logger.error("Unreachable: " + location)
+                self.fhdhr.logger.error("Unreachable: %s" % location)
                 del cluster[location]
                 self.fhdhr.db.set_fhdhr_value("cluster", "dict", cluster)
                 return
@@ -149,10 +149,10 @@ class fHDHR_Cluster():
         if location in list(cluster.keys()):
             self.fhdhr.logger.info("Removing %s from cluster." % location)
             del cluster[location]
-            sync_url = location + "/api/cluster?method=leave"
+            sync_url = "%s/api/cluster?method=leave" % location
             try:
                 self.fhdhr.web.session.get(sync_url)
             except self.fhdhr.web.exceptions.ConnectionError:
-                self.fhdhr.logger.error("Unreachable: " + location)
+                self.fhdhr.logger.error("Unreachable: %s" % location)
             self.push_sync()
             self.fhdhr.db.set_fhdhr_value("cluster", "dict", cluster)

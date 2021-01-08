@@ -34,7 +34,7 @@ class FFMPEG_Stream():
             except GeneratorExit:
                 self.fhdhr.logger.info("Connection Closed.")
             except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: " + str(e))
+                self.fhdhr.logger.info("Connection Closed: %s" % e)
             finally:
                 ffmpeg_proc.terminate()
                 ffmpeg_proc.communicate()
@@ -104,7 +104,7 @@ class FFMPEG_Stream():
         """
 
         if stream_args["transcode"]:
-            self.fhdhr.logger.info("Client requested a " + stream_args["transcode"] + " transcode for stream.")
+            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode"])
             stream_args["transcode"] = None
 
         ffmpeg_command = []
