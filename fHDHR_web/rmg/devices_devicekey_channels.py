@@ -27,7 +27,7 @@ class RMG_Devices_DeviceKey_Channels():
                 if channel_obj.enabled:
                     sub_el(out, 'Channel',
                            drm="0",
-                           channelIdentifier="id://%s" % channel_obj.number,
+                           channelIdentifier=channel_obj.rmg_stream_ident,
                            name=channel_obj.dict["name"],
                            origin=channel_obj.dict["callsign"],
                            number=str(channel_obj.number),

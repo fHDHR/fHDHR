@@ -153,7 +153,7 @@ class Channel():
                  'GuideNumber': self.number,
                  'GuideName': self.dict['name'],
                  'Tags': ",".join(self.dict['tags']),
-                 'URL': self.stream_url,
+                 'URL': self.hdhr_stream_url,
                  'HD': self.dict["HD"],
                  "Favorite": self.dict["favorite"],
                 }
@@ -163,11 +163,27 @@ class Channel():
         return "/api/images?method=generate&type=channel&message=%s" % self.number
 
     @property
-    def stream_url(self):
-        return '/auto/v%s' % self.number
+    def hdhr_stream_url(self):
+        return '/auto/%s' % self.hdhr_stream_ident
 
     @property
-    def play_url(self):
+    def hdhr_stream_ident(self):
+        return 'v%s' % self.number
+
+    @property
+    def rmg_stream_url(self):
+        return "/devices/%s/media/%s" % (self.fhdhr.config.dict["main"]["uuid"], self.rmg_stream_ident)
+
+    @property
+    def rmg_stream_ident(self):
+        return "id://%s" % self.number
+
+    @property
+    def api_stream_url(self):
+        return '/api/tuners?method=%s&channel=%s' % (self.fhdhr.config.dict["fhdhr"]["stream_type"], self.number)
+
+    @property
+    def m3u_url(self):
         return '/api/m3u?method=get&channel=%s' % self.number
 
     def set_favorite(self, enablement):

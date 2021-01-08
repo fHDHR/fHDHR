@@ -75,7 +75,7 @@ class M3U():
                                                     "tvg-logo": logourl,
                                                     "group-title": self.fhdhr.config.dict["fhdhr"]["friendlyname"],
                                                     "group-titleb": str(channel_obj.dict['name']),
-                                                    "stream_url": "%s%s" % (base_url, channel_obj.stream_url)
+                                                    "stream_url": "%s%s" % (base_url, channel_obj.api_stream_url)
                                                     }
 
             # Sort the channels
