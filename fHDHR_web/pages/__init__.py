@@ -9,8 +9,8 @@ from .xmltv_html import xmlTV_HTML
 from .version_html import Version_HTML
 from .diagnostics_html import Diagnostics_HTML
 from .settings_html import Settings_HTML
-from .channels_editor import Channels_Editor_HTML
-from .tools import Tools_HTML
+from .channels_editor_html import Channels_Editor_HTML
+from .tools_html import Tools_HTML
 
 
 class fHDHR_Pages():
@@ -20,7 +20,7 @@ class fHDHR_Pages():
 
         self.index_html = Index_HTML(fhdhr)
         self.channels_html = Channels_HTML(fhdhr)
-        self.channels_editor = Channels_Editor_HTML(fhdhr)
+        self.channels_editor_html = Channels_Editor_HTML(fhdhr)
         self.guide_html = Guide_HTML(fhdhr)
         self.cluster_html = Cluster_HTML(fhdhr)
         self.tuners_html = Tuners_HTML(fhdhr)
@@ -28,4 +28,4 @@ class fHDHR_Pages():
         self.version_html = Version_HTML(fhdhr)
         self.diagnostics_html = Diagnostics_HTML(fhdhr)
         self.settings_html = Settings_HTML(fhdhr)
-        self.tools = Tools_HTML(fhdhr)
+        self.tools_html = Tools_HTML(fhdhr)

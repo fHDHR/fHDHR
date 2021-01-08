@@ -10,6 +10,9 @@ class Tuners():
     endpoints = ["/api/tuners"]
     endpoint_name = "api_tuners"
     endpoint_methods = ["GET", "POST"]
+    endpoint_default_parameters = {
+                                    "method": "status"
+                                    }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -29,7 +32,7 @@ class Tuners():
 
         method = request.args.get('method', default=self.fhdhr.config.dict["fhdhr"]["stream_type"], type=str)
 
-        tuner_number = request.args.get('tuner', None, type=str)
+        tuner_number = request.args.get('tuner', default=None, type=str)
 
         redirect_url = request.args.get('redirect', default=None, type=str)
 

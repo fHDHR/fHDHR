@@ -5,6 +5,11 @@ class Images():
     endpoints = ["/api/images"]
     endpoint_name = "api_images"
     endpoint_methods = ["GET", "POST"]
+    endpoint_default_parameters = {
+                                    "method": "generate",
+                                    "type": "content",
+                                    "message": "Internal Image Handling"
+                                    }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
