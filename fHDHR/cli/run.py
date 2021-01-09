@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+import time
 
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
@@ -51,8 +52,9 @@ def run(settings, logger, db, script_dir, fHDHR_web, origin, alternative_epg):
         fhdhr.api.get("/api/startup_tasks")
 
         # wait forever
+        restart_code = "restart"
         while fhdhr.threads["flask"].is_alive():
-            restart_code = "restart"
+            time.sleep(1)
         return restart_code
 
     except KeyboardInterrupt:
