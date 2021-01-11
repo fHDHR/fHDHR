@@ -67,15 +67,21 @@ class Channel():
 
         if "name" not in list(channel_info.keys()):
             channel_info["name"] = self.dict["id"]
+        elif not channel_info["name"]:
+            channel_info["name"] = self.dict["id"]
         self.dict["origin_name"] = channel_info["name"]
         if not self.dict["name"]:
             self.dict["name"] = self.dict["origin_name"]
 
         if "id" not in list(channel_info.keys()):
             channel_info["id"] = channel_info["name"]
+        elif not channel_info["id"]:
+            channel_info["id"] = channel_info["name"]
         self.dict["origin_id"] = channel_info["id"]
 
         if "callsign" not in list(channel_info.keys()):
+            channel_info["callsign"] = channel_info["name"]
+        elif not channel_info["callsign"]:
             channel_info["callsign"] = channel_info["name"]
         self.dict["origin_callsign"] = channel_info["callsign"]
         if not self.dict["callsign"]:
@@ -83,11 +89,15 @@ class Channel():
 
         if "tags" not in list(channel_info.keys()):
             channel_info["tags"] = []
+        elif not channel_info["tags"]:
+            channel_info["tags"] = []
         self.dict["origin_tags"] = channel_info["tags"]
         if not self.dict["tags"]:
             self.dict["tags"] = self.dict["origin_tags"]
 
         if "number" not in list(channel_info.keys()):
+            channel_info["number"] = self.id_system.get_number(channel_info["id"])
+        elif not channel_info["number"]:
             channel_info["number"] = self.id_system.get_number(channel_info["id"])
         self.dict["origin_number"] = str(channel_info["number"])
         if not self.dict["number"]:
