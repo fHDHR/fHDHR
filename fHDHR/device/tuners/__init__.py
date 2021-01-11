@@ -99,6 +99,9 @@ class Tuners():
             stream_info = {"url": stream_info}
         stream_args["stream_info"] = stream_info
 
+        if not stream_args["stream_info"]["url"]:
+            raise TunerError("806 - Tune Failed")
+
         if stream_args["stream_info"]["url"].startswith("udp://"):
             stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
