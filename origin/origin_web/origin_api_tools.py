@@ -49,7 +49,7 @@ class Origin_API_Tools():
             zipcode = request.args.get('zipcode', default=None, type=str)
             if not zipcode:
                 if redirect_url:
-                    return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
                 else:
                     return "%s Success" % method
 
@@ -73,6 +73,6 @@ class Origin_API_Tools():
             return "%s Invalid Method" % method
 
         if redirect_url:
-            return redirect(redirect_url + "?retmessage=" + urllib.parse.quote("%s Success" % method))
+            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method

@@ -22,7 +22,7 @@ class OriginEPG():
 
         url = "https://api.locastnet.org/api/watch/epg/%s" % fhdhr_channels.origin.location["DMA"]
         url_headers = {'Content-Type': 'application/json', 'authorization': 'Bearer %s' % fhdhr_channels.origin.token}
-        self.fhdhr.logger.info('Fetching:  ' + url)
+        self.fhdhr.logger.info("Fetching:  %s" % url)
         try:
             resp = self.fhdhr.web.session.get(url, headers=url_headers)
             uncached_result = resp.json()
@@ -73,7 +73,7 @@ class OriginEPG():
                                     }
 
                     if eventdict["entityType"] == "Movie" and clean_prog_dict['releaseyear']:
-                        clean_prog_dict["sub-title"] = 'Movie: ' + str(clean_prog_dict['releaseyear'])
+                        clean_prog_dict["sub-title"] = "Movie: %s" % clean_prog_dict['releaseyear']
                     elif clean_prog_dict['episodetitle']:
                         clean_prog_dict["sub-title"] = clean_prog_dict['episodetitle']
 
@@ -98,8 +98,7 @@ class OriginEPG():
 
     def get_cached(self, dates_to_pull, dma):
         for x_date in dates_to_pull:
-            url = ('https://api.locastnet.org/api/watch/epg/' +
-                   str(dma) + "?startTime=" + str(x_date) + "T00%3A00%3A00-00%3A00")
+            url = 'https://api.locastnet.org/api/watch/epg/%s?startTime=%s%s' % (dma, x_date, "T00%3A00%3A00-00%3A00")
             self.get_cached_item(str(x_date), url)
         cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "origin") or []
         return [self.fhdhr.db.get_cacheitem_value(x, "epg_cache", "origin") for x in cache_list]
@@ -107,10 +106,10 @@ class OriginEPG():
     def get_cached_item(self, cache_key, url):
         cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "epg_cache", "origin")
         if cacheitem:
-            self.fhdhr.logger.info('FROM CACHE:  ' + str(cache_key))
+            self.fhdhr.logger.info("FROM CACHE:  %s" % cache_key)
             return cacheitem
         else:
-            self.fhdhr.logger.info('Fetching:  ' + url)
+            self.fhdhr.logger.info("Fetching:  %s" % url)
             try:
                 resp = self.fhdhr.web.session.get(url)
             except self.fhdhr.web.exceptions.HTTPError:
@@ -132,12 +131,12 @@ class OriginEPG():
             if cachedate < todaysdate:
                 cache_to_kill.append(cacheitem)
                 self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "origin")
-                self.fhdhr.logger.info('Removing stale cache:  ' + str(cacheitem))
+                self.fhdhr.logger.info("Removing stale cache:  %s" % cacheitem)
         self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "origin")
 
     def clear_cache(self):
         cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "origin") or []
         for cacheitem in cache_list:
             self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "origin")
-            self.fhdhr.logger.info('Removing cache:  ' + str(cacheitem))
+            self.fhdhr.logger.info("Removing cache:  %s" % cacheitem)
         self.fhdhr.db.delete_cacheitem_value("cache_list", "epg_cache", "origin")
