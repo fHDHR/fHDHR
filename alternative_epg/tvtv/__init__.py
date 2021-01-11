@@ -109,8 +109,8 @@ class tvtvEPG():
 
     def get_cached(self, dates_to_pull):
         for datesdict in dates_to_pull:
-            starttime = str(datesdict["start"]) + "T00%3A00%3A00.000Z"
-            stoptime = str(datesdict["stop"]) + "T00%3A00%3A00.000Z"
+            starttime = "%s%s" % (datesdict["start"], "T00%3A00%3A00.000Z")
+            stoptime = "%s%s" % (datesdict["stop"], "T00%3A00%3A00.000Z")
             url = "https://www.tvtv.us/tvm/t/tv/v4/lineups/%s/listings/grid?start=%s&end=%s" % (self.lineup_id, starttime, stoptime)
             self.get_cached_item(str(datesdict["start"]), url)
         cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []

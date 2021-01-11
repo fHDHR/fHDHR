@@ -40,9 +40,13 @@ class OriginService():
         login_url = "https://api.locastnet.org/api/user/login"
         login_headers = {'Content-Type': 'application/json'}
 
-        login_json = ('{"username":"' + self.fhdhr.config.dict["origin"]["username"] +
-                      '","password":"' + self.fhdhr.config.dict["origin"]["password"] +
-                      '"}').encode("utf-8")
+        login_json = ("{"
+                      "\"username\":\"%s\","
+                      "\"password\":\"%s\""
+                      "}"
+                      % (self.fhdhr.config.dict["origin"]["username"],
+                         self.fhdhr.config.dict["origin"]["password"])
+                      ).encode("utf-8")
 
         try:
             loginReq = self.fhdhr.web.session.post(login_url, data=login_json, headers=login_headers)

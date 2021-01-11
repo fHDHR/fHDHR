@@ -11,7 +11,7 @@ class OriginChannels():
 
     def get_channels(self):
 
-        stations_url = 'https://api.locastnet.org/api/watch/epg/' + str(self.origin.location["DMA"])
+        stations_url = 'https://api.locastnet.org/api/watch/epg/%s' % self.origin.location["DMA"]
         url_headers = {'Content-Type': 'application/json', 'authorization': 'Bearer %s' % self.origin.token}
 
         try:
@@ -63,11 +63,7 @@ class OriginChannels():
 
     def get_channel_stream(self, chandict, stream_args):
 
-        videoUrl = ('https://api.locastnet.org/api/watch/station/' +
-                    str(chandict["origin_id"]) + '/' +
-                    self.origin.location['latitude'] + '/' +
-                    self.origin.location['longitude']
-                    )
+        videoUrl = "https://api.locastnet.org/api/watch/station/%s/%s/%s" % (chandict["origin_id"], self.origin.location['latitude'], self.origin.location['longitude'])
 
         videoUrl_headers = {
                             'Content-Type': 'application/json',
