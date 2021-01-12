@@ -8,11 +8,16 @@
   </head>
 
   <body>
-    <h1 style="text-align: center;">
+    <h1 class="center" style="text-align:center">
       <span style="text-decoration: underline;"><strong><em>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</em></strong>
       </span>
       <img class="pull-left" src="/favicon.ico" alt="fHDHR Logo" width="100" height="100">
     </h1>
+    {% set retmessage = request.args.get('retmessage', default=None) %}
+    {% if retmessage %}
+      <p></p>
+      <p class="pull-left" style="font-size:1em">{{ retmessage }}</p>
+    {% endif %}
     <br><br>
     <p></p>
 
@@ -51,9 +56,8 @@
           <a><input type="submit" value="Basic"></a>
         {% endif %}
       </form>
-
+      <hr align="center" width="100%">
     </div>
-    <hr align="center" width="100%">
 
     {% if fhdhr.config.dict["web_ui"]["cluster_bar"] %}
       {% set locations = fhdhr.device.cluster.get_cluster_dicts_web() %}
@@ -62,14 +66,9 @@
           {% for location in locations %}
             <button onclick="location.href='{{ location["base_url"] }}'" type="button">{{ location["name"] }}</button>
           {% endfor %}
+          <hr align="center" width="100%">
         </div>
-        <hr align="center" width="100%">
       {% endif %}
-    {% endif %}
-
-    {% set retmessage = request.args.get('retmessage', default=None) %}
-    {% if retmessage %}
-      <p>{{ retmessage }}</p>
     {% endif %}
 
     {% block content %}{% endblock %}
