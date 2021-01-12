@@ -1,6 +1,5 @@
 from flask import Response, request, redirect, abort, stream_with_context, session
 import urllib.parse
-import uuid
 import json
 
 from fHDHR.exceptions import TunerError
@@ -75,7 +74,7 @@ class Tuners():
                             "transcode": transcode,
                             "accessed": accessed_url,
                             "client": client_address,
-                            "client_id": "%s_%s" % (client_address, uuid.uuid4())
+                            "client_id": session["session_id"]
                             }
 
             try:
