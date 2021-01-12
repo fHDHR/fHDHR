@@ -7,6 +7,7 @@ from .settings import Settings
 from .channels import Channels
 from .xmltv import xmlTV
 from .m3u import M3U
+from .w3u import W3U
 from .epg import EPG
 from .tuners import Tuners
 from .debug import Debug_JSON
@@ -30,6 +31,7 @@ class fHDHR_API():
         self.channels = Channels(fhdhr)
         self.xmltv = xmlTV(fhdhr)
         self.m3u = M3U(fhdhr)
+        self.w3u = W3U(fhdhr)
         self.epg = EPG(fhdhr)
         self.tuners = Tuners(fhdhr)
         self.debug = Debug_JSON(fhdhr)

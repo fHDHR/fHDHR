@@ -28,6 +28,8 @@
 
       <a class="pull-right" style="padding: 5px;" href="/api/xmltv?method=get&source={{ fhdhr.device.epg.def_method }}">xmltv</a>
       <a class="pull-right" style="padding: 5px;" href="/api/m3u?method=get&channel=all">m3u</a>
+      <a class="pull-right" style="padding: 5px;" href="/api/w3u?method=get&channel=all">w3u</a>
+
       <form  class="pull-right" style="padding: 5px;"  method="post" action="/api/settings?method=update&redirect={{ request.path }}">
         <input type="hidden" name="config_section" value="web_ui">
         <input type="hidden" name="config_name" value="access_level">
