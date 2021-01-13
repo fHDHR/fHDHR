@@ -36,7 +36,7 @@
             <tr>
               <td>{{ config_item }}</td>
               <td>{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
-        	    <td>
+              <td>
                 <form method="post" action="/api/settings?method=update&redirect=/settings">
                   <input type="hidden" name="config_section" value="{{ config_section }}">
                   <input type="hidden" name="config_name" value="{{ config_item }}">
@@ -47,17 +47,17 @@
                     <input type="text" size="25" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value"] }}">
                   {% endif %}
               </td>
-        	    <td style="display:flex;">
-        	      <span style="margin:auto">
-          		    <input type="submit" value="Update">
-          	      </form>
-        	      </span>
-        	      <form style="margin:auto">
-        	        <input type="hidden" name="config_section" value="{{ config_section }}">
+              <td style="display:flex;">
+                <span style="margin:auto">
+                  <input type="submit" value="Update">
+                  </form>
+                </span>
+                <form style="margin:auto">
+                  <input type="hidden" name="config_section" value="{{ config_section }}">
                   <input type="hidden" name="config_name" value="{{ config_item }}">
                   <input type="hidden" name="config_value" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
                   <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
-        	        <input type="submit" value="Reset">
+                  <input type="submit" value="Reset">
                 </form>
               </td>
             </tr>

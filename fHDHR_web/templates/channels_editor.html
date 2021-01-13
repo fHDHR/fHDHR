@@ -38,8 +38,8 @@
                 element.value = 0
 
         items = document.select(".channels")
-	      chanlist = []
-	      chandict = {}
+        chanlist = []
+        chandict = {}
 
         for element in items:
           if element.name == "id":
@@ -100,16 +100,16 @@
             <td><input type="text"  class="channels" name="number" value="{{ chan_dict["number"] }}"></td>
             <td><input type="text"  class="channels" name="thumbnail" value="{{ chan_dict["thumbnail"] }}"></td>
             {% if chan_dict["enabled"]  %}
-    	        <td><input type="checkbox"  class="channels" name="enabled" value=True checked></td>
+              <td><input type="checkbox"  class="channels" name="enabled" value=True checked></td>
             {% else %}
-    	        <td><input type="checkbox"  class="channels" name="enabled" value=True ></td>
+              <td><input type="checkbox"  class="channels" name="enabled" value=True ></td>
             {% endif %}
             {% if chan_dict["favorite"]  %}
-    	        <td><input type="checkbox"  class="channels" name="favorite" value=1 checked></td>
+              <td><input type="checkbox"  class="channels" name="favorite" value=1 checked></td>
             {% else %}
-    	        <td><input type="checkbox"  class="channels" name="favorite" value=1 ></td>
+              <td><input type="checkbox"  class="channels" name="favorite" value=1 ></td>
             {% endif %}
-    	      <td>
+            <td>
               <form method="post" action="/api/channels?method=update&redirect=/channels_editor">
                 <input type="hidden" class="reset" name="id" value="{{ chan_dict["id"] }}">
                 <input type="hidden" class="reset" name="name" value="{{ chan_dict["origin_name"] }}">
@@ -119,7 +119,7 @@
                 <input type="hidden" class="reset" name="enabled" value=True>
                 <input type="submit"  value="Reset">
               </form>
-    	      </td>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
