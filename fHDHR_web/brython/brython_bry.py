@@ -3,9 +3,9 @@ from flask import send_from_directory
 import pathlib
 
 
-class Brython():
-    endpoints = ["/brython.js"]
-    endpoint_name = "file_brython_js"
+class Brython_bry():
+    endpoints = ["/brython.bry"]
+    endpoint_name = "file_brython_bry"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -16,6 +16,4 @@ class Brython():
 
     def get(self, *args):
 
-        return send_from_directory(self.brython_path,
-                                   'brython.js',
-                                   mimetype='text/javascript')
+        return send_from_directory(self.brython_path, 'brython_code.py')
