@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="style.css" rel="stylesheet">
 
+    <script type="text/javascript" src="/brython.js"></script>
+    <script type="text/javascript" src="/brython_stdlib.js"></script>
+    <script type="text/python" src="brython.bry"></script>
+
   </head>
 
-  <body>
+  <body onload="brython({debug: 1, indexedDB: false})">
+
     <h1 class="center" style="text-align:center">
       <span style="text-decoration: underline;"><strong><em>{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</em></strong>
       </span>

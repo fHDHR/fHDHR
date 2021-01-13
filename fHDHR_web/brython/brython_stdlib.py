@@ -2,6 +2,7 @@ from flask import send_from_directory
 
 import pathlib
 
+
 class Brython_stdlib():
     endpoints = ["/brython_stdlib.js"]
     endpoint_name = "file_brython_stdlib_js"
