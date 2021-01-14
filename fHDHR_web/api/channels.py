@@ -114,7 +114,7 @@ class Channels():
             self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict)
 
         elif method == "modify":
-            channels_list = eval(request.form.get('channels', []))
+            channels_list = json.loads(request.form.get('channels', []))
             for channel in channels_list:
                 updatedict = {}
                 for key in list(channel.keys()):
