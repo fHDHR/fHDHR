@@ -1,5 +1,6 @@
 import datetime
 import re
+import json
 
 import fHDHR.tools
 import fHDHR.exceptions
@@ -55,7 +56,11 @@ class OriginService():
             self.fhdhr.logger.error('Login Failed: %s' % err)
             return None
 
-        loginRes = loginReq.json()
+        try:
+            loginRes = loginReq.json()
+        except json.JSONDecodeError as err:
+            self.fhdhr.logger.error('Login Failed: %s' % err)
+            return None
         token = loginRes["token"]
 
         try:
@@ -69,7 +74,11 @@ class OriginService():
             self.fhdhr.logger.error('Login Failed: %s' % err)
             return None
 
-        userresp = userReq.json()
+        try:
+            userresp = userReq.json()
+        except json.JSONDecodeError as err:
+            self.fhdhr.logger.error('Login Failed: %s' % err)
+            return None
         self.fhdhr.logger.info("User Info obtained.")
 
         if (userresp['didDonate'] and
@@ -127,7 +136,11 @@ class OriginService():
         except self.fhdhr.web.exceptions.HTTPError:
             self.fhdhr.logger.error("Unable to retrieve %s location." % location_type)
             return False
-        geoRes = req.json()
+        try:
+            geoRes = req.json()
+        except json.JSONDecodeError:
+            self.fhdhr.logger.error("Unable to retrieve %s location." % location_type)
+            return False
         self.set_location(geoRes)
         return True
 
