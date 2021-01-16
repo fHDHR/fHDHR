@@ -22,24 +22,24 @@
                         },
           "reverse_days": {
                           "value": -1,
-                          "config_file": false,
-                          "config_web": false
+                          "config_file": true,
+                          "config_web": true
                         },
           "forward_days": {
                           "value": 7,
-                          "config_file": false,
-                          "config_web": false
+                          "config_file": true,
+                          "config_web": true
                         },
           "block_size": {
                           "value": 1800,
-                          "config_file": false,
-                          "config_web": false
+                          "config_file": true,
+                          "config_web": true
                         }
                         ,
           "xmltv_offset": {
                           "value": "+0000",
-                          "config_file": false,
-                          "config_web": false
+                          "config_file": true,
+                          "config_web": true
                         }
   }
 }
