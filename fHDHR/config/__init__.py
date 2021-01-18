@@ -3,7 +3,6 @@ import sys
 import random
 import configparser
 import pathlib
-import logging
 import subprocess
 import platform
 import json
@@ -115,6 +114,7 @@ class Config():
                 ffmpeg_version = ffmpeg_proc.stdout.read()
                 ffmpeg_proc.terminate()
                 ffmpeg_proc.communicate()
+                ffmpeg_proc.kill()
                 ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
             except FileNotFoundError:
                 ffmpeg_version = "Missing"
@@ -132,6 +132,7 @@ class Config():
                 vlc_version = vlc_proc.stdout.read()
                 vlc_proc.terminate()
                 vlc_proc.communicate()
+                vlc_proc.kill()
                 vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
             except FileNotFoundError:
                 vlc_version = "Missing"
@@ -316,32 +317,6 @@ class Config():
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
         if not self.dict["fhdhr"]["discovery_address"] or self.dict["fhdhr"]["discovery_address"] == "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = None
-
-    def logging_setup(self):
-
-        log_level = self.dict["logging"]["level"].upper()
-
-        # Create a custom logger
-        logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=log_level)
-        logger = logging.getLogger('fHDHR')
-        log_file = os.path.join(self.internal["paths"]["logs_dir"], 'fHDHR.log')
-
-        # Create handlers
-        # c_handler = logging.StreamHandler()
-        f_handler = logging.FileHandler(log_file)
-        # c_handler.setLevel(log_level)
-        f_handler.setLevel(log_level)
-
-        # Create formatters and add it to handlers
-        # c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        # c_handler.setFormatter(c_format)
-        f_handler.setFormatter(f_format)
-
-        # Add handlers to the logger
-        # logger.addHandler(c_handler)
-        logger.addHandler(f_handler)
-        return logger
 
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''
