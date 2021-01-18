@@ -6,6 +6,7 @@ import time
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
 import fHDHR.config
+import fHDHR.logger
 from fHDHR.db import fHDHRdb
 
 ERR_CODE = 1
@@ -72,7 +73,7 @@ def start(args, script_dir, fHDHR_web, origin, alternative_epg):
         print(e)
         return ERR_CODE_NO_RESTART
 
-    logger = settings.logging_setup()
+    logger = fHDHR.logger.Logger(settings)
 
     db = fHDHRdb(settings)
 
