@@ -21,18 +21,7 @@ class Direct_M3U8_Stream():
         if not self.stream_args["duration"] == 0:
             self.stream_args["time_end"] = self.stream_args["duration"] + time.time()
 
-        self.fhdhr.logger.info("Detected stream URL is m3u8: %s" % self.stream_args["true_content_type"])
-
-        channel_stream_url = self.stream_args["stream_info"]["url"]
-        while True:
-
-            self.fhdhr.logger.info("Opening m3u8 for reading %s" % channel_stream_url)
-            videoUrlM3u = m3u8.load(channel_stream_url)
-            if len(videoUrlM3u.playlists):
-                self.fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))
-                channel_stream_url = videoUrlM3u.playlists[0].absolute_uri
-            else:
-                break
+        self.fhdhr.logger.info("Detected stream of m3u8 URL: %s" % self.stream_args["stream_info"]["url"])
 
         def generate():
 
@@ -42,7 +31,11 @@ class Direct_M3U8_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    playlist = m3u8.load(channel_stream_url)
+                    if self.stream_args["stream_info"]["headers"]:
+                        playlist = m3u8.load(self.stream_args["stream_info"]["url"], headers=self.stream_args["stream_info"]["headers"])
+                    else:
+                        playlist = m3u8.load(self.stream_args["stream_info"]["url"])
+
                     segments = playlist.segments
 
                     if len(played_chunk_urls):
@@ -70,13 +63,19 @@ class Direct_M3U8_Stream():
                                 self.fhdhr.logger.info("Requested Duration Expired.")
                                 self.tuner.close()
 
-                            chunk = self.fhdhr.web.session.get(chunkurl).content
+                            if self.stream_args["stream_info"]["headers"]:
+                                chunk = self.fhdhr.web.session.get(chunkurl, headers=self.stream_args["stream_info"]["headers"]).content
+                            else:
+                                chunk = self.fhdhr.web.session.get(chunkurl).content
                             if not chunk:
                                 break
                                 # raise TunerError("807 - No Video Data")
                             if key:
                                 if key["url"]:
-                                    keyfile = self.fhdhr.web.session.get(key["url"]).content
+                                    if self.stream_args["stream_info"]["headers"]:
+                                        keyfile = self.fhdhr.web.session.get(key["url"], headers=self.stream_args["stream_info"]["headers"]).content
+                                    else:
+                                        keyfile = self.fhdhr.web.session.get(key["url"]).content
                                     cryptor = AES.new(keyfile, AES.MODE_CBC, keyfile)
                                     self.fhdhr.logger.info("Decrypting Chunk #%s with key: %s" % (len(played_chunk_urls), key["url"]))
                                     chunk = cryptor.decrypt(chunk)
