@@ -20,7 +20,10 @@ class Direct_Stream():
 
         self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
 
-        req = self.fhdhr.web.session.get(self.stream_args["stream_info"]["url"], stream=True)
+        if self.stream_args["stream_info"]["headers"]:
+            req = self.fhdhr.web.session.get(self.stream_args["stream_info"]["url"], stream=True, headers=self.stream_args["stream_info"]["headers"])
+        else:
+            req = self.fhdhr.web.session.get(self.stream_args["stream_info"]["url"], stream=True)
 
         def generate():
 

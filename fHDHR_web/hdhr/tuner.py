@@ -38,9 +38,9 @@ class Tuner():
         if duration:
             redirect_url += "&duration=%s" % str(duration)
 
-        transcode = request.args.get('transcode', default=None, type=str)
-        if transcode:
-            redirect_url += "&transcode=%s" % str(transcode)
+        transcode_quality = request.args.get('transcode', default=None, type=str)
+        if transcode_quality:
+            redirect_url += "&transcode=%s" % str(transcode_quality)
 
         redirect_url += "&accessed=%s" % urllib.parse.quote(request.url)
 

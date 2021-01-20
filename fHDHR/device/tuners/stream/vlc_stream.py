@@ -51,10 +51,15 @@ class VLC_Stream():
                           self.fhdhr.config.dict["vlc"]["path"],
                           "-I", "dummy", stream_args["stream_info"]["url"],
                           ]
+        # vlc_command.extend(self.vlc_headers(stream_args))
         vlc_command.extend(self.vlc_duration(stream_args))
         vlc_command.extend(self.vlc_loglevel())
         vlc_command.extend(["--sout"])
         vlc_command.extend(self.transcode_profiles(stream_args))
+        return vlc_command
+
+    def vlc_headers(self, stream_args):
+        vlc_command = []
         return vlc_command
 
     def vlc_duration(self, stream_args):
@@ -95,28 +100,28 @@ class VLC_Stream():
         """
         vlc_command = []
 
-        if stream_args["transcode"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode"])
-            stream_args["transcode"] = None
+        if stream_args["transcode_quality"]:
+            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
+            stream_args["transcode_quality"] = None
 
         vlc_transcode_string = "#std{mux=ts,access=file,dst=-}"
         return [vlc_transcode_string]
 
         '#transcode{vcodec=mp2v,vb=4096,acodec=mp2a,ab=192,scale=1,channels=2,deinterlace}:std{access=file,mux=ts,dst=-"}'
 
-        if not stream_args["transcode"]:
+        if not stream_args["transcode_quality"]:
             vlc_command.extend([])
-        elif stream_args["transcode"] == "heavy":
+        elif stream_args["transcode_quality"] == "heavy":
             vlc_command.extend([])
-        elif stream_args["transcode"] == "mobile":
+        elif stream_args["transcode_quality"] == "mobile":
             vlc_command.extend([])
-        elif stream_args["transcode"] == "internet720":
+        elif stream_args["transcode_quality"] == "internet720":
             vlc_command.extend([])
-        elif stream_args["transcode"] == "internet480":
+        elif stream_args["transcode_quality"] == "internet480":
             vlc_command.extend([])
-        elif stream_args["transcode"] == "internet360":
+        elif stream_args["transcode_quality"] == "internet360":
             vlc_command.extend([])
-        elif stream_args["transcode"] == "internet240":
+        elif stream_args["transcode_quality"] == "internet240":
             vlc_command.extend([])
 
         return vlc_command

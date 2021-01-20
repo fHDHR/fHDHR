@@ -5,7 +5,12 @@
                                   "config_file": true,
                                   "config_web": true
                 },
-                "quality": {
+                "origin_quality": {
+                              "value": "none",
+                              "config_file": true,
+                              "config_web": true
+                },
+                "transcode_quality": {
                               "value": "none",
                               "config_file": true,
                               "config_web": true

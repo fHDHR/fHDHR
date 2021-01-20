@@ -50,10 +50,24 @@ class FFMPEG_Stream():
                           self.fhdhr.config.dict["ffmpeg"]["path"],
                           "-i", stream_args["stream_info"]["url"],
                           ]
+        ffmpeg_command.extend(self.ffmpeg_headers(stream_args))
         ffmpeg_command.extend(self.ffmpeg_duration(stream_args))
         ffmpeg_command.extend(self.transcode_profiles(stream_args))
         ffmpeg_command.extend(self.ffmpeg_loglevel())
         ffmpeg_command.extend(["pipe:stdout"])
+        return ffmpeg_command
+
+    def ffmpeg_headers(self, stream_args):
+        ffmpeg_command = []
+        if stream_args["stream_info"]["headers"]:
+            headers_string = ""
+            if len(list(stream_args["stream_info"]["headers"].keys())) > 1:
+                for x in list(stream_args["stream_info"]["headers"].keys()):
+                    headers_string += "%s: %s\r\n" % (x, stream_args["stream_info"]["headers"][x])
+            else:
+                for x in list(stream_args["stream_info"]["headers"].keys()):
+                    headers_string += "%s: %s" % (x, stream_args["stream_info"]["headers"][x])
+            ffmpeg_command.extend(["-headers", '\"%s\"' % headers_string])
         return ffmpeg_command
 
     def ffmpeg_duration(self, stream_args):
@@ -103,30 +117,30 @@ class FFMPEG_Stream():
         16:9 content, not exceeding 320x240 30fps for 4:3 content
         """
 
-        if stream_args["transcode"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode"])
-            stream_args["transcode"] = None
+        if stream_args["transcode_quality"]:
+            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
+            stream_args["transcode_quality"] = None
 
         ffmpeg_command = []
 
-        if not stream_args["transcode"]:
+        if not stream_args["transcode_quality"]:
             ffmpeg_command.extend(
                                     [
                                      "-c", "copy",
                                      "-f", "mpegts",
                                     ]
                                     )
-        elif stream_args["transcode"] == "heavy":
+        elif stream_args["transcode_quality"] == "heavy":
             ffmpeg_command.extend([])
-        elif stream_args["transcode"] == "mobile":
+        elif stream_args["transcode_quality"] == "mobile":
             ffmpeg_command.extend([])
-        elif stream_args["transcode"] == "internet720":
+        elif stream_args["transcode_quality"] == "internet720":
             ffmpeg_command.extend([])
-        elif stream_args["transcode"] == "internet480":
+        elif stream_args["transcode_quality"] == "internet480":
             ffmpeg_command.extend([])
-        elif stream_args["transcode"] == "internet360":
+        elif stream_args["transcode_quality"] == "internet360":
             ffmpeg_command.extend([])
-        elif stream_args["transcode"] == "internet240":
+        elif stream_args["transcode_quality"] == "internet240":
             ffmpeg_command.extend([])
 
         return ffmpeg_command
