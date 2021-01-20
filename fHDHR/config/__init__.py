@@ -103,7 +103,7 @@ class Config():
         isdocker = is_docker()
         self.internal["versions"]["Docker"] = isdocker
 
-        if self.dict["fhdhr"]["stream_type"] == "ffmpeg":
+        if self.dict["streaming"]["method"] == "ffmpeg":
             try:
                 ffmpeg_command = [self.dict["ffmpeg"]["path"],
                                   "-version",
@@ -121,7 +121,7 @@ class Config():
                 print("Failed to find ffmpeg.")
             self.internal["versions"]["ffmpeg"] = ffmpeg_version
 
-        if self.dict["fhdhr"]["stream_type"] == "vlc":
+        if self.dict["streaming"]["method"] == "vlc":
             try:
                 vlc_command = [self.dict["vlc"]["path"],
                                "--version",
@@ -310,7 +310,7 @@ class Config():
 
         self.dict["database"]["path"] = pathlib.Path(cache_dir).joinpath('fhdhr.db')
 
-        if self.dict["fhdhr"]["stream_type"] not in ["direct", "ffmpeg", "vlc"]:
+        if self.dict["streaming"]["method"] not in ["direct", "ffmpeg", "vlc"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":

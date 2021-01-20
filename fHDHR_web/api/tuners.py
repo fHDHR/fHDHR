@@ -29,7 +29,7 @@ class Tuners():
 
         accessed_url = request.args.get('accessed', default=request.url, type=str)
 
-        method = request.args.get('method', default=self.fhdhr.config.dict["fhdhr"]["stream_type"], type=str)
+        method = request.args.get('method', default=self.fhdhr.config.dict["streaming"]["method"], type=str)
 
         tuner_number = request.args.get('tuner', default=None, type=str)
 

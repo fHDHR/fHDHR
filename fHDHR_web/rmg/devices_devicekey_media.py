@@ -18,7 +18,7 @@ class RMG_Devices_DeviceKey_Media():
         param = request.args.get('method', default=None, type=str)
         self.fhdhr.logger.debug("param:%s" % param)
 
-        method = self.fhdhr.config.dict["fhdhr"]["stream_type"]
+        method = self.fhdhr.config.dict["streaming"]["method"]
 
         redirect_url = "/api/tuners?method=%s" % (method)
 
