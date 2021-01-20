@@ -11,7 +11,7 @@ from .rmg import fHDHR_RMG
 from .api import fHDHR_API
 
 
-fHDHR_web_VERSION = "v0.8.0-beta"
+fHDHR_web_VERSION = "v0.8.1-beta"
 
 
 class fHDHR_HTTP_Server():
@@ -219,7 +219,8 @@ class fHDHR_HTTP_Server():
 
         self.http = WSGIServer(self.fhdhr.api.address_tuple,
                                self.fhdhr.app.wsgi_app,
-                               log=self.fhdhr.logger)
+                               log=self.fhdhr.logger.logger,
+                               error_log=self.fhdhr.logger.logger)
         try:
             self.http.serve_forever()
             self.stop()
