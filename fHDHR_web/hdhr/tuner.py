@@ -14,7 +14,7 @@ class Tuner():
 
     def get(self, tuner_number, channel, *args):
 
-        method = request.args.get('method', default=self.fhdhr.config.dict["fhdhr"]["stream_type"], type=str)
+        method = request.args.get('method', default=self.fhdhr.config.dict["streaming"]["method"], type=str)
 
         redirect_url = "/api/tuners?method=%s" % (method)
 

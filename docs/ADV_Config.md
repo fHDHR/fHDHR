@@ -28,6 +28,18 @@ Here's the `main` section.
 # cache_dir =
 ````
 
+## streaming
+
+* `method` can be set to `ffmpeg`, `vlc` or `direct`.
+* `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
+
+
+````
+[streaming]
+# method = direct
+````
+
+
 ## fhdhr
 
 The `fhdhr` contains all the configuration options for interfacing between this script and your media platform.
@@ -35,7 +47,9 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 * `discovery_address` may be helpful for making SSDP work properly. If `address` is not `0.0.0.0`, we will use that. If this is not set to a real IP, we won't run SSDP. SSDP is only really helpful for discovering in Plex/Emby. It's a wasted resource since you can manually add the `ip:port` of the script to Plex.
 * `tuner_count` is a limit of devices able to stream from the script. The default is 3, as per Locast's documentation. A 4th is possible, but is not reccomended.
 * `friendlyname` is to set the name that Plex sees the script as.
-* `stream_type` can be set to `ffmpeg`, `vlc` or `direct`.
+* `reporting_*` are settings that show how the script projects itself as a hardware device.
+* `device_auth` and `require_auth` are for an unimplemented Authentication feature.
+* `chanscan_on_start` Scans Origin for new channels at startup.
 
 
 ````
@@ -43,7 +57,6 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 # address = 0.0.0.0
 # discovery_address = 0.0.0.0
 # port = 5004
-# stream_type = direct
 # tuner_count =  4
 # friendlyname = fHDHR-Locast
 # reporting_firmware_name = fHDHR_Locast
@@ -52,52 +65,48 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 # reporting_firmware_ver = 20201001
 # reporting_tuner_type = Antenna
 # device_auth = fHDHR
+# require_auth = False
+# chanscan_on_start = True
 ````
 
 # EPG
 * `images` can be set to `proxy` or `pass`. If you choose `proxy`, images will be reverse proxied through fHDHR.
 * `method` defaults to `origin` and will pull the xmltv data from Locast. Other Options include `blocks` which is an hourly schedule with minimal channel information. Another option is `zap2it`, which is another source of EPG information. Channel Numbers may need to be manually mapped.
-* `update_frequency` * `epg_update_frequency` determines how often we check for new scheduling information. In Seconds.
+* `update_frequency` determines how often we check for new scheduling information. In Seconds.
+* `reverse_days` allows Blocks of EPG data to be created prior to the start of the EPG Source data.
+* `forward_days` allows Blocks of EPG data to be created after the end of the EPG Source data.
+* `block_size` in seconds, sets the default block size for data before, after and missing timeslots.
+* `xmltv_offset` allows the final xmltv file to have an offset for users with timezone issues.
 
 ````
 [epg]
 # images = pass
 # method = origin
 # update_frequency = 43200
+# reverse_days = -1
+# forward_days = 7
+# block_size = 1800
+# xmltv_offset = +0000
 ````
 
 ## ffmpeg
 
 The `ffmpeg` section includes:
 * `path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
-* `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
 
 ````
 [ffmpeg]
 # path = ffmpeg
-# bytes_per_read = 1152000
 ````
 
 ## vlc
 
 The `vlc` section includes:
 * `path` is useful if ffmpeg is not in your systems PATH, or you want to manually specify.
-* `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
 
 ````
 [vlc]
-# path = ffmpeg
-# bytes_per_read = 1152000
-````
-
-## direct_stream
-
-The `direct_stream` section is for when you set the `[fhdhr]stream_type` to `direct`
-* `chunksize` is how much data to read at a time.
-
-````
-[direct_stream]
-# chunksize = 1024*1024
+# path = cvlc
 ````
 
 # Logging
@@ -117,6 +126,27 @@ TODO: improve documentation here.
 [database]
 # type = sqlite
 # driver = None
+user = None
+pass = None
+host = None
+port = None
+name = None
+````
+
+## RMG
+
+````
+# enabled = True
+````
+
+## SSDP
+
+````
+# enabled = True
+# max_age = 1800
+# proto = ipv6
+# iface = None
+# multicast_address = None
 ````
 
 ## Locast

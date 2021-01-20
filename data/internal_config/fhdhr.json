@@ -55,11 +55,6 @@
                     "config_file": true,
                     "config_web": true
                 },
-          "stream_type":{
-                              "value": "direct",
-                              "config_file": true,
-                              "config_web": true
-                              },
           "tuner_count":{
                   "value": 4,
                   "config_file": true,

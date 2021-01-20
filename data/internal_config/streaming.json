@@ -9,6 +9,11 @@
                               "value": "none",
                               "config_file": true,
                               "config_web": true
+                },
+                "method": {
+                              "value": "direct",
+                              "config_file": true,
+                              "config_web": true
                 }
               },
   "ffmpeg":{
