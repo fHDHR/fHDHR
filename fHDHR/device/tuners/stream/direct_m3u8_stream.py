@@ -23,6 +23,9 @@ class Direct_M3U8_Stream():
 
         self.fhdhr.logger.info("Detected stream of m3u8 URL: %s" % self.stream_args["stream_info"]["url"])
 
+        if self.stream_args["transcode_quality"]:
+            self.fhdhr.logger.info("Client requested a %s transcode for stream. Direct Method cannot transcode." % self.stream_args["transcode_quality"])
+
         def generate():
 
             try:
