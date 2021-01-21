@@ -86,42 +86,73 @@ class VLC_Stream():
 
     def transcode_profiles(self, stream_args):
         # TODO implement actual profiles here
-        """
-        • heavy: transcode to AVC with the same resolution, frame-rate, and interlacing as the
-        original stream. For example 1080i60 AVC 1080i60, 720p60 AVC 720p60. → →
-        • mobile: trancode to AVC progressive not exceeding 1280x720 30fps.
-        • internet720: transcode to low bitrate AVC progressive not exceeding 1280x720 30fps.
-        • internet480: transcode to low bitrate AVC progressive not exceeding 848x480 30fps for
-        16:9 content, not exceeding 640x480 30fps for 4:3 content.
-        • internet360: transcode to low bitrate AVC progressive not exceeding 640x360 30fps for
-        16:9 content, not exceeding 480x360 30fps for 4:3 content.
-        • internet240: transcode to low bitrate AVC progressive not exceeding 432x240 30fps for
-        16:9 content, not exceeding 320x240 30fps for 4:3 content
-        """
         vlc_command = []
 
         if stream_args["transcode_quality"]:
             self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
-            stream_args["transcode_quality"] = None
 
-        vlc_transcode_string = "#std{mux=ts,access=file,dst=-}"
-        return [vlc_transcode_string]
-
-        '#transcode{vcodec=mp2v,vb=4096,acodec=mp2a,ab=192,scale=1,channels=2,deinterlace}:std{access=file,mux=ts,dst=-"}'
-
-        if not stream_args["transcode_quality"]:
+        transcode_dict = {}
+        if not stream_args["transcode_quality"] or stream_args["transcode_quality"] == "heavy":
+            # dummy do nothing line
             vlc_command.extend([])
-        elif stream_args["transcode_quality"] == "heavy":
-            vlc_command.extend([])
+
         elif stream_args["transcode_quality"] == "mobile":
-            vlc_command.extend([])
+            transcode_dict["transcode"] = {
+                                           "width": "1280",
+                                           "height": "720",
+                                           "vb": "500",
+                                           "ab": "128"
+                                           }
+
         elif stream_args["transcode_quality"] == "internet720":
-            vlc_command.extend([])
+            transcode_dict["transcode"] = {
+                                           "width": "1280",
+                                           "height": "720",
+                                           "vb": "1000",
+                                           "ab": "196"
+                                           }
+
         elif stream_args["transcode_quality"] == "internet480":
-            vlc_command.extend([])
+            transcode_dict["transcode"] = {
+                                           "width": "848",
+                                           "height": "480",
+                                           "vb": "400",
+                                           "ab": "128"
+                                           }
+
         elif stream_args["transcode_quality"] == "internet360":
-            vlc_command.extend([])
+            transcode_dict["transcode"] = {
+                                           "width": "640",
+                                           "height": "360",
+                                           "vb": "250",
+                                           "ab": "96"
+                                           }
+
         elif stream_args["transcode_quality"] == "internet240":
-            vlc_command.extend([])
+            transcode_dict["transcode"] = {
+                                           "width": "432",
+                                           "height": "240",
+                                           "vb": "250",
+                                           "ab": "96"
+                                           }
+
+        transcode_dict["std"] = {
+                                   "mux": "ts",
+                                   "access": "file",
+                                   "dst": "-"
+                                   }
+
+        topkey_index = 0
+        vlc_transcode_string = ""
+        for topkey in list(transcode_dict.keys()):
+            if not topkey_index:
+                topkey_index += 1
+                vlc_transcode_string += "#"
+            else:
+                vlc_transcode_string += ":"
+            vlc_transcode_string += "%s{" % topkey
+            vlc_transcode_string += ",".join(["%s=%s" % (x, transcode_dict[topkey][x]) for x in list(transcode_dict[topkey].keys())])
+            vlc_transcode_string += "}"
+        vlc_command.extend([vlc_transcode_string])
 
         return vlc_command

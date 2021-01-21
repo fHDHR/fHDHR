@@ -53,10 +53,7 @@ class Tuners():
             duration = request.args.get('duration', default=0, type=int)
 
             transcode_quality = request.args.get('transcode', default=None, type=str)
-            valid_transcode_types = [
-                                    None, "high", "medium", "low"
-                                    "heavy", "mobile", "internet720", "internet480", "internet360", "internet240"
-                                    ]
+            valid_transcode_types = [None, "heavy", "mobile", "internet720", "internet480", "internet360", "internet240"]
             if transcode_quality not in valid_transcode_types:
                 response = Response("Service Unavailable", status=503)
                 response.headers["X-fHDHR-Error"] = "802 - Unknown Transcode Profile"
@@ -68,7 +65,7 @@ class Tuners():
                             "method": method,
                             "duration": duration,
                             "origin_quality": self.fhdhr.config.dict["streaming"]["origin_quality"],
-                            "transcode_quality": transcode_quality,
+                            "transcode_quality": transcode_quality or self.fhdhr.config.dict["streaming"]["transcode_quality"],
                             "accessed": accessed_url,
                             "client": client_address,
                             "client_id": session["session_id"]

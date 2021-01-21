@@ -103,44 +103,61 @@ class FFMPEG_Stream():
         return ffmpeg_command
 
     def transcode_profiles(self, stream_args):
-        # TODO implement actual profiles here
-        """
-        • heavy: transcode to AVC with the same resolution, frame-rate, and interlacing as the
-        original stream. For example 1080i60 AVC 1080i60, 720p60 AVC 720p60. → →
-        • mobile: trancode to AVC progressive not exceeding 1280x720 30fps.
-        • internet720: transcode to low bitrate AVC progressive not exceeding 1280x720 30fps.
-        • internet480: transcode to low bitrate AVC progressive not exceeding 848x480 30fps for
-        16:9 content, not exceeding 640x480 30fps for 4:3 content.
-        • internet360: transcode to low bitrate AVC progressive not exceeding 640x360 30fps for
-        16:9 content, not exceeding 480x360 30fps for 4:3 content.
-        • internet240: transcode to low bitrate AVC progressive not exceeding 432x240 30fps for
-        16:9 content, not exceeding 320x240 30fps for 4:3 content
-        """
 
         if stream_args["transcode_quality"]:
             self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
-            stream_args["transcode_quality"] = None
 
         ffmpeg_command = []
 
-        if not stream_args["transcode_quality"]:
-            ffmpeg_command.extend(
-                                    [
-                                     "-c", "copy",
-                                     "-f", "mpegts",
-                                    ]
-                                    )
-        elif stream_args["transcode_quality"] == "heavy":
-            ffmpeg_command.extend([])
+        if not stream_args["transcode_quality"] or stream_args["transcode_quality"] == "heavy":
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-f", "mpegts"
+                                    ])
+
         elif stream_args["transcode_quality"] == "mobile":
-            ffmpeg_command.extend([])
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-s", "1280X720",
+                                    "-b:v", "500k",
+                                    "-b:a", "128k",
+                                    "-f", "mpegts"
+                                    ])
+
         elif stream_args["transcode_quality"] == "internet720":
-            ffmpeg_command.extend([])
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-s", "1280X720",
+                                    "-b:v", "1000k",
+                                    "-b:a", "196k",
+                                    "-f", "mpegts"
+                                    ])
+
         elif stream_args["transcode_quality"] == "internet480":
-            ffmpeg_command.extend([])
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-s", "848X480",
+                                    "-b:v", "400k",
+                                    "-b:a", "128k",
+                                    "-f", "mpegts"
+                                    ])
+
         elif stream_args["transcode_quality"] == "internet360":
-            ffmpeg_command.extend([])
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-s", "640X360",
+                                    "-b:v", "250k",
+                                    "-b:a", "96k",
+                                    "-f", "mpegts"
+                                    ])
+
         elif stream_args["transcode_quality"] == "internet240":
-            ffmpeg_command.extend([])
+            ffmpeg_command.extend([
+                                    "-c", "copy",
+                                    "-s", "432X240",
+                                    "-b:v", "250k",
+                                    "-b:a", "96k",
+                                    "-f", "mpegts"
+                                    ])
 
         return ffmpeg_command
