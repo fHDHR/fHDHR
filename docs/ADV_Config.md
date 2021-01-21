@@ -32,11 +32,16 @@ Here's the `main` section.
 
 * `method` can be set to `ffmpeg`, `vlc` or `direct`.
 * `bytes_per_read` determines how many bytes of the stream to read before sending the data to your client. Increasing this value may cause longer load times, and lowering it may effect `stuttering`.
+* `origin_quality` can be set to high,medium,low for most variants. Variants that make use of m3u8 will Autoselect High for the direct method if not set. ffmpeg/vlc will determine the best stream on their own. Some Variants can allow alternative values.
+* `transcode_quality` works with ffmpeg/vlc to use fHDHR for handling quality instead of the origin. Valid settings include: heavy,mobile,internet720,internet480,internet360,internet240
 
 
 ````
 [streaming]
 # method = direct
+# bytes_per_read = 1152000
+# origin_quality = None
+# transcode_quality = None
 ````
 
 
