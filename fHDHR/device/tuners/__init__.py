@@ -129,8 +129,12 @@ class Tuners():
         quality_profile = stream_args["origin_quality"]
 
         if not quality_profile:
-            quality_profile = "high"
-            self.fhdhr.logger.info("Origin Quality not set in config. Defaulting to Highest Quality")
+            if stream_args["method"] == "direct":
+                quality_profile = "high"
+                self.fhdhr.logger.info("Origin Quality not set in config. Direct Method set and will default to Highest Quality")
+            else:
+                self.fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
+                return m3u8_url
         else:
             quality_profile = quality_profile.lower()
             self.fhdhr.logger.info("Origin Quality set in config to %s" % (quality_profile))
