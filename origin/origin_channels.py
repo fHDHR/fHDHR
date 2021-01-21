@@ -1,4 +1,3 @@
-import m3u8
 
 from fHDHR.tools import isint, isfloat
 
@@ -79,33 +78,6 @@ class OriginChannels():
 
         videoUrlRes = videoUrlReq.json()
 
-        if self.fhdhr.config.dict["origin"]["force_best"]:
-            streamurl = self.m3u8_beststream(videoUrlRes['streamUrl'])
-        else:
-            streamurl = videoUrlRes['streamUrl']
-
-        stream_info = {"url": streamurl}
+        stream_info = {"url": videoUrlRes['streamUrl']}
 
         return stream_info
-
-    def m3u8_beststream(self, m3u8_url):
-        bestStream = None
-        videoUrlM3u = m3u8.load(m3u8_url)
-        self.fhdhr.logger.info('force_best set in config. Checking for Best Stream')
-
-        if len(videoUrlM3u.playlists) == 0 or not videoUrlM3u.is_variant:
-            self.fhdhr.logger.info('No Stream Variants Available.')
-            return m3u8_url
-
-        for videoStream in videoUrlM3u.playlists:
-            if not bestStream:
-                bestStream = videoStream
-            elif videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth:
-                bestStream = videoStream
-
-        if bestStream:
-            self.fhdhr.logger.info('BestStream URL Found!')
-            return bestStream.absolute_uri
-        else:
-            self.fhdhr.logger.info('No Stream Variant Found.')
-            return m3u8_url
