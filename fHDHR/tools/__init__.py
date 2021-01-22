@@ -12,13 +12,12 @@ def channel_sort(channel_list):
     """Take a list of channel number strings and sort the Numbers and SubNumbers"""
     chan_dict_list_split = {}
     for number in channel_list:
-        if number and number not in ["None"]:
-            try:
-                subnumber = number.split(".")[1]
-            except IndexError:
-                subnumber = None
-            prinumber = number.split(".")[0]
-            chan_dict_list_split[number] = {"number": prinumber, "subnumber": subnumber}
+        try:
+            subnumber = number.split(".")[1]
+        except IndexError:
+            subnumber = None
+        prinumber = number.split(".")[0]
+        chan_dict_list_split[number] = {"number": prinumber, "subnumber": subnumber}
     return sorted(chan_dict_list_split, key=lambda i: (int(chan_dict_list_split[i]['number']), int(chan_dict_list_split[i]['subnumber'] or 0)))
 
 

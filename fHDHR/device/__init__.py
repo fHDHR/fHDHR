@@ -8,11 +8,11 @@ from .cluster import fHDHR_Cluster
 
 class fHDHR_Device():
 
-    def __init__(self, fhdhr, originwrapper, alternative_epg):
+    def __init__(self, fhdhr, originwrapper, plugins):
 
         self.channels = Channels(fhdhr, originwrapper)
 
-        self.epg = EPG(fhdhr, self.channels, originwrapper, alternative_epg)
+        self.epg = EPG(fhdhr, self.channels, originwrapper, plugins)
 
         self.tuners = Tuners(fhdhr, self.epg, self.channels)
 

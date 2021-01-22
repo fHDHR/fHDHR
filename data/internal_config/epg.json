@@ -15,11 +15,6 @@
                     "config_file": true,
                     "config_web": true
                 },
-          "valid_epg_methods":{
-                          "value": "None,blocks",
-                          "config_file": false,
-                          "config_web": false
-                        },
           "reverse_days": {
                           "value": -1,
                           "config_file": true,

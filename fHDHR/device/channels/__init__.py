@@ -49,10 +49,10 @@ class Channels():
         channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
         if len(channel_ids):
             self.fhdhr.logger.info("Found %s existing channels in the database." % str(len(channel_ids)))
-            for channel_id in channel_ids:
-                channel_obj = Channel(self.fhdhr, self.id_system, channel_id=channel_id)
-                channel_id = channel_obj.dict["id"]
-                self.list[channel_id] = channel_obj
+        for channel_id in channel_ids:
+            channel_obj = Channel(self.fhdhr, self.id_system, channel_id=channel_id)
+            channel_id = channel_obj.dict["id"]
+            self.list[channel_id] = channel_obj
 
     def save_db_channels(self):
         channel_ids = [x["id"] for x in self.get_channels()]

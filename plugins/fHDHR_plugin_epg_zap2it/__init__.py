@@ -4,6 +4,10 @@ import urllib.parse
 from fHDHR.tools import xmldictmaker
 from fHDHR.exceptions import EPGSetupError
 
+PLUGIN_NAME = "zap2it"
+PLUGIN_VERSION = "v0.6.0-beta"
+PLUGIN_TYPE = "alt_epg"
+
 
 class zap2itEPG():
 

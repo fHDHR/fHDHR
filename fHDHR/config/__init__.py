@@ -14,8 +14,8 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir, origin, fHDHR_web):
-        self.origin = origin
+    def __init__(self, filename, script_dir, plugins, fHDHR_web):
+        self.plugins = plugins
         self.fHDHR_web = fHDHR_web
 
         self.internal = {}
@@ -31,12 +31,11 @@ class Config():
         data_dir = pathlib.Path(script_dir).joinpath('data')
         fHDHR_web_dir = pathlib.Path(script_dir).joinpath('fHDHR_web')
         www_dir = pathlib.Path(fHDHR_web_dir).joinpath('www_dir')
-        origin_dir = pathlib.Path(script_dir).joinpath('origin')
+        origin_dir = [self.plugins.plugin_dict[x]["PATH"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "origin"][0]
 
         self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
-                                    "alternative_epg": pathlib.Path(script_dir).joinpath('alternative_epg'),
                                     "origin": origin_dir,
                                     "origin_web": pathlib.Path(origin_dir).joinpath('origin_web'),
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
@@ -57,18 +56,25 @@ class Config():
             if str(file_item_path).endswith("_conf.json"):
                 self.read_json_config(file_item_path)
 
-        for dir_type in ["alternative_epg", "origin"]:
+        for dir_type in ["alt_epg", "origin"]:
 
-            for file_item in os.listdir(self.internal["paths"][dir_type]):
-                file_item_path = pathlib.Path(self.internal["paths"][dir_type]).joinpath(file_item)
-                if file_item_path.is_dir():
-                    for sub_file_item in os.listdir(file_item_path):
-                        sub_file_item_path = pathlib.Path(file_item_path).joinpath(sub_file_item)
-                        if str(sub_file_item_path).endswith("_conf.json"):
-                            self.read_json_config(sub_file_item_path)
-                else:
-                    if str(file_item_path).endswith("_conf.json"):
-                        self.read_json_config(file_item_path)
+            if dir_type == "origin":
+                dir_tops = [self.internal["paths"]["origin"]]
+            elif dir_type == "alt_epg":
+                dir_tops = [self.plugins.plugin_dict[x]["PATH"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "alt_epg"]
+
+            for top_dir in dir_tops:
+
+                for file_item in os.listdir(top_dir):
+                    file_item_path = pathlib.Path(top_dir).joinpath(file_item)
+                    if file_item_path.is_dir():
+                        for sub_file_item in os.listdir(file_item_path):
+                            sub_file_item_path = pathlib.Path(file_item_path).joinpath(sub_file_item)
+                            if str(sub_file_item_path).endswith("_conf.json"):
+                                self.read_json_config(sub_file_item_path)
+                    else:
+                        if str(file_item_path).endswith("_conf.json"):
+                            self.read_json_config(file_item_path)
 
         print("Loading Configuration File: %s" % self.config_file)
         self.read_ini_config(self.config_file)
@@ -83,7 +89,8 @@ class Config():
 
         self.internal["versions"]["fHDHR_web"] = self.fHDHR_web.fHDHR_web_VERSION
 
-        self.internal["versions"][self.origin.ORIGIN_NAME] = self.origin.ORIGIN_VERSION
+        for plugin_item in list(self.plugins.plugin_dict.keys()):
+            self.internal["versions"][plugin_item] = self.plugins.plugin_dict[plugin_item]["VERSION"]
 
         self.internal["versions"]["Python"] = sys.version
 
@@ -275,8 +282,8 @@ class Config():
 
         self.dict["origin"] = self.dict.pop(self.dict["main"]["dictpopname"])
 
-        if isinstance(self.dict["epg"]["valid_epg_methods"], str):
-            self.dict["epg"]["valid_epg_methods"] = [self.dict["epg"]["valid_epg_methods"]]
+        self.dict["epg"]["valid_epg_methods"] = [self.plugins.plugin_dict[x]["NAME"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "alt_epg"]
+        self.dict["epg"]["valid_epg_methods"].extend(["origin", "blocks", None])
 
         if self.dict["epg"]["method"] and self.dict["epg"]["method"] not in ["None"]:
             if isinstance(self.dict["epg"]["method"], str):
