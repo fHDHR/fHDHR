@@ -8,21 +8,10 @@ import sys
 import pathlib
 
 from fHDHR.cli import run
-import alternative_epg
-
-try:
-    import fHDHR_web
-except ModuleNotFoundError:
-    print("Error: fHDHR_web Not Found.")
-    sys.exit(1)
-
-try:
-    import origin
-except ModuleNotFoundError:
-    print("Error: Origin Not Found.")
-    sys.exit(1)
+import fHDHR_web
+import plugins
 
 SCRIPT_DIR = pathlib.Path(os.path.dirname(os.path.abspath(__file__)))
 
 if __name__ == '__main__':
-    sys.exit(run.main(SCRIPT_DIR, fHDHR_web, origin, alternative_epg))
+    sys.exit(run.main(SCRIPT_DIR, fHDHR_web, plugins))

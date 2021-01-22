@@ -2,6 +2,10 @@ import datetime
 
 from fHDHR.exceptions import EPGSetupError
 
+PLUGIN_NAME = "tvtv"
+PLUGIN_VERSION = "v0.6.0-beta"
+PLUGIN_TYPE = "alt_epg"
+
 
 class tvtvEPG():
 

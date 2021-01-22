@@ -26,12 +26,12 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, origin, alternative_epg):
+    def __init__(self, settings, logger, db, plugins):
         self.fhdhr = fHDHR_INT_OBJ(settings, logger, db)
 
-        self.originwrapper = OriginServiceWrapper(self.fhdhr, origin)
+        self.originwrapper = OriginServiceWrapper(self.fhdhr, plugins.origin)
 
-        self.device = fHDHR_Device(self.fhdhr, self.originwrapper, alternative_epg)
+        self.device = fHDHR_Device(self.fhdhr, self.originwrapper, plugins)
 
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''

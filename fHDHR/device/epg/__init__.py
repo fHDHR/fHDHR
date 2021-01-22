@@ -1,4 +1,3 @@
-import os
 import time
 import datetime
 import threading
@@ -10,12 +9,12 @@ from .blocks import blocksEPG
 
 class EPG():
 
-    def __init__(self, fhdhr, channels, originwrapper, alternative_epg):
+    def __init__(self, fhdhr, channels, originwrapper, plugins):
         self.fhdhr = fhdhr
 
         self.origin = originwrapper
         self.channels = channels
-        self.alternative_epg = alternative_epg
+        self.plugins = plugins
 
         self.epgdict = {}
 
@@ -154,18 +153,9 @@ class EPG():
         return next(item for item in event_list if item["id"] == event_id) or None
 
     def epg_method_selfadd(self):
-        self.fhdhr.logger.info("Checking for Alternative EPG methods.")
-        new_epgtype_list = []
-        for entry in os.scandir(self.fhdhr.config.internal["paths"]["alternative_epg"]):
-            if entry.is_file():
-                if entry.name[0] != '_' and entry.name.endswith(".py"):
-                    new_epgtype_list.append(str(entry.name[:-3]))
-            elif entry.is_dir():
-                if entry.name[0] != '_':
-                    new_epgtype_list.append(str(entry.name))
+        new_epgtype_list = [self.plugins.plugin_dict[x]["NAME"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "alt_epg"]
         for method in new_epgtype_list:
-            self.fhdhr.logger.info("Found %s EPG method." % method)
-            self.epg_handling[method] = eval("self.alternative_epg.%s.%sEPG(self.fhdhr, self.channels)" % (method, method))
+            self.epg_handling[method] = eval("self.plugins.%sEPG(self.fhdhr, self.channels)" % method)
 
     def update(self, method=None):
 
