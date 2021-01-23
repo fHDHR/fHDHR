@@ -14,7 +14,7 @@
           <th>Actions</th>
         </tr>
 
-        {% for epg_method in fhdhr.config.dict["epg"]["valid_epg_methods"] %}
+        {% for epg_method in fhdhr.config.dict["epg"]["valid_methods"] %}
           {% if epg_method not in [None, "None"] %}
             {% set epg_method_name = epg_method %}
             {% if epg_method == "origin" %}

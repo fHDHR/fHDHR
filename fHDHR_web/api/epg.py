@@ -23,7 +23,7 @@ class EPG():
         method = request.args.get('method', default="get", type=str)
 
         source = request.args.get('source', default=self.fhdhr.config.dict["epg"]["def_method"], type=str)
-        if source not in self.fhdhr.config.dict["epg"]["valid_epg_methods"]:
+        if source not in self.fhdhr.config.dict["epg"]["valid_methods"]:
             return "%s Invalid xmltv method" % source
 
         redirect_url = request.args.get('redirect', default=None, type=str)

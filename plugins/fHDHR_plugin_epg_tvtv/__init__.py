@@ -7,6 +7,11 @@ PLUGIN_VERSION = "v0.6.0-beta"
 PLUGIN_TYPE = "alt_epg"
 
 
+class TVTV_Setup():
+    def __init__(self, config):
+        pass
+
+
 class tvtvEPG():
 
     def __init__(self, fhdhr, channels):

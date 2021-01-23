@@ -24,7 +24,7 @@ for entry in os.scandir(plugins_top_dir):
 
         if curr_dict["TYPE"] == "origin":
             curr_dict["PATH"] = pathlib.Path(os.path.dirname(os.path.abspath(__file__))).joinpath(entry.name).joinpath('origin')
-        elif curr_dict["TYPE"] == "alt_epg":
+        elif curr_dict["TYPE"] in ["alt_epg", "alt_stream"]:
             curr_dict["PATH"] = pathlib.Path(os.path.dirname(os.path.abspath(__file__))).joinpath(entry.name)
 
         plugin_import_print_string = "Found %s type plugin: %s %s. " % (curr_dict["TYPE"], curr_dict["NAME"], curr_dict["VERSION"])
@@ -32,7 +32,7 @@ for entry in os.scandir(plugins_top_dir):
             plugin_import_print_string += " ImportWarning: Missing PLUGIN_* Value."
             plugin_use = False
 
-        elif curr_dict["TYPE"] not in ["origin", "alt_epg"]:
+        elif curr_dict["TYPE"] not in ["origin", "alt_epg", "alt_stream"]:
             plugin_use = False
             plugin_import_print_string += " ImportWarning: Invalid PLUGIN_TYPE."
 
@@ -53,8 +53,16 @@ for entry in os.scandir(plugins_top_dir):
             if curr_dict["TYPE"] == "origin":
                 imp_string = "from .%s import origin" % entry.name
                 exec(imp_string)
-            if curr_dict["TYPE"] == "alt_epg":
-                imp_string = "from .%s import %sEPG" % (entry.name, curr_dict["NAME"])
+                imp_string = "from .%s import %s_Setup" % (entry.name, curr_dict["NAME"].upper())
+                try:
+                    exec(imp_string)
+                except ImportError:
+                    pass
+            elif curr_dict["TYPE"] == "alt_epg":
+                imp_string = "from .%s import *" % entry.name
+                exec(imp_string)
+            elif curr_dict["TYPE"] == "alt_stream":
+                imp_string = "from .%s import *" % entry.name
                 exec(imp_string)
 
 if not len([x for x in list(plugin_dict.keys()) if plugin_dict[x]["TYPE"] == "origin"]):

@@ -7,9 +7,10 @@ from .tuner import Tuner
 
 class Tuners():
 
-    def __init__(self, fhdhr, epg, channels):
+    def __init__(self, fhdhr, epg, channels, plugins):
         self.fhdhr = fhdhr
         self.channels = channels
+        self.plugins = plugins
 
         self.epg = epg
         self.max_tuners = int(self.fhdhr.config.dict["fhdhr"]["tuner_count"])
@@ -19,7 +20,7 @@ class Tuners():
         self.fhdhr.logger.info("Creating %s tuners." % str(self.max_tuners))
 
         for i in range(0, self.max_tuners):
-            self.tuners[str(i)] = Tuner(fhdhr, i, epg)
+            self.tuners[str(i)] = Tuner(fhdhr, i, epg, plugins)
 
     def get_available_tuner(self):
         return next(tunernum for tunernum in list(self.tuners.keys()) if not self.tuners[tunernum].tuner_lock.locked()) or None

@@ -24,11 +24,6 @@
                           "value": "fHDHR",
                           "config_file": false,
                           "config_web": false
-                        },
-          "required":{
-                          "value": "none",
-                          "config_file": false,
-                          "config_web": false
                         }
   }
 }
