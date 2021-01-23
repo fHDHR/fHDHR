@@ -31,7 +31,7 @@ class Tuners():
 
         redirect_url = request.args.get('redirect', default=None, type=str)
 
-        if method in ["direct", "ffmpeg", "vlc"]:
+        if method in self.fhdhr.config.dict["streaming"]["valid_methods"]:
 
             channel_number = request.args.get('channel', None, type=str)
             if not channel_number:

@@ -3,6 +3,30 @@ import subprocess
 
 # from fHDHR.exceptions import TunerError
 
+PLUGIN_NAME = "vlc"
+PLUGIN_VERSION = "v0.6.0-beta"
+PLUGIN_TYPE = "alt_stream"
+
+
+class VLC_Setup():
+    def __init__(self, config):
+        try:
+            vlc_command = [config.dict["vlc"]["path"],
+                           "--version",
+                           "pipe:stdout"
+                           ]
+
+            vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
+            vlc_version = vlc_proc.stdout.read()
+            vlc_proc.terminate()
+            vlc_proc.communicate()
+            vlc_proc.kill()
+            vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
+        except FileNotFoundError:
+            vlc_version = "Missing"
+            print("Failed to find vlc.")
+        config.register_version("vlc", vlc_version)
+
 
 class VLC_Stream():
 

@@ -3,6 +3,30 @@ import subprocess
 
 # from fHDHR.exceptions import TunerError
 
+PLUGIN_NAME = "ffmpeg"
+PLUGIN_VERSION = "v0.6.0-beta"
+PLUGIN_TYPE = "alt_stream"
+
+
+class FFMPEG_Setup():
+    def __init__(self, config):
+        try:
+            ffmpeg_command = [config.dict["ffmpeg"]["path"],
+                              "-version",
+                              "pipe:stdout"
+                              ]
+
+            ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+            ffmpeg_version = ffmpeg_proc.stdout.read()
+            ffmpeg_proc.terminate()
+            ffmpeg_proc.communicate()
+            ffmpeg_proc.kill()
+            ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
+        except FileNotFoundError:
+            ffmpeg_version = "Missing"
+            print("Failed to find ffmpeg.")
+        config.register_version("ffmpeg", ffmpeg_version)
+
 
 class FFMPEG_Stream():
 

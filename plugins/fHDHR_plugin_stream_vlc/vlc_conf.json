@@ -1,0 +1,9 @@
+{
+  "vlc":{
+          "path":{
+                    "value": "cvlc",
+                    "config_file": true,
+                    "config_web": true
+                }
+  }
+}

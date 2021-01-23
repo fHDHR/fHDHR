@@ -8,8 +8,9 @@ from .stream import Stream
 
 
 class Tuner():
-    def __init__(self, fhdhr, inum, epg):
+    def __init__(self, fhdhr, inum, epg, plugins):
         self.fhdhr = fhdhr
+        self.plugins = plugins
 
         self.number = inum
         self.epg = epg
@@ -76,7 +77,7 @@ class Tuner():
         self.status = {"status": "Inactive"}
 
     def get_stream(self, stream_args, tuner):
-        stream = Stream(self.fhdhr, stream_args, tuner)
+        stream = Stream(self.fhdhr, stream_args, tuner, self.plugins)
         return stream.get()
 
     def set_status(self, stream_args):

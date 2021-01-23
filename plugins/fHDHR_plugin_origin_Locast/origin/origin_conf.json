@@ -14,11 +14,6 @@
                           "value": "fHDHR_Locast",
                           "config_file": false,
                           "config_web": false
-                        },
-          "required":{
-                          "value": "locast/username,locast/password",
-                          "config_file": false,
-                          "config_web": false
                         }
   },
   "fhdhr":{
@@ -54,13 +49,15 @@
           "username":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "required": true
                 },
           "password":{
                     "value": "none",
                     "config_file": true,
                     "config_web": true,
-                    "config_web_hidden": true
+                    "config_web_hidden": true,
+                    "required": true
                 },
           "override_zipcode":{
                     "value": "none",
