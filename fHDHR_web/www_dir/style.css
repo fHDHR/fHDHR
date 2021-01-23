@@ -136,13 +136,13 @@ td {border: 1px solid black;}
 
 /* Other options */
 
-.table-scroll.text-edit-cols td:nth-child(-n+4),
-.table-scroll.text-edit-cols th:nth-child(-n+4){
+.table-scroll.text-edit-cols td:nth-of-type(-n+4),
+.table-scroll.text-edit-cols th:nth-of-type(-n+4){
   flex: 2
 }
 
-.table-settings.text-edit-cols td:nth-child(-n+2),
-.table-settings.text-edit-cols th:nth-child(-n+2){
+.table-settings.text-edit-cols td:nth-of-type(-n+2),
+.table-settings.text-edit-cols th:nth-of-type(-n+2){
   flex: 1;
 }
 
