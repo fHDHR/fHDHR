@@ -159,7 +159,6 @@ The `locast` section
 * requires `username` and `password`. The script will not run without these.
 * `override_zipcode` is useful for if your DMA is not being picked up correctly.
 * `override_latitude` and `override_longitude` are helpful for "mocking" your location.
-* `force_best` will force select the best stream available.
 
 
 ````
@@ -168,7 +167,6 @@ The `locast` section
 # password =
 # override_zipcode = None
 # mock_location = None
-# force_best = False
 ````
 
 ## zap2it

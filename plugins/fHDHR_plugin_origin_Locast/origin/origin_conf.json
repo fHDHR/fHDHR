@@ -38,12 +38,7 @@
                     "value": "origin",
                     "config_file": true,
                     "config_web": true
-                },
-          "valid_epg_methods":{
-                          "value": "None,blocks,origin,zap2it,tvtv",
-                          "config_file": false,
-                          "config_web": false
-                        }
+                }
   },
   "locast":{
           "username":{
@@ -71,11 +66,6 @@
                 },
           "override_longitude":{
                     "value": "none",
-                    "config_file": true,
-                    "config_web": true
-                },
-          "force_best":{
-                    "value": false,
                     "config_file": true,
                     "config_web": true
                 }
