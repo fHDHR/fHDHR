@@ -5,7 +5,7 @@ from fHDHR.tools import channel_sort
 
 
 class Lineup_JSON():
-    endpoints = ["/hdhr/lineup.json"]
+    endpoints = ["/lineup.json", "/hdhr/lineup.json"]
     endpoint_name = "hdhr_lineup_json"
 
     def __init__(self, fhdhr):
@@ -42,7 +42,7 @@ class Lineup_JSON():
                              'GuideNumber': channel_obj.number,
                              'GuideName': channel_obj.dict['name'],
                              'Tags': ",".join(channel_obj.dict['tags']),
-                             'URL': '/hdhr/auto/v' % channel_obj.number,
+                             'URL': '/hdhr/auto/v%s' % channel_obj.number,
                              'HD': channel_obj.dict["HD"],
                              "Favorite": channel_obj.dict["favorite"],
                             }
