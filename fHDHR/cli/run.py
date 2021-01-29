@@ -7,6 +7,8 @@ from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
 import fHDHR.config
 import fHDHR.logger
+import fHDHR.plugins
+import fHDHR.origins
 from fHDHR.db import fHDHRdb
 
 ERR_CODE = 1
@@ -25,10 +27,10 @@ def build_args_parser():
     return parser.parse_args()
 
 
-def get_configuration(args, script_dir, plugins, fHDHR_web):
+def get_configuration(args, script_dir, fHDHR_web):
     if not os.path.isfile(args.cfg):
         raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
-    return fHDHR.config.Config(args.cfg, script_dir, plugins, fHDHR_web)
+    return fHDHR.config.Config(args.cfg, script_dir, fHDHR_web)
 
 
 def run(settings, logger, db, script_dir, fHDHR_web, plugins):
@@ -64,23 +66,41 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins):
     return ERR_CODE
 
 
-def start(args, script_dir, fHDHR_web, plugins):
+def start(args, script_dir, fHDHR_web):
     """Get Configuration for fHDHR and start"""
 
     try:
-        settings = get_configuration(args, script_dir, plugins, fHDHR_web)
+        settings = get_configuration(args, script_dir, fHDHR_web)
     except fHDHR.exceptions.ConfigurationError as e:
         print(e)
         return ERR_CODE_NO_RESTART
 
+    # Find Plugins and import their default configs
+    plugins = fHDHR.plugins.PluginsHandler(settings)
+
+    # Apply User Configuration
+    settings.user_config()
+    settings.config_verification()
+
+    # Setup Logging
     logger = fHDHR.logger.Logger(settings)
 
+    # Setup Database
     db = fHDHRdb(settings)
+
+    # Setup Plugins
+    plugins.load_plugins(logger, db)
+    plugins.setup()
+    settings.config_verification_plugins()
+
+    if not len([x for x in list(plugins.plugins.keys()) if plugins.plugins[x].type == "origin"]):
+        print("No Origin Plugins found.")
+        return ERR_CODE
 
     return run(settings, logger, db, script_dir, fHDHR_web, plugins)
 
 
-def main(script_dir, fHDHR_web, plugins):
+def main(script_dir, fHDHR_web):
     """fHDHR run script entry point"""
 
     print("Loading fHDHR %s" % fHDHR_VERSION)
@@ -89,7 +109,7 @@ def main(script_dir, fHDHR_web, plugins):
     try:
         args = build_args_parser()
         while True:
-            returned_code = start(args, script_dir, fHDHR_web, plugins)
+            returned_code = start(args, script_dir, fHDHR_web)
             if returned_code not in ["restart"]:
                 return returned_code
     except KeyboardInterrupt:

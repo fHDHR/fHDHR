@@ -14,11 +14,8 @@
 
   {% for config_section in list(web_settings_dict.keys()) %}
 
-    {% if config_section == "origin" %}
-      <h4 style="text-align: center;">{{ fhdhr.config.dict["main"]["dictpopname"] }}</h4>
-    {% else %}
-      <h4 style="text-align: center;">{{ config_section }}</h4>
-    {% endif %}
+    <h4 style="text-align: center;">{{ config_section }}</h4>
+
 
     <div class="container">
       <table class="table-settings center action-col text-edit-cols">

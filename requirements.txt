@@ -5,3 +5,4 @@ image
 m3u8
 sqlalchemy
 pycryptodome
+simplejson

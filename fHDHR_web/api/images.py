@@ -31,7 +31,7 @@ class Images():
 
         elif method == "get":
             source = request.args.get('source', default=self.fhdhr.config.dict["epg"]["method"], type=str)
-            if source in self.fhdhr.config.dict["epg"]["valid_methods"]:
+            if source in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()):
                 image_type = request.args.get('type', default="content", type=str)
                 if image_type in ["content", "channel"]:
                     image_id = request.args.get('id', default=None, type=str)

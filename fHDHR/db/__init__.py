@@ -32,28 +32,10 @@ MYSQL_TABLE_ARGS = {'mysql_engine': 'InnoDB',
                     'mysql_collate': 'utf8mb4_unicode_ci'}
 
 
-class ChannelValues(BASE):
-    __tablename__ = 'channel_values'
+class PluginValues(BASE):
+    __tablename__ = 'plugin_values'
     __table_args__ = MYSQL_TABLE_ARGS
-    channel = Column(String(255), primary_key=True)
-    namespace = Column(String(255), primary_key=True)
-    key = Column(String(255), primary_key=True)
-    value = Column(Text())
-
-
-class ProgramValues(BASE):
-    __tablename__ = 'program_values'
-    __table_args__ = MYSQL_TABLE_ARGS
-    program = Column(String(255), primary_key=True)
-    namespace = Column(String(255), primary_key=True)
-    key = Column(String(255), primary_key=True)
-    value = Column(Text())
-
-
-class CacheValues(BASE):
-    __tablename__ = 'cache_values'
-    __table_args__ = MYSQL_TABLE_ARGS
-    cacheitem = Column(String(255), primary_key=True)
+    pluginitem = Column(String(255), primary_key=True)
     namespace = Column(String(255), primary_key=True)
     key = Column(String(255), primary_key=True)
     value = Column(Text())
@@ -148,198 +130,6 @@ class fHDHRdb(object):
     def get_uri(self):
         return self.url
 
-    # Channel Values
-
-    def set_channel_value(self, channel, key, value, namespace='default'):
-        channel = channel.lower()
-        value = json.dumps(value, ensure_ascii=False)
-        session = self.ssession()
-        try:
-            result = session.query(ChannelValues) \
-                .filter(ChannelValues.channel == channel)\
-                .filter(ChannelValues.namespace == namespace)\
-                .filter(ChannelValues.key == key) \
-                .one_or_none()
-            # ChannelValues exists, update
-            if result:
-                result.value = value
-                session.commit()
-            # DNE - Insert
-            else:
-                new_channelvalue = ChannelValues(channel=channel, namespace=namespace, key=key, value=value)
-                session.add(new_channelvalue)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def get_channel_value(self, channel, key, namespace='default'):
-        channel = channel.lower()
-        session = self.ssession()
-        try:
-            result = session.query(ChannelValues) \
-                .filter(ChannelValues.channel == channel)\
-                .filter(ChannelValues.namespace == namespace)\
-                .filter(ChannelValues.key == key) \
-                .one_or_none()
-            if result is not None:
-                result = result.value
-            return _deserialize(result)
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def delete_channel_value(self, channel, key, namespace='default'):
-        channel = channel.lower()
-        session = self.ssession()
-        try:
-            result = session.query(ChannelValues) \
-                .filter(ChannelValues.channel == channel)\
-                .filter(ChannelValues.namespace == namespace)\
-                .filter(ChannelValues.key == key) \
-                .one_or_none()
-            # ChannelValues exists, delete
-            if result:
-                session.delete(result)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    # Program Values
-
-    def set_program_value(self, program, key, value, namespace='default'):
-        program = program.lower()
-        value = json.dumps(value, ensure_ascii=False)
-        session = self.ssession()
-        try:
-            result = session.query(ProgramValues) \
-                .filter(ProgramValues.program == program)\
-                .filter(ProgramValues.namespace == namespace)\
-                .filter(ProgramValues.key == key) \
-                .one_or_none()
-            # ProgramValue exists, update
-            if result:
-                result.value = value
-                session.commit()
-            # DNE - Insert
-            else:
-                new_programvalue = ProgramValues(program=program, namespace=namespace, key=key, value=value)
-                session.add(new_programvalue)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def get_program_value(self, program, key, namespace='default'):
-        program = program.lower()
-        session = self.ssession()
-        try:
-            result = session.query(ProgramValues) \
-                .filter(ProgramValues.program == program)\
-                .filter(ProgramValues.namespace == namespace)\
-                .filter(ProgramValues.key == key) \
-                .one_or_none()
-            if result is not None:
-                result = result.value
-            return _deserialize(result)
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def delete_program_value(self, program, key, namespace='default'):
-        program = program.lower()
-        session = self.ssession()
-        try:
-            result = session.query(ProgramValues) \
-                .filter(ProgramValues.program == program)\
-                .filter(ProgramValues.namespace == namespace)\
-                .filter(ProgramValues.key == key) \
-                .one_or_none()
-            # ProgramValue exists, delete
-            if result:
-                session.delete(result)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    # Cache Values
-
-    def set_cacheitem_value(self, cacheitem, key, value, namespace='default'):
-        cacheitem = cacheitem.lower()
-        value = json.dumps(value, ensure_ascii=False)
-        session = self.ssession()
-        try:
-            result = session.query(CacheValues) \
-                .filter(CacheValues.cacheitem == cacheitem)\
-                .filter(CacheValues.namespace == namespace)\
-                .filter(CacheValues.key == key) \
-                .one_or_none()
-            # ProgramValue exists, update
-            if result:
-                result.value = value
-                session.commit()
-            # DNE - Insert
-            else:
-                new_cacheitemvalue = CacheValues(cacheitem=cacheitem, namespace=namespace, key=key, value=value)
-                session.add(new_cacheitemvalue)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def get_cacheitem_value(self, cacheitem, key, namespace='default'):
-        cacheitem = cacheitem.lower()
-        session = self.ssession()
-        try:
-            result = session.query(CacheValues) \
-                .filter(CacheValues.cacheitem == cacheitem)\
-                .filter(CacheValues.namespace == namespace)\
-                .filter(CacheValues.key == key) \
-                .one_or_none()
-            if result is not None:
-                result = result.value
-            return _deserialize(result)
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
-    def delete_cacheitem_value(self, cacheitem, key, namespace='default'):
-        cacheitem = cacheitem.lower()
-        session = self.ssession()
-        try:
-            result = session.query(CacheValues) \
-                .filter(CacheValues.cacheitem == cacheitem)\
-                .filter(CacheValues.namespace == namespace)\
-                .filter(CacheValues.key == key) \
-                .one_or_none()
-            # ProgramValue exists, delete
-            if result:
-                session.delete(result)
-                session.commit()
-        except SQLAlchemyError:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-
     # fHDHR Values
 
     def set_fhdhr_value(self, item, key, value, namespace='default'):
@@ -358,8 +148,8 @@ class fHDHRdb(object):
                 session.commit()
             # DNE - Insert
             else:
-                new_cacheitemvalue = fHDHRValues(item=item, namespace=namespace, key=key, value=value)
-                session.add(new_cacheitemvalue)
+                new_pluginitemvalue = fHDHRValues(item=item, namespace=namespace, key=key, value=value)
+                session.add(new_pluginitemvalue)
                 session.commit()
         except SQLAlchemyError:
             session.rollback()
@@ -393,6 +183,70 @@ class fHDHRdb(object):
                 .filter(fHDHRValues.item == item)\
                 .filter(fHDHRValues.namespace == namespace)\
                 .filter(fHDHRValues.key == key) \
+                .one_or_none()
+            # ProgramValue exists, delete
+            if result:
+                session.delete(result)
+                session.commit()
+        except SQLAlchemyError:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    # Plugin Values
+
+    def set_plugin_value(self, pluginitem, key, value, namespace='default'):
+        pluginitem = pluginitem.lower()
+        value = json.dumps(value, ensure_ascii=False)
+        session = self.ssession()
+        try:
+            result = session.query(PluginValues) \
+                .filter(PluginValues.pluginitem == pluginitem)\
+                .filter(PluginValues.namespace == namespace)\
+                .filter(PluginValues.key == key) \
+                .one_or_none()
+            # ProgramValue exists, update
+            if result:
+                result.value = value
+                session.commit()
+            # DNE - Insert
+            else:
+                new_pluginitemvalue = PluginValues(pluginitem=pluginitem, namespace=namespace, key=key, value=value)
+                session.add(new_pluginitemvalue)
+                session.commit()
+        except SQLAlchemyError:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def get_plugin_value(self, pluginitem, key, namespace='default'):
+        pluginitem = pluginitem.lower()
+        session = self.ssession()
+        try:
+            result = session.query(PluginValues) \
+                .filter(PluginValues.pluginitem == pluginitem)\
+                .filter(PluginValues.namespace == namespace)\
+                .filter(PluginValues.key == key) \
+                .one_or_none()
+            if result is not None:
+                result = result.value
+            return _deserialize(result)
+        except SQLAlchemyError:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def delete_plugin_value(self, pluginitem, key, namespace='default'):
+        pluginitem = pluginitem.lower()
+        session = self.ssession()
+        try:
+            result = session.query(PluginValues) \
+                .filter(PluginValues.pluginitem == pluginitem)\
+                .filter(PluginValues.namespace == namespace)\
+                .filter(PluginValues.key == key) \
                 .one_or_none()
             # ProgramValue exists, delete
             if result:

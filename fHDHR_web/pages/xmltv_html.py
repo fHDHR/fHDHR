@@ -5,6 +5,7 @@ class xmlTV_HTML():
     endpoints = ["/xmltv", "/xmltv.html"]
     endpoint_name = "page_xmltv_html"
     endpoint_access_level = 1
+    endpoint_category = "tool_pages"
     pretty_name = "xmltv"
 
     def __init__(self, fhdhr):
@@ -15,4 +16,4 @@ class xmlTV_HTML():
 
     def get(self, *args):
 
-        return render_template('xmltv.html', session=session, request=request, fhdhr=self.fhdhr)
+        return render_template('xmltv.html', request=request, session=session, fhdhr=self.fhdhr, list=list)

@@ -10,8 +10,9 @@
       <tbody>
         {% for key in list(version_dict.keys()) %}
           <tr>
+            <td>{{ version_dict[key]["type"] }}</td>
             <td>{{ key }}</td>
-            <td>{{ version_dict[key] }}</td>
+            <td>{{ version_dict[key]["version"] }}</td>
           </tr>
         {% endfor %}
       </tbody>

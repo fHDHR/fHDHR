@@ -14,16 +14,12 @@
           <th>Actions</th>
         </tr>
 
-        {% for epg_method in fhdhr.config.dict["epg"]["valid_methods"] %}
+        {% for epg_method in list(fhdhr.config.dict["epg"]["valid_methods"].keys()) %}
           {% if epg_method not in [None, "None"] %}
-            {% set epg_method_name = epg_method %}
-            {% if epg_method == "origin" %}
-              {% set epg_method_name = fhdhr.config.dict["main"]["dictpopname"] %}
-            {% endif %}
             <tr>
-              <td> {{ epg_method_name }}</td>
-              <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
-              <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method_name }}</a></td>
+              <td> {{ epg_method }}</td>
+              <td><a href="/api/xmltv?method=get&source={{ epg_method }}">{{ epg_method }}</a></td>
+              <td><a href="/api/epg?method=get&source={{ epg_method }}">{{ epg_method }}</a></td>
               <td>
                 <button onclick="location.href='/api/xmltv?method=update&source={{ epg_method }}&redirect=/xmltv'" type="button">Update</button>
                 <button onclick="location.href='/api/xmltv?method=clearcache&source={{ epg_method }}&redirect=/xmltv'" type="button">Clear Cache</button>

@@ -14,12 +14,7 @@
                 "value": "fHDHR",
                 "config_file": false,
                 "config_web": false
-                },
-          "dictpopname":{
-                      "value": "fHDHR",
-                      "config_file": false,
-                      "config_web": false
-                    },
+              },
           "reponame":{
                           "value": "fHDHR",
                           "config_file": false,

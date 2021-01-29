@@ -15,26 +15,6 @@
                   "config_file": true,
                   "config_web": true
                 },
-          "reporting_manufacturer":{
-                                    "value": "BoronDust",
-                                    "config_file": true,
-                                    "config_web": true
-                                  },
-          "reporting_model":{
-                              "value": "fHDHR",
-                              "config_file": true,
-                              "config_web": true
-                            },
-          "reporting_firmware_ver":{
-                                    "value": "20201001",
-                                    "config_file": true,
-                                    "config_web": true
-                                  },
-          "reporting_tuner_type":{
-                                  "value": "Antenna",
-                                  "config_file": true,
-                                  "config_web": true
-                                },
           "device_auth":{
                         "value": "fHDHR",
                         "config_file": true,
@@ -54,16 +34,6 @@
                     "value": "fHDHR",
                     "config_file": true,
                     "config_web": true
-                },
-          "tuner_count":{
-                  "value": 4,
-                  "config_file": true,
-                  "config_web": true
-                },
-          "reporting_firmware_name":{
-                                    "value": "fHDHR",
-                                    "config_file": true,
-                                    "config_web": true
-                                  }
+                }
   }
 }

@@ -2,30 +2,21 @@ import datetime
 
 from fHDHR.exceptions import EPGSetupError
 
-PLUGIN_NAME = "tvtv"
-PLUGIN_VERSION = "v0.6.0-beta"
-PLUGIN_TYPE = "alt_epg"
 
+class Plugin_OBJ():
 
-class TVTV_Setup():
-    def __init__(self, config):
-        pass
-
-
-class tvtvEPG():
-
-    def __init__(self, fhdhr, channels):
-        self.fhdhr = fhdhr
+    def __init__(self, channels, plugin_utils):
+        self.plugin_utils = plugin_utils
 
         self.channels = channels
 
     @property
     def postalcode(self):
-        if self.fhdhr.config.dict["tvtv"]["postalcode"]:
-            return self.fhdhr.config.dict["tvtv"]["postalcode"]
+        if self.plugin_utils.config.dict["tvtv"]["postalcode"]:
+            return self.plugin_utils.config.dict["tvtv"]["postalcode"]
         try:
             postalcode_url = 'http://ipinfo.io/json'
-            postalcode_req = self.fhdhr.web.session.get(postalcode_url)
+            postalcode_req = self.plugin_utils.web.session.get(postalcode_url)
             data = postalcode_req.json()
             postalcode = data["postal"]
         except Exception as e:
@@ -36,9 +27,9 @@ class tvtvEPG():
     @property
     def lineup_id(self):
         lineup_id_url = "https://www.tvtv.us/tvm/t/tv/v4/lineups?postalCode=%s" % self.postalcode
-        if self.fhdhr.config.dict["tvtv"]["lineuptype"]:
-            lineup_id_url += "&lineupType=%s" % self.fhdhr.config.dict["tvtv"]["lineuptype"]
-        lineup_id_req = self.fhdhr.web.session.get(lineup_id_url)
+        if self.plugin_utils.config.dict["tvtv"]["lineuptype"]:
+            lineup_id_url += "&lineupType=%s" % self.plugin_utils.config.dict["tvtv"]["lineuptype"]
+        lineup_id_req = self.plugin_utils.web.session.get(lineup_id_url)
         data = lineup_id_req.json()
         lineup_id = data[0]["lineupID"]
         return lineup_id
@@ -122,43 +113,43 @@ class tvtvEPG():
             stoptime = "%s%s" % (datesdict["stop"], "T00%3A00%3A00.000Z")
             url = "https://www.tvtv.us/tvm/t/tv/v4/lineups/%s/listings/grid?start=%s&end=%s" % (self.lineup_id, starttime, stoptime)
             self.get_cached_item(str(datesdict["start"]), url)
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
-        return [self.fhdhr.db.get_cacheitem_value(x, "epg_cache", "tvtv") for x in cache_list]
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "tvtv") or []
+        return [self.plugin_utils.db.get_plugin_value(x, "epg_cache", "tvtv") for x in cache_list]
 
     def get_cached_item(self, cache_key, url):
-        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "epg_cache", "tvtv")
+        cacheitem = self.plugin_utils.db.get_plugin_value(cache_key, "epg_cache", "tvtv")
         if cacheitem:
-            self.fhdhr.logger.info("FROM CACHE:  %s" % cache_key)
+            self.plugin_utils.logger.info("FROM CACHE:  %s" % cache_key)
             return cacheitem
         else:
-            self.fhdhr.logger.info("Fetching:  %s" % url)
+            self.plugin_utils.logger.info("Fetching:  %s" % url)
             try:
-                resp = self.fhdhr.web.session.get(url)
-            except self.fhdhr.web.exceptions.HTTPError:
-                self.fhdhr.logger.info('Got an error!  Ignoring it.')
+                resp = self.plugin_utils.web.session.get(url)
+            except self.plugin_utils.web.exceptions.HTTPError:
+                self.plugin_utils.logger.info('Got an error!  Ignoring it.')
                 return
             result = resp.json()
 
-            self.fhdhr.db.set_cacheitem_value(cache_key, "epg_cache", result, "tvtv")
-            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
+            self.plugin_utils.db.set_plugin_value(cache_key, "epg_cache", result, "tvtv")
+            cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "tvtv") or []
             cache_list.append(cache_key)
-            self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", cache_list, "tvtv")
+            self.plugin_utils.db.set_plugin_value("cache_list", "epg_cache", cache_list, "tvtv")
 
     def remove_stale_cache(self, todaydate):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "tvtv") or []
         cache_to_kill = []
         for cacheitem in cache_list:
             cachedate = datetime.datetime.strptime(str(cacheitem), "%Y-%m-%d")
             todaysdate = datetime.datetime.strptime(str(todaydate), "%Y-%m-%d")
             if cachedate < todaysdate:
                 cache_to_kill.append(cacheitem)
-                self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "tvtv")
-                self.fhdhr.logger.info("Removing stale cache:  %s" % cacheitem)
-        self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "tvtv")
+                self.plugin_utils.db.delete_plugin_value(cacheitem, "epg_cache", "tvtv")
+                self.plugin_utils.logger.info("Removing stale cache:  %s" % cacheitem)
+        self.plugin_utils.db.set_plugin_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "tvtv")
 
     def clear_cache(self):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "tvtv") or []
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "tvtv") or []
         for cacheitem in cache_list:
-            self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "tvtv")
-            self.fhdhr.logger.info("Removing cache:  %s" % str(cacheitem))
-        self.fhdhr.db.delete_cacheitem_value("cache_list", "epg_cache", "tvtv")
+            self.plugin_utils.db.delete_plugin_value(cacheitem, "epg_cache", "tvtv")
+            self.plugin_utils.logger.info("Removing cache:  %s" % str(cacheitem))
+        self.plugin_utils.db.delete_plugin_value("cache_list", "epg_cache", "tvtv")

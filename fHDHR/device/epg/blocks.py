@@ -3,18 +3,19 @@ import datetime
 
 class blocksEPG():
 
-    def __init__(self, fhdhr, channels):
+    def __init__(self, fhdhr, channels, origins, origin):
         self.fhdhr = fhdhr
-
         self.channels = channels
+        self.origins = origins
+        self.origin = origin
 
     def update_epg(self):
         programguide = {}
 
         timestamps = self.timestamps
 
-        for fhdhr_id in [x["id"] for x in self.channels.get_channels()]:
-            chan_obj = self.channels.list[fhdhr_id]
+        for fhdhr_id in [x["id"] for x in self.channels.get_channels(self.origin)]:
+            chan_obj = self.channels.get_channel_obj("id", fhdhr_id, self.origin)
 
             if str(chan_obj.number) not in list(programguide.keys()):
                 programguide[str(chan_obj.number)] = chan_obj.epgdict

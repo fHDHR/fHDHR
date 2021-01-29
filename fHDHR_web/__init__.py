@@ -6,8 +6,6 @@ import uuid
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
 from .brython import fHDHR_Brython
-from .hdhr import fHDHR_HDHR
-from .rmg import fHDHR_RMG
 from .api import fHDHR_API
 
 
@@ -36,39 +34,32 @@ class fHDHR_HTTP_Server():
 
         self.route_list = {}
 
-        self.fhdhr.logger.info("Loading HTTP Pages Endpoints.")
-        self.pages = fHDHR_Pages(fhdhr)
-        self.add_endpoints(self.pages, "pages")
+        self.endpoints_obj = {}
+        self.endpoints_obj["pages"] = fHDHR_Pages(fhdhr)
+        self.endpoints_obj["files"] = fHDHR_Files(fhdhr)
+        self.endpoints_obj["brython"] = fHDHR_Brython(fhdhr)
+        self.endpoints_obj["api"] = fHDHR_API(fhdhr)
 
-        self.fhdhr.logger.info("Loading HTTP Files Endpoints.")
-        self.files = fHDHR_Files(fhdhr)
-        self.add_endpoints(self.files, "files")
-
-        self.fhdhr.logger.info("Loading HTTP Brython Endpoints.")
-        self.brython = fHDHR_Brython(fhdhr)
-        self.add_endpoints(self.brython, "brython")
-
-        self.fhdhr.logger.info("Loading HTTP HDHR Endpoints.")
-        self.hdhr = fHDHR_HDHR(fhdhr)
-        self.add_endpoints(self.hdhr, "hdhr")
-
-        self.fhdhr.logger.info("Loading HTTP RMG Endpoints.")
-        self.rmg = fHDHR_RMG(fhdhr)
-        self.add_endpoints(self.rmg, "rmg")
-
-        self.fhdhr.logger.info("Loading HTTP API Endpoints.")
-        self.api = fHDHR_API(fhdhr)
-        self.add_endpoints(self.api, "api")
-
-        self.fhdhr.logger.info("Loading HTTP Origin Endpoints.")
-        self.origin_endpoints = self.fhdhr.originwrapper.origin.origin_web.fHDHR_Origin_Web(fhdhr)
-        self.add_endpoints(self.origin_endpoints, "origin_endpoints")
+        self.selfadd_web_plugins()
+        for endpoint_type in list(self.endpoints_obj.keys()):
+            self.fhdhr.logger.info("Loading HTTP %s Endpoints." % endpoint_type)
+            self.add_endpoints(endpoint_type)
 
         self.fhdhr.app.before_request(self.before_request)
         self.fhdhr.app.after_request(self.after_request)
         self.fhdhr.app.before_first_request(self.before_first_request)
 
         self.fhdhr.threads["flask"] = threading.Thread(target=self.run)
+
+    def selfadd_web_plugins(self):
+        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+            if self.fhdhr.plugins.plugins[plugin_name].type == "web":
+                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+                try:
+                    self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
+                except Exception as e:
+                    print(e)
 
     def start(self):
         self.fhdhr.logger.info("Flask HTTP Thread Starting")
@@ -86,6 +77,8 @@ class fHDHR_HTTP_Server():
         session["session_id"] = str(uuid.uuid4())
         session["instance_id"] = self.instance_id
         session["route_list"] = self.route_list
+
+        session["user_agent"] = request.headers.get('User-Agent')
 
         session["is_internal_api"] = self.detect_internal_api(request)
         if session["is_internal_api"]:
@@ -153,49 +146,57 @@ class fHDHR_HTTP_Server():
         else:
             return False
 
-    def add_endpoints(self, index_list, index_name):
+    def add_endpoints(self, index_name):
 
-        if index_name not in list(self.route_list.keys()):
-            self.route_list[index_name] = {}
-
-        item_list = [x for x in dir(index_list) if self.isapath(x)]
+        item_list = [x for x in dir(self.endpoints_obj[index_name]) if self.isapath(x)]
+        endpoint_main = self.endpoints_obj[index_name]
+        endpoint_main.fhdhr.version  # dummy line
         for item in item_list:
-            endpoints = eval("self.%s.%s.%s" % (index_name, item, "endpoints"))
+            endpoints = eval("endpoint_main.%s.%s" % (item, "endpoints"))
             if isinstance(endpoints, str):
                 endpoints = [endpoints]
-            handler = eval("self.%s.%s" % (index_name, item))
-            endpoint_name = eval("self.%s.%s.%s" % (index_name, item, "endpoint_name"))
+            handler = eval("endpoint_main.%s" % item)
+            endpoint_name = eval("endpoint_main.%s.%s" % (item, "endpoint_name"))
 
             try:
-                endpoint_methods = eval("self.%s.%s.%s" % (index_name, item, "endpoint_methods"))
+                endpoint_methods = eval("endpoint_main.%s.%s" % (item, "endpoint_methods"))
             except AttributeError:
                 endpoint_methods = ['GET']
 
             try:
-                endpoint_access_level = eval("self.%s.%s.%s" % (index_name, item, "endpoint_access_level"))
+                endpoint_access_level = eval("endpoint_main.%s.%s" % (item, "endpoint_access_level"))
             except AttributeError:
                 endpoint_access_level = 0
 
             try:
-                pretty_name = eval("self.%s.%s.%s" % (index_name, item, "pretty_name"))
+                pretty_name = eval("endpoint_main.%s.%s" % (item, "pretty_name"))
             except AttributeError:
                 pretty_name = endpoint_name
 
             try:
-                endpoint_default_parameters = eval("self.%s.%s.%s" % (index_name, item, "endpoint_default_parameters"))
+                endpoint_category = eval("endpoint_main.%s.%s" % (item, "endpoint_category"))
+            except AttributeError:
+                endpoint_category = index_name
+
+            try:
+                endpoint_default_parameters = eval("endpoint_main.%s.%s" % (item, "endpoint_default_parameters"))
             except AttributeError:
                 endpoint_default_parameters = {}
 
             self.fhdhr.logger.debug("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
 
-            if endpoint_name not in list(self.route_list[index_name].keys()):
-                self.route_list[index_name][endpoint_name] = {}
-            self.route_list[index_name][endpoint_name]["name"] = endpoint_name
-            self.route_list[index_name][endpoint_name]["endpoints"] = endpoints
-            self.route_list[index_name][endpoint_name]["endpoint_methods"] = endpoint_methods
-            self.route_list[index_name][endpoint_name]["endpoint_access_level"] = endpoint_access_level
-            self.route_list[index_name][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
-            self.route_list[index_name][endpoint_name]["pretty_name"] = pretty_name
+            if endpoint_category not in list(self.route_list.keys()):
+                self.route_list[endpoint_category] = {}
+
+            if endpoint_name not in list(self.route_list[endpoint_category].keys()):
+                self.route_list[endpoint_category][endpoint_name] = {}
+            self.route_list[endpoint_category][endpoint_name]["name"] = endpoint_name
+            self.route_list[endpoint_category][endpoint_name]["endpoints"] = endpoints
+            self.route_list[endpoint_category][endpoint_name]["endpoint_methods"] = endpoint_methods
+            self.route_list[endpoint_category][endpoint_name]["endpoint_access_level"] = endpoint_access_level
+            self.route_list[endpoint_category][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
+            self.route_list[endpoint_category][endpoint_name]["pretty_name"] = pretty_name
+            self.route_list[endpoint_category][endpoint_name]["endpoint_category"] = endpoint_category
 
             for endpoint in endpoints:
                 self.add_endpoint(endpoint=endpoint,
@@ -204,7 +205,7 @@ class fHDHR_HTTP_Server():
                                   methods=endpoint_methods)
 
     def isapath(self, item):
-        not_a_page_list = ["fhdhr"]
+        not_a_page_list = ["fhdhr", "plugin_utils"]
         if item in not_a_page_list:
             return False
         elif item.startswith("__") and item.endswith("__"):

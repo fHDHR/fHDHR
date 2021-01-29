@@ -5,6 +5,7 @@ class Diagnostics_HTML():
     endpoints = ["/diagnostics", "/diagnostics.html"]
     endpoint_name = "page_diagnostics_html"
     endpoint_access_level = 2
+    endpoint_category = "tool_pages"
     pretty_name = "Diagnostics"
 
     def __init__(self, fhdhr):
@@ -20,7 +21,7 @@ class Diagnostics_HTML():
         button_dict = {}
 
         for route_group in list(session["route_list"].keys()):
-            if route_group not in ["pages", "brython", "files"]:
+            if route_group not in ["pages", "brython", "files", "tool_pages"]:
                 button_dict[route_group] = []
                 for route_item in list(session["route_list"][route_group].keys()):
                     if not session["route_list"][route_group][route_item]["name"].startswith("page_"):
@@ -46,4 +47,4 @@ class Diagnostics_HTML():
                             curr_button_dict["button"] = False
                         button_dict[route_group].append(curr_button_dict)
 
-        return render_template('diagnostics.html', session=session, request=request, fhdhr=self.fhdhr, button_dict=button_dict, list=list)
+        return render_template('diagnostics.html', request=request, session=session, fhdhr=self.fhdhr, button_dict=button_dict, list=list)

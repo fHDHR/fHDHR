@@ -13,29 +13,28 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir, plugins, fHDHR_web):
-        self.plugins = plugins
+    def __init__(self, filename, script_dir, fHDHR_web):
         self.fHDHR_web = fHDHR_web
 
         self.internal = {}
         self.conf_default = {}
         self.dict = {}
+        self.internal["versions"] = {}
         self.config_file = filename
 
         self.core_setup(script_dir)
-        self.plugins_setup()
-        self.user_config()
-        self.config_verification()
 
     def core_setup(self, script_dir):
 
         data_dir = pathlib.Path(script_dir).joinpath('data')
+        internal_plugins_dir = pathlib.Path(script_dir).joinpath('plugins')
         fHDHR_web_dir = pathlib.Path(script_dir).joinpath('fHDHR_web')
         www_dir = pathlib.Path(fHDHR_web_dir).joinpath('www_dir')
 
         self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
+                                    "plugins_dir": [internal_plugins_dir],
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "fHDHR_web_dir": fHDHR_web_dir,
@@ -54,68 +53,61 @@ class Config():
             if str(file_item_path).endswith("_conf.json"):
                 self.read_json_config(file_item_path)
 
-        self.dict["epg"]["valid_methods"] = ["origin", "blocks", None]
-
-        self.dict["streaming"]["valid_methods"] = ["direct"]
+        self.dict["epg"]["valid_methods"] = {None: {}}
+        self.dict["origins"] = {}
+        self.dict["origins"]["valid_methods"] = {}
+        self.dict["streaming"]["valid_methods"] = {"direct": {}}
+        self.dict["plugin_web_paths"] = {}
 
         self.load_versions()
 
-    def plugins_setup(self):
+    def register_web_path(self, name, path, plugin_dict_name):
+        self.dict["plugin_web_paths"][name.lower()] = {
+            "name": name,
+            "namespace": name.lower(),
+            "path": path,
+            "plugin": plugin_dict_name
+            }
 
-        # Load Origin Paths
-        origin_dir = [self.plugins.plugin_dict[x]["PATH"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "origin"][0]
-        self.internal["paths"]["origin"] = origin_dir
-        self.internal["paths"]["origin_web"] = pathlib.Path(origin_dir).joinpath('origin_web')
+    def register_valid_origin_method(self, method_item):
+        self.dict["origins"]["valid_methods"][method_item.lower()] = {
+            "name": method_item,
+            "namespace": method_item.lower(),
+            }
 
-        # Load Plugin Conf
-        for dir_type in ["alt_epg", "origin", "alt_stream"]:
-            if dir_type == "origin":
-                dir_tops = [self.internal["paths"]["origin"]]
-            elif dir_type in ["alt_stream", "alt_epg"]:
-                dir_tops = [self.plugins.plugin_dict[x]["PATH"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == dir_type]
-            for top_dir in dir_tops:
-                for file_item in os.listdir(top_dir):
-                    file_item_path = pathlib.Path(top_dir).joinpath(file_item)
-                    if file_item_path.is_dir():
-                        for sub_file_item in os.listdir(file_item_path):
-                            sub_file_item_path = pathlib.Path(file_item_path).joinpath(sub_file_item)
-                            if str(sub_file_item_path).endswith("_conf.json"):
-                                self.read_json_config(sub_file_item_path)
-                    else:
-                        if str(file_item_path).endswith("_conf.json"):
-                            self.read_json_config(file_item_path)
+    def register_valid_streaming_method(self, method_item, plugin_dict_name):
+        self.dict["streaming"]["valid_methods"][method_item.lower()] = {
+            "name": method_item,
+            "namespace": method_item.lower(),
+            "plugin": plugin_dict_name
+            }
 
-        # Rename the Origin conf section
-        self.dict["origin"] = self.dict.pop(self.dict["main"]["dictpopname"])
+    def register_valid_epg_method(self, method_item, plugin_dict_name):
+        self.dict["epg"]["valid_methods"][method_item.lower()] = {
+            "name": method_item,
+            "namespace": method_item.lower(),
+            "plugin": plugin_dict_name
+            }
 
-        # Get Pltuin Version
-        for plugin_item in list(self.plugins.plugin_dict.keys()):
-            self.internal["versions"][plugin_item] = self.plugins.plugin_dict[plugin_item]["VERSION"]
+    def register_version(self, item_name, item_version, item_type):
+        self.internal["versions"][item_name] = {
+                                                "name": item_name,
+                                                "version": item_version,
+                                                "type": item_type
+                                                }
 
-        # Run Plugin Setup Checks
-        for plugin_item in list(self.plugins.plugin_dict.keys()):
-            try:
-                eval("self.plugins.%s_Setup(self)" % self.plugins.plugin_dict[plugin_item]["NAME"].upper())
-            except AttributeError:
-                pass
-
-        self.dict["epg"]["valid_methods"].extend([self.plugins.plugin_dict[x]["NAME"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "alt_epg"])
-        self.dict["streaming"]["valid_methods"].extend([self.plugins.plugin_dict[x]["NAME"] for x in list(self.plugins.plugin_dict.keys()) if self.plugins.plugin_dict[x]["TYPE"] == "alt_stream"])
-
-    def register_version(self, item_name, item_version):
-        self.internal["versions"][item_name] = item_version
+    def import_conf_json(self, file_item_path):
+        self.read_json_config(file_item_path)
 
     def load_versions(self):
 
-        self.internal["versions"] = {}
+        self.register_version("fHDHR", fHDHR_VERSION, "fHDHR")
+        self.register_version("fHDHR_web", self.fHDHR_web.fHDHR_web_VERSION, "fHDHR")
 
-        self.internal["versions"]["fHDHR"] = fHDHR_VERSION
-        self.internal["versions"]["fHDHR_web"] = self.fHDHR_web.fHDHR_web_VERSION
-
-        self.internal["versions"]["Python"] = sys.version
+        self.register_version("Python", sys.version, "env")
 
         opersystem = platform.system()
-        self.internal["versions"]["Operating System"] = opersystem
+        self.register_version("Operating System", opersystem, "env")
         if opersystem in ["Linux", "Darwin"]:
             # Linux/Mac
             if os.getuid() == 0 or os.geteuid() == 0:
@@ -128,23 +120,19 @@ class Config():
             print("Uncommon Operating System, use at your own risk.")
 
         isdocker = is_docker()
-        self.internal["versions"]["Docker"] = isdocker
+        self.register_version("Docker", isdocker, "env")
 
     def user_config(self):
         print("Loading Configuration File: %s" % self.config_file)
         self.read_ini_config(self.config_file)
 
-    def config_verification(self):
-
+    def config_verification_plugins(self):
         required_missing = {}
         # create dict and combine items
         for config_section in list(self.conf_default.keys()):
             for config_item in list(self.conf_default[config_section].keys()):
                 if self.conf_default[config_section][config_item]["required"]:
-                    config_section_name = config_section
-                    if config_section == self.dict["main"]["dictpopname"]:
-                        config_section_name = "origin"
-                    if not self.dict[config_section_name][config_item]:
+                    if not self.dict[config_section][config_item]:
                         if config_section not in list(required_missing.keys()):
                             required_missing[config_section] = []
                         required_missing[config_section].append(config_item)
@@ -156,19 +144,25 @@ class Config():
                 self.dict["epg"]["method"] = [self.dict["epg"]["method"]]
             epg_methods = []
             for epg_method in self.dict["epg"]["method"]:
-                if epg_method == self.dict["main"]["dictpopname"] or epg_method == "origin":
-                    epg_methods.append("origin")
-                elif epg_method in ["None"]:
-                    raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
-                elif epg_method in self.dict["epg"]["valid_methods"]:
+                if epg_method in list(self.dict["epg"]["valid_methods"].keys()):
+                    epg_methods.append(epg_method)
+                elif epg_method in list(self.dict["origins"]["valid_methods"].keys()):
                     epg_methods.append(epg_method)
                 else:
                     raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
-        self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
+        if self.dict["epg"]["method"]:
+            self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
+        else:
+            self.dict["epg"]["def_method"] = None
+
+        if self.dict["streaming"]["method"] not in self.dict["streaming"]["valid_methods"]:
+            raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
+
+    def config_verification(self):
 
         if not self.dict["main"]["uuid"]:
             self.dict["main"]["uuid"] = ''.join(random.choice("hijklmnopqrstuvwxyz") for i in range(8))
-            self.write('main', 'uuid', self.dict["main"]["uuid"])
+            self.write('uuid', self.dict["main"]["uuid"], 'main')
 
         if self.dict["main"]["cache_dir"]:
             if not pathlib.Path(self.dict["main"]["cache_dir"]).is_dir():
@@ -182,9 +176,6 @@ class Config():
             logs_dir.mkdir()
 
         self.dict["database"]["path"] = pathlib.Path(cache_dir).joinpath('fhdhr.db')
-
-        if self.dict["streaming"]["method"] not in self.dict["streaming"]["valid_methods"]:
-            raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
         if not self.dict["fhdhr"]["discovery_address"] and self.dict["fhdhr"]["address"] != "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
@@ -263,11 +254,9 @@ class Config():
                             import_val = False
 
                 if import_val:
-                    if each_section == self.dict["main"]["dictpopname"]:
-                        each_section = "origin"
                     self.dict[each_section.lower()][each_key.lower()] = each_val
 
-    def write(self, section, key, value):
+    def write(self, key, value, section):
 
         if not value:
             value = None
@@ -284,8 +273,6 @@ class Config():
         elif isinstance(value, list):
             ",".join(value)
 
-        if section == self.dict["main"]["dictpopname"]:
-            section = "origin"
         self.dict[section][key] = value
 
         config_handler = configparser.ConfigParser()

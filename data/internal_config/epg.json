@@ -6,7 +6,7 @@
                     "config_web": true
                 },
           "method":{
-                    "value": "blocks",
+                    "value": "none",
                     "config_file": true,
                     "config_web": true
                 },
