@@ -6,7 +6,7 @@ from fHDHR.tools import channel_sort, sub_el
 
 
 class Lineup_XML():
-    endpoints = ["/hdhr/lineup.xml"]
+    endpoints = ["/lineup.xml", "/hdhr/lineup.xml"]
     endpoint_name = "hdhr_lineup_xml"
 
     def __init__(self, fhdhr):
@@ -43,7 +43,7 @@ class Lineup_XML():
                              'GuideNumber': channel_obj.number,
                              'GuideName': channel_obj.dict['name'],
                              'Tags': ",".join(channel_obj.dict['tags']),
-                             'URL': '/hdhr/auto/v' % channel_obj.number,
+                             'URL': '/hdhr/auto/v%s' % channel_obj.number,
                              'HD': channel_obj.dict["HD"],
                              "Favorite": channel_obj.dict["favorite"],
                             }

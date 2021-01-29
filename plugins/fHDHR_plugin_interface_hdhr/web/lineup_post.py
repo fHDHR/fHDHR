@@ -4,7 +4,7 @@ from fHDHR.exceptions import TunerError
 
 
 class Lineup_Post():
-    endpoints = ["/hdhr/lineup.post"]
+    endpoints = ["/lineup.post", "/hdhr/lineup.post"]
     endpoint_name = "hdhr_lineup_post"
     endpoint_methods = ["POST"]
 
