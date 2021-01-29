@@ -4,22 +4,20 @@ import struct
 import time
 import threading
 
-from .ssdp_detect import fHDHR_Detect
-from .rmg_ssdp import RMG_SSDP
-from .hdhr_ssdp import HDHR_SSDP
-
 
 class SSDPServer():
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.detect_method = fHDHR_Detect(fhdhr)
-
-        self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
+        self.ssdp_handling = {}
+        self.methods = [x for x in list(self.fhdhr.plugins.plugins.keys()) if self.fhdhr.plugins.plugins[x].type == "ssdp"]
 
         if (self.fhdhr.config.dict["fhdhr"]["discovery_address"] and
-           self.fhdhr.config.dict["ssdp"]["enabled"]):
+           self.fhdhr.config.dict["ssdp"]["enabled"] and
+           len(self.methods)):
+
+            self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
             self.setup_ssdp()
 
             self.sock.bind((self.bind_address, 1900))
@@ -29,11 +27,17 @@ class SSDPServer():
             self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
             self.age_time = None
 
-            self.rmg_ssdp = RMG_SSDP(fhdhr, self.broadcast_ip, self.max_age)
-            self.hdhr_ssdp = HDHR_SSDP(fhdhr, self.broadcast_ip, self.max_age)
+            self.ssdp_method_selfadd()
 
             self.do_alive()
             self.m_search()
+
+    def ssdp_method_selfadd(self):
+        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+            if self.fhdhr.plugins.plugins[plugin_name].type == "ssdp":
+                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+                self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
 
     def start(self):
         self.fhdhr.logger.info("SSDP Server Starting")
@@ -62,21 +66,22 @@ class SSDPServer():
 
         if send_alive:
             self.fhdhr.logger.info("Sending Alive message to network.")
-            self.do_notify(self.broadcase_address_tuple)
+            self.do_notify(self.broadcast_address_tuple)
             self.age_time = time.time()
 
     def do_notify(self, address):
 
         notify_list = []
-
-        hdhr_notify = self.hdhr_ssdp.get()
-        notify_list.append(hdhr_notify)
-
-        if self.fhdhr.config.dict["rmg"]["enabled"]:
-            rmg_notify = self.rmg_ssdp.get()
-            notify_list.append(rmg_notify)
+        for ssdp_handler in list(self.ssdp_handling.keys()):
+            if self.ssdp_handling[ssdp_handler].enabled and hasattr(self.ssdp_handling[ssdp_handler], 'notify'):
+                notify_data = self.ssdp_handling[ssdp_handler].notify
+                if isinstance(notify_data, list):
+                    notify_list.extend(notify_data)
+                else:
+                    notify_list.append(notify_data)
 
         for notifydata in notify_list:
+            notifydata = notifydata.encode("utf-8")
 
             self.fhdhr.logger.debug("Created {}".format(notifydata))
             try:
@@ -103,6 +108,10 @@ class SSDPServer():
         headers = [x.split(':', 1) for x in lines]
         headers = dict(map(lambda x: (x[0].lower(), x[1]), headers))
 
+        for ssdp_handler in list(self.ssdp_handling.keys()):
+            if self.ssdp_handling[ssdp_handler].enabled and hasattr(self.ssdp_handling[ssdp_handler], 'on_recv'):
+                self.ssdp_handling[ssdp_handler].on_recv(headers, cmd, list(self.ssdp_handling.keys()))
+
         if cmd[0] == 'M-SEARCH' and cmd[1] == '*':
             # SSDP discovery
             self.fhdhr.logger.debug("Received qualifying M-SEARCH from {}".format(address))
@@ -110,26 +119,14 @@ class SSDPServer():
 
             self.do_notify(address)
 
-        elif cmd[0] == 'NOTIFY' and cmd[1] == '*':
-            # SSDP presence
+        if cmd[0] == 'NOTIFY' and cmd[1] == '*':
             self.fhdhr.logger.debug("NOTIFY data: {}".format(headers))
-            try:
-                if headers["server"].startswith("fHDHR"):
-                    savelocation = headers["location"].split("/device.xml")[0]
-                    if savelocation.endswith("/hdhr"):
-                        savelocation = savelocation.replace("/hdhr", '')
-                    elif savelocation.endswith("/rmg"):
-                        savelocation = savelocation.replace("/rmg", '')
-                    if savelocation != self.fhdhr.api.base:
-                        self.detect_method.set(savelocation)
-            except KeyError:
-                return
         else:
             self.fhdhr.logger.debug('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
 
     def m_search(self):
         data = self.msearch_payload
-        self.sock.sendto(data, self.broadcase_address_tuple)
+        self.sock.sendto(data, self.broadcast_address_tuple)
 
     def create_msearch_payload(self):
 
@@ -176,7 +173,7 @@ class SSDPServer():
         if self.proto == "ipv4":
             self.af_type = socket.AF_INET
             self.broadcast_ip = "239.255.255.250"
-            self.broadcase_address_tuple = (self.broadcast_ip, 1900)
+            self.broadcast_address_tuple = (self.broadcast_ip, 1900)
             self.bind_address = "0.0.0.0"
         elif self.proto == "ipv6":
             self.af_type = socket.AF_INET6

@@ -2,31 +2,32 @@ import uuid
 
 
 class Channel_IDs():
-    def __init__(self, fhdhr):
+    def __init__(self, fhdhr, origins):
         self.fhdhr = fhdhr
+        self.origins = origins
 
-    def get(self, origin_id):
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
-        existing_channel_info = [self.fhdhr.db.get_channel_value(channel_id, "dict") or {} for channel_id in existing_ids]
+    def get(self, origin_id, origin):
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
+        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin) or {} for channel_id in existing_ids]
         for existing_channel in existing_channel_info:
             if existing_channel["origin_id"] == origin_id:
                 return existing_channel["id"]
-        return self.assign()
+        return self.assign(origin)
 
-    def assign(self):
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
+    def assign(self, origin):
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
         channel_id = None
         while not channel_id:
             unique_id = str(uuid.uuid4())
             if str(unique_id) not in existing_ids:
                 channel_id = str(unique_id)
         existing_ids.append(channel_id)
-        self.fhdhr.db.set_fhdhr_value("channels", "list", existing_ids)
+        self.fhdhr.db.set_fhdhr_value("channels", "list", existing_ids, origin)
         return channel_id
 
-    def get_number(self, channel_id):
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
-        existing_channel_info = [self.fhdhr.db.get_channel_value(channel_id, "dict") or {} for channel_id in existing_ids]
+    def get_number(self, channel_id, origin):
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
+        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin) or {} for channel_id in existing_ids]
         cnumber = [existing_channel["number"] for existing_channel in existing_channel_info if existing_channel["id"] == channel_id] or None
         if cnumber:
             return cnumber

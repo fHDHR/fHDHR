@@ -7,93 +7,117 @@ from .tuner import Tuner
 
 class Tuners():
 
-    def __init__(self, fhdhr, epg, channels, plugins):
+    def __init__(self, fhdhr, epg, channels):
         self.fhdhr = fhdhr
         self.channels = channels
-        self.plugins = plugins
 
         self.epg = epg
-        self.max_tuners = int(self.fhdhr.config.dict["fhdhr"]["tuner_count"])
 
         self.tuners = {}
+        for origin in list(self.fhdhr.origins.origins_dict.keys()):
+            self.tuners[origin] = {}
 
-        self.fhdhr.logger.info("Creating %s tuners." % str(self.max_tuners))
+            max_tuners = int(self.fhdhr.origins.origins_dict[origin].tuners)
 
-        for i in range(0, self.max_tuners):
-            self.tuners[str(i)] = Tuner(fhdhr, i, epg, plugins)
+            self.fhdhr.logger.info("Creating %s tuners for %s." % (max_tuners, origin))
 
-    def get_available_tuner(self):
-        return next(tunernum for tunernum in list(self.tuners.keys()) if not self.tuners[tunernum].tuner_lock.locked()) or None
+            for i in range(0, max_tuners):
+                self.tuners[origin][str(i)] = Tuner(fhdhr, i, epg, origin)
 
-    def get_scanning_tuner(self):
-        return next(tunernum for tunernum in list(self.tuners.keys()) if self.tuners[tunernum].status["status"] == "Scanning") or None
+        self.alt_stream_handlers = {}
 
-    def stop_tuner_scan(self):
-        tunernum = self.get_scanning_tuner()
+    def alt_stream_methods_selfadd(self):
+        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+            if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
+                method = self.fhdhr.plugins.plugins[plugin_name].name
+                self.alt_stream_handlers[method] = self.fhdhr.plugins.plugins[plugin_name]
+
+    def get_available_tuner(self, origin):
+        return next(tunernum for tunernum in list(self.tuners[origin].keys()) if not self.tuners[origin][tunernum].tuner_lock.locked()) or None
+
+    def get_scanning_tuner(self, origin):
+        return next(tunernum for tunernum in list(self.tuners[origin].keys()) if self.tuners[origin][tunernum].status["status"] == "Scanning") or None
+
+    def stop_tuner_scan(self, origin):
+        tunernum = self.get_scanning_tuner(origin)
         if tunernum:
-            self.tuners[str(tunernum)].close()
+            self.tuners[origin][str(tunernum)].close()
 
-    def tuner_scan(self):
+    def tuner_scan(self, origin="all"):
         """Temporarily use a tuner for a scan"""
-        if not self.available_tuner_count():
-            raise TunerError("805 - All Tuners In Use")
 
-        tunernumber = self.get_available_tuner()
-        self.tuners[str(tunernumber)].channel_scan()
+        if origin == "all":
+            origins = list(self.tuners.keys())
+        else:
+            origins = [origin]
 
-        if not tunernumber:
-            raise TunerError("805 - All Tuners In Use")
+        for origin in origins:
 
-    def tuner_grab(self, tuner_number, channel_number):
+            if not self.available_tuner_count(origin):
+                raise TunerError("805 - All Tuners In Use")
 
-        if str(tuner_number) not in list(self.tuners.keys()):
-            self.fhdhr.logger.error("Tuner %s does not exist." % str(tuner_number))
+            tunernumber = self.get_available_tuner(origin)
+            self.tuners[str(tunernumber)].channel_scan(origin)
+
+            if not tunernumber:
+                raise TunerError("805 - All Tuners In Use")
+
+    def tuner_grab(self, tuner_number, origin, channel_number):
+
+        if str(tuner_number) not in list(self.tuners[origin].keys()):
+            self.fhdhr.logger.error("Tuner %s does not exist for %s." % (tuner_number, origin))
             raise TunerError("806 - Tune Failed")
 
         # TunerError will raise if unavailable
-        self.tuners[str(tuner_number)].grab(channel_number)
+        self.tuners[origin][str(tuner_number)].grab(origin, channel_number)
 
         return tuner_number
 
-    def first_available(self, channel_number, dograb=True):
+    def first_available(self, origin, channel_number, dograb=True):
 
-        if not self.available_tuner_count():
+        if not self.available_tuner_count(origin):
             raise TunerError("805 - All Tuners In Use")
 
-        tunernumber = self.get_available_tuner()
+        tunernumber = self.get_available_tuner(origin)
 
         if not tunernumber:
             raise TunerError("805 - All Tuners In Use")
         else:
-            self.tuners[str(tunernumber)].grab(channel_number)
+            self.tuners[origin][str(tunernumber)].grab(origin, channel_number)
             return tunernumber
 
-    def tuner_close(self, tunernum):
-        self.tuners[str(tunernum)].close()
+    def tuner_close(self, tunernum, origin):
+        self.tuners[origin][str(tunernum)].close()
 
-    def status(self):
+    def status(self, origin=None):
         all_status = {}
-        for tunernum in list(self.tuners.keys()):
-            all_status[tunernum] = self.tuners[str(tunernum)].get_status()
+        if origin:
+            for tunernum in list(self.tuners[origin].keys()):
+                all_status[tunernum] = self.tuners[origin][str(tunernum)].get_status()
+        else:
+            for origin in list(self.tuners.keys()):
+                all_status[origin] = {}
+                for tunernum in list(self.tuners[origin].keys()):
+                    all_status[origin][tunernum] = self.tuners[origin][str(tunernum)].get_status()
         return all_status
 
-    def available_tuner_count(self):
+    def available_tuner_count(self, origin):
         available_tuners = 0
-        for tunernum in list(self.tuners.keys()):
-            if not self.tuners[str(tunernum)].tuner_lock.locked():
+        for tunernum in list(self.tuners[origin].keys()):
+            if not self.tuners[origin][str(tunernum)].tuner_lock.locked():
                 available_tuners += 1
         return available_tuners
 
-    def inuse_tuner_count(self):
+    def inuse_tuner_count(self, origin):
         inuse_tuners = 0
-        for tunernum in list(self.tuners.keys()):
-            if self.tuners[str(tunernum)].tuner_lock.locked():
+        for tunernum in list(self.tuners[origin].keys()):
+            if self.tuners[origin][str(tunernum)].tuner_lock.locked():
                 inuse_tuners += 1
         return inuse_tuners
 
     def get_stream_info(self, stream_args):
 
-        stream_info = self.channels.get_channel_stream(stream_args)
+        stream_info = self.channels.get_channel_stream(stream_args, stream_args["origin"])
         if not stream_info:
             raise TunerError("806 - Tune Failed")
 
@@ -143,10 +167,14 @@ class Tuners():
         while True:
             self.fhdhr.logger.info("Opening m3u8 for reading %s" % m3u8_url)
 
-            if stream_args["stream_info"]["headers"]:
-                videoUrlM3u = m3u8.load(m3u8_url, headers=stream_args["stream_info"]["headers"])
-            else:
-                videoUrlM3u = m3u8.load(m3u8_url)
+            try:
+                if stream_args["stream_info"]["headers"]:
+                    videoUrlM3u = m3u8.load(m3u8_url, headers=stream_args["stream_info"]["headers"])
+                else:
+                    videoUrlM3u = m3u8.load(m3u8_url)
+            except Exception as e:
+                self.fhdhr.logger.info("m3u8 load error: %s" % e)
+                return m3u8_url
 
             if len(videoUrlM3u.playlists):
                 self.fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))

@@ -27,6 +27,9 @@ class Guide_HTML():
         if source not in epg_methods:
             source = self.fhdhr.device.epg.def_method
 
+        if not source:
+            return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source, list=list)
+
         whatson = self.fhdhr.device.epg.whats_on_allchans(source)
 
         # Sort the channels
@@ -60,14 +63,14 @@ class Guide_HTML():
                 else:
                     chan_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(sorted_chan_guide[channel]["listing"][0][time_item]))
 
-            if source in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
-                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"])
+            if source in self.fhdhr.origins.valid_origins:
+                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"], source)
 
                 chan_dict["name"] = chan_obj.dict["name"]
                 chan_dict["number"] = chan_obj.number
                 chan_dict["chan_thumbnail"] = chan_obj.thumbnail
                 chan_dict["enabled"] = chan_obj.dict["enabled"]
-                chan_dict["m3u_url"] = chan_obj.m3u_url
+                chan_dict["m3u_url"] = chan_obj.api_m3u_url
 
                 chan_dict["listing_thumbnail"] = chan_dict["listing_thumbnail"] or chan_obj.thumbnail
             else:
@@ -78,4 +81,4 @@ class Guide_HTML():
 
             chan_guide_list.append(chan_dict)
 
-        return render_template('guide.html', session=session, request=request, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source)
+        return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source, list=list)

@@ -30,11 +30,8 @@ class Settings():
                 web_settings_dict[config_section] = {}
 
                 for config_item in list(self.fhdhr.config.conf_default[config_section].keys()):
-                    real_config_section = config_section
-                    if config_section == self.fhdhr.config.dict["main"]["dictpopname"]:
-                        real_config_section = "origin"
                     web_settings_dict[config_section][config_item] = {
-                        "value": self.fhdhr.config.dict[real_config_section][config_item],
+                        "value": self.fhdhr.config.dict[config_section][config_item],
                         }
                     if self.fhdhr.config.conf_default[config_section][config_item]["config_web_hidden"]:
                         web_settings_dict[config_section][config_item]["value"] = "***********"
@@ -56,10 +53,7 @@ class Settings():
                 else:
                     return "%s Falied" % method
 
-            if config_section == "origin":
-                config_section = self.fhdhr.config.dict["main"]["dictpopname"]
-
-            self.fhdhr.config.write(config_section, config_name, config_value)
+            self.fhdhr.config.write(config_name, config_value, config_section)
 
         elif method == "restart":
             restart_thread = threading.Thread(target=self.restart_thread)

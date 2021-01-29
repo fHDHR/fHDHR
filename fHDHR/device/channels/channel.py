@@ -3,22 +3,23 @@ import time
 
 class Channel():
 
-    def __init__(self, fhdhr, id_system, origin_id=None, channel_id=None):
+    def __init__(self, fhdhr, id_system, origin, origin_id=None, channel_id=None):
         self.fhdhr = fhdhr
+        self.origin = origin
 
         self.id_system = id_system
 
         if not channel_id:
             if origin_id:
-                channel_id = id_system.get(origin_id)
+                channel_id = id_system.get(origin_id, origin)
             else:
-                channel_id = id_system.assign()
+                channel_id = id_system.assign(origin)
         self.channel_id = channel_id
 
-        self.dict = self.fhdhr.db.get_channel_value(str(channel_id), "dict") or self.default_dict
+        self.dict = self.fhdhr.db.get_fhdhr_value(str(channel_id), "dict", self.origin) or self.default_dict
         self.verify_dict()
 
-        self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
 
     @property
     def number(self):
@@ -96,9 +97,9 @@ class Channel():
             self.dict["tags"] = self.dict["origin_tags"]
 
         if "number" not in list(channel_info.keys()):
-            channel_info["number"] = self.id_system.get_number(channel_info["id"])
+            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin)
         elif not channel_info["number"]:
-            channel_info["number"] = self.id_system.get_number(channel_info["id"])
+            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin)
         self.dict["origin_number"] = str(channel_info["number"])
         if not self.dict["number"]:
             self.dict["number"] = self.dict["origin_number"].split(".")[0]
@@ -128,7 +129,7 @@ class Channel():
         if "created" not in list(self.dict.keys()):
             self.dict["created"] = time.time()
 
-        self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
 
     @property
     def default_dict(self):
@@ -144,64 +145,37 @@ class Channel():
                 }
 
     def destroy(self):
-        self.fhdhr.db.delete_channel_value(self.dict["id"], "dict")
+        self.fhdhr.db.delete_fhdhr_value(self.dict["id"], "dict", self.origin)
         channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
         if self.dict["id"] in channel_ids:
             channel_ids.remove(self.dict["id"])
-        self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids)
+        self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids, self.origin)
 
     def set_status(self, updatedict):
         for key in list(updatedict.keys()):
             if key == "number":
                 updatedict[key] = str(updatedict[key])
             self.dict[key] = updatedict[key]
-        self.fhdhr.db.set_channel_value(self.dict["id"], "dict", self.dict)
-
-    @property
-    def lineup_dict(self):
-        return {
-                 'GuideNumber': self.number,
-                 'GuideName': self.dict['name'],
-                 'Tags': ",".join(self.dict['tags']),
-                 'URL': self.hdhr_stream_url,
-                 'HD': self.dict["HD"],
-                 "Favorite": self.dict["favorite"],
-                }
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
 
     @property
     def generic_image_url(self):
         return "/api/images?method=generate&type=channel&message=%s" % self.number
 
     @property
-    def hdhr_stream_url(self):
-        return '/auto/%s' % self.hdhr_stream_ident
-
-    @property
-    def hdhr_stream_ident(self):
-        return 'v%s' % self.number
-
-    @property
-    def rmg_stream_url(self):
-        return "/devices/%s/media/%s" % (self.fhdhr.config.dict["main"]["uuid"], self.rmg_stream_ident)
-
-    @property
-    def rmg_stream_ident(self):
-        return "id://%s" % self.number
-
-    @property
     def api_stream_url(self):
-        return '/api/tuners?method=%s&channel=%s' % (self.fhdhr.config.dict["streaming"]["method"], self.number)
+        return '/api/tuners?method=%s&channel=%s&origin=%s' % (self.fhdhr.config.dict["streaming"]["method"], self.dict["id"], self.origin)
 
     @property
-    def m3u_url(self):
-        return '/api/m3u?method=get&channel=%s' % self.number
+    def api_m3u_url(self):
+        return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin)
 
     def set_favorite(self, enablement):
         if enablement == "+":
             self.dict["favorite"] = 1
-        elif enablement == "+":
+        elif enablement == "-":
             self.dict["favorite"] = 0
-        self.fhdhr.db.set_channel_value(self.dict["id"], "info", self.dict)
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "info", self.dict, self.origin)
 
     def set_enablement(self, enablement):
         if enablement == "disable":
@@ -213,7 +187,7 @@ class Channel():
                 self.dict["enabled"] = False
             else:
                 self.dict["enabled"] = True
-        self.fhdhr.db.set_channel_value(self.dict["id"], "info", self.dict)
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "info", self.dict, self.origin)
 
     def __getattr__(self, name):
         ''' will only get called for undefined attributes '''

@@ -15,15 +15,13 @@ class Index_HTML():
 
     def get(self, *args):
 
-        tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count()
-        max_tuners = self.fhdhr.device.tuners.max_tuners
+        origin = self.fhdhr.origins.valid_origins[0]
 
         fhdhr_status_dict = {
                             "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),
                             "Config File": str(self.fhdhr.config.config_file),
                             "Cache Path": str(self.fhdhr.config.internal["paths"]["cache_dir"]),
-                            "Total Channels": len(self.fhdhr.device.channels.list),
-                            "Tuner Usage": ("%s/%s" % (str(tuners_in_use), str(max_tuners))),
+                            "Total Channels": len(list(self.fhdhr.device.channels.list[origin].keys())),
                             }
 
-        return render_template('index.html', session=session, request=request, fhdhr=self.fhdhr, fhdhr_status_dict=fhdhr_status_dict, list=list)
+        return render_template('index.html', request=request, session=session, fhdhr=self.fhdhr, fhdhr_status_dict=fhdhr_status_dict, list=list)

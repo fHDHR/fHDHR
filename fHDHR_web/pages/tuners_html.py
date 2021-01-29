@@ -7,6 +7,7 @@ class Tuners_HTML():
     endpoints = ["/tuners", "/tuners.html"]
     endpoint_name = "page_streams_html"
     endpoint_access_level = 0
+    endpoint_category = "tool_pages"
     pretty_name = "Tuners"
 
     def __init__(self, fhdhr):
@@ -17,22 +18,36 @@ class Tuners_HTML():
 
     def get(self, *args):
 
-        tuner_list = []
+        tuner_status_dict = {}
+
         tuner_status = self.fhdhr.device.tuners.status()
-        tuner_scanning = 0
-        for tuner in list(tuner_status.keys()):
-            tuner_dict = {
-                          "number": str(tuner),
-                          "status": str(tuner_status[tuner]["status"]),
-                          }
-            if tuner_status[tuner]["status"] == "Active":
-                tuner_dict["channel_number"] = tuner_status[tuner]["channel"]
-                tuner_dict["method"] = tuner_status[tuner]["method"]
-                tuner_dict["play_duration"] = str(tuner_status[tuner]["Play Time"])
-                tuner_dict["downloaded"] = humanized_filesize(tuner_status[tuner]["downloaded"])
-            elif tuner_status[tuner]["status"] == "Scanning":
-                tuner_scanning += 1
+        for origin in list(tuner_status.keys()):
+            tuner_status_dict[origin] = {}
+            tuner_status_dict[origin]["scan_count"] = 0
+            tuner_status_dict[origin]["status_list"] = []
+            for tuner in list(tuner_status[origin].keys()):
+                if tuner_status[origin][tuner]["status"] == "Scanning":
+                    tuner_status_dict[origin]["scan_count"] += 1
 
-            tuner_list.append(tuner_dict)
+                tuner_dict = {
+                              "number": str(tuner),
+                              "status": str(tuner_status[origin][tuner]["status"]),
+                              "origin": "N/A",
+                              "channel_number": "N/A",
+                              "method": "N/A",
+                              "running_time": "N/A",
+                              "downloaded": "N/A",
+                              }
 
-        return render_template('tuners.html', session=session, request=request, fhdhr=self.fhdhr, tuner_list=tuner_list, tuner_scanning=tuner_scanning)
+                if tuner_status[origin][tuner]["status"] in ["Active", "Acquired", "Scanning"]:
+                    tuner_dict["origin"] = tuner_status[origin][tuner]["origin"]
+                    tuner_dict["channel_number"] = tuner_status[origin][tuner]["channel"] or "N/A"
+                    tuner_dict["running_time"] = str(tuner_status[origin][tuner]["running_time"])
+
+                if tuner_status[origin][tuner]["status"] in "Active":
+                    tuner_dict["method"] = tuner_status[origin][tuner]["method"]
+                    tuner_dict["downloaded"] = humanized_filesize(tuner_status[origin][tuner]["downloaded"])
+
+                tuner_status_dict[origin]["status_list"].append(tuner_dict)
+
+        return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, tuner_status_dict=tuner_status_dict, list=list)

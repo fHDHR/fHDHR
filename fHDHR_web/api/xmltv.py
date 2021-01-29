@@ -38,7 +38,7 @@ class xmlTV():
         method = request.args.get('method', default="get", type=str)
 
         source = request.args.get('source', default=self.fhdhr.config.dict["epg"]["def_method"], type=str)
-        if source not in self.fhdhr.config.dict["epg"]["valid_methods"]:
+        if source not in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()):
             return "%s Invalid xmltv method" % source
 
         redirect_url = request.args.get('redirect', default=None, type=str)
@@ -47,10 +47,10 @@ class xmlTV():
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
 
-            if source in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+            if source in self.fhdhr.origins.valid_origins:
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"])
+                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"], source)
                     epgdict[chan_obj.number] = epgdict.pop(c)
                     epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
                     epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
@@ -113,9 +113,9 @@ class xmlTV():
 
         out = self.xmltv_headers()
 
-        if source in ["origin", "blocks", self.fhdhr.config.dict["main"]["dictpopname"]]:
+        if source in self.fhdhr.origins.valid_origins:
             for c in list(epgdict.keys()):
-                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"])
+                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"], source)
                 epgdict[chan_obj.number] = epgdict.pop(c)
                 epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
                 epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]

@@ -34,10 +34,15 @@ class Direct_M3U8_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    if self.stream_args["stream_info"]["headers"]:
-                        playlist = m3u8.load(self.stream_args["stream_info"]["url"], headers=self.stream_args["stream_info"]["headers"])
-                    else:
-                        playlist = m3u8.load(self.stream_args["stream_info"]["url"])
+                    try:
+                        if self.stream_args["stream_info"]["headers"]:
+                            playlist = m3u8.load(self.stream_args["stream_info"]["url"], headers=self.stream_args["stream_info"]["headers"])
+                        else:
+                            playlist = m3u8.load(self.stream_args["stream_info"]["url"])
+                    except Exception as e:
+                        self.fhdhr.logger.info("Connection Closed: %s" % e)
+                        self.tuner.close()
+                        return None
 
                     segments = playlist.segments
 

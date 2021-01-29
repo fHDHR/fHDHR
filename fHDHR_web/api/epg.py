@@ -23,18 +23,18 @@ class EPG():
         method = request.args.get('method', default="get", type=str)
 
         source = request.args.get('source', default=self.fhdhr.config.dict["epg"]["def_method"], type=str)
-        if source not in self.fhdhr.config.dict["epg"]["valid_methods"]:
-            return "%s Invalid xmltv method" % source
+        if source not in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()):
+            return "%s Invalid epg method" % source
 
         redirect_url = request.args.get('redirect', default=None, type=str)
 
         if method == "get":
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
-            if source in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
+            if source in self.fhdhr.origins.valid_origins:
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"])
+                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"], source)
                     epgdict[chan_obj.number] = epgdict.pop(c)
                     epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
                     epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
@@ -93,14 +93,14 @@ class EPG():
                     else:
                         chan_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(sorted_chan_guide[channel]["listing"][0][time_item]))
 
-                if source in ["blocks", "origin", self.fhdhr.config.dict["main"]["dictpopname"]]:
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"])
+                if source in self.fhdhr.origins.valid_origins:
+                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"], source)
 
                     chan_dict["name"] = chan_obj.dict["name"]
                     chan_dict["number"] = chan_obj.number
                     chan_dict["chan_thumbnail"] = chan_obj.thumbnail
                     chan_dict["enabled"] = chan_obj.dict["enabled"]
-                    chan_dict["m3u_url"] = chan_obj.m3u_url
+                    chan_dict["m3u_url"] = chan_obj.api_m3u_url
 
                     chan_dict["listing_thumbnail"] = chan_dict["listing_thumbnail"] or chan_obj.thumbnail
                 else:

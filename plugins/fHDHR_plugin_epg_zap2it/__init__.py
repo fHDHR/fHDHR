@@ -4,30 +4,21 @@ import urllib.parse
 from fHDHR.tools import xmldictmaker
 from fHDHR.exceptions import EPGSetupError
 
-PLUGIN_NAME = "zap2it"
-PLUGIN_VERSION = "v0.6.0-beta"
-PLUGIN_TYPE = "alt_epg"
 
+class Plugin_OBJ():
 
-class ZAP2IT_Setup():
-    def __init__(self, config):
-        pass
-
-
-class zap2itEPG():
-
-    def __init__(self, fhdhr, channels):
-        self.fhdhr = fhdhr
+    def __init__(self, channels, plugin_utils):
+        self.plugin_utils = plugin_utils
 
         self.channels = channels
 
     @property
     def postalcode(self):
-        if self.fhdhr.config.dict["zap2it"]["postalcode"]:
-            return self.fhdhr.config.dict["zap2it"]["postalcode"]
+        if self.plugin_utils.config.dict["zap2it"]["postalcode"]:
+            return self.plugin_utils.config.dict["zap2it"]["postalcode"]
         try:
             postalcode_url = 'http://ipinfo.io/json'
-            postalcode_req = self.fhdhr.web.session.get(postalcode_url)
+            postalcode_req = self.plugin_utils.web.session.get(postalcode_url)
             data = postalcode_req.json()
             postalcode = data["postal"]
         except Exception as e:
@@ -41,12 +32,12 @@ class zap2itEPG():
         # Start time parameter is now rounded down to nearest `zap_timespan`, in s.
         zap_time = datetime.datetime.utcnow().timestamp()
         self.remove_stale_cache(zap_time)
-        zap_time_window = int(self.fhdhr.config.dict["zap2it"]["timespan"]) * 3600
+        zap_time_window = int(self.plugin_utils.config.dict["zap2it"]["timespan"]) * 3600
         zap_time = int(zap_time - (zap_time % zap_time_window))
 
         # Fetch data in `zap_timespan` chunks.
         i_times = []
-        for i in range(int(7 * 24 / int(self.fhdhr.config.dict["zap2it"]["timespan"]))):
+        for i in range(int(7 * 24 / int(self.plugin_utils.config.dict["zap2it"]["timespan"]))):
             i_times.append(zap_time + (i * zap_time_window))
 
         cached_items = self.get_cached(i_times)
@@ -120,18 +111,18 @@ class zap2itEPG():
         for i_time in i_times:
 
             parameters = {
-                'aid': self.fhdhr.config.dict["zap2it"]['affiliate_id'],
-                'country': self.fhdhr.config.dict["zap2it"]['country'],
-                'device': self.fhdhr.config.dict["zap2it"]['device'],
-                'headendId': self.fhdhr.config.dict["zap2it"]['headendid'],
+                'aid': self.plugin_utils.config.dict["zap2it"]['affiliate_id'],
+                'country': self.plugin_utils.config.dict["zap2it"]['country'],
+                'device': self.plugin_utils.config.dict["zap2it"]['device'],
+                'headendId': self.plugin_utils.config.dict["zap2it"]['headendid'],
                 'isoverride': "true",
-                'languagecode': self.fhdhr.config.dict["zap2it"]['languagecode'],
+                'languagecode': self.plugin_utils.config.dict["zap2it"]['languagecode'],
                 'pref': 'm,p',
-                'timespan': self.fhdhr.config.dict["zap2it"]['timespan'],
-                'timezone': self.fhdhr.config.dict["zap2it"]['timezone'],
-                'userId': self.fhdhr.config.dict["zap2it"]['userid'],
+                'timespan': self.plugin_utils.config.dict["zap2it"]['timespan'],
+                'timezone': self.plugin_utils.config.dict["zap2it"]['timezone'],
+                'userId': self.plugin_utils.config.dict["zap2it"]['userid'],
                 'postalCode': str(self.postalcode),
-                'lineupId': '%s-%s-DEFAULT' % (self.fhdhr.config.dict["zap2it"]['country'], self.fhdhr.config.dict["zap2it"]['device']),
+                'lineupId': '%s-%s-DEFAULT' % (self.plugin_utils.config.dict["zap2it"]['country'], self.plugin_utils.config.dict["zap2it"]['device']),
                 'time': i_time,
                 'Activity_ID': 1,
                 'FromPage': "TV%20Guide",
@@ -140,43 +131,43 @@ class zap2itEPG():
             url = 'https://tvlistings.zap2it.com/api/grid?'
             url += urllib.parse.urlencode(parameters)
             self.get_cached_item(str(i_time), url)
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
-        return [self.fhdhr.db.get_cacheitem_value(x, "epg_cache", "zap2it") for x in cache_list]
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "zap2it") or []
+        return [self.plugin_utils.db.get_plugin_value(x, "epg_cache", "zap2it") for x in cache_list]
 
     def get_cached_item(self, cache_key, url):
-        cacheitem = self.fhdhr.db.get_cacheitem_value(cache_key, "epg_cache", "zap2it")
+        cacheitem = self.plugin_utils.db.get_plugin_value(cache_key, "epg_cache", "zap2it")
         if cacheitem:
-            self.fhdhr.logger.info("FROM CACHE:  %s" % cache_key)
+            self.plugin_utils.logger.info("FROM CACHE:  %s" % cache_key)
             return cacheitem
         else:
-            self.fhdhr.logger.info("Fetching:  %s" % url)
+            self.plugin_utils.logger.info("Fetching:  %s" % url)
             try:
-                resp = self.fhdhr.web.session.get(url)
-            except self.fhdhr.web.exceptions.HTTPError:
-                self.fhdhr.logger.info('Got an error!  Ignoring it.')
+                resp = self.plugin_utils.web.session.get(url)
+            except self.plugin_utils.web.exceptions.HTTPError:
+                self.plugin_utils.logger.info('Got an error!  Ignoring it.')
                 return
             result = resp.json()
 
-            self.fhdhr.db.set_cacheitem_value(cache_key, "epg_cache", result, "zap2it")
-            cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
+            self.plugin_utils.db.set_plugin_value(cache_key, "epg_cache", result, "zap2it")
+            cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "zap2it") or []
             cache_list.append(cache_key)
-            self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", cache_list, "zap2it")
+            self.plugin_utils.db.set_plugin_value("cache_list", "epg_cache", cache_list, "zap2it")
 
     def remove_stale_cache(self, zap_time):
 
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "zap2it") or []
         cache_to_kill = []
         for cacheitem in cache_list:
             cachedate = int(cacheitem)
             if cachedate < zap_time:
                 cache_to_kill.append(cacheitem)
-                self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "zap2it")
-                self.fhdhr.logger.info("Removing stale cache:  %s" % cacheitem)
-        self.fhdhr.db.set_cacheitem_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "zap2it")
+                self.plugin_utils.db.delete_plugin_value(cacheitem, "epg_cache", "zap2it")
+                self.plugin_utils.logger.info("Removing stale cache:  %s" % cacheitem)
+        self.plugin_utils.db.set_plugin_value("cache_list", "epg_cache", [x for x in cache_list if x not in cache_to_kill], "zap2it")
 
     def clear_cache(self):
-        cache_list = self.fhdhr.db.get_cacheitem_value("cache_list", "epg_cache", "zap2it") or []
+        cache_list = self.plugin_utils.db.get_plugin_value("cache_list", "epg_cache", "zap2it") or []
         for cacheitem in cache_list:
-            self.fhdhr.db.delete_cacheitem_value(cacheitem, "epg_cache", "zap2it")
-            self.fhdhr.logger.info("Removing cache:  %s" % cacheitem)
-        self.fhdhr.db.delete_cacheitem_value("cache_list", "epg_cache", "zap2it")
+            self.plugin_utils.db.delete_plugin_value(cacheitem, "epg_cache", "zap2it")
+            self.plugin_utils.logger.info("Removing cache:  %s" % cacheitem)
+        self.plugin_utils.db.delete_plugin_value("cache_list", "epg_cache", "zap2it")

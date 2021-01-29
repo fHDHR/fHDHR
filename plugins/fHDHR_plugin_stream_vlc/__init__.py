@@ -1,41 +1,34 @@
 import sys
 import subprocess
 
-# from fHDHR.exceptions import TunerError
 
-PLUGIN_NAME = "vlc"
-PLUGIN_VERSION = "v0.6.0-beta"
-PLUGIN_TYPE = "alt_stream"
+def setup(plugin):
+    try:
+        vlc_command = [plugin.config.dict["vlc"]["path"],
+                       "--version",
+                       "pipe:stdout"
+                       ]
 
-
-class VLC_Setup():
-    def __init__(self, config):
-        try:
-            vlc_command = [config.dict["vlc"]["path"],
-                           "--version",
-                           "pipe:stdout"
-                           ]
-
-            vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
-            vlc_version = vlc_proc.stdout.read()
-            vlc_proc.terminate()
-            vlc_proc.communicate()
-            vlc_proc.kill()
-            vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
-        except FileNotFoundError:
-            vlc_version = "Missing"
-            print("Failed to find vlc.")
-        config.register_version("vlc", vlc_version)
+        vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
+        vlc_version = vlc_proc.stdout.read()
+        vlc_proc.terminate()
+        vlc_proc.communicate()
+        vlc_proc.kill()
+        vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
+    except FileNotFoundError:
+        vlc_version = "Missing"
+        plugin.logger.warning("Failed to find vlc.")
+    plugin.config.register_version("vlc", vlc_version, "env")
 
 
-class VLC_Stream():
+class Plugin_OBJ():
 
-    def __init__(self, fhdhr, stream_args, tuner):
-        self.fhdhr = fhdhr
+    def __init__(self, plugin_utils, stream_args, tuner):
+        self.plugin_utils = plugin_utils
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
+        self.bytes_per_read = int(self.plugin_utils.config.dict["streaming"]["bytes_per_read"])
         self.vlc_command = self.vlc_command_assemble(stream_args)
 
     def get(self):
@@ -54,17 +47,17 @@ class VLC_Stream():
                     yield chunk
                     chunk_size = int(sys.getsizeof(chunk))
                     self.tuner.add_downloaded_size(chunk_size)
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
+                self.plugin_utils.logger.info("Connection Closed: Tuner Lock Removed")
 
             except GeneratorExit:
-                self.fhdhr.logger.info("Connection Closed.")
+                self.plugin_utils.logger.info("Connection Closed.")
             except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: %s" % e)
+                self.plugin_utils.logger.info("Connection Closed: %s" % e)
             finally:
                 vlc_proc.terminate()
                 vlc_proc.communicate()
                 vlc_proc.kill()
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
+                self.plugin_utils.logger.info("Connection Closed: Tuner Lock Removed")
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")
 
@@ -72,7 +65,7 @@ class VLC_Stream():
 
     def vlc_command_assemble(self, stream_args):
         vlc_command = [
-                          self.fhdhr.config.dict["vlc"]["path"],
+                          self.plugin_utils.config.dict["vlc"]["path"],
                           "-I", "dummy", stream_args["stream_info"]["url"],
                           ]
         # vlc_command.extend(self.vlc_headers(stream_args))
@@ -94,7 +87,7 @@ class VLC_Stream():
 
     def vlc_loglevel(self):
         vlc_command = []
-        log_level = self.fhdhr.config.dict["logging"]["level"].lower()
+        log_level = self.plugin_utils.config.dict["logging"]["level"].lower()
 
         loglevel_dict = {
                         "debug": "3",
@@ -113,7 +106,7 @@ class VLC_Stream():
         vlc_command = []
 
         if stream_args["transcode_quality"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
+            self.plugin_utils.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
 
         transcode_dict = {}
         if not stream_args["transcode_quality"] or stream_args["transcode_quality"] == "heavy":

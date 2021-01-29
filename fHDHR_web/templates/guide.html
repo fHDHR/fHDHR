@@ -14,7 +14,7 @@
     <table class="table-scroll">
       <thead>
         <tr>
-          {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
+          {% if source in fhdhr.origins.valid_origins %}
             <th>Play</th>
           {% endif %}
           <th>Channel Name</th>
@@ -32,7 +32,7 @@
       <tbody class="body-half-screen">
         {% for chan_dict in chan_guide_list %}
           <tr>
-            {% if source in ["blocks", "origin", fhdhr.config.dict["main"]["dictpopname"]] %}
+            {% if source in fhdhr.origins.valid_origins %}
               <td>
                 {% if chan_dict["enabled"] %}
                   <a href="{{ chan_dict["m3u_url"] }}">Play</a>

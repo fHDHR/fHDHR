@@ -1,41 +1,34 @@
 import sys
 import subprocess
 
-# from fHDHR.exceptions import TunerError
 
-PLUGIN_NAME = "ffmpeg"
-PLUGIN_VERSION = "v0.6.0-beta"
-PLUGIN_TYPE = "alt_stream"
+def setup(plugin):
+    try:
+        ffmpeg_command = [plugin.config.dict["ffmpeg"]["path"],
+                          "-version",
+                          "pipe:stdout"
+                          ]
 
-
-class FFMPEG_Setup():
-    def __init__(self, config):
-        try:
-            ffmpeg_command = [config.dict["ffmpeg"]["path"],
-                              "-version",
-                              "pipe:stdout"
-                              ]
-
-            ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
-            ffmpeg_version = ffmpeg_proc.stdout.read()
-            ffmpeg_proc.terminate()
-            ffmpeg_proc.communicate()
-            ffmpeg_proc.kill()
-            ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
-        except FileNotFoundError:
-            ffmpeg_version = "Missing"
-            print("Failed to find ffmpeg.")
-        config.register_version("ffmpeg", ffmpeg_version)
+        ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+        ffmpeg_version = ffmpeg_proc.stdout.read()
+        ffmpeg_proc.terminate()
+        ffmpeg_proc.communicate()
+        ffmpeg_proc.kill()
+        ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
+    except FileNotFoundError:
+        ffmpeg_version = "Missing"
+        plugin.logger.warning("Failed to find ffmpeg.")
+    plugin.config.register_version("ffmpeg", ffmpeg_version, "env")
 
 
-class FFMPEG_Stream():
+class Plugin_OBJ():
 
-    def __init__(self, fhdhr, stream_args, tuner):
-        self.fhdhr = fhdhr
+    def __init__(self, plugin_utils, stream_args, tuner):
+        self.plugin_utils = plugin_utils
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
+        self.bytes_per_read = int(plugin_utils.config.dict["streaming"]["bytes_per_read"])
         self.ffmpeg_command = self.ffmpeg_command_assemble(stream_args)
 
     def get(self):
@@ -53,17 +46,17 @@ class FFMPEG_Stream():
                     yield chunk
                     chunk_size = int(sys.getsizeof(chunk))
                     self.tuner.add_downloaded_size(chunk_size)
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
+                self.plugin_utils.logger.info("Connection Closed: Tuner Lock Removed")
 
             except GeneratorExit:
-                self.fhdhr.logger.info("Connection Closed.")
+                self.plugin_utils.logger.info("Connection Closed.")
             except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: %s" % e)
+                self.plugin_utils.logger.info("Connection Closed: %s" % e)
             finally:
                 ffmpeg_proc.terminate()
                 ffmpeg_proc.communicate()
                 ffmpeg_proc.kill()
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
+                self.plugin_utils.logger.info("Connection Closed: Tuner Lock Removed")
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")
 
@@ -71,7 +64,7 @@ class FFMPEG_Stream():
 
     def ffmpeg_command_assemble(self, stream_args):
         ffmpeg_command = [
-                          self.fhdhr.config.dict["ffmpeg"]["path"],
+                          self.plugin_utils.config.dict["ffmpeg"]["path"],
                           "-i", stream_args["stream_info"]["url"],
                           ]
         ffmpeg_command.extend(self.ffmpeg_headers(stream_args))
@@ -112,7 +105,7 @@ class FFMPEG_Stream():
 
     def ffmpeg_loglevel(self):
         ffmpeg_command = []
-        log_level = self.fhdhr.config.dict["logging"]["level"].lower()
+        log_level = self.plugin_utils.config.dict["logging"]["level"].lower()
 
         loglevel_dict = {
                         "debug": "debug",
@@ -129,7 +122,7 @@ class FFMPEG_Stream():
     def transcode_profiles(self, stream_args):
 
         if stream_args["transcode_quality"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
+            self.plugin_utils.logger.info("Client requested a %s transcode for stream." % stream_args["transcode_quality"])
 
         ffmpeg_command = []
 
