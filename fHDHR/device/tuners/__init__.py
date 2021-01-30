@@ -57,7 +57,7 @@ class Tuners():
                 raise TunerError("805 - All Tuners In Use")
 
             tunernumber = self.get_available_tuner(origin)
-            self.tuners[str(tunernumber)].channel_scan(origin)
+            self.tuners[origin][str(tunernumber)].channel_scan(origin)
 
             if not tunernumber:
                 raise TunerError("805 - All Tuners In Use")
