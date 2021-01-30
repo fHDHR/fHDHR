@@ -58,6 +58,8 @@ class Plugin_OBJ():
                 vlc_proc.communicate()
                 vlc_proc.kill()
                 self.plugin_utils.logger.info("Connection Closed: Tuner Lock Removed")
+                if hasattr(self.fhdhr.origins.origins_dict[self.tuner.origin], "close_stream"):
+                    self.fhdhr.origins.origins_dict[self.tuner.origin].close_stream(self.tuner.number, self.stream_args)
                 self.tuner.close()
                 # raise TunerError("806 - Tune Failed")
 

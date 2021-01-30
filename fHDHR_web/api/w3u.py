@@ -31,7 +31,7 @@ class W3U():
             if origin and origin not in origin_methods:
                 return "%s Invalid channels origin" % origin
 
-            channel_info_m3u = {
+            channel_info_w3u = {
                                 "name": self.fhdhr.config.dict["fhdhr"]["friendlyname"],
                                 "image": '%s/favicon.ico' % base_url,
                                 "epg": '%s/api/xmltv' % base_url,
@@ -42,28 +42,35 @@ class W3U():
 
             if origin:
                 if channel == "all":
-                    fileName = "channels.m3u"
+                    fileName = "channels.w3u"
                     for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
                         channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
                         if channel_obj.enabled:
                             channel_items.append(channel_obj)
                 elif str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
                     channel_obj = self.fhdhr.device.channels.get_channel_obj("number", channel, origin)
-                    fileName = "%s.m3u" % channel_obj.number
+                    fileName = "%s.w3u" % channel_obj.number
                     if channel_obj.enabled:
                         channel_items.append(channel_obj)
                     else:
                         return "Channel Disabled"
                 elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id", origin)]:
                     channel_obj = self.fhdhr.device.channels.get_channel_obj("id", channel, origin)
-                    fileName = "%s.m3u" % channel_obj.number
+                    fileName = "%s.w3u" % channel_obj.number
                     if channel_obj.enabled:
                         channel_items.append(channel_obj)
                     else:
                         return "Channel Disabled"
+            elif not origin and channel == "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
+                fileName = "channels.w3u"
+                for origin in list(self.fhdhr.origins.origins_dict.keys()):
+                    for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
+                        channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
+                        if channel_obj.enabled:
+                            channel_items.append(channel_obj)
             elif not origin and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
                 channel_obj = self.fhdhr.device.channels.get_channel_obj("id", channel)
-                fileName = "%s.m3u" % channel_obj.number
+                fileName = "%s.w3u" % channel_obj.number
                 if channel_obj.enabled:
                     channel_items.append(channel_obj)
                 else:
@@ -91,9 +98,9 @@ class W3U():
             # Sort the channels
             sorted_channel_list = channel_sort(list(channels_info.keys()))
             for channel in sorted_channel_list:
-                channel_info_m3u["stations"].append(channels_info[channel])
+                channel_info_w3u["stations"].append(channels_info[channel])
 
-            channels_info_json = json.dumps(channel_info_m3u, indent=4)
+            channels_info_json = json.dumps(channel_info_w3u, indent=4)
 
             resp = Response(status=200, response=channels_info_json, mimetype='application/json')
             resp.headers["content-disposition"] = "attachment; filename=%s" % fileName
