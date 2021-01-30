@@ -63,7 +63,7 @@ class M3U():
                         channel_items.append(channel_obj)
                     else:
                         return "Channel Disabled"
-            elif not origin and channel == "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
+            elif not origin and channel == "all":
                 fileName = "channels.m3u"
                 for origin in list(self.fhdhr.origins.origins_dict.keys()):
                     for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:

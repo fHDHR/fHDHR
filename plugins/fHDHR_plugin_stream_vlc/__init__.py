@@ -23,7 +23,8 @@ def setup(plugin):
 
 class Plugin_OBJ():
 
-    def __init__(self, plugin_utils, stream_args, tuner):
+    def __init__(self, fhdhr, plugin_utils, stream_args, tuner):
+        self.fhdhr = fhdhr
         self.plugin_utils = plugin_utils
         self.stream_args = stream_args
         self.tuner = tuner
