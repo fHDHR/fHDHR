@@ -43,3 +43,6 @@ class Origins():
 
                 if not hasattr(self.origins_dict[method], 'tuners'):
                     self.origins_dict[method].tuners = 4
+
+                if not hasattr(self.origins_dict[method], 'stream_method'):
+                    self.origins_dict[method].stream_method = self.fhdhr.config.dict["streaming"]["method"]

@@ -26,7 +26,7 @@ class Channels():
 
         origin_methods = self.fhdhr.origins.valid_origins
         origin = request.args.get('origin', default=None, type=str)
-        if origin not in origin_methods:
+        if origin and origin not in origin_methods:
             return "%s Invalid channels origin" % origin
 
         if method == "get":

@@ -63,6 +63,13 @@ class M3U():
                         channel_items.append(channel_obj)
                     else:
                         return "Channel Disabled"
+            elif not origin and channel == "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
+                fileName = "channels.m3u"
+                for origin in list(self.fhdhr.origins.origins_dict.keys()):
+                    for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
+                        channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
+                        if channel_obj.enabled:
+                            channel_items.append(channel_obj)
             elif not origin and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
                 channel_obj = self.fhdhr.device.channels.get_channel_obj("id", channel)
                 fileName = "%s.m3u" % channel_obj.number
@@ -88,7 +95,7 @@ class M3U():
                                                     "tvg-name": str(channel_obj.dict['name']),
                                                     "tvg-id": str(channel_obj.number),
                                                     "tvg-logo": logourl,
-                                                    "group-title": self.fhdhr.config.dict["fhdhr"]["friendlyname"],
+                                                    "group-title": channel_obj.origin,
                                                     "group-titleb": str(channel_obj.dict['name']),
                                                     "stream_url": "%s%s" % (base_url, channel_obj.api_stream_url)
                                                     }
