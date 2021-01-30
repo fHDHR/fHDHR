@@ -17,7 +17,7 @@ class Stream():
                 self.method = Direct_Stream(fhdhr, stream_args, tuner)
         else:
             plugin_name = self.fhdhr.config.dict["streaming"]["valid_methods"][stream_args["method"]]["plugin"]
-            self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr.plugins.plugins[plugin_name].plugin_utils, stream_args, tuner)
+            self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, stream_args, tuner)
 
     def get(self):
         return self.method.get()
