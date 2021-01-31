@@ -65,7 +65,7 @@ class Plugin_OBJ():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        if self.plugin_utils.config.internal["versions"]["vlc"] == "Missing":
+        if self.plugin_utils.config.internal["versions"]["vlc"]["version"] == "Missing":
             raise TunerError("806 - Tune Failed: VLC Missing")
 
         self.bytes_per_read = int(self.plugin_utils.config.dict["streaming"]["bytes_per_read"])

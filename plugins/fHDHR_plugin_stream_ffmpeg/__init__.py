@@ -65,7 +65,7 @@ class Plugin_OBJ():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        if self.plugin_utils.config.internal["versions"]["ffmpeg"] == "Missing":
+        if self.plugin_utils.config.internal["versions"]["ffmpeg"]["version"] == "Missing":
             raise TunerError("806 - Tune Failed: FFMPEG Missing")
 
         self.bytes_per_read = int(plugin_utils.config.dict["streaming"]["bytes_per_read"])
