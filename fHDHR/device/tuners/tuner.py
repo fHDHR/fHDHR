@@ -85,7 +85,7 @@ class Tuner():
 
     def get_stream(self, stream_args, tuner):
         stream = Stream(self.fhdhr, stream_args, tuner)
-        return stream.get()
+        return stream
 
     def set_status(self, stream_args):
         if self.status["status"] != "Active":

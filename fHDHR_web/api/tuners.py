@@ -132,7 +132,15 @@ class Tuners():
             tuner.set_status(stream_args)
             session["tuner_used"] = tunernum
 
-            return Response(stream_with_context(tuner.get_stream(stream_args, tuner)), mimetype=stream_args["content_type"])
+            try:
+                stream = tuner.get_stream(stream_args, tuner)
+            except TunerError as e:
+                response.headers["X-fHDHR-Error"] = str(e)
+                self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                tuner.close()
+                abort(response)
+
+            return Response(stream_with_context(stream.get()), mimetype=stream_args["content_type"])
 
         elif method == "close":
 

@@ -1,23 +1,59 @@
+import os
 import sys
 import subprocess
 
+from fHDHR.exceptions import TunerError
+
 
 def setup(plugin):
-    try:
-        ffmpeg_command = [plugin.config.dict["ffmpeg"]["path"],
-                          "-version",
-                          "pipe:stdout"
-                          ]
 
-        ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
-        ffmpeg_version = ffmpeg_proc.stdout.read()
+    # Check config for ffmpeg path
+    ffmpeg_path = None
+    if plugin.config.dict["ffmpeg"]["path"]:
+        # verify path is valid
+        if os.path.isfile(plugin.config.dict["ffmpeg"]["path"]):
+            ffmpeg_path = plugin.config.dict["ffmpeg"]["path"]
+        else:
+            plugin.logger.warning("Failed to find ffmpeg at %s." % plugin.config.dict["ffmpeg"]["path"])
+
+    if not ffmpeg_path:
+        plugin.logger.info("Attempting to find ffmpeg in PATH.")
+        if plugin.config.internal["versions"]["Operating System"]["version"] in ["Linux", "Darwin"]:
+            find_ffmpeg_command = ["which", "ffmpeg"]
+        elif plugin.config.internal["versions"]["Operating System"]["version"] in ["Windows"]:
+            find_ffmpeg_command = ["where", "ffmpeg"]
+
+        ffmpeg_proc = subprocess.Popen(find_ffmpeg_command, stdout=subprocess.PIPE)
+        ffmpeg_path = ffmpeg_proc.stdout.read().decode().strip("\n")
         ffmpeg_proc.terminate()
         ffmpeg_proc.communicate()
         ffmpeg_proc.kill()
-        ffmpeg_version = ffmpeg_version.decode().split("version ")[1].split(" ")[0]
-    except FileNotFoundError:
+        if not ffmpeg_path:
+            ffmpeg_path = None
+        elif ffmpeg_path.isspace():
+            ffmpeg_path = None
+
+        if ffmpeg_path:
+            plugin.config.dict["ffmpeg"]["path"] = ffmpeg_path
+
+    if ffmpeg_path:
+        ffmpeg_command = [ffmpeg_path, "-version", "pipe:stdout"]
+        try:
+            ffmpeg_proc = subprocess.Popen(ffmpeg_command, stdout=subprocess.PIPE)
+            ffmpeg_version = ffmpeg_proc.stdout.read().decode().split("version ")[1].split(" ")[0]
+        except FileNotFoundError:
+            ffmpeg_version = None
+        except PermissionError:
+            ffmpeg_version = None
+        finally:
+            ffmpeg_proc.terminate()
+            ffmpeg_proc.communicate()
+            ffmpeg_proc.kill()
+
+    if not ffmpeg_version:
         ffmpeg_version = "Missing"
         plugin.logger.warning("Failed to find ffmpeg.")
+
     plugin.config.register_version("ffmpeg", ffmpeg_version, "env")
 
 
@@ -28,6 +64,9 @@ class Plugin_OBJ():
         self.plugin_utils = plugin_utils
         self.stream_args = stream_args
         self.tuner = tuner
+
+        if self.plugin_utils.config.internal["versions"]["ffmpeg"] == "Missing":
+            raise TunerError("806 - Tune Failed: FFMPEG Missing")
 
         self.bytes_per_read = int(plugin_utils.config.dict["streaming"]["bytes_per_read"])
         self.ffmpeg_command = self.ffmpeg_command_assemble(stream_args)
