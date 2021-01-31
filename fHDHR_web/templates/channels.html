@@ -6,12 +6,12 @@
 
   <p>
     {% for origin in origin_methods %}
-      <button onclick="location.href='/channels?source={{ origin }}'" type="button">{{ origin }}</button>
+      <button onclick="location.href='/channels?origin={{ origin }}'" type="button">{{ origin }}</button>
     {% endfor %}
   </p>
 
   <div style="text-align: center;">
-    <button onclick="location.href='/api/tuners?method=scan&origin={{ origin }}&redirect=/channels'" type="button">Force Channel Update</button>
+    <button onclick="location.href='/api/tuners?method=scan&origin={{ origin }}&redirect=/channels?origin={{ origin }}'" type="button">Force Channel Update</button>
     <p> Note: This may take some time.</p>
   </div>
   <br>

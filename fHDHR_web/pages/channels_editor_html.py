@@ -18,7 +18,7 @@ class Channels_Editor_HTML():
 
     def get(self, *args):
 
-        origin = request.args.get('source', default=self.fhdhr.device.epg.def_method, type=str)
+        origin = request.args.get('origin', default=self.fhdhr.device.epg.def_method, type=str)
         origin_methods = self.fhdhr.origins.valid_origins
         if origin not in origin_methods:
             origin = origin_methods[0]
