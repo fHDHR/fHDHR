@@ -20,7 +20,7 @@ class Tuner():
 
         origin = self.source
 
-        redirect_url = "/api/tuners?method=%s" % (self.fhdhr.config.dict["streaming"]["method"])
+        redirect_url = "/api/tuners?method=stream"
 
         redirect_url += "&tuner=%s" % (tuner_number)
 
@@ -42,6 +42,7 @@ class Tuner():
 
         redirect_url += "&channel=%s" % str(channel_number)
         redirect_url += "&origin=%s" % str(origin)
+        redirect_url += "&stream_method=%s" % self.fhdhr.origins.origins_dict[origin].stream_method
 
         duration = request.args.get('duration', default=0, type=int)
         if duration:

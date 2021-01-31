@@ -164,7 +164,7 @@ class Channel():
 
     @property
     def api_stream_url(self):
-        return '/api/tuners?method=%s&channel=%s&origin=%s' % (self.fhdhr.config.dict["streaming"]["method"], self.dict["id"], self.origin)
+        return '/api/tuners?method=stream&stream_method=%s&channel=%s&origin=%s' % (self.fhdhr.origins.origins_dict[self.origin].stream_method, self.dict["id"], self.origin)
 
     @property
     def api_m3u_url(self):
