@@ -36,7 +36,7 @@ class Tuners():
         if origin and origin not in origin_methods:
             return "%s Invalid channels origin" % origin
 
-        if method in list(self.fhdhr.config.dict["streaming"]["valid_methods"].keys()):
+        if method == "stream":
 
             channel_number = request.args.get('channel', None, type=str)
             if not channel_number:
@@ -73,6 +73,13 @@ class Tuners():
             origin = chan_obj.origin
             channel_number = chan_obj.number
 
+            stream_method = request.args.get('stream_method', default=self.fhdhr.origins.origins_dict[origin].stream_method, type=str)
+            if stream_method not in list(self.fhdhr.config.dict["streaming"]["valid_methods"].keys()):
+                response = Response("Service Unavailable", status=503)
+                response = Response("Service Unavailable", status=503)
+                response.headers["X-fHDHR-Error"] = str("806 - Tune Failed")
+                abort(response)
+
             duration = request.args.get('duration', default=0, type=int)
 
             transcode_quality = request.args.get('transcode', default=None, type=str)
@@ -86,7 +93,7 @@ class Tuners():
             stream_args = {
                             "channel": channel_number,
                             "origin": origin,
-                            "method": method,
+                            "method": stream_method,
                             "duration": duration,
                             "origin_quality": self.fhdhr.config.dict["streaming"]["origin_quality"],
                             "transcode_quality": transcode_quality or self.fhdhr.config.dict["streaming"]["transcode_quality"],
@@ -125,7 +132,15 @@ class Tuners():
             tuner.set_status(stream_args)
             session["tuner_used"] = tunernum
 
-            return Response(stream_with_context(tuner.get_stream(stream_args, tuner)), mimetype=stream_args["content_type"])
+            try:
+                stream = tuner.get_stream(stream_args, tuner)
+            except TunerError as e:
+                response.headers["X-fHDHR-Error"] = str(e)
+                self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                tuner.close()
+                abort(response)
+
+            return Response(stream_with_context(stream.get()), mimetype=stream_args["content_type"])
 
         elif method == "close":
 

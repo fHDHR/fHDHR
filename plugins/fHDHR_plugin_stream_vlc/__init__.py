@@ -1,23 +1,59 @@
+import os
 import sys
 import subprocess
 
+from fHDHR.exceptions import TunerError
+
 
 def setup(plugin):
-    try:
-        vlc_command = [plugin.config.dict["vlc"]["path"],
-                       "--version",
-                       "pipe:stdout"
-                       ]
 
-        vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
-        vlc_version = vlc_proc.stdout.read()
+    # Check config for vlc path
+    vlc_path = None
+    if plugin.config.dict["vlc"]["path"]:
+        # verify path is valid
+        if os.path.isfile(plugin.config.dict["vlc"]["path"]):
+            vlc_path = plugin.config.dict["vlc"]["path"]
+        else:
+            plugin.logger.warning("Failed to find vlc at %s." % plugin.config.dict["vlc"]["path"])
+
+    if not vlc_path:
+        plugin.logger.info("Attempting to find vlc in PATH.")
+        if plugin.config.internal["versions"]["Operating System"]["version"] in ["Linux", "Darwin"]:
+            find_vlc_command = ["which", "vlc"]
+        elif plugin.config.internal["versions"]["Operating System"]["version"] in ["Windows"]:
+            find_vlc_command = ["where", "vlc"]
+
+        vlc_proc = subprocess.Popen(find_vlc_command, stdout=subprocess.PIPE)
+        vlc_path = vlc_proc.stdout.read().decode().strip("\n")
         vlc_proc.terminate()
         vlc_proc.communicate()
         vlc_proc.kill()
-        vlc_version = vlc_version.decode().split("version ")[1].split('\n')[0]
-    except FileNotFoundError:
+        if not vlc_path:
+            vlc_path = None
+        elif vlc_path.isspace():
+            vlc_path = None
+
+        if vlc_path:
+            plugin.config.dict["vlc"]["path"] = vlc_path
+
+    if vlc_path:
+        vlc_command = [vlc_path, "--version", "pipe:stdout"]
+        try:
+            vlc_proc = subprocess.Popen(vlc_command, stdout=subprocess.PIPE)
+            vlc_version = vlc_proc.stdout.read().decode().split("version ")[1].split('\n')[0]
+        except FileNotFoundError:
+            vlc_version = None
+        except PermissionError:
+            vlc_version = None
+        finally:
+            vlc_proc.terminate()
+            vlc_proc.communicate()
+            vlc_proc.kill()
+
+    if not vlc_version:
         vlc_version = "Missing"
         plugin.logger.warning("Failed to find vlc.")
+
     plugin.config.register_version("vlc", vlc_version, "env")
 
 
@@ -28,6 +64,9 @@ class Plugin_OBJ():
         self.plugin_utils = plugin_utils
         self.stream_args = stream_args
         self.tuner = tuner
+
+        if self.plugin_utils.config.internal["versions"]["vlc"] == "Missing":
+            raise TunerError("806 - Tune Failed: VLC Missing")
 
         self.bytes_per_read = int(self.plugin_utils.config.dict["streaming"]["bytes_per_read"])
         self.vlc_command = self.vlc_command_assemble(stream_args)

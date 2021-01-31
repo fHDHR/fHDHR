@@ -1,7 +1,7 @@
 {
   "ffmpeg":{
           "path":{
-                    "value": "ffmpeg",
+                    "value": "none",
                     "config_file": true,
                     "config_web": true
                 }
