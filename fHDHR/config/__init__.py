@@ -187,6 +187,8 @@ class Config():
             confvalue = None
         elif key == "xmltv_offset":
             confvalue = str(confvalue)
+        elif str(confvalue) in ["0"]:
+            confvalue = 0
         elif isint(confvalue):
             confvalue = int(confvalue)
         elif isfloat(confvalue):
