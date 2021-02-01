@@ -44,11 +44,11 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins):
         fhdhrweb.start()
 
         # Start SSDP Thread
-        if settings.dict["fhdhr"]["discovery_address"]:
+        if settings.dict["fhdhr"]["discovery_address"] and "ssdp" in list(fhdhr.threads.keys()):
             fhdhr.device.ssdp.start()
 
         # Start EPG Thread
-        if settings.dict["epg"]["method"]:
+        if settings.dict["epg"]["method"] and "epg" in list(fhdhr.threads.keys()):
             fhdhr.device.epg.start()
 
         # Perform some actions now that HTTP Server is running
