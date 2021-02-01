@@ -6,7 +6,7 @@
                       "config_web": true
                   },
             "access_level":{
-                      "value": 0,
+                      "value": "0",
                       "config_file": true,
                       "config_web": true
                   }
