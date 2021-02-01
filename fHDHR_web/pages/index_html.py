@@ -17,11 +17,15 @@ class Index_HTML():
 
         origin = self.fhdhr.origins.valid_origins[0]
 
+        total_channels = 0
+        for origin in list(self.fhdhr.device.channels.list.keys()):
+            total_channels += len(list(self.fhdhr.device.channels.list[origin].keys()))
+
         fhdhr_status_dict = {
                             "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),
                             "Config File": str(self.fhdhr.config.config_file),
                             "Cache Path": str(self.fhdhr.config.internal["paths"]["cache_dir"]),
-                            "Total Channels": len(list(self.fhdhr.device.channels.list[origin].keys())),
+                            "Total Channels": total_channels,
                             }
 
         return render_template('index.html', request=request, session=session, fhdhr=self.fhdhr, fhdhr_status_dict=fhdhr_status_dict, list=list)
