@@ -33,3 +33,21 @@ Docs are still mostly the same, but will be lacking in some ways during the tran
 
 ## Docker Support
 I am not a docker user, but I am fairly certain that after you assemble the plugins you want in the plugins folder, and run the Dockerfile, it should still work*.
+
+
+
+# Basic Installation instructions (until new Docs can be written)
+
+## 1) git clone this repo
+
+## 2) Install an origin plugin
+
+## 3) Install other plugins.
+
+* There are a couple EPG plugins that go great with Local Channel variants
+* There are a couple stream method plugins that are completely optional
+* Interface plugins like HDHR and RMG are useful methods to interface with clients.
+
+## 4) Use with Plex/Emby/Channels/xTeVe (step 3 dependencies)
+
+## 5) Profit?
