@@ -115,7 +115,7 @@ class M3U():
                 m3ustring += "%s\n" % channel_item_dict["stream_url"]
                 fakefile.write(m3ustring)
 
-                channels_m3u = fakefile.getvalue()
+            channels_m3u = fakefile.getvalue()
 
             resp = Response(status=200, response=channels_m3u, mimetype='audio/x-mpegurl')
             resp.headers["content-disposition"] = "attachment; filename=%s" % fileName

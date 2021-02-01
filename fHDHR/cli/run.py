@@ -93,10 +93,6 @@ def start(args, script_dir, fHDHR_web):
     plugins.setup()
     settings.config_verification_plugins()
 
-    if not len([x for x in list(plugins.plugins.keys()) if plugins.plugins[x].type == "origin"]):
-        print("No Origin Plugins found.")
-        return ERR_CODE
-
     return run(settings, logger, db, script_dir, fHDHR_web, plugins)
 
 

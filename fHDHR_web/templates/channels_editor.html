@@ -2,36 +2,43 @@
 
 {% block content %}
 
-  <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels Editor</h4>
+  {% if origin %}
+    <h4 style="text-align: center;">{{ origin }} Channels Editor</h4>
+  {% else %}
+    <h4 style="text-align: center;">Channels Editor</h4>
+  {% endif %}
+
   <input type="hidden" id="origin" value="{{ origin }}">
 
-  <div class="container">
-    <table class="table-medium center">
-      <tbody>
-        <tr>
-          <td>
-            <form id="Chan_Edit_Enable_Toggle" method="post">
-              <button type="button" id="enable_button" value="0">Disable All</button>
-            </form>
-          </td>
-          <td>
-            <form id="Chan_Edit_Favorite_Toggle" method="post">
-              <button type="button" id="favorite_button" value="0">Unfavorite All</button>
-            </form>
-          </td>
-          <td>
-            <form id="Chan_Edit_Modify" method="post">
-              <button type="Submit" id="modify_all">Modify All</button>
-            </form>
+  {% if origin %}
+    <div class="container">
+      <table class="table-medium center">
+        <tbody>
+          <tr>
+            <td>
+              <form id="Chan_Edit_Enable_Toggle" method="post">
+                <button type="button" id="enable_button" value="0">Disable All</button>
+              </form>
+            </td>
+            <td>
+              <form id="Chan_Edit_Favorite_Toggle" method="post">
+                <button type="button" id="favorite_button" value="0">Unfavorite All</button>
+              </form>
+            </td>
+            <td>
+              <form id="Chan_Edit_Modify" method="post">
+                <button type="Submit" id="modify_all">Modify All</button>
+              </form>
 
-            <form id="Chan_Edit_Reset" method="post">
-              <button type="Submit" id="reset_all">Reset All</button>
-            </form>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+              <form id="Chan_Edit_Reset" method="post">
+                <button type="Submit" id="reset_all">Reset All</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
 
   <div class="container">
     <table class="table-scroll center text-edit-cols">

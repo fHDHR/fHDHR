@@ -15,8 +15,6 @@ class Index_HTML():
 
     def get(self, *args):
 
-        origin = self.fhdhr.origins.valid_origins[0]
-
         total_channels = 0
         for origin in list(self.fhdhr.device.channels.list.keys()):
             total_channels += len(list(self.fhdhr.device.channels.list[origin].keys()))
