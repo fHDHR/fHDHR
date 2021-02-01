@@ -2,7 +2,11 @@
 
 {% block content %}
 
-  <h4 style="text-align: center;">{{ fhdhr.config.dict["fhdhr"]["friendlyname"] }} Channels</h4>
+{% if origin %}
+  <h4 style="text-align: center;">{{ origin }} Channels</h4>
+{% else %}
+  <h4 style="text-align: center;">Channels</h4>
+{% endif %}
 
   <p>
     {% for origin in origin_methods %}
@@ -10,11 +14,13 @@
     {% endfor %}
   </p>
 
-  <div style="text-align: center;">
-    <button onclick="location.href='/api/tuners?method=scan&origin={{ origin }}&redirect=/channels?origin={{ origin }}'" type="button">Force Channel Update</button>
-    <p> Note: This may take some time.</p>
-  </div>
-  <br>
+  {% if origin %}
+    <div style="text-align: center;">
+      <button onclick="location.href='/api/tuners?method=scan&origin={{ origin }}&redirect=/channels?origin={{ origin }}'" type="button">Force Channel Update</button>
+      <p> Note: This may take some time.</p>
+    </div>
+    <br>
+  {% endif %}
 
   <div class="container">
   <table class="table-small center">
@@ -29,11 +35,13 @@
     </table>
   </div>
 
-  <br>
-  <div style="text-align: center;">
-    <button onclick="location.href='/channels_editor?origin={{ origin }}'" type="button">Edit Channels</button>
-  </div>
-  <br>
+  {% if origin %}
+    <br>
+    <div style="text-align: center;">
+      <button onclick="location.href='/channels_editor?origin={{ origin }}'" type="button">Edit Channels</button>
+    </div>
+    <br>
+  {% endif %}
 
   <div class="container">
     <table class="table-scroll center small-first-col">

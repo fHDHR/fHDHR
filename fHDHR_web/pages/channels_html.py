@@ -17,33 +17,42 @@ class Channels_HTML():
 
     def get(self, *args):
 
-        origin = request.args.get('origin', default=self.fhdhr.device.epg.def_method, type=str)
         origin_methods = self.fhdhr.origins.valid_origins
-        if origin not in origin_methods:
-            origin = origin_methods[0]
+        if len(self.fhdhr.origins.valid_origins):
+            origin = request.args.get('origin', default=self.fhdhr.origins.valid_origins[0], type=str)
+            if origin not in origin_methods:
+                origin = origin_methods[0]
 
-        channels_dict = {
-                        "Total Channels": len(self.fhdhr.device.channels.get_channels(origin)),
-                        "Enabled": 0
-                        }
+            channels_dict = {
+                            "Total Channels": len(self.fhdhr.device.channels.get_channels(origin)),
+                            "Enabled": 0
+                            }
 
-        channelslist = {}
-        for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
-            channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
-            channel_dict = channel_obj.dict.copy()
+            channelslist = {}
+            for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
+                channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
+                channel_dict = channel_obj.dict.copy()
 
-            channel_dict["number"] = channel_obj.number
-            channel_dict["chan_thumbnail"] = channel_obj.thumbnail
-            channel_dict["m3u_url"] = channel_obj.api_m3u_url
+                channel_dict["number"] = channel_obj.number
+                channel_dict["chan_thumbnail"] = channel_obj.thumbnail
+                channel_dict["m3u_url"] = channel_obj.api_m3u_url
 
-            channelslist[channel_dict["number"]] = channel_dict
-            if channel_dict["enabled"]:
-                channels_dict["Enabled"] += 1
+                channelslist[channel_dict["number"]] = channel_dict
+                if channel_dict["enabled"]:
+                    channels_dict["Enabled"] += 1
 
-        # Sort the channels
-        sorted_channel_list = channel_sort(list(channelslist.keys()))
-        sorted_chan_guide = []
-        for channel in sorted_channel_list:
-            sorted_chan_guide.append(channelslist[channel])
+            # Sort the channels
+            sorted_channel_list = channel_sort(list(channelslist.keys()))
+            sorted_chan_guide = []
+            for channel in sorted_channel_list:
+                sorted_chan_guide.append(channelslist[channel])
+
+        else:
+            origin = None
+            sorted_chan_guide = []
+            channels_dict = {
+                            "Total Channels": 0,
+                            "Enabled": 0
+                            }
 
         return render_template('channels.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=sorted_chan_guide, channels_dict=channels_dict, origin=origin, origin_methods=origin_methods, list=list)
