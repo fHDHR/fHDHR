@@ -16,6 +16,15 @@ fHDHR is labeled as beta until we reach v1.0.0
 
 Join us in `#fHDHR <irc://irc.freenode.net/#fHDHR>`_ on Freenode.
 
+If you enjoy the code, consider buying me a Coke!
+
+<a href="https://www.paypal.com/donate?business=KEGJAGZK4NHWJ&currency_code=USD" 
+target="_blank">
+<img src="https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif" alt="PayPal this"
+title="PayPal – The safer, easier way to pay online!" border="0" />
+</a>
+
+
 # !!NOTICE!!
 
 To reduce code duplication between variants, I am moving to a plugin system.
