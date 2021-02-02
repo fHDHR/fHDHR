@@ -1,7 +1,7 @@
 <p align="center">fHDHR    <img src="images/logo.ico" alt="Logo"/></p>
 
 ---
-[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Locast](Origin.md)  |  [Credits/Related Projects](Related-Projects.md)
+[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Plugins](Plugins.md)  |  [Credits/Related Projects](Related-Projects.md)
 ---
 **f**un
 **H**ome
@@ -14,7 +14,7 @@
 # The Boring Disclaimers (at the top of the docs for a reason)
 
 
-fHDHR is a Python service to take various sources of video and make them accessible to client software including, but not limited to:
+fHDHR is a Python service to take various sources of video and make them accessible to client software including, but not limited to*:
 
 * [Plex](https://www.plex.tv/)
 * [Emby](https://emby.media/)
@@ -23,7 +23,9 @@ fHDHR is a Python service to take various sources of video and make them accessi
 
 fHDHR is not directly affiliated with the above client software, and you will receive NO support for this script via their forums.
 
-fHDHR is able to connect to clients by emulating a piece of hardware called the [HDHomeRun from SiliconDust](https://www.silicondust.com/). fHDHR is in NO way affiliated with SiliconDust, and is NOT a HDHomeRun device. fHDHR simply uses the API structure used by the authentic HDHomeRun to connect to client DVR solutions.
+fHDHR was designed to connect to clients by emulating a piece of hardware called the [HDHomeRun from SiliconDust](https://www.silicondust.com/). fHDHR is in NO way affiliated with SiliconDust, and is NOT a HDHomeRun device. fHDHR simply uses the API structure used by the authentic HDHomeRun to connect to client DVR solutions. This functionality has since been moved to a plugin.
+
+fHDHR core supports m3u, but with plugins can emulate an HDHomeRun, or a Plex Media Grabber. Other interfaces to clients can easily be developed as plugins as well.
 
 # History
 

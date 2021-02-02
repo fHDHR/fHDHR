@@ -1,8 +1,8 @@
-requests
-gevent
 flask
+gevent
 image
 m3u8
-sqlalchemy
+requests
 pycryptodome
+sqlalchemy
 simplejson

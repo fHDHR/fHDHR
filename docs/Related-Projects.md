@@ -1,7 +1,7 @@
 <p align="center">fHDHR    <img src="images/logo.ico" alt="Logo"/></p>
 
 ---
-[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Locast](Origin.md)  |  [Credits/Related Projects](Related-Projects.md)
+[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Plugins](Plugins.md)  |  [Credits/Related Projects](Related-Projects.md)
 ---
 **f**un
 **H**ome

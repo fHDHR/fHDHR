@@ -1,7 +1,7 @@
 <p align="center">fHDHR    <img src="images/logo.ico" alt="Logo"/></p>
 
 ---
-[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Locast](Origin.md)  |  [Credits/Related Projects](Related-Projects.md)
+[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Plugins](Plugins.md)  |  [Credits/Related Projects](Related-Projects.md)
 ---
 **f**un
 **H**ome
@@ -27,47 +27,37 @@ Below is the main landing page with basic information.
 
 <img src="screenshots/webui_main.PNG" alt="Main Page"/>
 
-# Locast
+# Channels
 
-Here you will have access to some basic information about the service we are proxying.
+This Page will display the channels you have per your origin plugin. It will also provide access to a Channel Editor.
 
-The webUI will still work, even if setup didn't go smoothly.
+* Note: The Play link in the left hand column can be copied to play a channel in VLC media player!
 
-<img src="screenshots/webui_origin.PNG" alt="Origin Page"/>
+<img src="screenshots/webui_channels.PNG" alt="Channels Page"/>
+
+# Channel Editor
+
+This Page will allow you to edit the channels you have per your origin plugin. From here, you can adjust the channel logo, the channel number, and the channel name.
+
+<img src="screenshots/webui_channels_editor.PNG" alt="Channel Editor Page"/>
+
 
 # Guide
 
 This Page give you information about what is currently playing on all stations. It will also show the time remaining for each item.
 
-* Note: The Play link in the left hand column can be copied to play a channel in VLC media player!
+* Note: The Play link in the left hand column can be copied to play a channel in VLC media player! (If selected EPG is from Origin)
 
 <img src="screenshots/webui_guide.PNG" alt="Guide Page"/>
 
 
-# Cluster
+# Tuners
 
-Since SSDP is used for service discovery, I decided to also use it for ease of management.
-
-This tab will not have the below options if SSDP isn't running.
-
-Joining a cluster will provide a second row of buttons for the clustered servers.
-
-Unjoined:
-
-<img src="screenshots/webui_cluster_unjoined.PNG" alt="Cluster Page, UnJoined"/>
-
-Joined:
-
-<img src="screenshots/webui_cluster_joined.PNG" alt="Cluster Page, Joined"/>
-
-
-# Streams
-
-This Page will show all active streams, and tuner information. You can also terminate a stream from here.
+This Page will show all active tuner information. You can also terminate a stream from here.
 
 * Note: Clients will often have an amount buffered, and the connection termination is not immediate from a viewing perspective. However, the connection to the source is indeed cut off.
 
-<img src="screenshots/webui_streams.PNG" alt="Streams Page"/>
+<img src="screenshots/webui_tuners.PNG" alt="Tuners Page"/>
 
 # xmltv
 
@@ -83,9 +73,9 @@ This page will give valuable information about the environment the script is bei
 
 <img src="screenshots/webui_version.PNG" alt="Version Page"/>
 
-# Diganostics
+# Diagnostics
 
-This page has various links to json/xml files that make the magic work, as well as debug and cluster information.
+This page has various links to json/xml files that make the magic work.
 
 <img src="screenshots/webui_diagnostics.PNG" alt="Diagnostics Page"/>
 
