@@ -42,6 +42,8 @@ The below instructions use the user "sysop", but you can run it as any user. The
 
 * [Install plugins.](Plugins.md) fHDHR will technically run without plugins installed, but is particularly useless without an "origin" plugin.
 
+* Install plugin python requirements file with the `pip3 install -r requirements.txt` for each plugin.
+
 * Run with the path to the config file. `python3 /home/sysop/fhdhr/main.py -c=/home/sysop/config.ini`
 
 
