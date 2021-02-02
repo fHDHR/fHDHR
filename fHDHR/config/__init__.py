@@ -148,8 +148,14 @@ class Config():
                     epg_methods.append(epg_method)
                 elif epg_method in list(self.dict["origins"]["valid_methods"].keys()):
                     epg_methods.append(epg_method)
+                elif epg_method in ["origin", "origins"]:
+                    epg_methods.extend(list(self.dict["origins"]["valid_methods"].keys()))
                 else:
                     raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
+            self.dict["epg"]["method"] = epg_methods
+        if isinstance(self.dict["epg"]["method"], str):
+            self.dict["epg"]["method"] = [self.dict["epg"]["method"]]
+
         if self.dict["epg"]["method"]:
             self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
         else:
