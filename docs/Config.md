@@ -1,7 +1,7 @@
 <p align="center">fHDHR    <img src="images/logo.ico" alt="Logo"/></p>
 
 ---
-[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Locast](Origin.md)  |  [Credits/Related Projects](Related-Projects.md)
+[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Plugins](Plugins.md)  |  [Credits/Related Projects](Related-Projects.md)
 ---
 **f**un
 **H**ome
@@ -16,8 +16,9 @@
 ---
 
 The example config file contains all of the things that the typical user may need to fill out.
+The 3 basic items in the `fhdhr` section are the only ones that you should be concerned with setting. The WebUI has a settings page with access to the same settings.
 
-Please see the Advanced Configuration page for more information.
+Please see the Advanced Configuration page for more settings.
 
 ## fHDHR
 
@@ -28,14 +29,4 @@ Under `fhdhr`, you'll find 2 addresses listed. `0.0.0.0` works great for a liste
 # address = 0.0.0.0
 # port = 5004
 # discovery_address = 0.0.0.0
-````
-
-## Locast
-
-Locast requires signin credentials, so add those.
-
-````
-[locast]
-# username =
-# password =
 ````

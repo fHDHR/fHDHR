@@ -1,7 +1,7 @@
 <p align="center">fHDHR    <img src="images/logo.ico" alt="Logo"/></p>
 
 ---
-[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Locast](Origin.md)  |  [Credits/Related Projects](Related-Projects.md)
+[Main](README.md)  |  [Setup and Usage](Usage.md)  |  [Plugins](Plugins.md)  |  [Credits/Related Projects](Related-Projects.md)
 ---
 **f**un
 **H**ome
@@ -50,7 +50,7 @@ Here's the `main` section.
 The `fhdhr` contains all the configuration options for interfacing between this script and your media platform.
 * `address` and `port` are what we will allow the script to listen on. `0.0.0.0` is the default, and will respond to all.
 * `discovery_address` may be helpful for making SSDP work properly. If `address` is not `0.0.0.0`, we will use that. If this is not set to a real IP, we won't run SSDP. SSDP is only really helpful for discovering in Plex/Emby. It's a wasted resource since you can manually add the `ip:port` of the script to Plex.
-* `tuner_count` is a limit of devices able to stream from the script. The default is 3, as per Locast's documentation. A 4th is possible, but is not reccomended.
+* `tuner_count` is a limit of devices able to stream from the script. The default is 4.
 * `friendlyname` is to set the name that Plex sees the script as.
 * `reporting_*` are settings that show how the script projects itself as a hardware device.
 * `device_auth` and `require_auth` are for an unimplemented Authentication feature.
@@ -63,8 +63,8 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 # discovery_address = 0.0.0.0
 # port = 5004
 # tuner_count =  4
-# friendlyname = fHDHR-Locast
-# reporting_firmware_name = fHDHR_Locast
+# friendlyname = fHDHR
+# reporting_firmware_name = fHDHR
 # reporting_manufacturer = BoronDust
 # reporting_model = fHDHR
 # reporting_firmware_ver = 20201001
@@ -76,7 +76,7 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 
 # EPG
 * `images` can be set to `proxy` or `pass`. If you choose `proxy`, images will be reverse proxied through fHDHR.
-* `method` defaults to `origin` and will pull the xmltv data from Locast. Other Options include `blocks` which is an hourly schedule with minimal channel information. Another option is `zap2it`, which is another source of EPG information. Channel Numbers may need to be manually mapped.
+* `method` which method(s) to use for xmltv generation.
 * `update_frequency` determines how often we check for new scheduling information. In Seconds.
 * `reverse_days` allows Blocks of EPG data to be created prior to the start of the EPG Source data.
 * `forward_days` allows Blocks of EPG data to be created after the end of the EPG Source data.
@@ -86,7 +86,7 @@ The `fhdhr` contains all the configuration options for interfacing between this 
 ````
 [epg]
 # images = pass
-# method = origin
+# method = None
 # update_frequency = 43200
 # reverse_days = -1
 # forward_days = 7
@@ -152,40 +152,4 @@ name = None
 # proto = ipv6
 # iface = None
 # multicast_address = None
-````
-
-## Locast
-The `locast` section
-* requires `username` and `password`. The script will not run without these.
-* `override_zipcode` is useful for if your DMA is not being picked up correctly.
-* `override_latitude` and `override_longitude` are helpful for "mocking" your location.
-
-
-````
-[locast]
-# username =
-# password =
-# override_zipcode = None
-# mock_location = None
-````
-
-## zap2it
-
-`zap2it` contains a ton of configuration options, and defaults to options that in my experience don't need to be adjusted.
-* `postalcode` is a value of importance, and is helpful. If not set, the script will attempt to retrieve your postalcode automatically.
-
-````
-[zap2it]
-# delay = 5
-# postalcode = None
-# affiliate_id = gapzap
-# country = USA
-# device = -
-# headendid = lineupId
-# isoverride = True
-# languagecode = en
-# pref =
-# timespan = 6
-# timezone =
-# userid = -
 ````
