@@ -13,14 +13,15 @@ from fHDHR.tools import isint, isfloat, is_arithmetic, is_docker
 
 class Config():
 
-    def __init__(self, filename, script_dir, fHDHR_web):
+    def __init__(self, args, script_dir, fHDHR_web):
         self.fHDHR_web = fHDHR_web
 
         self.internal = {}
         self.conf_default = {}
         self.dict = {}
         self.internal["versions"] = {}
-        self.config_file = filename
+        self.config_file = args.cfg
+        self.iliketobreakthings = args.iliketobreakthings
 
         self.core_setup(script_dir)
 
@@ -125,6 +126,39 @@ class Config():
     def user_config(self):
         print("Loading Configuration File: %s" % self.config_file)
         self.read_ini_config(self.config_file)
+
+    def setup_user_config(self):
+
+        current_conf = {}
+
+        config_handler = configparser.ConfigParser()
+        config_handler.read(self.config_file)
+        for each_section in config_handler.sections():
+            if each_section.lower() not in list(current_conf.keys()):
+                current_conf[each_section.lower()] = {}
+            for (each_key, each_val) in config_handler.items(each_section):
+                each_val = self.get_real_conf_value(each_key, each_val)
+
+                import_val = True
+                if each_section in list(self.conf_default.keys()):
+                    if each_key in list(self.conf_default[each_section].keys()):
+                        if not self.conf_default[each_section][each_key]["config_file"] or self.iliketobreakthings:
+                            import_val = False
+
+                if import_val:
+                    current_conf[each_section.lower()][each_key.lower()] = each_val
+
+        for config_section in list(self.conf_default.keys()):
+            if config_section not in list(current_conf.keys()):
+                current_conf[config_section] = {}
+            for config_item in list(self.conf_default[config_section].keys()):
+                writeval = True
+                if config_item in list(current_conf[config_section].keys()):
+                    writeval = False
+
+                if writeval:
+                    value = self.conf_default[config_section][config_item]["value"]
+                    self.write(config_item, value, config_section)
 
     def config_verification_plugins(self):
         required_missing = {}
@@ -258,7 +292,7 @@ class Config():
                 import_val = True
                 if each_section in list(self.conf_default.keys()):
                     if each_key in list(self.conf_default[each_section].keys()):
-                        if not self.conf_default[each_section][each_key]["config_file"]:
+                        if not self.conf_default[each_section][each_key]["config_file"] or self.iliketobreakthings:
                             import_val = False
 
                 if import_val:
@@ -268,18 +302,24 @@ class Config():
 
         if not value:
             value = None
-        if value.lower() in ["none"]:
-            value = None
-        elif value.lower() in ["false"]:
-            value = False
-        elif value.lower() in ["true"]:
-            value = True
+        elif key == "xmltv_offset":
+            value = str(value)
+        elif str(value) in ["0"]:
+            value = 0
         elif isint(value):
             value = int(value)
         elif isfloat(value):
             value = float(value)
+        elif is_arithmetic(value):
+            value = eval(value)
         elif isinstance(value, list):
             ",".join(value)
+        elif str(value).lower() in ["none", ""]:
+            value = None
+        elif str(value).lower() in ["false"]:
+            value = False
+        elif str(value).lower() in ["true"]:
+            value = True
 
         self.dict[section][key] = value
 

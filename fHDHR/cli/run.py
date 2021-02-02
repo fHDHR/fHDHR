@@ -24,13 +24,15 @@ def build_args_parser():
     """Build argument parser for fHDHR"""
     parser = argparse.ArgumentParser(description='fHDHR')
     parser.add_argument('-c', '--config', dest='cfg', type=str, required=True, help='configuration file to load.')
+    parser.add_argument('--setup', dest='setup', type=str, required=False, nargs='?', const=True, default=False, help='Setup Configuration file.')
+    parser.add_argument('--iliketobreakthings', dest='iliketobreakthings', type=str, nargs='?', const=True, required=False, default=False, help='Override Config Settings not meant to be overridden.')
     return parser.parse_args()
 
 
 def get_configuration(args, script_dir, fHDHR_web):
     if not os.path.isfile(args.cfg):
         raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
-    return fHDHR.config.Config(args.cfg, script_dir, fHDHR_web)
+    return fHDHR.config.Config(args, script_dir, fHDHR_web)
 
 
 def run(settings, logger, db, script_dir, fHDHR_web, plugins):
@@ -96,6 +98,18 @@ def start(args, script_dir, fHDHR_web):
     return run(settings, logger, db, script_dir, fHDHR_web, plugins)
 
 
+def config_setup(args, script_dir, fHDHR_web):
+    if not os.path.isfile(args.cfg):
+        raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
+
+    settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
+    fHDHR.plugins.PluginsHandler(settings)
+
+    settings.setup_user_config()
+
+    return ERR_CODE
+
+
 def main(script_dir, fHDHR_web):
     """fHDHR run script entry point"""
 
@@ -104,6 +118,10 @@ def main(script_dir, fHDHR_web):
 
     try:
         args = build_args_parser()
+
+        if args.setup:
+            return config_setup(args, script_dir, fHDHR_web)
+
         while True:
             returned_code = start(args, script_dir, fHDHR_web)
             if returned_code not in ["restart"]:
