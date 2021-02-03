@@ -21,6 +21,7 @@
       <table class="table-settings center action-col text-edit-cols">
       <thead>
         <tr>
+          <th>Helpful Info</th>
           <th>Config Name</th>
           <th>Config Default Value</th>
           <th>Config Value</th>
@@ -30,7 +31,18 @@
         <tbody>
 
           {% for config_item in list(web_settings_dict[config_section].keys()) %}
+            <input type="hidden" name="id" class="help" value="[{{ config_section }}]{{ config_item }}">
+            <input type="hidden" name="Description" class="help" value="{{ web_settings_dict[config_section][config_item]["description"] }}">
+            <input type="hidden" name="Valid Options" class="help" value="{{ web_settings_dict[config_section][config_item]["valid_options"] }}">
+            <input type="hidden" name="Default Value" class="help" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
             <tr>
+              {% if web_settings_dict[config_section][config_item]["valid_options"] or web_settings_dict[config_section][config_item]["description"] %}
+                <td>
+                  <button type="entry" id="settings_help" value="[{{ config_section }}]{{ config_item }}">Help</button>
+                </td>
+              {% else %}
+                <td></td>
+              {% endif %}
               <td>{{ config_item }}</td>
               <td>{{ web_settings_dict[config_section][config_item]["value_default"] }}</td>
               {% if web_settings_dict[config_section][config_item]["configurable"] %}
