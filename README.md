@@ -10,7 +10,7 @@ Welcome to the world of streaming content as a DVR device! We use some fancy pyt
 **R**ecreation
 
 
-Please Check the [Docs](docs/README.md) for Installation information.
+Please Check the [Docs](https://github.com/fHDHR/fHDHR_Docs/blob/main/README.md) for Installation information.
 
 fHDHR is labeled as beta until we reach v1.0.0
 
