@@ -47,7 +47,7 @@ class Settings():
             config_name = request.form.get('config_name', None)
             config_value = request.form.get('config_value', None)
 
-            if not config_section or not config_name or not config_value:
+            if not config_section or not config_name:
                 if redirect_url:
                     return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
