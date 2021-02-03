@@ -19,15 +19,16 @@ class Startup_Tasks():
         self.fhdhr.logger.info("Running Startup Tasks.")
 
         # Hit Channel Update API
-        haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time")
-        updatechannels = False
-        if not haseverscanned:
-            updatechannels = True
-        elif self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]:
-            updatechannels = True
+        for origin in list(self.fhdhr.origins.origins_dict.keys()):
 
-        if updatechannels:
-            for origin in list(self.fhdhr.origins.origins_dict.keys()):
+            haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time", origin)
+            updatechannels = False
+            if not haseverscanned:
+                updatechannels = True
+            elif self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]:
+                updatechannels = True
+
+            if updatechannels:
                 self.fhdhr.api.get("%s&origin=%s" % (self.channel_update_url, origin))
 
         # Hit EPG Update API
