@@ -13,9 +13,7 @@ class SSDPServer():
         self.ssdp_handling = {}
         self.methods = [x for x in list(self.fhdhr.plugins.plugins.keys()) if self.fhdhr.plugins.plugins[x].type == "ssdp"]
 
-        if (self.fhdhr.config.dict["fhdhr"]["discovery_address"] and
-           self.fhdhr.config.dict["ssdp"]["enabled"] and
-           len(self.methods)):
+        if self.multicast_address and self.fhdhr.config.dict["ssdp"]["enabled"] and len(self.methods):
 
             self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
             self.setup_ssdp()
@@ -147,12 +145,19 @@ class SSDPServer():
 
         return data.encode("utf-8")
 
+    @property
+    def multicast_address(self):
+        if self.fhdhr.config.dict["ssdp"]["multicast_address"]:
+            return self.fhdhr.config.dict["ssdp"]["multicast_address"]
+        elif self.fhdhr.config.dict["fhdhr"]["discovery_address"]:
+            return self.fhdhr.config.dict["fhdhr"]["discovery_address"]
+        return None
+
     def setup_ssdp(self):
         self.sock = None
 
         self.proto = self.setup_proto()
         self.iface = self.fhdhr.config.dict["ssdp"]["iface"]
-        self.address = self.fhdhr.config.dict["ssdp"]["multicast_address"]
         self.setup_addressing()
 
         self.sock = socket.socket(self.af_type, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -190,8 +195,8 @@ class SSDPServer():
         # Subscribe to multicast address
         if self.proto == "ipv4":
             mreq = socket.inet_aton(self.broadcast_ip)
-            if self.address is not None:
-                mreq += socket.inet_aton(self.address)
+            if self.multicast_address is not None:
+                mreq += socket.inet_aton(self.multicast_address)
             else:
                 mreq += struct.pack(b"@I", socket.INADDR_ANY)
             self.sock.setsockopt(
