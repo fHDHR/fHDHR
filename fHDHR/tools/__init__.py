@@ -8,6 +8,13 @@ UNARY_OPS = (ast.UAdd, ast.USub)
 BINARY_OPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)
 
 
+def inlist_match(bot, searchterm, termlist):
+    for termlist_item in termlist:
+        if termlist_item.lower() == str(searchterm).lower():
+            return termlist_item, True
+    return searchterm, False
+
+
 def channel_sort(channel_list):
     """Take a list of channel number strings and sort the Numbers and SubNumbers"""
     chan_dict_list_split = {}
