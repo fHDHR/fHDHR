@@ -22,10 +22,16 @@ class Settings_HTML():
 
             for config_item in list(self.fhdhr.config.conf_default[config_section].keys()):
                 if self.fhdhr.config.conf_default[config_section][config_item]["config_web"]:
+                    configurable = True
+                    if self.fhdhr.config.conf_default[config_section][config_item]["config_web"] == "visible_only":
+                        configurable = False
                     web_settings_dict[config_section][config_item] = {
                         "value": self.fhdhr.config.dict[config_section][config_item],
                         "value_default": self.fhdhr.config.conf_default[config_section][config_item]["value"],
-                        "hide": self.fhdhr.config.conf_default[config_section][config_item]["config_web_hidden"]
+                        "hide": self.fhdhr.config.conf_default[config_section][config_item]["config_web_hidden"],
+                        "valid_options": self.fhdhr.config.conf_default[config_section][config_item]["valid_options"],
+                        "description": self.fhdhr.config.conf_default[config_section][config_item]["description"],
+                        "configurable": configurable
                         }
             if not len(web_settings_dict[config_section].keys()):
                 del web_settings_dict[config_section]

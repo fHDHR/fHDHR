@@ -3,38 +3,50 @@
           "images":{
                     "value": "pass",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "valid_options": "pass,proxy",
+                    "description": "Determines how to handle images, if set to proxy, fHDHR will reverse proxy the images."
                 },
           "method":{
-                    "value": "none",
+                    "value": "origins",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "description": "Which EPG methods will be updated on the schedule. Can be set to None, or Origins, or a comma seperated list of Origins."
                 },
           "update_frequency":{
                     "value": 43200,
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "valid_options": "int",
+                    "description": "Determines how often (in seconds) to update EPG methods."
                 },
           "reverse_days": {
-                          "value": -1,
+                          "value": 1,
                           "config_file": true,
-                          "config_web": true
+                          "config_web": true,
+                          "valid_options": "int",
+                          "description": "Determines the amount of days before time.now to create block EPG data for if missing."
                         },
           "forward_days": {
                           "value": 7,
                           "config_file": true,
-                          "config_web": true
+                          "config_web": true,
+                          "valid_options": "int",
+                          "description": "Determines the amount of days after the end of EPG data to create block EPG data for if missing."
                         },
           "block_size": {
                           "value": 1800,
                           "config_file": true,
-                          "config_web": true
+                          "config_web": true,
+                          "valid_options": "int",
+                          "description": "Determines the time in seconds for a block of generated data to be created."
                         }
                         ,
           "xmltv_offset": {
                           "value": "+0000",
                           "config_file": true,
-                          "config_web": true
+                          "config_web": true,
+                          "description": "Allows users with timezone issues to add an offset in the format +/-HHMM. Defaults to +0000"
                         }
   }
 }

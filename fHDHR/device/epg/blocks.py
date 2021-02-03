@@ -28,7 +28,7 @@ class blocksEPG():
 
     @property
     def timestamps(self):
-        desired_start_time = (datetime.datetime.today() + datetime.timedelta(days=self.fhdhr.config.dict["epg"]["reverse_days"])).timestamp()
+        desired_start_time = (datetime.datetime.today() + datetime.timedelta(days=-abs(self.fhdhr.config.dict["epg"]["reverse_days"]))).timestamp()
         desired_end_time = (datetime.datetime.today() + datetime.timedelta(days=self.fhdhr.config.dict["epg"]["forward_days"])).timestamp()
         return self.timestamps_between(desired_start_time, desired_end_time)
 

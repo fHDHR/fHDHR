@@ -40,3 +40,5 @@ class fHDHR_OBJ():
         ''' will only get called for undefined attributes '''
         if hasattr(self.fhdhr, name):
             return eval("self.fhdhr.%s" % name)
+        elif hasattr(self.fhdhr.device, name):
+            return eval("self.fhdhr.device.%s" % name)

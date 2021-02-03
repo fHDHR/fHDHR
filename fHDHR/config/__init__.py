@@ -280,6 +280,24 @@ class Config():
                             config_option_value = True
                     self.conf_default[section][key][config_option] = config_option_value
 
+                if "valid_options" not in list(confimport[section][key].keys()):
+                    config_option_value = None
+                else:
+                    config_option_value = confimport[section][key]["valid_options"]
+                    if "," in config_option_value:
+                        config_option_value = config_option_value.split(",")
+                    elif config_option_value in ["integer"]:
+                        config_option_value = config_option_value
+                    else:
+                        config_option_value = [config_option_value]
+                self.conf_default[section][key]["valid_options"] = config_option_value
+
+                if "description" not in list(confimport[section][key].keys()):
+                    config_option_value = None
+                else:
+                    config_option_value = confimport[section][key]["description"]
+                self.conf_default[section][key]["description"] = config_option_value
+
     def read_ini_config(self, conffilepath):
         config_handler = configparser.ConfigParser()
         config_handler.read(conffilepath)

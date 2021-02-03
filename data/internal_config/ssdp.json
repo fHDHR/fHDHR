@@ -3,27 +3,35 @@
           "enabled":{
                 "value": true,
                 "config_file": true,
-                "config_web": false
+                "config_web": true,
+                "valid_options": "True,False",
+                "description": "Determines if SSDP broadcasts or not."
               },
           "max_age":{
                 "value": 1800,
                 "config_file": true,
-                "config_web": false
+                "config_web": true,
+                "valid_options": "int",
+                "description": "How often to broadcast ALIVE information."
                 },
             "proto":{
                   "value": "ipv4",
                   "config_file": true,
-                  "config_web": false
+                  "config_web": true,
+                  "valid_options": "ipv4,ipv6",
+                  "description": "Determines the IP space to Broadcast."
                   },
-              "iface":{
+            "iface":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": true,
+                    "description": "Determines the physical interface to broadcast SSDP."
                     },
-                "multicast_address":{
+            "multicast_address":{
                       "value": "none",
                       "config_file": true,
-                      "config_web": false
+                      "config_web": true,
+                      "description": "Determines the Address used by SSDP, if not set, fHDHR will use the discovery address, if not set."
                       }
   }
 }
