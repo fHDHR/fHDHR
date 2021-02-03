@@ -78,11 +78,11 @@ class xmlTV():
         else:
             return "%s Success" % method
 
-    def xmltv_headers(self):
+    def xmltv_headers(self, source):
         """This method creates the XML headers for our xmltv"""
         xmltvgen = xml.etree.ElementTree.Element('tv')
         xmltvgen.set('source-info-url', self.fhdhr.config.dict["fhdhr"]["friendlyname"])
-        xmltvgen.set('source-info-name', self.fhdhr.config.dict["main"]["servicename"])
+        xmltvgen.set('source-info-name', "%s %s" % (self.fhdhr.config.dict["main"]["servicename"], source))
         xmltvgen.set('generator-info-name', 'fHDHR')
         xmltvgen.set('generator-info-url', 'fHDHR/%s' % self.fhdhr.config.dict["main"]["reponame"])
         return xmltvgen
@@ -94,9 +94,9 @@ class xmlTV():
         xmltvfile.write(xml.etree.ElementTree.tostring(xmltvgen, encoding='UTF-8'))
         return xmltvfile.getvalue()
 
-    def xmltv_empty(self):
+    def xmltv_empty(self, source):
         """This method is called when creation of a full xmltv is not possible"""
-        return self.xmltv_file(self.xmltv_headers())
+        return self.xmltv_file(self.xmltv_headers(source))
 
     def timestamp_to_datetime(self, time_start, time_end, source):
         xmltvtimetamps = {}
@@ -108,10 +108,10 @@ class xmlTV():
 
     def create_xmltv(self, base_url, epgdict, source):
         if not epgdict:
-            return self.xmltv_empty()
+            return self.xmltv_empty(source)
         epgdict = epgdict.copy()
 
-        out = self.xmltv_headers()
+        out = self.xmltv_headers(source)
 
         if source in self.fhdhr.origins.valid_origins:
             for c in list(epgdict.keys()):
