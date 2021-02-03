@@ -3,37 +3,45 @@
           "type":{
                     "value": "sqlite",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "valid_options": "sqlite,mysql,postgres,oracle,mssql,firebird,sybase",
+                    "description": "Database Type to use."
                 },
           "driver":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database driver to use."
                 },
           "user":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database user to use."
                 },
           "pass":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database password to use."
                 },
           "host":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database host to use."
                 },
           "port":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database port to use."
                 },
           "name":{
                     "value": "none",
                     "config_file": true,
-                    "config_web": false
+                    "config_web": "visible_only",
+                    "description": "Database name to use."
                 }
   }
 }

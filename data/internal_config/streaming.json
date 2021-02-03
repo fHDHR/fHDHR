@@ -3,22 +3,29 @@
                 "bytes_per_read": {
                                   "value": 1152000,
                                   "config_file": true,
-                                  "config_web": true
+                                  "config_web": true,
+                                  "valid_options": "int",
+                                  "description": "How many bytes to pull at a time from source."
                 },
                 "origin_quality": {
                               "value": "none",
                               "config_file": true,
-                              "config_web": true
+                              "config_web": true,
+                              "valid_options": "high,medium,low",
+                              "description": "What Quailty to attempt to request from origin."
                 },
                 "transcode_quality": {
                               "value": "none",
                               "config_file": true,
-                              "config_web": true
+                              "config_web": true,
+                              "valid_options": "heavy,mobile,internet720,internet480,internet360,internet240",
+                              "description": "If a stream plugin supports transcoding, transcode at this setting."
                 },
                 "method": {
                               "value": "direct",
                               "config_file": true,
-                              "config_web": true
+                              "config_web": true,
+                              "description": "What method to stream with."
                 }
               }
 }

@@ -3,7 +3,9 @@
           "level":{
                     "value": "INFO",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "valid_options": "CRITICAL,ERROR,WARNING,INFO,DEBUG",
+                    "description": "Determines the level of logging to file as well as console output."
                 }
   }
 }

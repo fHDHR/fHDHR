@@ -3,37 +3,45 @@
           "address":{
                     "value": "0.0.0.0",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "description": "The IP address to listen on. Can be the IP of the device, or 0.0.0.0"
                 },
           "discovery_address":{
                               "value": "none",
                               "config_file": true,
-                              "config_web": true
+                              "config_web": true,
+                              "description": "The IP address to to be discovered at. Cannot be set to 0.0.0.0"
                               },
           "port":{
                   "value": 5004,
                   "config_file": true,
-                  "config_web": true
+                  "config_web": true,
+                  "valid_options": "int",
+                  "description": "The port to listen at."
                 },
           "device_auth":{
                         "value": "fHDHR",
                         "config_file": true,
-                        "config_web": true
+                        "config_web": true,
+                        "description": "Currently Unused Authentication setting."
                       },
           "require_auth":{
                           "value": false,
                           "config_file": true,
-                          "config_web": true
+                          "config_web": true,
+                          "description": "Currently Unused Authentication setting."
                         },
           "chanscan_on_start":{
                     "value": true,
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "description": "Determines if channels are scanned at start. Decreases start time, but channels should be scanned at least once prior to toggling this."
                 },
           "friendlyname":{
                     "value": "fHDHR",
                     "config_file": true,
-                    "config_web": true
+                    "config_web": true,
+                    "description": "The friendly name for this instance of fHDHR."
                 }
   }
 }
