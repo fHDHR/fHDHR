@@ -45,16 +45,16 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins):
         # Start Flask Thread
         fhdhrweb.start()
 
+        # Perform some actions now that HTTP Server is running
+        fhdhr.api.get("/api/startup_tasks")
+
         # Start SSDP Thread
-        if settings.dict["fhdhr"]["discovery_address"] and "ssdp" in list(fhdhr.threads.keys()):
+        if fhdhr.device.ssdp.multicast_address and "ssdp" in list(fhdhr.threads.keys()):
             fhdhr.device.ssdp.start()
 
         # Start EPG Thread
         if settings.dict["epg"]["method"] and "epg" in list(fhdhr.threads.keys()):
             fhdhr.device.epg.start()
-
-        # Perform some actions now that HTTP Server is running
-        fhdhr.api.get("/api/startup_tasks")
 
         # wait forever
         restart_code = "restart"
