@@ -35,12 +35,13 @@ class fHDHR_HTTP_Server():
         self.route_list = {}
 
         self.endpoints_obj = {}
-        self.endpoints_obj["pages"] = fHDHR_Pages(fhdhr)
-        self.endpoints_obj["files"] = fHDHR_Files(fhdhr)
         self.endpoints_obj["brython"] = fHDHR_Brython(fhdhr)
         self.endpoints_obj["api"] = fHDHR_API(fhdhr)
-
+        # Load Plugins before pages so they can override core web pages
         self.selfadd_web_plugins()
+        self.endpoints_obj["pages"] = fHDHR_Pages(fhdhr)
+        self.endpoints_obj["files"] = fHDHR_Files(fhdhr)
+
         for endpoint_type in list(self.endpoints_obj.keys()):
             self.fhdhr.logger.info("Loading HTTP %s Endpoints." % endpoint_type)
             self.add_endpoints(endpoint_type)
@@ -183,26 +184,31 @@ class fHDHR_HTTP_Server():
             except AttributeError:
                 endpoint_default_parameters = {}
 
-            self.fhdhr.logger.debug("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
+            endpoint_added = True
+            try:
+                for endpoint in endpoints:
+                    self.add_endpoint(endpoint=endpoint,
+                                      endpoint_name=endpoint_name,
+                                      handler=handler,
+                                      methods=endpoint_methods)
+            except AssertionError:
+                endpoint_added = False
 
-            if endpoint_category not in list(self.route_list.keys()):
-                self.route_list[endpoint_category] = {}
+            if endpoint_added:
+                self.fhdhr.logger.debug("Adding endpoint %s available at %s with %s methods." % (endpoint_name, ",".join(endpoints), ",".join(endpoint_methods)))
 
-            if endpoint_name not in list(self.route_list[endpoint_category].keys()):
-                self.route_list[endpoint_category][endpoint_name] = {}
-            self.route_list[endpoint_category][endpoint_name]["name"] = endpoint_name
-            self.route_list[endpoint_category][endpoint_name]["endpoints"] = endpoints
-            self.route_list[endpoint_category][endpoint_name]["endpoint_methods"] = endpoint_methods
-            self.route_list[endpoint_category][endpoint_name]["endpoint_access_level"] = endpoint_access_level
-            self.route_list[endpoint_category][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
-            self.route_list[endpoint_category][endpoint_name]["pretty_name"] = pretty_name
-            self.route_list[endpoint_category][endpoint_name]["endpoint_category"] = endpoint_category
+                if endpoint_category not in list(self.route_list.keys()):
+                    self.route_list[endpoint_category] = {}
 
-            for endpoint in endpoints:
-                self.add_endpoint(endpoint=endpoint,
-                                  endpoint_name=endpoint_name,
-                                  handler=handler,
-                                  methods=endpoint_methods)
+                if endpoint_name not in list(self.route_list[endpoint_category].keys()):
+                    self.route_list[endpoint_category][endpoint_name] = {}
+                self.route_list[endpoint_category][endpoint_name]["name"] = endpoint_name
+                self.route_list[endpoint_category][endpoint_name]["endpoints"] = endpoints
+                self.route_list[endpoint_category][endpoint_name]["endpoint_methods"] = endpoint_methods
+                self.route_list[endpoint_category][endpoint_name]["endpoint_access_level"] = endpoint_access_level
+                self.route_list[endpoint_category][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
+                self.route_list[endpoint_category][endpoint_name]["pretty_name"] = pretty_name
+                self.route_list[endpoint_category][endpoint_name]["endpoint_category"] = endpoint_category
 
     def isapath(self, item):
         not_a_page_list = ["fhdhr", "plugin_utils"]
