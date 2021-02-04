@@ -64,7 +64,10 @@ class Settings():
             session["restart"] = True
 
         if redirect_url:
-            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
+            if "?" in redirect_url:
+                return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
+            else:
+                return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method
 
