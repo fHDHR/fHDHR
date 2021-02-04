@@ -7,7 +7,7 @@
   <h4 style="text-align: center;">Some Settings will require a manual restart.</h4>
 
   <div style="text-align: center;">
-    <button onclick="location.href='/api/settings?method=restart&redirect=/settings'" type="button">Restart fHDHR</button>
+    <button onclick="location.href='/api/settings?method=restart&redirect=/settings?section={{ conf_section }}'" type="button">Restart fHDHR</button>
     <p> Note: This may take some time, and you will have to refresh your page.</p>
   </div>
   <br>
@@ -44,7 +44,7 @@
 
             {% if web_settings_dict[config_section][config_item]["configurable"] %}
               <td>
-                <form method="post" action="/api/settings?method=update&redirect=/settings">
+                <form method="post" action="/api/settings?method=update&redirect=/settings?section={{ config_section }}">
                   <input type="hidden" name="config_section" value="{{ config_section }}">
                   <input type="hidden" name="config_name" value="{{ config_item }}">
                   <input type="hidden" name="config_default" value="{{ web_settings_dict[config_section][config_item]["value_default"] }}">
