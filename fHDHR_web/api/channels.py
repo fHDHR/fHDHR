@@ -66,7 +66,10 @@ class Channels():
             channel = request.args.get('channel', default=None, type=str)
             if not channel:
                 if redirect_url:
-                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
+                    if "?" in redirect_url:
+                        return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
+                    else:
+                        return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
                     return "%s Falied" % method
 
@@ -98,7 +101,10 @@ class Channels():
                 self.fhdhr.device.channels.set_channel_enablement_all(method, origin)
             elif not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
                 if redirect_url:
-                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
+                    if "?" in redirect_url:
+                        return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
+                    else:
+                        return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
                 else:
                     return "%s Falied" % method
             else:
@@ -164,7 +170,10 @@ class Channels():
             return "Invalid Method"
 
         if redirect_url:
-            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
+            if "?" in redirect_url:
+                return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
+            else:
+                return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             if method == "scan":
                 return redirect('/lineup_status.json')
