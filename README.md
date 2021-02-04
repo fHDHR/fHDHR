@@ -1,4 +1,4 @@
-<p align="center">fHDHR    <img src="docs/images/logo.ico" alt="Logo"/></p>
+<p align="center">fHDHR    <img src="https://fhdhr.github.io/fHDHR_Docs/images/logo.ico" alt="Logo"/></p>
 
 
 Welcome to the world of streaming content as a DVR device! We use some fancy python here to achieve a system of:
@@ -10,7 +10,7 @@ Welcome to the world of streaming content as a DVR device! We use some fancy pyt
 **R**ecreation
 
 
-Please Check the [Docs](https://github.com/fHDHR/fHDHR_Docs/blob/main/README.md) for Installation information.
+Please Check the [Docs](https://fhdhr.github.io/fHDHR_Docs/) for Installation information.
 
 fHDHR is labeled as beta until we reach v1.0.0
 
@@ -25,4 +25,4 @@ title="PayPal – The safer, easier way to pay online!" border="0" />
 </a>
 
 ## Docker Support
-I am not a docker user, but I am fairly certain that after you assemble the plugins you want in the plugins folder, and run the Dockerfile, it should still work*.
+I am not a docker user, but I am fairly certain that after you assemble the plugins you want in the plugins folder, and run the Dockerfile, it _should_ still work.
