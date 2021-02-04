@@ -50,4 +50,10 @@ class Tuners_HTML():
 
                 tuner_status_dict[origin]["status_list"].append(tuner_dict)
 
-        return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, tuner_status_dict=tuner_status_dict, list=list)
+        origin_methods = self.fhdhr.origins.valid_origins
+        if len(self.fhdhr.origins.valid_origins):
+            origin = request.args.get('origin', default=self.fhdhr.origins.valid_origins[0], type=str)
+            if origin not in origin_methods:
+                origin = origin_methods[0]
+
+        return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, origin=origin, origin_methods=origin_methods, tuner_status_dict=tuner_status_dict, list=list)
