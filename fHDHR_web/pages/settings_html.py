@@ -36,4 +36,9 @@ class Settings_HTML():
             if not len(web_settings_dict[config_section].keys()):
                 del web_settings_dict[config_section]
 
-        return render_template('settings.html', request=request, session=session, fhdhr=self.fhdhr, web_settings_dict=web_settings_dict, list=list)
+        conf_sections = list(web_settings_dict.keys())
+        config_section = request.args.get('section', default=conf_sections[0], type=str)
+        if config_section not in conf_sections:
+            config_section = conf_sections[0]
+
+        return render_template('settings.html', request=request, session=session, fhdhr=self.fhdhr, web_settings_dict=web_settings_dict, config_section=config_section, conf_sections=conf_sections, list=list)
