@@ -1,7 +1,7 @@
-from flask import request, render_template, session
+from flask import request, session, render_template
 import datetime
 
-from fHDHR.tools import humanized_time, channel_sort
+from fHDHR.tools import channel_sort, humanized_time
 
 
 class Guide_HTML():
@@ -20,65 +20,89 @@ class Guide_HTML():
 
         nowtime = datetime.datetime.utcnow().timestamp()
 
-        chan_guide_list = []
-
         source = request.args.get('source', default=self.fhdhr.device.epg.def_method, type=str)
         epg_methods = self.fhdhr.device.epg.valid_epg_methods
         if source not in epg_methods:
             source = self.fhdhr.device.epg.def_method
 
+        origin_methods = self.fhdhr.origins.valid_origins
+
+        channelslist = {}
+
         if not source:
-            return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source, list=list)
+            return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, origin=source, origin_methods=origin_methods, list=list)
 
-        whatson = self.fhdhr.device.epg.whats_on_allchans(source)
+        whatson_all = self.fhdhr.device.epg.whats_on_allchans(source)
 
-        # Sort the channels
-        sorted_channel_list = channel_sort(list(whatson.keys()))
-        sorted_chan_guide = {}
-        for channel in sorted_channel_list:
-            sorted_chan_guide[channel] = whatson[channel]
+        if source in origin_methods:
 
-        for channel in list(sorted_chan_guide.keys()):
-            if sorted_chan_guide[channel]["listing"][0]["time_end"]:
-                remaining_time = humanized_time(sorted_chan_guide[channel]["listing"][0]["time_end"] - nowtime)
-            else:
-                remaining_time = "N/A"
+            sorted_channel_list = channel_sort([self.fhdhr.device.channels.list[source][x].number for x in list(self.fhdhr.device.channels.list[source].keys())])
+            for channel in sorted_channel_list:
 
-            chan_dict = {
-                         "name": sorted_chan_guide[channel]["name"],
-                         "number": sorted_chan_guide[channel]["number"],
-                         "chan_thumbnail": sorted_chan_guide[channel]["thumbnail"],
-                         "listing_title": sorted_chan_guide[channel]["listing"][0]["title"],
-                         "listing_thumbnail": sorted_chan_guide[channel]["listing"][0]["thumbnail"],
-                         "listing_description": sorted_chan_guide[channel]["listing"][0]["description"],
-                         "listing_remaining_time": str(remaining_time)
-                         }
+                channel_obj = self.fhdhr.device.channels.get_channel_obj("number", channel, source)
+                channel_dict = channel_obj.dict.copy()
 
-            for time_item in ["time_start", "time_end"]:
+                now_playing = whatson_all[channel]
 
-                if not sorted_chan_guide[channel]["listing"][0][time_item]:
-                    chan_dict["listing_%s" % time_item] = "N/A"
-                elif str(sorted_chan_guide[channel]["listing"][0][time_item]).endswith(tuple(["+0000", "+00:00"])):
-                    chan_dict["listing_%s" % time_item] = str(sorted_chan_guide[channel]["listing"][0][time_item])
+                channel_dict["number"] = channel_obj.number
+                channel_dict["chan_thumbnail"] = channel_obj.thumbnail
+                channel_dict["m3u_url"] = channel_obj.api_m3u_url
+
+                current_listing = now_playing["listing"][0]
+
+                channel_dict["listing_title"] = current_listing["title"]
+                channel_dict["listing_thumbnail"] = current_listing["thumbnail"]
+                channel_dict["listing_description"] = current_listing["description"]
+
+                if current_listing["time_end"]:
+                    channel_dict["listing_remaining_time"] = humanized_time(current_listing["time_end"] - nowtime)
                 else:
-                    chan_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(sorted_chan_guide[channel]["listing"][0][time_item]))
+                    channel_dict["listing_remaining_time"] = "N/A"
 
-            if source in self.fhdhr.origins.valid_origins:
-                chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"], source)
+                for time_item in ["time_start", "time_end"]:
 
-                chan_dict["name"] = chan_obj.dict["name"]
-                chan_dict["number"] = chan_obj.number
-                chan_dict["chan_thumbnail"] = chan_obj.thumbnail
-                chan_dict["enabled"] = chan_obj.dict["enabled"]
-                chan_dict["m3u_url"] = chan_obj.api_m3u_url
+                    if not current_listing[time_item]:
+                        channel_dict["listing_%s" % time_item] = "N/A"
+                    elif str(current_listing[time_item]).endswith(tuple(["+0000", "+00:00"])):
+                        channel_dict["listing_%s" % time_item] = str(current_listing[time_item])
+                    else:
+                        channel_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(current_listing[time_item]))
 
-                chan_dict["listing_thumbnail"] = chan_dict["listing_thumbnail"] or chan_obj.thumbnail
-            else:
-                if not chan_dict["listing_thumbnail"]:
-                    chan_dict["listing_thumbnail"] = chan_dict["chan_thumbnail"]
-                if not chan_dict["listing_thumbnail"]:
-                    chan_dict["listing_thumbnail"] = "/api/images?method=generate&type=channel&message=%s" % chan_dict["number"]
+                channelslist[channel_obj.number] = channel_dict
 
-            chan_guide_list.append(chan_dict)
+        elif source in epg_methods:
+            sorted_channel_list = channel_sort([x for x in list(whatson_all.keys())])
 
-        return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, chan_guide_list=chan_guide_list, epg_methods=epg_methods, source=source, list=list)
+            for channel in sorted_channel_list:
+
+                channel_dict = {
+                                "name": whatson_all[channel]["name"],
+                                "number": whatson_all[channel]["number"],
+                                "chan_thumbnail": whatson_all[channel]["thumbnail"],
+                                }
+
+                now_playing = whatson_all[channel]
+
+                current_listing = now_playing["listing"][0]
+
+                channel_dict["listing_title"] = current_listing["title"]
+                channel_dict["listing_thumbnail"] = current_listing["thumbnail"]
+                channel_dict["listing_description"] = current_listing["description"]
+
+                if current_listing["time_end"]:
+                    channel_dict["listing_remaining_time"] = humanized_time(current_listing["time_end"] - nowtime)
+                else:
+                    channel_dict["listing_remaining_time"] = "N/A"
+
+                for time_item in ["time_start", "time_end"]:
+
+                    if not current_listing[time_item]:
+                        channel_dict["listing_%s" % time_item] = "N/A"
+                    elif str(current_listing[time_item]).endswith(tuple(["+0000", "+00:00"])):
+                        channel_dict["listing_%s" % time_item] = str(current_listing[time_item])
+                    else:
+                        channel_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(current_listing[time_item]))
+
+                channelslist[channel] = channel_dict
+
+        return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, origin=source, origin_methods=origin_methods, list=list)
