@@ -67,6 +67,17 @@ def chan_edit_data(items, channel_id):
     return chanlist
 
 
+def chan_edit_id(evt):
+    for child in evt.currentTarget.children:
+        try:
+            id = child.id
+        except AttributeError:
+            id = None
+        if id:
+            return id
+    return None
+
+
 def chan_edit_postform(chanlist):
     origin = document["origin"].value
     postForm = document.createElement('form')
@@ -86,9 +97,10 @@ def chan_edit_postform(chanlist):
 
 @bind("#Chan_Edit_Reset", "submit")
 def chan_edit_reset(evt):
+    channel_id = chan_edit_id(evt)
     chanlist = chan_edit_data(
                               document.select(".reset"),
-                              str(evt.currentTarget.children[0].id).replace("reset_", ""))
+                              str(channel_id).replace("reset_", ""))
     postForm = chan_edit_postform(chanlist)
     postForm.submit()
     evt.preventDefault()
@@ -96,9 +108,10 @@ def chan_edit_reset(evt):
 
 @bind("#Chan_Edit_Modify", "submit")
 def chan_edit_modify(evt):
+    channel_id = chan_edit_id(evt)
     chanlist = chan_edit_data(
                               document.select(".channels"),
-                              str(evt.currentTarget.children[0].id).replace("update_", ""))
+                              str(channel_id).replace("modify_", ""))
     postForm = chan_edit_postform(chanlist)
     postForm.submit()
     evt.preventDefault()
