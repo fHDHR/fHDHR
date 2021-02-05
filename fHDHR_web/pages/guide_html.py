@@ -85,9 +85,9 @@ class Guide_HTML():
 
                 current_listing = now_playing["listing"][0]
 
-                channel_dict["listing_title"] = current_listing["title"],
-                channel_dict["listing_thumbnail"] = current_listing["thumbnail"],
-                channel_dict["listing_description"] = current_listing["description"],
+                channel_dict["listing_title"] = current_listing["title"]
+                channel_dict["listing_thumbnail"] = current_listing["thumbnail"]
+                channel_dict["listing_description"] = current_listing["description"]
 
                 if current_listing["time_end"]:
                     channel_dict["listing_remaining_time"] = humanized_time(current_listing["time_end"] - nowtime)
