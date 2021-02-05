@@ -2,7 +2,7 @@
 
 {% block content %}
 
-  <h4 style="text-align: center;">What's On {{ fhdhr.config.dict["fhdhr"]["friendlyname"] }}</h4>
+  <h4 style="text-align: center;">WebWatch Guide</h4>
 
   <p>
     {% for epg_method in epg_methods %}
@@ -14,7 +14,7 @@
     <table class="table-scroll">
       <thead>
         <tr>
-          {% if source in fhdhr.origins.valid_origins %}
+          {% if origin in origin_methods %}
             <th>Play</th>
           {% endif %}
           <th>Channel Name</th>
@@ -30,26 +30,26 @@
       </thead>
 
       <tbody class="body-half-screen">
-        {% for chan_dict in chan_guide_list %}
+        {% for chan_dict in channelslist %}
           <tr>
-            {% if source in fhdhr.origins.valid_origins %}
+            {% if origin in origin_methods %}
               <td>
-                {% if chan_dict["enabled"] %}
-                  <a href="{{ chan_dict["m3u_url"] }}">Play</a>
+                {% if channelslist[chan_dict]["enabled"] %}
+                  <a href="{{ chan_dict["m3u_url"] }}">M3U</a>
                 {% else %}
-                  <a href="{{ chan_dict["m3u_url"] }}" style="visibility:hidden">Play</a>
+                  <a href="{{ chan_dict["m3u_url"] }}" style="visibility:hidden">M3U</a>
                 {% endif %}
               </td>
             {% endif %}
-            <td>{{ chan_dict["name"] }}</td>
-            <td>{{ chan_dict["number"] }}</td>
-            <td><img src="{{ chan_dict["chan_thumbnail"] }}" alt="{{ chan_dict["name"] }}" width="100" height="100"></td>
-            <td>{{ chan_dict["listing_title"] }}</td>
-            <td><img src="{{ chan_dict["listing_thumbnail"] }}" alt="{{ chan_dict["listing_title"] }}" width="100" height="100"></td>
-            <td>{{ chan_dict["listing_description"] }}</td>
-            <td>{{ chan_dict["listing_time_start"] }}</td>
-            <td>{{ chan_dict["listing_time_end"] }}</td>
-            <td>{{ chan_dict["listing_remaining_time"] }}</td>
+            <td>{{ channelslist[chan_dict]["name"] }}</td>
+            <td>{{ channelslist[chan_dict]["number"] }}</td>
+            <td><img src="{{ channelslist[chan_dict]["chan_thumbnail"] }}" alt="{{ channelslist[chan_dict]["name"] }}" width="100" height="100"></td>
+            <td>{{ channelslist[chan_dict]["listing_title"] }}</td>
+            <td><img src="{{ channelslist[chan_dict]["listing_thumbnail"] }}" alt="{{ channelslist[chan_dict]["listing_title"] }}" width="100" height="100"></td>
+            <td>{{ channelslist[chan_dict]["listing_description"] }}</td>
+            <td>{{ channelslist[chan_dict]["listing_time_start"] }}</td>
+            <td>{{ channelslist[chan_dict]["listing_time_end"] }}</td>
+            <td>{{ channelslist[chan_dict]["listing_remaining_time"] }}</td>
           </tr>
         {% endfor %}
       </tbody>
