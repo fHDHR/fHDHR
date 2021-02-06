@@ -9,6 +9,7 @@ class Guide_HTML():
     endpoint_name = "page_guide_html"
     endpoint_access_level = 0
     pretty_name = "Guide"
+    endpoint_category = "pages"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
