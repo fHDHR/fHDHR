@@ -120,6 +120,15 @@ class EPG():
         elif method == "update":
             self.fhdhr.device.epg.update(source)
 
+        elif method == "map":
+            channels_list = json.loads(request.form.get('channels', []))
+            for channel in channels_list:
+                if channel["fhdhr_id"] in [None, "None"]:
+                    self.fhdhr.device.epg.unset_epg_chan_match(channel["epg_method"], channel["id"])
+                else:
+                    chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel["fhdhr_id"])
+                    self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_id"], chan_obj.origin)
+
         elif method == "clearcache":
             self.fhdhr.device.epg.clear_epg_cache(source)
 

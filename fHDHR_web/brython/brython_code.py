@@ -3,6 +3,50 @@ from browser.widgets.dialog import InfoDialog
 import json
 
 
+@bind("#epg_chan_map", "click")
+def epg_chan_map(event):
+    channel_id = str(event.currentTarget.value)
+    chanlist = epg_chanmap_data(document.select(".epg_channels"), channel_id)
+    postForm = epg_chan_map_postform(chanlist)
+    postForm.submit()
+    event.preventDefault()
+
+
+def epg_chan_map_postform(chanlist):
+    origin = document["origin"].value
+    postForm = document.createElement('form')
+    postForm.method = "POST"
+    postForm.action = "/api/epg?method=map&redirect=/guide?source=%s" % origin
+    postForm.setRequestHeader = "('Content-Type', 'application/json')"
+
+    postData = document.createElement('input')
+    postData.type = 'hidden'
+    postData.name = "channels"
+    postData.value = json.dumps(chanlist)
+
+    postForm.appendChild(postData)
+    document.body.appendChild(postForm)
+    return postForm
+
+
+def epg_chanmap_data(items, channel_id):
+
+    chanlist = []
+    chandict = {}
+
+    for element in items:
+        if element.name == "id":
+            if len(chandict.keys()) >= 2 and "id" in list(chandict.keys()):
+                chanlist.append(chandict)
+            chandict = {"id": element.value}
+        if element.name != "id":
+            chandict[element.name] = element.value
+
+    chanlist = [x for x in chanlist if x["id"] == channel_id]
+
+    return chanlist
+
+
 @bind("#settings_help", "click")
 def settings_help(event):
     config_id = str(event.currentTarget.value)

@@ -4,7 +4,7 @@ from io import BytesIO
 import urllib.parse
 import datetime
 
-from fHDHR.tools import sub_el
+from fHDHR.tools import sub_el, channel_sort
 
 
 class xmlTV():
@@ -55,8 +55,20 @@ class xmlTV():
                     epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
                     epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
                     epgdict[chan_obj.number]["number"] = chan_obj.number
-                    epgdict[chan_obj.number]["id"] = chan_obj.dict["origin_id"]
+                    epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
                     epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+            else:
+                epgdict = epgdict.copy()
+                for c in list(epgdict.keys()):
+                    chan_match = self.fhdhr.device.epg.get_epg_chan_match(source, epgdict[c]["id"])
+                    if chan_match:
+                        chan_obj = self.fhdhr.device.channels.get_channel_obj("id", chan_match["fhdhr_id"], chan_match["origin"])
+                        epgdict[chan_obj.number] = epgdict.pop(c)
+                        epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
+                        epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
+                        epgdict[chan_obj.number]["number"] = chan_obj.number
+                        epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
+                        epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
 
             xmltv_xml = self.create_xmltv(base_url, epgdict, source)
 
@@ -123,8 +135,24 @@ class xmlTV():
                 epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
                 epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
                 epgdict[chan_obj.number]["number"] = chan_obj.number
-                epgdict[chan_obj.number]["id"] = chan_obj.dict["origin_id"]
+                epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
                 epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+        else:
+            for c in list(epgdict.keys()):
+                chan_match = self.fhdhr.device.epg.get_epg_chan_match(source, epgdict[c]["id"])
+                if chan_match:
+                    chan_obj = self.fhdhr.device.channels.get_channel_obj("id", chan_match["fhdhr_id"], chan_match["origin"])
+                    epgdict[chan_obj.number] = epgdict.pop(c)
+                    epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
+                    epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
+                    epgdict[chan_obj.number]["number"] = chan_obj.number
+                    epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
+                    epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+
+        sorted_epgdict = {}
+        sorted_channel_list = channel_sort([x for x in list(epgdict.keys())])
+        for epgchan in sorted_channel_list:
+            sorted_epgdict[epgchan] = epgdict[epgchan]
 
         for c in list(epgdict.keys()):
 
