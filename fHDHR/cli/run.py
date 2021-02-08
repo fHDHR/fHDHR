@@ -1,7 +1,7 @@
-import os
 import sys
 import argparse
 import time
+import pathlib
 
 from fHDHR import fHDHR_VERSION, fHDHR_OBJ
 import fHDHR.exceptions
@@ -20,19 +20,13 @@ if sys.version_info.major == 2 or sys.version_info < (3, 7):
     sys.exit(1)
 
 
-def build_args_parser():
+def build_args_parser(script_dir):
     """Build argument parser for fHDHR"""
     parser = argparse.ArgumentParser(description='fHDHR')
-    parser.add_argument('-c', '--config', dest='cfg', type=str, required=True, help='configuration file to load.')
+    parser.add_argument('-c', '--config', dest='cfg', type=str, default=pathlib.Path(script_dir).joinpath('config.ini'), required=False, help='configuration file to load.')
     parser.add_argument('--setup', dest='setup', type=str, required=False, nargs='?', const=True, default=False, help='Setup Configuration file.')
     parser.add_argument('--iliketobreakthings', dest='iliketobreakthings', type=str, nargs='?', const=True, required=False, default=False, help='Override Config Settings not meant to be overridden.')
     return parser.parse_args()
-
-
-def get_configuration(args, script_dir, fHDHR_web):
-    if not os.path.isfile(args.cfg):
-        raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
-    return fHDHR.config.Config(args, script_dir, fHDHR_web)
 
 
 def run(settings, logger, db, script_dir, fHDHR_web, plugins):
@@ -72,13 +66,16 @@ def start(args, script_dir, fHDHR_web):
     """Get Configuration for fHDHR and start"""
 
     try:
-        settings = get_configuration(args, script_dir, fHDHR_web)
+        settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
     except fHDHR.exceptions.ConfigurationError as e:
         print(e)
         return ERR_CODE_NO_RESTART
 
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings)
+
+    if settings.conf_was_missing:
+        settings.setup_user_config()
 
     # Apply User Configuration
     settings.user_config()
@@ -99,14 +96,9 @@ def start(args, script_dir, fHDHR_web):
 
 
 def config_setup(args, script_dir, fHDHR_web):
-    if not os.path.isfile(args.cfg):
-        raise fHDHR.exceptions.ConfigurationNotFound(filename=args.cfg)
-
     settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
     fHDHR.plugins.PluginsHandler(settings)
-
     settings.setup_user_config()
-
     return ERR_CODE
 
 
@@ -117,7 +109,7 @@ def main(script_dir, fHDHR_web):
     print("Loading fHDHR_web %s" % fHDHR_web.fHDHR_web_VERSION)
 
     try:
-        args = build_args_parser()
+        args = build_args_parser(script_dir)
 
         if args.setup:
             return config_setup(args, script_dir, fHDHR_web)
