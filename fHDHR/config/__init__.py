@@ -125,13 +125,23 @@ class Config():
 
     def user_config(self):
         print("Loading Configuration File: %s" % self.config_file)
+        self.check_config_file()
         self.read_ini_config(self.config_file)
 
+    def check_config_file(self):
+        if not os.path.isfile(self.config_file):
+            config_handler = configparser.ConfigParser()
+            with open(self.config_file, 'w') as config_file:
+                config_handler.write(config_file)
+
     def setup_user_config(self):
+        config_handler = configparser.ConfigParser()
+        if not os.path.isfile(self.config_file):
+            with open(self.config_file, 'w') as config_file:
+                config_handler.write(config_file)
 
         current_conf = {}
 
-        config_handler = configparser.ConfigParser()
         config_handler.read(self.config_file)
         for each_section in config_handler.sections():
             if each_section.lower() not in list(current_conf.keys()):
