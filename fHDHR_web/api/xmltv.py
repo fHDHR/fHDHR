@@ -156,14 +156,14 @@ class xmlTV():
 
         for c in list(epgdict.keys()):
 
-            c_out = sub_el(out, 'channel', id=str(epgdict[c]['number']))
+            c_out = sub_el(out, 'channel', id=str(epgdict[c]['id']))
+            sub_el(c_out, 'display-name', text=epgdict[c]['name'])
             sub_el(c_out, 'display-name',
                    text='%s %s' % (epgdict[c]['number'], epgdict[c]['callsign']))
             sub_el(c_out, 'display-name',
                    text='%s %s %s' % (epgdict[c]['number'], epgdict[c]['callsign'], str(epgdict[c]['id'])))
             sub_el(c_out, 'display-name', text=epgdict[c]['number'])
             sub_el(c_out, 'display-name', text=epgdict[c]['callsign'])
-            sub_el(c_out, 'display-name', text=epgdict[c]['name'])
 
             if self.fhdhr.config.dict["epg"]["images"] == "proxy":
                 sub_el(c_out, 'icon', src=("%s/api/images?method=get&type=channel&id=%s" % (base_url, epgdict[c]['id'])))
@@ -181,7 +181,7 @@ class xmlTV():
                 prog_out = sub_el(out, 'programme',
                                        start=xmltvtimetamps['time_start'],
                                        stop=xmltvtimetamps['time_end'],
-                                       channel=str(channelnum))
+                                       channel=str(epgdict[channelnum]["id"]))
 
                 sub_el(prog_out, 'title', lang='en', text=program['title'])
 
