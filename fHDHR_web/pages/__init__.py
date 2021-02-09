@@ -9,6 +9,7 @@ from .version_html import Version_HTML
 from .diagnostics_html import Diagnostics_HTML
 from .settings_html import Settings_HTML
 from .channels_editor_html import Channels_Editor_HTML
+from .channel_delete import Channel_Delete_HTML
 from .playlists_html import Playlists_HTML
 from .ssdp_html import SSDP_HTML
 
@@ -21,6 +22,7 @@ class fHDHR_Pages():
         self.index_html = Index_HTML(fhdhr)
         self.channels_html = Channels_HTML(fhdhr)
         self.channels_editor_html = Channels_Editor_HTML(fhdhr)
+        self.channel_delete = Channel_Delete_HTML(fhdhr)
         self.guide_html = Guide_HTML(fhdhr)
         self.tuners_html = Tuners_HTML(fhdhr)
         self.xmltv_html = xmlTV_HTML(fhdhr)

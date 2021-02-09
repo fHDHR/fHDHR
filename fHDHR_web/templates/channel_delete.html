@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <h4 style="text-align: center;">Channel Delete Confirmation</h4>
+
+  <p>This Page is just to confirm you want to delete this channel. Channels may re-appear after a channel scan. This method is NOT the same as disabling. Do So at your own risk!!!</p>
+
+  <button onclick="location.href='/api/channels?method=delete&fhdhr_id={{ fhdhr_id }}&origin={{ origin }}&redirect=/channels?origin={{ origin }}'" type="button">Delete {{ origin }} Channel</button>
+
+{% endblock %}

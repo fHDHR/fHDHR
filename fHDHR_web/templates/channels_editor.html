@@ -95,6 +95,9 @@
               <form id="Chan_Edit_Reset" method="post">
                 <button type="Submit" id="reset_{{ chan_dict["id"] }}">Reset</button>
               </form>
+
+              <button onclick="location.href='/channel_delete?fhdhr_id={{ chan_dict["id"] }}&origin={{ origin }}'" type="button">Delete</button>
+
             </td>
 
           </tr>

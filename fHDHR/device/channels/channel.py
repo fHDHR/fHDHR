@@ -144,13 +144,6 @@ class Channel():
                 "HD": 0,
                 }
 
-    def destroy(self):
-        self.fhdhr.db.delete_fhdhr_value(self.dict["id"], "dict", self.origin)
-        channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list") or []
-        if self.dict["id"] in channel_ids:
-            channel_ids.remove(self.dict["id"])
-        self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids, self.origin)
-
     def set_status(self, updatedict):
         for key in list(updatedict.keys()):
             if key == "number":

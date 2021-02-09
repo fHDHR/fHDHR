@@ -167,6 +167,12 @@ class Channels():
         elif method == "scan":
             self.fhdhr.device.channels.get_channels(forceupdate=True, origin=origin)
 
+        elif method == "delete":
+            fhdhr_id = request.args.get('fhdhr_id', default=None, type=str)
+            if fhdhr_id:
+                self.fhdhr.device.channels.delete_channel(fhdhr_id, origin)
+                self.fhdhr.device.epg.delete_channel(fhdhr_id, origin)
+
         else:
             return "Invalid Method"
 
