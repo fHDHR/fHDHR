@@ -190,14 +190,20 @@ class EPG():
     def find_channel_dict(self, channel_id):
         epgdict = self.get_epg()
         channel_list = [epgdict[x] for x in list(epgdict.keys())]
-        return next(item for item in channel_list if item["id"] == channel_id) or None
+        for item in channel_list:
+            if item["id"] == channel_id:
+                return item
+        return None
 
     def find_program_dict(self, event_id):
         epgdict = self.get_epg()
         event_list = []
         for channel in list(epgdict.keys()):
             event_list.extend(epgdict[channel]["listing"])
-        return next(item for item in event_list if item["id"] == event_id) or None
+        for item in event_list:
+            if item["id"] == event_id:
+                return item
+        return None
 
     def epg_method_selfadd(self):
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
