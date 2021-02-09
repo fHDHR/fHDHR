@@ -35,7 +35,8 @@ class Config():
         self.internal["paths"] = {
                                     "script_dir": script_dir,
                                     "data_dir": data_dir,
-                                    "plugins_dir": [internal_plugins_dir],
+                                    "internal_plugins_dir": internal_plugins_dir,
+                                    "external_plugins_dir": None,
                                     "cache_dir": pathlib.Path(data_dir).joinpath('cache'),
                                     "internal_config": pathlib.Path(data_dir).joinpath('internal_config'),
                                     "fHDHR_web_dir": fHDHR_web_dir,
@@ -219,6 +220,11 @@ class Config():
                 raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
             self.internal["paths"]["cache_dir"] = pathlib.Path(self.dict["main"]["cache_dir"])
         cache_dir = self.internal["paths"]["cache_dir"]
+
+        if self.dict["main"]["plugins_dir"]:
+            if not pathlib.Path(self.dict["main"]["plugins_dir"]).is_dir():
+                raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
+            self.internal["paths"]["external_plugins_dir"] = self.dict["main"]["plugins_dir"]
 
         logs_dir = pathlib.Path(cache_dir).joinpath('logs')
         self.internal["paths"]["logs_dir"] = logs_dir

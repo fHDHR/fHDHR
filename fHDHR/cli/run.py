@@ -81,6 +81,12 @@ def start(args, script_dir, fHDHR_web):
     settings.user_config()
     settings.config_verification()
 
+    # Load An External Plugins Directory
+    if settings.internal["paths"]["external_plugins_dir"]:
+        plugins.list_plugins(settings.internal["paths"]["external_plugins_dir"])
+        settings.user_config()
+        settings.config_verification()
+
     # Setup Logging
     logger = fHDHR.logger.Logger(settings)
 
