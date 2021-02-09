@@ -5,8 +5,8 @@ class xmlTV_HTML():
     endpoints = ["/xmltv", "/xmltv.html"]
     endpoint_name = "page_xmltv_html"
     endpoint_access_level = 1
-    endpoint_category = "tool_pages"
-    pretty_name = "xmltv"
+    endpoint_category = "pages"
+    pretty_name = "XMLTV"
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
