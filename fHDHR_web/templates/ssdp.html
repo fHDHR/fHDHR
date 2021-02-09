@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <h4 style="text-align: center;">SSDP</h4>
+  {% if not fhdhr.config.dict["ssdp"]["enabled"] %}
+    <p style="text-align: center;">SSDP must be enabled for clustering.</p>
+  {% elif not fhdhr.device.ssdp.multicast_address %}
+    <p style="text-align: center;">Discovery Address or Multicast Address must be set for SSDP</p>
+  {% else %}
+
+    <div style="text-align: center;">
+      <button onclick="location.href='/api/ssdp?method=scan&redirect=/ssdp'" type="button">Force Scan</button>
+      <button onclick="location.href='/api/ssdp?method=alive&redirect=/ssdp'" type="button">Send Alive</button>
+    </div>
+    <br>
+  {% endif %}
+
+{% endblock %}
