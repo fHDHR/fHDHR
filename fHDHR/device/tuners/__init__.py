@@ -33,10 +33,16 @@ class Tuners():
                 self.alt_stream_handlers[method] = self.fhdhr.plugins.plugins[plugin_name]
 
     def get_available_tuner(self, origin):
-        return next(tunernum for tunernum in list(self.tuners[origin].keys()) if not self.tuners[origin][tunernum].tuner_lock.locked()) or None
+        for tunernum in list(self.tuners[origin].keys()):
+            if not self.tuners[origin][tunernum].tuner_lock.locked():
+                return tunernum
+        return None
 
     def get_scanning_tuner(self, origin):
-        return next(tunernum for tunernum in list(self.tuners[origin].keys()) if self.tuners[origin][tunernum].status["status"] == "Scanning") or None
+        for tunernum in list(self.tuners[origin].keys()):
+            if self.tuners[origin][tunernum].status["status"] == "Scanning":
+                return tunernum
+        return None
 
     def stop_tuner_scan(self, origin):
         tunernum = self.get_scanning_tuner(origin)
