@@ -112,6 +112,12 @@ class Channels():
             channel_ids = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys())]
             self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids, origin)
 
+    def delete_channel(self, fhdhr_id, origin):
+        if origin in list(self.list.keys()):
+            if fhdhr_id in list(self.list[origin].keys()):
+                del self.list[origin][fhdhr_id]
+                self.save_db_channels(origin)
+
     def get_channels(self, origin=None, forceupdate=False):
         """Pull Channels from origin.
 

@@ -37,6 +37,14 @@ class EPG():
 
         self.fhdhr.threads["epg"] = threading.Thread(target=self.run)
 
+    def delete_channel(self, fhdhr_id, origin):
+        for method in self.epg_methods:
+            epg_chan_matches = self.fhdhr.db.get_fhdhr_value("epg_channels", "list", method) or {}
+            for epg_chan_id in list(epg_chan_matches.keys()):
+                if epg_chan_matches[epg_chan_id]["epg_chan_id"] == origin and epg_chan_matches[epg_chan_id]["fhdhr_id"] == fhdhr_id:
+                    del epg_chan_matches[epg_chan_id]
+            self.fhdhr.db.set_fhdhr_value("epg_channels", "list", epg_chan_matches, method)
+
     def get_epg_chan_match(self, method, epg_chan_id):
         epg_chan_matches = self.fhdhr.db.get_fhdhr_value("epg_channels", "list", method) or {}
         if epg_chan_id in list(epg_chan_matches.keys()):
