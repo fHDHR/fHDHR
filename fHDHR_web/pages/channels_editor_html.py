@@ -28,13 +28,14 @@ class Channels_Editor_HTML():
             channelslist = {}
             for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
                 channel_obj = self.fhdhr.device.channels.get_channel_obj("id", fhdhr_id, origin)
-                channel_dict = channel_obj.dict.copy()
+                if channel_obj:
+                    channel_dict = channel_obj.dict.copy()
 
-                channel_dict["number"] = channel_obj.number
-                channel_dict["chan_thumbnail"] = channel_obj.thumbnail
-                channel_dict["m3u_url"] = channel_obj.api_m3u_url
+                    channel_dict["number"] = channel_obj.number
+                    channel_dict["chan_thumbnail"] = channel_obj.thumbnail
+                    channel_dict["m3u_url"] = channel_obj.api_m3u_url
 
-                channelslist[channel_dict["number"]] = channel_dict
+                    channelslist[channel_dict["number"]] = channel_dict
 
             # Sort the channels
             sorted_channel_list = channel_sort(list(channelslist.keys()))

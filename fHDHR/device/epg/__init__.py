@@ -48,12 +48,13 @@ class EPG():
         origin_matches = [x["fhdhr_id"] for x in self.get_origin_matches(origin, method)]
         for fhdhr_id in [x["id"] for x in self.channels.get_channels(origin)]:
             chan_obj = self.channels.get_channel_obj("id", fhdhr_id, origin)
-            if chan_obj.dict["id"] not in origin_matches:
-                unmatch_dicts.append({
-                                    "id": chan_obj.dict["id"],
-                                    "number": chan_obj.number,
-                                    "name": chan_obj.dict["name"],
-                                    })
+            if chan_obj:
+                if chan_obj.dict["id"] not in origin_matches:
+                    unmatch_dicts.append({
+                                        "id": chan_obj.dict["id"],
+                                        "number": chan_obj.number,
+                                        "name": chan_obj.dict["name"],
+                                        })
         return unmatch_dicts
 
     def get_origin_matches(self, origin, method):
@@ -145,13 +146,17 @@ class EPG():
         for c in list(epgdict.keys()):
             if method in [origin for origin in list(self.origins.origins_dict.keys())]:
                 chan_obj = self.channels.get_channel_obj("origin_id", epgdict[c]["id"])
-                channel_number = chan_obj.number
-                epgdict[channel_number] = epgdict.pop(c)
-                epgdict[channel_number]["name"] = chan_obj.dict["name"]
-                epgdict[channel_number]["callsign"] = chan_obj.dict["callsign"]
-                epgdict[channel_number]["number"] = chan_obj.number
-                epgdict[channel_number]["id"] = chan_obj.dict["origin_id"]
-                epgdict[channel_number]["thumbnail"] = chan_obj.thumbnail
+                if chan_obj:
+                    channel_number = chan_obj.number
+                    epgdict[channel_number] = epgdict.pop(c)
+                    epgdict[channel_number]["name"] = chan_obj.dict["name"]
+                    epgdict[channel_number]["callsign"] = chan_obj.dict["callsign"]
+                    epgdict[channel_number]["number"] = chan_obj.number
+                    epgdict[channel_number]["id"] = chan_obj.dict["origin_id"]
+                    epgdict[channel_number]["thumbnail"] = chan_obj.thumbnail
+                else:
+                    chan_obj = None
+                    channel_number = c
             else:
                 chan_obj = None
                 channel_number = c
@@ -309,10 +314,11 @@ class EPG():
             timestamps = self.blocks.timestamps
             for fhdhr_id in [x["id"] for x in self.channels.get_channels(method)]:
                 chan_obj = self.channels.get_channel_obj("id", fhdhr_id, method)
-                if str(chan_obj.number) not in list(programguide.keys()):
-                    programguide[str(chan_obj.number)] = chan_obj.epgdict
-                    clean_prog_dicts = self.blocks.empty_channel_epg(timestamps, chan_obj=chan_obj)
-                    programguide[str(chan_obj.number)]["listing"].extend(clean_prog_dicts)
+                if chan_obj:
+                    if str(chan_obj.number) not in list(programguide.keys()):
+                        programguide[str(chan_obj.number)] = chan_obj.epgdict
+                        clean_prog_dicts = self.blocks.empty_channel_epg(timestamps, chan_obj=chan_obj)
+                        programguide[str(chan_obj.number)]["listing"].extend(clean_prog_dicts)
 
         # Make Thumbnails for missing thumbnails
         for cnum in list(programguide.keys()):

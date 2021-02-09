@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <h4 style="text-align: center;">xmltv</h4>
+
+  <div class="container">
+    <table class="table-medium center action-col">
+      <tbody>
+        <tr>
+          <th>Version</th>
+          <th>M3U Link</th>
+          <th>W3U Link</th>
+        </tr>
+
+        {% for origin in fhdhr.origins.valid_origins %}
+          <tr>
+            <td> {{ origin }}</td>
+            <td><a href="/api/m3u?method=get&origin={{ origin }}">{{ origin }}</a></td>
+            <td><a href="/api/w3u?method=get&origin={{ origin }}">{{ origin }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
