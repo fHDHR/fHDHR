@@ -46,8 +46,18 @@ class Tuners():
 
                 if str(channel_number) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
                     chan_obj = self.fhdhr.device.channels.get_channel_obj("number", channel_number, origin)
+                    if not chan_obj:
+                        response = Response("Not Found", status=404)
+                        response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
+                        self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                        abort(response)
                 elif str(channel_number) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id", origin)]:
                     chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel_number, origin)
+                    if not chan_obj:
+                        response = Response("Not Found", status=404)
+                        response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
+                        self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                        abort(response)
                 else:
                     response = Response("Not Found", status=404)
                     response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
@@ -58,6 +68,11 @@ class Tuners():
 
                 if str(channel_number) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
                     chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel_number)
+                    if not chan_obj:
+                        response = Response("Not Found", status=404)
+                        response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
+                        self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                        abort(response)
                 else:
                     response = Response("Not Found", status=404)
                     response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"

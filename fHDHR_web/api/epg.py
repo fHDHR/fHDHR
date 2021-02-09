@@ -31,16 +31,6 @@ class EPG():
         if method == "get":
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
-            if source in self.fhdhr.origins.valid_origins:
-                epgdict = epgdict.copy()
-                for c in list(epgdict.keys()):
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", epgdict[c]["id"], source)
-                    epgdict[chan_obj.number] = epgdict.pop(c)
-                    epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
-                    epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
-                    epgdict[chan_obj.number]["number"] = chan_obj.number
-                    epgdict[chan_obj.number]["id"] = chan_obj.dict["origin_id"]
-                    epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
 
             # Sort the channels
             sorted_channel_list = channel_sort(list(epgdict.keys()))
@@ -93,21 +83,10 @@ class EPG():
                     else:
                         chan_dict["listing_%s" % time_item] = str(datetime.datetime.fromtimestamp(sorted_chan_guide[channel]["listing"][0][time_item]))
 
-                if source in self.fhdhr.origins.valid_origins:
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", sorted_chan_guide[channel]["id"], source)
-
-                    chan_dict["name"] = chan_obj.dict["name"]
-                    chan_dict["number"] = chan_obj.number
-                    chan_dict["chan_thumbnail"] = chan_obj.thumbnail
-                    chan_dict["enabled"] = chan_obj.dict["enabled"]
-                    chan_dict["m3u_url"] = chan_obj.api_m3u_url
-
-                    chan_dict["listing_thumbnail"] = chan_dict["listing_thumbnail"] or chan_obj.thumbnail
-                else:
-                    if not chan_dict["listing_thumbnail"]:
-                        chan_dict["listing_thumbnail"] = chan_dict["chan_thumbnail"]
-                    if not chan_dict["listing_thumbnail"]:
-                        chan_dict["listing_thumbnail"] = "/api/images?method=generate&type=channel&message=%s" % chan_dict["number"]
+                if not chan_dict["listing_thumbnail"]:
+                    chan_dict["listing_thumbnail"] = chan_dict["chan_thumbnail"]
+                if not chan_dict["listing_thumbnail"]:
+                    chan_dict["listing_thumbnail"] = "/api/images?method=generate&type=channel&message=%s" % chan_dict["number"]
 
                 chan_guide_list.append(chan_dict)
 
@@ -127,7 +106,8 @@ class EPG():
                     self.fhdhr.device.epg.unset_epg_chan_match(channel["epg_method"], channel["id"])
                 else:
                     chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel["fhdhr_id"])
-                    self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_id"], chan_obj.origin)
+                    if chan_obj:
+                        self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_id"], chan_obj.origin)
 
         elif method == "clearcache":
             self.fhdhr.device.epg.clear_epg_cache(source)

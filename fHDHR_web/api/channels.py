@@ -42,10 +42,11 @@ class Channels():
 
                 for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin=origin_item)]:
                     channel_obj = self.fhdhr.device.channels.list[origin_item][fhdhr_id]
-                    channel_dict = channel_obj.dict.copy()
-                    channel_dict["m3u_url"] = channel_obj.api_m3u_url
-                    channel_dict["stream_url"] = channel_obj.api_stream_url
-                    channels_info[origin_item][channel_obj.number] = channel_dict
+                    if channel_obj:
+                        channel_dict = channel_obj.dict.copy()
+                        channel_dict["m3u_url"] = channel_obj.api_m3u_url
+                        channel_dict["stream_url"] = channel_obj.api_stream_url
+                        channels_info[origin_item][channel_obj.number] = channel_dict
 
                 # Sort the channels
                 sorted_channel_list = channel_sort(list(channels_info[origin_item].keys()))
