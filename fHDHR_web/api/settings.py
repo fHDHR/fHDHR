@@ -73,4 +73,7 @@ class Settings():
 
     def restart_thread(self):
         time.sleep(self.restart_sleep)
-        self.fhdhr.api.get(self.restart_url)
+        try:
+            self.fhdhr.api.get(self.restart_url)
+        except AttributeError:
+            return
