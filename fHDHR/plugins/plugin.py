@@ -25,7 +25,7 @@ class Plugin():
         else:
             self.plugin_dict_name = plugin_name
 
-        self.plugin_utils = Plugin_Utils(config, logger, db, plugin_name, plugin_manifest, self.modname)
+        self.plugin_utils = Plugin_Utils(config, logger, db, plugin_name, plugin_manifest, self.modname, self.path)
 
         # Load the module
         self._module = self._load()
