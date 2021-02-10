@@ -6,10 +6,11 @@ from .plugin_db import Plugin_DB
 
 class Plugin_Utils():
 
-    def __init__(self, config, logger, db, plugin_name, plugin_manifest, modname, path):
+    def __init__(self, config, logger, db, versions, plugin_name, plugin_manifest, modname, path):
         self.config = Plugin_Config(config, plugin_manifest["name"], logger)
         self.db = Plugin_DB(db, plugin_manifest["name"], logger)
         self.logger = logger
+        self.versions = versions
         self.namespace = plugin_manifest["name"].lower()
         self.plugin_name = plugin_name
         self.plugin_manifest = plugin_manifest

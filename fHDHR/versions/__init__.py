@@ -8,8 +8,7 @@ from fHDHR.tools import is_docker
 
 class Versions():
 
-    def __init__(self, settings, fHDHR_web, plugins, logger):
-        self.plugins = plugins
+    def __init__(self, settings, fHDHR_web, logger):
         self.fHDHR_web = fHDHR_web
         self.logger = logger
 
@@ -17,7 +16,6 @@ class Versions():
 
         self.register_fhdhr()
         self.register_env()
-        self.register_plugins()
 
     def register_version(self, item_name, item_version, item_type):
         self.logger.debug("Registering %s item: %s %s" % (item_type, item_name, item_version))
@@ -35,6 +33,8 @@ class Versions():
     def register_env(self):
 
         self.register_version("Python", sys.version, "env")
+        if sys.version_info.major == 2 or sys.version_info < (3, 7):
+            self.logger.error('Error: fHDHR requires python 3.7+. Do NOT expect support for older versions of python.')
 
         opersystem = platform.system()
         self.register_version("Operating System", opersystem, "env")
@@ -52,7 +52,8 @@ class Versions():
         isdocker = is_docker()
         self.register_version("Docker", isdocker, "env")
 
-    def register_plugins(self):
+    def register_plugins(self, plugins):
+        self.plugins = plugins
         plugin_names = []
         for plugin in list(self.plugins.plugins.keys()):
             if self.plugins.plugins[plugin].plugin_name not in plugin_names:

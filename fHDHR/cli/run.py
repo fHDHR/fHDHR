@@ -1,4 +1,3 @@
-import sys
 import argparse
 import time
 import pathlib
@@ -14,11 +13,6 @@ from fHDHR.db import fHDHRdb
 
 ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
-
-
-if sys.version_info.major == 2 or sys.version_info < (3, 7):
-    print('Error: fHDHR requires python 3.7+.')
-    sys.exit(1)
 
 
 def build_args_parser(script_dir):
@@ -72,37 +66,24 @@ def start(args, script_dir, fHDHR_web):
         print(e)
         return ERR_CODE_NO_RESTART
 
-    # Find Plugins and import their default configs
-    plugins = fHDHR.plugins.PluginsHandler(settings)
-
-    if settings.conf_was_missing:
-        settings.setup_user_config()
-
-    # Apply User Configuration
-    settings.user_config()
-    settings.config_verification()
-
-    # Load An External Plugins Directory
-    if settings.internal["paths"]["external_plugins_dir"]:
-        plugins.list_plugins(settings.internal["paths"]["external_plugins_dir"])
-        settings.user_config()
-        settings.config_verification()
-
     # Setup Logging
     logger = fHDHR.logger.Logger(settings)
+    settings.logger = logger
+
+    logger.info("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
+    logger.info("Loading Configuration File: %s" % settings.config_file)
+
+    # Continue non-core settings setup
+    settings.secondary_setup()
 
     # Setup Database
     db = fHDHRdb(settings, logger)
 
-    # Setup Plugins
-    plugins.load_plugins(logger, db)
-
     # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, plugins, logger)
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger)
 
-    # Continue Plugin Setup
-    plugins.setup(versions)
-    settings.config_verification_plugins(logger)
+    # Find Plugins and import their default configs
+    plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions)
 
     return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions)
 
@@ -116,8 +97,6 @@ def config_setup(args, script_dir, fHDHR_web):
 
 def main(script_dir, fHDHR_web):
     """fHDHR run script entry point"""
-
-    print("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
 
     try:
         args = build_args_parser(script_dir)
