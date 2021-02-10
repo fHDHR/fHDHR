@@ -189,9 +189,6 @@ class PluginsHandler():
 
                     self.config.register_version(os.path.basename(filename), plugin_manifest["version"], "plugin")
 
-                    if plugin_manifest["type"] == "origin":
-                        self.config.register_valid_origin_method(plugin_manifest["name"])
-
                     plugin_import_print_string = "Found %s type plugin: %s %s. " % (plugin_manifest["type"], plugin_manifest["name"], plugin_manifest["version"])
 
                     if not any(plugin_manifest[plugin_item] for plugin_item in ["name", "version", "type"]):
