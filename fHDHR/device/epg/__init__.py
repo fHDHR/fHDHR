@@ -47,10 +47,10 @@ class EPG():
         for epg_method in self.fhdhr.config.dict["epg"]["method"]:
             if epg_method in self.valid_epg_methods:
                 epg_methods.append(epg_method)
-            elif epg_method in list(self.fhdhr.config.dict["origins"]["valid_methods"].keys()):
+            elif epg_method in [origin for origin in list(self.origins.origins_dict.keys())]:
                 epg_methods.append(epg_method)
             elif epg_method in ["origin", "origins"]:
-                epg_methods.extend(list(self.fhdhr.config.dict["origins"]["valid_methods"].keys()))
+                epg_methods.extend([origin for origin in list(self.origins.origins_dict.keys())])
 
         return epg_methods
 

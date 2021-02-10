@@ -55,8 +55,6 @@ class Config():
             if str(file_item_path).endswith("_conf.json"):
                 self.read_json_config(file_item_path)
 
-        self.dict["origins"] = {}
-        self.dict["origins"]["valid_methods"] = {}
         self.dict["streaming"]["valid_methods"] = {"direct": {}}
         self.dict["plugin_web_paths"] = {}
 
@@ -68,12 +66,6 @@ class Config():
             "namespace": name.lower(),
             "path": path,
             "plugin": plugin_dict_name
-            }
-
-    def register_valid_origin_method(self, method_item):
-        self.dict["origins"]["valid_methods"][method_item.lower()] = {
-            "name": method_item,
-            "namespace": method_item.lower(),
             }
 
     def register_valid_streaming_method(self, method_item, plugin_dict_name):
