@@ -35,9 +35,17 @@ class Tuners():
     def streaming_method(self):
         if not self.fhdhr.config.dict["streaming"]["method"]:
             return "direct"
-        if self.fhdhr.config.dict["streaming"]["method"] not in self.fhdhr.config.dict["streaming"]["valid_methods"]:
+        if self.fhdhr.config.dict["streaming"]["method"] not in self.streaming_methods:
             return "direct"
         return self.fhdhr.config.dict["streaming"]["method"]
+
+    @property
+    def streaming_methods(self):
+        streaming_methods = ["direct"]
+        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+            if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
+                streaming_methods.append(self.fhdhr.plugins.plugins[plugin_name].name)
+        return streaming_methods
 
     def alt_stream_methods_selfadd(self):
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):

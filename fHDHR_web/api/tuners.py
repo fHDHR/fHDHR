@@ -89,7 +89,7 @@ class Tuners():
             channel_number = chan_obj.number
 
             stream_method = request.args.get('stream_method', default=self.fhdhr.origins.origins_dict[origin].stream_method, type=str)
-            if stream_method not in list(self.fhdhr.config.dict["streaming"]["valid_methods"].keys()):
+            if stream_method not in self.fhdhr.device.tuners.streaming_methods:
                 response = Response("Service Unavailable", status=503)
                 response = Response("Service Unavailable", status=503)
                 response.headers["X-fHDHR-Error"] = str("806 - Tune Failed")

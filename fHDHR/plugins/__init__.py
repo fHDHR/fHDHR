@@ -110,9 +110,7 @@ class Plugin():
         self._module = self._load()
 
     def setup(self):
-        if self.type == "alt_stream":
-            self.config.register_valid_streaming_method(self.name, self.plugin_dict_name)
-        elif self.type == "web":
+        if self.type == "web":
             self.config.register_web_path(self.manifest["name"], self.path, self.plugin_dict_name)
 
         if self.has_setup():
