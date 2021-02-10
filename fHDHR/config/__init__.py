@@ -184,28 +184,6 @@ class Config():
         for config_section in list(required_missing.keys()):
             print("Warning! Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
 
-        if self.dict["epg"]["method"] and self.dict["epg"]["method"] not in ["None"]:
-            if isinstance(self.dict["epg"]["method"], str):
-                self.dict["epg"]["method"] = [self.dict["epg"]["method"]]
-            epg_methods = []
-            for epg_method in self.dict["epg"]["method"]:
-                if epg_method in list(self.dict["epg"]["valid_methods"].keys()):
-                    epg_methods.append(epg_method)
-                elif epg_method in list(self.dict["origins"]["valid_methods"].keys()):
-                    epg_methods.append(epg_method)
-                elif epg_method in ["origin", "origins"]:
-                    epg_methods.extend(list(self.dict["origins"]["valid_methods"].keys()))
-                else:
-                    raise fHDHR.exceptions.ConfigurationError("Invalid EPG Method. Exiting...")
-            self.dict["epg"]["method"] = epg_methods
-        if isinstance(self.dict["epg"]["method"], str):
-            self.dict["epg"]["method"] = [self.dict["epg"]["method"]]
-
-        if self.dict["epg"]["method"]:
-            self.dict["epg"]["def_method"] = self.dict["epg"]["method"][0]
-        else:
-            self.dict["epg"]["def_method"] = None
-
         if self.dict["streaming"]["method"] not in self.dict["streaming"]["valid_methods"]:
             raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
 
