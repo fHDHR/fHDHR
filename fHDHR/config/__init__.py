@@ -55,7 +55,6 @@ class Config():
             if str(file_item_path).endswith("_conf.json"):
                 self.read_json_config(file_item_path)
 
-        self.dict["epg"]["valid_methods"] = {None: {}}
         self.dict["origins"] = {}
         self.dict["origins"]["valid_methods"] = {}
         self.dict["streaming"]["valid_methods"] = {"direct": {}}
@@ -79,13 +78,6 @@ class Config():
 
     def register_valid_streaming_method(self, method_item, plugin_dict_name):
         self.dict["streaming"]["valid_methods"][method_item.lower()] = {
-            "name": method_item,
-            "namespace": method_item.lower(),
-            "plugin": plugin_dict_name
-            }
-
-    def register_valid_epg_method(self, method_item, plugin_dict_name):
-        self.dict["epg"]["valid_methods"][method_item.lower()] = {
             "name": method_item,
             "namespace": method_item.lower(),
             "plugin": plugin_dict_name
