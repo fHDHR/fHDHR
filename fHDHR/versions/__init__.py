@@ -8,9 +8,11 @@ from fHDHR.tools import is_docker
 
 class Versions():
 
-    def __init__(self, settings, fHDHR_web, plugins):
+    def __init__(self, settings, fHDHR_web, plugins, logger):
         self.plugins = plugins
         self.fHDHR_web = fHDHR_web
+        self.logger = logger
+
         self.dict = {}
 
         self.register_fhdhr()
@@ -18,6 +20,7 @@ class Versions():
         self.register_plugins()
 
     def register_version(self, item_name, item_version, item_type):
+        self.logger.debug("Registering %s item: %s %s" % (item_type, item_name, item_version))
         self.dict[item_name] = {
                                 "name": item_name,
                                 "version": item_version,
@@ -38,13 +41,13 @@ class Versions():
         if opersystem in ["Linux", "Darwin"]:
             # Linux/Mac
             if os.getuid() == 0 or os.geteuid() == 0:
-                print('Warning: Do not run fHDHR with root privileges.')
+                self.logger.warning('Warning: Do not run fHDHR with root privileges.')
         elif opersystem in ["Windows"]:
             # Windows
             if os.environ.get("USERNAME") == "Administrator":
-                print('Warning: Do not run fHDHR as Administrator.')
+                self.logger.warning('Warning: Do not run fHDHR as Administrator.')
         else:
-            print("Uncommon Operating System, use at your own risk.")
+            self.logger.warning("Uncommon Operating System, use at your own risk.")
 
         isdocker = is_docker()
         self.register_version("Docker", isdocker, "env")
