@@ -92,17 +92,17 @@ def start(args, script_dir, fHDHR_web):
     logger = fHDHR.logger.Logger(settings)
 
     # Setup Database
-    db = fHDHRdb(settings)
+    db = fHDHRdb(settings, logger)
 
     # Setup Plugins
     plugins.load_plugins(logger, db)
 
     # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, plugins)
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, plugins, logger)
 
     # Continue Plugin Setup
     plugins.setup(versions)
-    settings.config_verification_plugins()
+    settings.config_verification_plugins(logger)
 
     return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions)
 
@@ -117,8 +117,7 @@ def config_setup(args, script_dir, fHDHR_web):
 def main(script_dir, fHDHR_web):
     """fHDHR run script entry point"""
 
-    print("Loading fHDHR %s" % fHDHR_VERSION)
-    print("Loading fHDHR_web %s" % fHDHR_web.fHDHR_web_VERSION)
+    print("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
 
     try:
         args = build_args_parser(script_dir)

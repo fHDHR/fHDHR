@@ -52,8 +52,10 @@ class fHDHRValues(BASE):
 
 class fHDHRdb(object):
 
-    def __init__(self, settings):
+    def __init__(self, settings, logger):
         self.config = settings
+        self.logger = logger
+
         # MySQL - mysql://username:password@localhost/db
         # SQLite - sqlite:////cache/path/default.db
         self.type = self.config.dict["database"]["type"]
@@ -104,7 +106,7 @@ class fHDHRdb(object):
         try:
             self.engine.connect()
         except OperationalError:
-            print("OperationalError: Unable to connect to database.")
+            self.fhdhr.logger.error("OperationalError: Unable to connect to database.")
             raise
 
         # Create our tables
@@ -114,7 +116,7 @@ class fHDHRdb(object):
 
     def connect(self):
         if self.type != 'sqlite':
-            print(
+            self.fhdhr.logger.warning(
                 "Raw connection requested when 'db_type' is not 'sqlite':\n"
                 "Consider using 'db.session()' to get a SQLAlchemy session "
                 "instead here:\n%s",

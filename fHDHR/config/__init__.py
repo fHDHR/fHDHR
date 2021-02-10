@@ -100,7 +100,7 @@ class Config():
                     value = self.conf_default[config_section][config_item]["value"]
                     self.write(config_item, value, config_section)
 
-    def config_verification_plugins(self):
+    def config_verification_plugins(self, logger):
         required_missing = {}
         # create dict and combine items
         for config_section in list(self.conf_default.keys()):
@@ -111,7 +111,7 @@ class Config():
                             required_missing[config_section] = []
                         required_missing[config_section].append(config_item)
         for config_section in list(required_missing.keys()):
-            print("Warning! Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
+            self.fhdhr.logger.warning("Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
 
     def config_verification(self):
 

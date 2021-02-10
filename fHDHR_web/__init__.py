@@ -60,7 +60,7 @@ class fHDHR_HTTP_Server():
                 try:
                     self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
                 except Exception as e:
-                    print(e)
+                    self.fhdhr.logger.error(e)
 
     def start(self):
         self.fhdhr.logger.info("Flask HTTP Thread Starting")
