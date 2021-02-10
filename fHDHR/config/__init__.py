@@ -18,7 +18,16 @@ class Config():
         self.config_file = args.cfg
         self.iliketobreakthings = args.iliketobreakthings
 
+        self.check_config_file()
         self.core_setup(script_dir)
+        self.user_config_core()
+        self.config_verification()
+
+    def secondary_setup(self):
+        self.scan_plugin_conf(self.internal["paths"]["internal_plugins_dir"])
+        if self.internal["paths"]["external_plugins_dir"]:
+            self.scan_plugin_conf(self.internal["paths"]["external_plugins_dir"])
+        self.user_config()
 
     def core_setup(self, script_dir):
 
@@ -45,24 +54,36 @@ class Config():
             if str(conffilepath).endswith(".json"):
                 self.read_json_config(conffilepath)
 
-        for file_item in os.listdir(self.internal["paths"]["fHDHR_web_dir"]):
-            file_item_path = pathlib.Path(self.internal["paths"]["fHDHR_web_dir"]).joinpath(file_item)
-            if str(file_item_path).endswith("_conf.json"):
-                self.read_json_config(file_item_path)
+        # Web Server Conf
+        self.read_json_config(pathlib.Path(self.internal["paths"]["fHDHR_web_dir"]).joinpath("web_ui_conf.json"))
 
-    def import_conf_json(self, file_item_path):
-        self.read_json_config(file_item_path)
+    def scan_plugin_conf(self, plugins_dir):
+        base = os.path.abspath(plugins_dir)
+        for filename in os.listdir(base):
+            abspath = os.path.join(base, filename)
+            if os.path.isdir(abspath):
+                for subfilename in os.listdir(abspath):
+                    subabspath = os.path.join(abspath, subfilename)
+                    if subfilename.endswith("_conf.json"):
+                        self.read_json_config(subabspath)
+
+    def user_config_core(self):
+        config_handler = configparser.ConfigParser()
+        config_handler.read(self.config_file)
+        for each_section in config_handler.sections():
+            if each_section.lower() in list(self.dict.keys()):
+                for (each_key, each_val) in config_handler.items(each_section):
+                    each_val = self.get_real_conf_value(each_key, each_val)
+                    import_val = True
+                    if each_section in list(self.conf_default.keys()):
+                        if each_key in list(self.conf_default[each_section].keys()):
+                            if not self.conf_default[each_section][each_key]["config_file"] and not self.iliketobreakthings:
+                                import_val = False
+                    if import_val:
+                        self.dict[each_section.lower()][each_key.lower()] = each_val
 
     def user_config(self):
-        print("Loading Configuration File: %s" % self.config_file)
-        self.check_config_file()
         self.read_ini_config(self.config_file)
-
-    def check_config_file(self):
-        if not os.path.isfile(self.config_file):
-            config_handler = configparser.ConfigParser()
-            with open(self.config_file, 'w') as config_file:
-                config_handler.write(config_file)
 
     def setup_user_config(self):
         config_handler = configparser.ConfigParser()
@@ -82,7 +103,7 @@ class Config():
                 import_val = True
                 if each_section in list(self.conf_default.keys()):
                     if each_key in list(self.conf_default[each_section].keys()):
-                        if not self.conf_default[each_section][each_key]["config_file"] or self.iliketobreakthings:
+                        if not self.conf_default[each_section][each_key]["config_file"] and not self.iliketobreakthings:
                             import_val = False
 
                 if import_val:
@@ -100,7 +121,7 @@ class Config():
                     value = self.conf_default[config_section][config_item]["value"]
                     self.write(config_item, value, config_section)
 
-    def config_verification_plugins(self, logger):
+    def check_required_missing(self):
         required_missing = {}
         # create dict and combine items
         for config_section in list(self.conf_default.keys()):
@@ -111,7 +132,7 @@ class Config():
                             required_missing[config_section] = []
                         required_missing[config_section].append(config_item)
         for config_section in list(required_missing.keys()):
-            self.fhdhr.logger.warning("Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
+            self.logger.info("Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
 
     def config_verification(self):
 
@@ -141,6 +162,12 @@ class Config():
             self.dict["fhdhr"]["discovery_address"] = self.dict["fhdhr"]["address"]
         if not self.dict["fhdhr"]["discovery_address"] or self.dict["fhdhr"]["discovery_address"] == "0.0.0.0":
             self.dict["fhdhr"]["discovery_address"] = None
+
+    def check_config_file(self):
+        if not os.path.isfile(self.config_file):
+            config_handler = configparser.ConfigParser()
+            with open(self.config_file, 'w') as config_file:
+                config_handler.write(config_file)
 
     def get_real_conf_value(self, key, confvalue):
         if not confvalue:

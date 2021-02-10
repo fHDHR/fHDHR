@@ -6,22 +6,25 @@ from .plugin import Plugin
 
 class PluginsHandler():
 
-    def __init__(self, settings):
+    def __init__(self, settings, logger, db, versions):
         self.config = settings
+        self.logger = logger
+        self.db = db
+        self.versions = versions
 
         self.plugins = {}
 
         self.found_plugins = []
-        self.found_plugins_conf = []
         self.list_plugins(self.config.internal["paths"]["internal_plugins_dir"])
+        if self.config.internal["paths"]["external_plugins_dir"]:
+            self.list_plugins(self.config.internal["paths"]["external_plugins_dir"])
+        self.load_plugins()
+        versions.register_plugins(self)
+        self.setup()
 
-    def setup(self, versions):
+    def setup(self):
         for plugin_name in list(self.plugins.keys()):
-            self.plugins[plugin_name].setup(versions)
-
-    def load_plugin_configs(self):
-        for file_item_path in self.found_plugins_conf:
-            self.config.import_conf_json(file_item_path)
+            self.plugins[plugin_name].setup()
 
     def list_plugins(self, plugins_dir):
 
@@ -36,7 +39,6 @@ class PluginsHandler():
                     subabspath = os.path.join(abspath, subfilename)
                     if subfilename.endswith("_conf.json"):
                         plugin_conf.append(subabspath)
-                        self.found_plugins_conf.append(subabspath)
 
                 # Plugin/multi-plugin must have a basic manifest json
                 conffilepath = os.path.join(abspath, 'plugin.json')
@@ -86,12 +88,9 @@ class PluginsHandler():
                                     if os.path.isfile(os.path.join(subabspath, '__init__.py')):
                                         self.found_plugins.append((os.path.basename(filename), subabspath, plugin_conf, subplugin_manifest))
 
-                    print(plugin_import_print_string)
-        self.load_plugin_configs()
+                    self.logger.info(plugin_import_print_string)
 
-    def load_plugins(self, logger, db):
-        self.logger = logger
-        self.db = db
+    def load_plugins(self):
         for plugin_name, plugin_path, plugin_conf, plugin_manifest in self.found_plugins:
-            plugin_item = Plugin(self.config, self.logger, self.db, plugin_name, plugin_path, plugin_conf, plugin_manifest)
+            plugin_item = Plugin(self.config, self.logger, self.db, self.versions, plugin_name, plugin_path, plugin_conf, plugin_manifest)
             self.plugins[plugin_item.plugin_dict_name] = plugin_item
