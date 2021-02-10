@@ -34,7 +34,7 @@ class Index_HTML():
         else:
             fhdhr_status_dict["Plugins Path"] = str(self.fhdhr.config.internal["paths"]["internal_plugins_dir"])
 
-        fhdhr_status_dict["Channels"] = "%s from %s origins. Avg %s/origin" % (sum(channel_counts), len(channel_counts), (sum(channel_counts) / len(channel_counts)))
+        fhdhr_status_dict["Channels"] = "%s from %s origins. Avg %s/origin" % (sum(channel_counts), len(channel_counts), int(sum(channel_counts) / len(channel_counts)))
         for origin in list(self.fhdhr.device.channels.list.keys()):
             tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count(origin)
             max_tuners = self.fhdhr.origins.origins_dict[origin].tuners
