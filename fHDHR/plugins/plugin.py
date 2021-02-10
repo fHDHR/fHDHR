@@ -30,9 +30,10 @@ class Plugin():
         # Load the module
         self._module = self._load()
 
-    def setup(self):
+    def setup(self, versions):
+        self.plugin_utils.versions = versions
         if self.has_setup():
-            self._module.setup(self)
+            self._module.setup(self, versions)
 
     def has_setup(self):
         return hasattr(self._module, 'setup')
