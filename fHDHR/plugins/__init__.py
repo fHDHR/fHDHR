@@ -197,10 +197,6 @@ class PluginsHandler():
 
                     plugin_import_print_string = "Found %s type plugin: %s %s. " % (plugin_manifest["type"], plugin_manifest["name"], plugin_manifest["version"])
 
-                    # Warn for multiple origins
-                    if plugin_manifest["type"] == "origin" and len([plugin_name for plugin_name, plugin_path, plugin_conf, plugin_manifest in self.found_plugins if plugin_manifest["type"] == "origin"]):
-                        plugin_import_print_string += " ImportWarning: Multiple Origins is NOT supported yet. Do so at your own risk."
-
                     if not any(plugin_manifest[plugin_item] for plugin_item in ["name", "version", "type"]):
                         plugin_import_print_string += " ImportWarning: Missing PLUGIN_* Value."
                     else:
