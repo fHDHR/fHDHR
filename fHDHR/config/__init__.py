@@ -55,17 +55,7 @@ class Config():
             if str(file_item_path).endswith("_conf.json"):
                 self.read_json_config(file_item_path)
 
-        self.dict["plugin_web_paths"] = {}
-
         self.load_versions()
-
-    def register_web_path(self, name, path, plugin_dict_name):
-        self.dict["plugin_web_paths"][name.lower()] = {
-            "name": name,
-            "namespace": name.lower(),
-            "path": path,
-            "plugin": plugin_dict_name
-            }
 
     def register_version(self, item_name, item_version, item_type):
         self.internal["versions"][item_name] = {
