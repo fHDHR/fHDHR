@@ -14,7 +14,7 @@ class fHDHR_Device():
 
         self.epg = EPG(fhdhr, self.channels, origins)
 
-        self.tuners = Tuners(fhdhr, self.epg, self.channels)
+        self.tuners = Tuners(fhdhr, self.epg, self.channels, origins)
 
         self.images = imageHandler(fhdhr, self.epg)
 

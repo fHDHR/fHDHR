@@ -184,9 +184,6 @@ class Config():
         for config_section in list(required_missing.keys()):
             print("Warning! Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
 
-        if self.dict["streaming"]["method"] not in self.dict["streaming"]["valid_methods"]:
-            raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
-
     def config_verification(self):
 
         if not self.dict["main"]["uuid"]:
@@ -201,7 +198,7 @@ class Config():
 
         if self.dict["main"]["plugins_dir"]:
             if not pathlib.Path(self.dict["main"]["plugins_dir"]).is_dir():
-                raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
+                raise fHDHR.exceptions.ConfigurationError("Invalid Plugins Directory. Exiting...")
             self.internal["paths"]["external_plugins_dir"] = self.dict["main"]["plugins_dir"]
 
         logs_dir = pathlib.Path(cache_dir).joinpath('logs')
