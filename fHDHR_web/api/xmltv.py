@@ -37,7 +37,7 @@ class xmlTV():
 
         method = request.args.get('method', default="get", type=str)
 
-        source = request.args.get('source', default=self.fhdhr.config.dict["epg"]["def_method"], type=str)
+        source = request.args.get('source', default=self.fhdhr.device.epg.def_method, type=str)
         if source not in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()):
             return "%s Invalid xmltv method" % source
 
