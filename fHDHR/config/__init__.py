@@ -198,7 +198,7 @@ class Config():
 
         if self.dict["main"]["plugins_dir"]:
             if not pathlib.Path(self.dict["main"]["plugins_dir"]).is_dir():
-                raise fHDHR.exceptions.ConfigurationError("Invalid Cache Directory. Exiting...")
+                raise fHDHR.exceptions.ConfigurationError("Invalid Plugins Directory. Exiting...")
             self.internal["paths"]["external_plugins_dir"] = self.dict["main"]["plugins_dir"]
 
         logs_dir = pathlib.Path(cache_dir).joinpath('logs')
