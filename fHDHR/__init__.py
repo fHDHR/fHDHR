@@ -9,8 +9,9 @@ fHDHR_VERSION = "v0.6.0-beta"
 
 class fHDHR_INT_OBJ():
 
-    def __init__(self, settings, logger, db, plugins):
+    def __init__(self, settings, logger, db, plugins, versions):
         self.version = fHDHR_VERSION
+        self.versions = versions
         self.config = settings
         self.logger = logger
         self.db = db
@@ -20,7 +21,7 @@ class fHDHR_INT_OBJ():
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
 
-        self.api = fHDHR_API_URLs(settings, self.web)
+        self.api = fHDHR_API_URLs(settings, self.web, versions)
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.api = self.api
 
@@ -29,8 +30,8 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, plugins):
-        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins)
+    def __init__(self, settings, logger, db, plugins, versions):
+        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions)
 
         self.fhdhr.origins = fHDHR.origins.Origins(self.fhdhr)
 

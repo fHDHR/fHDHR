@@ -17,8 +17,8 @@ class Version_HTML():
     def get(self, *args):
 
         version_dict = {}
-        for key in list(self.fhdhr.config.internal["versions"].keys()):
-            version_dict[key] = self.fhdhr.config.internal["versions"][key]
+        for key in list(self.fhdhr.versions.dict.keys()):
+            version_dict[key] = self.fhdhr.versions.dict[key]
 
         # Sort the Version Info
         sorted_version_list = sorted(version_dict, key=lambda i: (version_dict[i]['type'], version_dict[i]['name']))

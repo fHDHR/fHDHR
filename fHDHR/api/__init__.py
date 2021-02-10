@@ -15,11 +15,12 @@ class Fillin_Client():
 
 class fHDHR_API_URLs():
 
-    def __init__(self, settings, web):
+    def __init__(self, settings, web, versions):
         self.config = settings
         self.web = web
+        self.versions = versions
 
-        self.headers = {'User-Agent': "fHDHR/%s" % self.config.internal["versions"]["fHDHR"]}
+        self.headers = {'User-Agent': "fHDHR/%s" % self.versions.dict["fHDHR"]}
 
         # Replaced later
         self.client = Fillin_Client(settings, web)

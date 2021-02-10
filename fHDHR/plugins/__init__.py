@@ -15,9 +15,9 @@ class PluginsHandler():
         self.found_plugins_conf = []
         self.list_plugins(self.config.internal["paths"]["internal_plugins_dir"])
 
-    def setup(self):
+    def setup(self, versions):
         for plugin_name in list(self.plugins.keys()):
-            self.plugins[plugin_name].setup()
+            self.plugins[plugin_name].setup(versions)
 
     def load_plugin_configs(self):
         for file_item_path in self.found_plugins_conf:
@@ -46,8 +46,6 @@ class PluginsHandler():
                     for plugin_man_item in ["name", "version", "type"]:
                         if plugin_man_item not in list(plugin_manifest.keys()):
                             plugin_manifest[plugin_man_item] = None
-
-                    self.config.register_version(os.path.basename(filename), plugin_manifest["version"], "plugin")
 
                     plugin_import_print_string = "Found %s type plugin: %s %s. " % (plugin_manifest["type"], plugin_manifest["name"], plugin_manifest["version"])
 

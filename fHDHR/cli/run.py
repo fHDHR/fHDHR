@@ -8,6 +8,7 @@ import fHDHR.exceptions
 import fHDHR.config
 import fHDHR.logger
 import fHDHR.plugins
+import fHDHR.versions
 import fHDHR.origins
 from fHDHR.db import fHDHRdb
 
@@ -29,9 +30,9 @@ def build_args_parser(script_dir):
     return parser.parse_args()
 
 
-def run(settings, logger, db, script_dir, fHDHR_web, plugins):
+def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions):
 
-    fhdhr = fHDHR_OBJ(settings, logger, db, plugins)
+    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
     try:
@@ -66,7 +67,7 @@ def start(args, script_dir, fHDHR_web):
     """Get Configuration for fHDHR and start"""
 
     try:
-        settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
+        settings = fHDHR.config.Config(args, script_dir)
     except fHDHR.exceptions.ConfigurationError as e:
         print(e)
         return ERR_CODE_NO_RESTART
@@ -95,10 +96,15 @@ def start(args, script_dir, fHDHR_web):
 
     # Setup Plugins
     plugins.load_plugins(logger, db)
-    plugins.setup()
+
+    # Setup Version System
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, plugins)
+
+    # Continue Plugin Setup
+    plugins.setup(versions)
     settings.config_verification_plugins()
 
-    return run(settings, logger, db, script_dir, fHDHR_web, plugins)
+    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions)
 
 
 def config_setup(args, script_dir, fHDHR_web):
