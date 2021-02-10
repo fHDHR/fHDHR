@@ -7,24 +7,37 @@ from .tuner import Tuner
 
 class Tuners():
 
-    def __init__(self, fhdhr, epg, channels):
+    def __init__(self, fhdhr, epg, channels, origins):
         self.fhdhr = fhdhr
         self.channels = channels
+        self.origins = origins
 
         self.epg = epg
 
         self.tuners = {}
-        for origin in list(self.fhdhr.origins.origins_dict.keys()):
+        for origin in list(self.origins.origins_dict.keys()):
             self.tuners[origin] = {}
 
-            max_tuners = int(self.fhdhr.origins.origins_dict[origin].tuners)
+            max_tuners = int(self.origins.origins_dict[origin].tuners)
 
             self.fhdhr.logger.info("Creating %s tuners for %s." % (max_tuners, origin))
 
             for i in range(0, max_tuners):
                 self.tuners[origin][str(i)] = Tuner(fhdhr, i, epg, origin)
 
+            if (not hasattr(self.origins.origins_dict[origin], 'stream_method') or
+               not self.origins.origins_dict[origin].stream_method):
+                self.origins.origins_dict[origin].stream_method = self.streaming_method
+
         self.alt_stream_handlers = {}
+
+    @property
+    def streaming_method(self):
+        if not self.fhdhr.config.dict["streaming"]["method"]:
+            return "direct"
+        if self.fhdhr.config.dict["streaming"]["method"] not in self.fhdhr.config.dict["streaming"]["valid_methods"]:
+            return "direct"
+        return self.fhdhr.config.dict["streaming"]["method"]
 
     def alt_stream_methods_selfadd(self):
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):

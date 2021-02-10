@@ -184,9 +184,6 @@ class Config():
         for config_section in list(required_missing.keys()):
             print("Warning! Required configuration options missing: [%s]%s" % (config_section, ", ".join(required_missing[config_section])))
 
-        if self.dict["streaming"]["method"] not in self.dict["streaming"]["valid_methods"]:
-            raise fHDHR.exceptions.ConfigurationError("Invalid stream type. Exiting...")
-
     def config_verification(self):
 
         if not self.dict["main"]["uuid"]:
