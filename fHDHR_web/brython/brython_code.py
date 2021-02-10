@@ -126,7 +126,7 @@ def chan_edit_postform(chanlist):
     origin = document["origin"].value
     postForm = document.createElement('form')
     postForm.method = "POST"
-    postForm.action = "/api/channels?method=modify&origin=%s&redirect=/channels_editor&origin=%s" % (origin, origin)
+    postForm.action = "/api/channels?method=modify&origin=%s&redirect=/channels_editor?origin=%s" % (origin, origin)
     postForm.setRequestHeader = "('Content-Type', 'application/json')"
 
     postData = document.createElement('input')
