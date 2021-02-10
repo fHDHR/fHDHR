@@ -31,9 +31,6 @@ class Plugin():
         self._module = self._load()
 
     def setup(self):
-        if self.type == "web":
-            self.config.register_web_path(self.manifest["name"], self.path, self.plugin_dict_name)
-
         if self.has_setup():
             self._module.setup(self)
 
