@@ -14,7 +14,7 @@
           <th>Actions</th>
         </tr>
 
-        {% for epg_method in list(fhdhr.config.dict["epg"]["valid_methods"].keys()) %}
+        {% for epg_method in fhdhr.device.epg.valid_epg_methods %}
           {% if epg_method not in [None, "None"] %}
             <tr>
               <td> {{ epg_method }}</td>

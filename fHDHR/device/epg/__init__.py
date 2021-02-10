@@ -15,10 +15,6 @@ class EPG():
         self.origins = origins
         self.channels = channels
 
-        self.epgdict = {}
-
-        self.valid_epg_methods = [x for x in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()) if x and x not in [None, "None"]]
-
         self.blocks = blocksEPG(self.fhdhr, self.channels, self.origins, None)
         self.epg_handling = {}
         self.epg_method_selfadd()
@@ -26,6 +22,10 @@ class EPG():
         self.epg_update_url = "/api/epg?method=update"
 
         self.fhdhr.threads["epg"] = threading.Thread(target=self.run)
+
+    @property
+    def valid_epg_methods(self):
+        return [x for x in list(self.epg_handling.keys())]
 
     @property
     def def_method(self):
@@ -45,7 +45,7 @@ class EPG():
             self.fhdhr.config.dict["epg"]["method"] = [self.fhdhr.config.dict["epg"]["method"]]
 
         for epg_method in self.fhdhr.config.dict["epg"]["method"]:
-            if epg_method in list(self.fhdhr.config.dict["epg"]["valid_methods"].keys()):
+            if epg_method in self.valid_epg_methods:
                 epg_methods.append(epg_method)
             elif epg_method in list(self.fhdhr.config.dict["origins"]["valid_methods"].keys()):
                 epg_methods.append(epg_method)
@@ -116,11 +116,12 @@ class EPG():
 
         self.fhdhr.logger.info("Clearing %s EPG cache." % method)
 
-        if hasattr(self.epg_handling[method], 'clear_cache'):
-            self.epg_handling[method].clear_cache()
+        if hasattr(self.epg_handling[method]["class"], 'clear_cache'):
+            self.epg_handling[method]["class"].clear_cache()
 
-        if method in list(self.epgdict.keys()):
-            del self.epgdict[method]
+        if method in list(self.epg_handling.keys()):
+            if "epgdict" in list(self.epg_handling[method].keys()):
+                del self.epg_handling[method]["epgdict"]
 
         self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
 
@@ -201,12 +202,13 @@ class EPG():
                 return
             method = self.def_method
 
-        if method in list(self.epgdict.keys()):
-            return self.epgdict[method]
+        if method in list(self.epg_handling.keys()):
+            if "epgdict" in list(self.epg_handling[method].keys()):
+                return self.epg_handling[method]["epgdict"]
 
         self.update(method)
-        self.epgdict[method] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
-        return self.epgdict[method]
+        self.epg_handling[method]["epgdict"] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
+        return self.epg_handling[method]["epgdict"]
 
     def get_thumbnail(self, itemtype, itemid):
         if itemtype == "channel":
@@ -239,16 +241,19 @@ class EPG():
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_epg":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-                self.epg_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
+                self.epg_handling[method] = {
+                                            "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
+                                            }
         for origin in list(self.origins.origins_dict.keys()):
             if origin.lower() not in list(self.epg_handling.keys()):
-                self.epg_handling[origin.lower()] = blocksEPG(self.fhdhr, self.channels, self.origins, origin)
-                self.fhdhr.config.register_valid_epg_method(origin, "Blocks")
+                self.epg_handling[origin.lower()] = {
+                                                    "class": blocksEPG(self.fhdhr, self.channels, self.origins, origin)
+                                                    }
                 self.valid_epg_methods.append(origin.lower())
 
         for epg_method in list(self.epg_handling.keys()):
-            if not hasattr(self.epg_handling[epg_method], 'update_frequency'):
-                self.epg_handling[epg_method].update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
+            if not hasattr(self.epg_handling[epg_method]["class"], 'update_frequency'):
+                self.epg_handling[epg_method]["class"].update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
 
     def update(self, method=None):
 
@@ -262,7 +267,7 @@ class EPG():
             method = self.def_method
 
         self.fhdhr.logger.info("Updating %s EPG cache." % method)
-        programguide = self.epg_handling[method].update_epg()
+        programguide = self.epg_handling[method]["class"].update_epg()
 
         # sort the channel listings by time stamp
         for cnum in list(programguide.keys()):
@@ -371,7 +376,7 @@ class EPG():
             total_programs += len(programguide[cnum]["listing"])
             sorted_chan_guide[channel] = programguide[channel]
 
-        self.epgdict[method] = sorted_chan_guide
+        self.epg_handling[method]["epgdict"] = sorted_chan_guide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
         self.fhdhr.logger.info("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))
@@ -391,7 +396,7 @@ class EPG():
                 updatetheepg = False
                 if not last_update_time:
                     updatetheepg = True
-                elif time.time() >= (last_update_time + self.epg_handling[epg_method].update_frequency):
+                elif time.time() >= (last_update_time + self.epg_handling[epg_method]["class"].update_frequency):
                     updatetheepg = True
                 if updatetheepg:
                     self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))

@@ -16,4 +16,4 @@ class xmlTV_HTML():
 
     def get(self, *args):
 
-        return render_template('xmltv.html', request=request, session=session, fhdhr=self.fhdhr, list=list)
+        return render_template('xmltv.html', request=request, session=session, fhdhr=self.fhdhr)
