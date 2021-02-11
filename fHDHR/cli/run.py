@@ -46,10 +46,16 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions):
         if settings.dict["epg"]["method"] and "epg" in list(fhdhr.threads.keys()):
             fhdhr.device.epg.start()
 
+        logger.noob("fHDHR and fHDHR_web should now be running and accessible via the web interface at %s" % fhdhr.api.base)
+        if settings.dict["logging"]["level"].upper() == "NOOB":
+            logger.noob("Set your [logging]level to INFO if you wish to see more logging output.")
+
         # wait forever
         restart_code = "restart"
         while fhdhr.threads["flask"].is_alive():
             time.sleep(1)
+        if restart_code in ["restart"]:
+            logger.noob("fHDHR has been signaled to restart.")
         return restart_code
 
     except KeyboardInterrupt:
@@ -71,7 +77,7 @@ def start(args, script_dir, fHDHR_web):
     logger = fHDHR.logger.Logger(settings)
     settings.logger = logger
 
-    logger.info("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
+    logger.noob("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
     logger.info("Importing Core config values from Configuration File: %s" % settings.config_file)
 
     logger.debug("Logging to File: %s" % os.path.join(settings.internal["paths"]["logs_dir"], '.fHDHR.log'))
