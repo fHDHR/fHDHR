@@ -92,16 +92,16 @@ class SSDPServer():
         for notifydata in notify_list:
             notifydata = notifydata.encode("utf-8")
 
-            self.fhdhr.logger.debug("Created {}".format(notifydata))
+            self.fhdhr.logger.ssdp("Created {}".format(notifydata))
             try:
                 self.sock.sendto(notifydata, address)
             except OSError as e:
                 # Most commonly: We received a multicast from an IP not in our subnet
-                self.fhdhr.logger.debug("Unable to send NOTIFY: %s" % e)
+                self.fhdhr.logger.ssdp("Unable to send NOTIFY: %s" % e)
                 pass
 
     def on_recv(self, data, address):
-        self.fhdhr.logger.debug("Received packet from {}: {}".format(address, data))
+        self.fhdhr.logger.ssdp("Received packet from {}: {}".format(address, data))
 
         try:
             header, payload = data.decode().split('\r\n\r\n')[:2]
@@ -123,15 +123,15 @@ class SSDPServer():
 
         if cmd[0] == 'M-SEARCH' and cmd[1] == '*':
             # SSDP discovery
-            self.fhdhr.logger.debug("Received qualifying M-SEARCH from {}".format(address))
-            self.fhdhr.logger.debug("M-SEARCH data: {}".format(headers))
+            self.fhdhr.logger.ssdp("Received qualifying M-SEARCH from {}".format(address))
+            self.fhdhr.logger.ssdp("M-SEARCH data: {}".format(headers))
 
             self.do_notify(address)
 
         if cmd[0] == 'NOTIFY' and cmd[1] == '*':
-            self.fhdhr.logger.debug("NOTIFY data: {}".format(headers))
+            self.fhdhr.logger.ssdp("NOTIFY data: {}".format(headers))
         else:
-            self.fhdhr.logger.debug('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
+            self.fhdhr.logger.ssdp('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
 
     def m_search(self):
         data = self.msearch_payload

@@ -41,11 +41,11 @@ class Versions():
         if opersystem in ["Linux", "Darwin"]:
             # Linux/Mac
             if os.getuid() == 0 or os.geteuid() == 0:
-                self.logger.warning('Warning: Do not run fHDHR with root privileges.')
+                self.logger.warning('Do not run fHDHR with root privileges.')
         elif opersystem in ["Windows"]:
             # Windows
             if os.environ.get("USERNAME") == "Administrator":
-                self.logger.warning('Warning: Do not run fHDHR as Administrator.')
+                self.logger.warning('Do not run fHDHR as Administrator.')
         else:
             self.logger.warning("Uncommon Operating System, use at your own risk.")
 

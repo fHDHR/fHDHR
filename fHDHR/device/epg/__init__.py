@@ -272,7 +272,7 @@ class EPG():
                 return
             method = self.def_method
 
-        self.fhdhr.logger.info("Updating %s EPG cache." % method)
+        self.fhdhr.logger.noob("Updating %s EPG cache." % method)
         programguide = self.epg_handling[method]["class"].update_epg()
 
         # sort the channel listings by time stamp
@@ -385,7 +385,7 @@ class EPG():
         self.epg_handling[method]["epgdict"] = sorted_chan_guide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
-        self.fhdhr.logger.info("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))
+        self.fhdhr.logger.noob("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))
 
     def start(self):
         self.fhdhr.logger.info("EPG Update Thread Starting")

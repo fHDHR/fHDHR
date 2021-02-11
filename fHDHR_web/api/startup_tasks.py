@@ -16,7 +16,7 @@ class Startup_Tasks():
 
     def get(self, *args):
 
-        self.fhdhr.logger.info("Running Startup Tasks.")
+        self.fhdhr.logger.noob("Running Startup Tasks.")
 
         # Hit Channel Update API
         for origin in list(self.fhdhr.origins.origins_dict.keys()):
@@ -35,6 +35,6 @@ class Startup_Tasks():
         for epg_method in self.fhdhr.device.epg.epg_methods:
             self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
 
-        self.fhdhr.logger.info("Startup Tasks Complete.")
+        self.fhdhr.logger.noob("Startup Tasks Complete.")
 
         return "Success"
