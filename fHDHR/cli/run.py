@@ -1,3 +1,4 @@
+import os
 import argparse
 import time
 import pathlib
@@ -71,7 +72,9 @@ def start(args, script_dir, fHDHR_web):
     settings.logger = logger
 
     logger.info("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
-    logger.info("Loading Configuration File: %s" % settings.config_file)
+    logger.info("Importing Core config values from Configuration File: %s" % settings.config_file)
+
+    logger.debug("Logging to File: %s" % os.path.join(settings.internal["paths"]["logs_dir"], '.fHDHR.log'))
 
     # Continue non-core settings setup
     settings.secondary_setup()

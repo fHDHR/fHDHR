@@ -33,6 +33,7 @@ class Plugin():
 
     def setup(self):
         if self.has_setup():
+            self.logger.info("%s has a pre-flight setup routine. Running now." % self.plugin_dict_name)
             self._module.setup(self, self.versions)
 
     def has_setup(self):

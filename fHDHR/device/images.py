@@ -9,6 +9,8 @@ class imageHandler():
     def __init__(self, fhdhr, epg):
         self.fhdhr = fhdhr
 
+        self.fhdhr.logger.info("Initializing Images system")
+
     def get_epg_image(self, image_type, content_id):
         imageUri = self.epg.get_thumbnail(image_type, str(content_id))
         if not imageUri:

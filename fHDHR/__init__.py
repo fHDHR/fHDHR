@@ -17,6 +17,7 @@ class fHDHR_INT_OBJ():
         self.db = db
         self.plugins = plugins
 
+        self.logger.debug("Setting Up shared Web Requests system.")
         self.web = fHDHR.tools.WebReq()
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
@@ -31,6 +32,7 @@ class fHDHR_INT_OBJ():
 class fHDHR_OBJ():
 
     def __init__(self, settings, logger, db, plugins, versions):
+        logger.info("Initializing fHDHR Core Functions.")
         self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions)
 
         self.fhdhr.origins = fHDHR.origins.Origins(self.fhdhr)

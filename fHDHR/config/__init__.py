@@ -24,9 +24,12 @@ class Config():
         self.config_verification()
 
     def secondary_setup(self):
+        self.logger.debug("Scanning for Plugin Configuration files: %s" % self.internal["paths"]["internal_plugins_dir"])
         self.scan_plugin_conf(self.internal["paths"]["internal_plugins_dir"])
         if self.internal["paths"]["external_plugins_dir"]:
+            self.logger.debug("Scanning for Plugin Configuration files: %s" % self.internal["paths"]["external_plugins_dir"])
             self.scan_plugin_conf(self.internal["paths"]["external_plugins_dir"])
+        self.logger.info("Importing Plugin values from Configuration File: %s" % self.config_file)
         self.user_config()
 
     def core_setup(self, script_dir):

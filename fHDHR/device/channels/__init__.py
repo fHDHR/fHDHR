@@ -10,6 +10,7 @@ class Channels():
 
     def __init__(self, fhdhr, origins):
         self.fhdhr = fhdhr
+        self.fhdhr.logger.info("Initializing Channels system")
 
         self.origins = origins
 
@@ -109,12 +110,14 @@ class Channels():
             origins_list = [origins_list]
 
         for origin in origins_list:
+            self.fhdhr.logger.debug("Saving %s channels to database." % origin)
             channel_ids = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys())]
             self.fhdhr.db.set_fhdhr_value("channels", "list", channel_ids, origin)
 
     def delete_channel(self, fhdhr_id, origin):
         if origin in list(self.list.keys()):
             if fhdhr_id in list(self.list[origin].keys()):
+                self.fhdhr.logger.debug("Deleting %s channel. Info: %s" % (origin, fhdhr_id))
                 del self.list[origin][fhdhr_id]
                 self.save_db_channels(origin)
 
@@ -162,7 +165,9 @@ class Channels():
 
                     if chan_existing:
                         channel_obj = self.get_channel_obj("origin_id", channel_info["id"], origin)
+                        self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (origin, channel_info))
                     else:
+                        self.fhdhr.logger.debug("Creating new %s channel. Info: %s" % (origin, channel_info))
                         channel_obj = Channel(self.fhdhr, self.id_system, origin, origin_id=channel_info["id"])
 
                     channel_id = channel_obj.dict["id"]

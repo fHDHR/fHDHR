@@ -11,8 +11,9 @@ class Tuners():
         self.fhdhr = fhdhr
         self.channels = channels
         self.origins = origins
-
         self.epg = epg
+
+        self.fhdhr.logger.info("Initializing Tuners system")
 
         self.tuners = {}
         for origin in list(self.origins.origins_dict.keys()):
@@ -48,6 +49,7 @@ class Tuners():
         return streaming_methods
 
     def alt_stream_methods_selfadd(self):
+        self.fhdhr.logger.info("Detecting and Opening any found Stream Method plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
                 method = self.fhdhr.plugins.plugins[plugin_name].name

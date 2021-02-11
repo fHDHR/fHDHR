@@ -100,6 +100,8 @@ class fHDHRdb(object):
                            password=db_pass, host=db_host, port=db_port,
                            database=db_name, query=query)
 
+        self.logger.info("Setting Up %s database" % (self.type))
+
         self.engine = create_engine(self.url, pool_recycle=3600)
 
         # Catch any errors connecting to database

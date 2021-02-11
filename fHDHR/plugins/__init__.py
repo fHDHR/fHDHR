@@ -23,10 +23,13 @@ class PluginsHandler():
         self.setup()
 
     def setup(self):
+        self.logger.info("Setting Up Plugin Pre-flight setups.")
         for plugin_name in list(self.plugins.keys()):
             self.plugins[plugin_name].setup()
 
     def list_plugins(self, plugins_dir):
+
+        self.logger.info("Scanning for plugins: %s" % plugins_dir)
 
         base = os.path.abspath(plugins_dir)
         for filename in os.listdir(base):
@@ -91,6 +94,7 @@ class PluginsHandler():
                     self.logger.info(plugin_import_print_string)
 
     def load_plugins(self):
+        self.logger.info("Loading plugins.")
         for plugin_name, plugin_path, plugin_conf, plugin_manifest in self.found_plugins:
             plugin_item = Plugin(self.config, self.logger, self.db, self.versions, plugin_name, plugin_path, plugin_conf, plugin_manifest)
             self.plugins[plugin_item.plugin_dict_name] = plugin_item

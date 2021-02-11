@@ -9,6 +9,7 @@ class fHDHR_Device():
 
     def __init__(self, fhdhr, origins):
         self.fhdhr = fhdhr
+        self.fhdhr.logger.debug("Setting Up internal \"Devices\".")
 
         self.channels = Channels(fhdhr, origins)
 
@@ -21,7 +22,7 @@ class fHDHR_Device():
         self.ssdp = SSDPServer(fhdhr)
 
         self.interfaces = {}
-
+        self.fhdhr.logger.info("Detecting and Opening any found Interface plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].manifest["type"] == "interface":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()

@@ -15,6 +15,8 @@ class SSDPServer():
 
         if self.multicast_address and self.fhdhr.config.dict["ssdp"]["enabled"] and len(self.methods):
 
+            self.fhdhr.logger.info("Initializing SSDP system")
+
             self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
             self.setup_ssdp()
 
@@ -29,8 +31,17 @@ class SSDPServer():
 
             self.do_alive()
             self.m_search()
+        elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
+            self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
+        elif not self.multicast_address:
+            self.fhdhr.logger.info("SSDP system will not be Initialized: Address not set in [ssdp]multicast_address or [fhdhr]discovery_address")
+        elif not len(self.methods):
+            self.fhdhr.logger.info("SSDP system will not be Initialized: No SSDP Plugins installed.")
+        else:
+            self.fhdhr.logger.info("SSDP system will not be Initialized")
 
     def ssdp_method_selfadd(self):
+        self.fhdhr.logger.info("Detecting and Opening any found SSDP plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "ssdp":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
