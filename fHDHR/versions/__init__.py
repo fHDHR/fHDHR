@@ -53,6 +53,7 @@ class Versions():
         self.register_version("Docker", isdocker, "env")
 
     def register_plugins(self, plugins):
+        self.logger.info("Scanning Plugins for Version Information.")
         self.plugins = plugins
         plugin_names = []
         for plugin in list(self.plugins.plugins.keys()):

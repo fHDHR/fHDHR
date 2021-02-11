@@ -12,6 +12,8 @@ class EPG():
     def __init__(self, fhdhr, channels, origins):
         self.fhdhr = fhdhr
 
+        self.fhdhr.logger.info("Initializing EPG system")
+
         self.origins = origins
         self.channels = channels
 
@@ -238,14 +240,17 @@ class EPG():
         return None
 
     def epg_method_selfadd(self):
+        self.fhdhr.logger.info("Detecting and Opening any found EPG plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_epg":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
                 self.epg_handling[method] = {
                                             "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
                                             }
+
         for origin in list(self.origins.origins_dict.keys()):
             if origin.lower() not in list(self.epg_handling.keys()):
+                self.fhdhr.logger.debug("Creating Blocks EPG for %s." % origin)
                 self.epg_handling[origin.lower()] = {
                                                     "class": blocksEPG(self.fhdhr, self.channels, self.origins, origin)
                                                     }
@@ -253,6 +258,7 @@ class EPG():
 
         for epg_method in list(self.epg_handling.keys()):
             if not hasattr(self.epg_handling[epg_method]["class"], 'update_frequency'):
+                self.fhdhr.logger.debug("Setting %s update_frequency to default: %s" % (epg_method, self.fhdhr.config.dict["epg"]["update_frequency"]))
                 self.epg_handling[epg_method]["class"].update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
 
     def update(self, method=None):

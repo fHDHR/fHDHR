@@ -145,6 +145,7 @@ class Channel():
                 }
 
     def set_status(self, updatedict):
+        self.fhdhr.logger.debug("Updating %s channel %s." % (self.origin, self.dict["id"]))
         for key in list(updatedict.keys()):
             if key == "number":
                 updatedict[key] = str(updatedict[key])
@@ -164,6 +165,7 @@ class Channel():
         return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin)
 
     def set_favorite(self, enablement):
+        self.fhdhr.logger.debug("Setting %s channel %s Facorite status to %s." % (self.origin, self.dict["id"], enablement))
         if enablement == "+":
             self.dict["favorite"] = 1
         elif enablement == "-":
@@ -171,6 +173,7 @@ class Channel():
         self.fhdhr.db.set_fhdhr_value(self.dict["id"], "info", self.dict, self.origin)
 
     def set_enablement(self, enablement):
+        self.fhdhr.logger.debug("Setting %s channel %s Enabled status to %s." % (self.origin, self.dict["id"], enablement))
         if enablement == "disable":
             self.dict["enabled"] = False
         elif enablement == "enable":
