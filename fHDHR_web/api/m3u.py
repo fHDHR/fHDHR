@@ -88,6 +88,10 @@ class M3U():
             if not len(channel_items):
                 return "Invalid Channel"
 
+            stream_method = request.args.get('stream_method', default=None, type=str)
+            if stream_method and stream_method not in self.fhdhr.device.tuners.streaming_methods:
+                return "Invalid stream_method"
+
             channels_info = {}
             for channel_obj in channel_items:
 
@@ -107,6 +111,9 @@ class M3U():
                                                     "group-titleb": str(channel_obj.dict['name']),
                                                     "stream_url": "%s%s" % (base_url, channel_obj.api_stream_url)
                                                     }
+
+                if stream_method:
+                    channels_info[channel_obj.number]["stream_url"] += "&stream_method=%s" % stream_method
 
             # Sort the channels
             sorted_channel_list = channel_sort(list(channels_info.keys()))

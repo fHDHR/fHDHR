@@ -91,7 +91,6 @@ class Tuners():
             stream_method = request.args.get('stream_method', default=self.fhdhr.origins.origins_dict[origin].stream_method, type=str)
             if stream_method not in self.fhdhr.device.tuners.streaming_methods:
                 response = Response("Service Unavailable", status=503)
-                response = Response("Service Unavailable", status=503)
                 response.headers["X-fHDHR-Error"] = str("806 - Tune Failed")
                 abort(response)
 
@@ -116,6 +115,19 @@ class Tuners():
                             "client": client_address,
                             "client_id": session["session_id"]
                             }
+
+            if stream_method == "passthrough":
+                try:
+                    stream_args = self.fhdhr.device.tuners.get_stream_info(stream_args)
+                except TunerError as e:
+                    self.fhdhr.logger.info("A %s stream request for %s channel %s was rejected due to %s"
+                                           % (origin, stream_args["method"], str(stream_args["channel"]), str(e)))
+                    response = Response("Service Unavailable", status=503)
+                    response.headers["X-fHDHR-Error"] = str(e)
+                    self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
+                    abort(response)
+                self.fhdhr.logger.info("Passthrough method selected, no tuner will be used. Redirecting Client to %s" % stream_args["stream_info"]["url"])
+                return redirect(stream_args["stream_info"]["url"])
 
             try:
                 if not tuner_number:
