@@ -1,5 +1,6 @@
 import sys
 import time
+import datetime
 
 # from fHDHR.exceptions import TunerError
 
@@ -30,6 +31,8 @@ class Direct_Stream():
 
         def generate():
 
+            start_time = datetime.datetime.utcnow()
+
             try:
 
                 chunk_counter = 1
@@ -38,22 +41,22 @@ class Direct_Stream():
 
                     for chunk in req.iter_content(chunk_size=self.bytes_per_read):
 
-                        if (not self.stream_args["duration"] == 0 and
-                           not time.time() < self.stream_args["time_end"]):
-                            req.close()
-                            self.fhdhr.logger.info("Requested Duration Expired.")
-                            self.tuner.close()
-
                         if not chunk:
                             break
                             # raise TunerError("807 - No Video Data")
 
                         chunk_size = int(sys.getsizeof(chunk))
-                        self.fhdhr.logger.info("Passing Through Chunk #%s with size %s" % (chunk_counter, chunk_size))
+                        self.fhdhr.logger.info("Passing Through Chunk #%s: size %s" % (chunk_counter, chunk_size))
                         yield chunk
                         self.tuner.add_downloaded_size(chunk_size)
 
                         chunk_counter += 1
+
+                        runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
+                        if self.stream_args["duration"]:
+                            if runtime >= self.stream_args["duration"]:
+                                self.fhdhr.logger.info("Requested Duration Expired.")
+                                self.tuner.close()
 
                 self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
 
