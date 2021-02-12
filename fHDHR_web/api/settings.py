@@ -3,6 +3,7 @@ import urllib.parse
 import threading
 import time
 import json
+from io import StringIO
 
 
 class Settings():
@@ -41,6 +42,25 @@ class Settings():
             return Response(status=200,
                             response=return_json,
                             mimetype='application/json')
+
+        elif method == "ini":
+            fakefile = StringIO()
+
+            web_settings_dict = {}
+            for config_section in list(self.fhdhr.config.conf_default.keys()):
+                fakefile.write("[%s]\n" % config_section)
+
+                for config_item in list(self.fhdhr.config.conf_default[config_section].keys()):
+                    value = self.fhdhr.config.dict[config_section][config_item]
+                    if self.fhdhr.config.conf_default[config_section][config_item]["config_web_hidden"]:
+                        value = "***********"
+                    fakefile.write("%s = %s\n" % (config_item, value))
+
+            config_ini = fakefile.getvalue()
+
+            resp = Response(status=200, response=config_ini, mimetype='text/html')
+            resp.headers["content-disposition"] = "attachment; filename=config.ini"
+            return resp
 
         elif method == "update":
             config_section = request.form.get('config_section', None)
