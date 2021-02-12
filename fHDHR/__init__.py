@@ -4,7 +4,7 @@ from .device import fHDHR_Device
 from .api import fHDHR_API_URLs
 
 import fHDHR.tools
-fHDHR_VERSION = "v0.6.0-beta"
+fHDHR_VERSION = "v0.9.0-beta"
 
 
 class fHDHR_INT_OBJ():
