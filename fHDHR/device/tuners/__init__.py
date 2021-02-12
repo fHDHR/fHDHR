@@ -42,7 +42,7 @@ class Tuners():
 
     @property
     def streaming_methods(self):
-        streaming_methods = ["direct"]
+        streaming_methods = ["direct", "passthrough"]
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
                 streaming_methods.append(self.fhdhr.plugins.plugins[plugin_name].name)
@@ -183,9 +183,9 @@ class Tuners():
         quality_profile = stream_args["origin_quality"]
 
         if not quality_profile:
-            if stream_args["method"] == "direct":
+            if stream_args["method"] in ["direct", "passthrough"]:
                 quality_profile = "high"
-                self.fhdhr.logger.info("Origin Quality not set in config. Direct Method set and will default to Highest Quality")
+                self.fhdhr.logger.info("Origin Quality not set in config. %s Method set and will default to Highest Quality" % stream_args["method"])
             else:
                 self.fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
                 return m3u8_url
