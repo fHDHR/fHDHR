@@ -146,11 +146,7 @@ class Channels():
                             updatedict[key] = str(channel[key])
                         elif key in ["number"]:
                             number = str(channel[key])
-                            if "." in number:
-                                updatedict["subnumber"] = number.split(".")[1]
-                                updatedict["number"] = number.split(".")[0]
-                            else:
-                                updatedict["number"] = number
+                            updatedict["number"] = number
                         elif key in ["enabled"]:
                             confvalue = channel[key]
                             if str(confvalue).lower() in ["false"]:

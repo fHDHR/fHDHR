@@ -148,8 +148,15 @@ class Channel():
         self.fhdhr.logger.debug("Updating %s channel %s." % (self.origin, self.dict["id"]))
         for key in list(updatedict.keys()):
             if key == "number":
-                updatedict[key] = str(updatedict[key])
-            self.dict[key] = updatedict[key]
+                number = updatedict[key]
+                if "." in str(number):
+                    self.dict["subnumber"] = str(number).split(".")[1]
+                    self.dict["number"] = str(number).split(".")[0]
+                else:
+                    self.dict["number"] = str(number)
+                    self.dict["subnumber"] = None
+            else:
+                self.dict[key] = str(updatedict[key])
         self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
 
     @property
