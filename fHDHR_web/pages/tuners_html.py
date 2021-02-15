@@ -37,6 +37,7 @@ class Tuners_HTML():
                               "method": "N/A",
                               "running_time": "N/A",
                               "downloaded": "N/A",
+                              "served": "N/A",
                               }
 
                 if tuner_status[origin][tuner]["status"] in ["Active", "Acquired", "Scanning"]:
@@ -47,6 +48,7 @@ class Tuners_HTML():
                 if tuner_status[origin][tuner]["status"] in "Active":
                     tuner_dict["method"] = tuner_status[origin][tuner]["method"]
                     tuner_dict["downloaded"] = humanized_filesize(tuner_status[origin][tuner]["downloaded"])
+                    tuner_dict["served"] = humanized_filesize(tuner_status[origin][tuner]["served"])
 
                 tuner_status_dict[origin]["status_list"].append(tuner_dict)
 

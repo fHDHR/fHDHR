@@ -20,6 +20,7 @@ class Tuner():
 
         self.chanscan_url = "/api/channels?method=scan"
         self.close_url = "/api/tuners?method=close&tuner=%s&origin=%s" % (self.number, self.origin)
+        self.start_url = "/api/tuners?method=start&tuner=%s&origin=%s" % (self.number, self.origin)
 
     def channel_scan(self, origin, grabbed=False):
         if self.tuner_lock.locked() and not grabbed:
@@ -49,6 +50,10 @@ class Tuner():
     def add_downloaded_size(self, bytes_count):
         if "downloaded" in list(self.status.keys()):
             self.status["downloaded"] += bytes_count
+
+    def add_served_size(self, bytes_count):
+        if "served" in list(self.status.keys()):
+            self.status["served"] += bytes_count
 
     def grab(self, origin, channel_number):
         if self.tuner_lock.locked():
@@ -81,11 +86,11 @@ class Tuner():
         return current_status
 
     def set_off_status(self):
+        self.stream = None
         self.status = {"status": "Inactive"}
 
-    def get_stream(self, stream_args, tuner):
-        stream = Stream(self.fhdhr, stream_args, tuner)
-        return stream
+    def setup_stream(self, stream_args, tuner):
+        self.stream = Stream(self.fhdhr, stream_args, tuner)
 
     def set_status(self, stream_args):
         if self.status["status"] != "Active":
@@ -99,7 +104,8 @@ class Tuner():
                             "channel": stream_args["channel"],
                             "proxied_url": stream_args["stream_info"]["url"],
                             "time_start": datetime.datetime.utcnow(),
-                            "downloaded": 0
+                            "downloaded": 0,
+                            "served": 0
                             }
         if stream_args["client"] not in self.status["clients"]:
             self.status["clients"].append(stream_args["client"])
