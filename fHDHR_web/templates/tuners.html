@@ -21,7 +21,8 @@
           <th>Channel</th>
           <th>Method</th>
           <th>Time Active</th>
-          <th>Total Downloaded</th>
+          <th>Downloaded</th>
+          <th>Served</th>
           <th>Actions</th>
         </tr>
 
@@ -33,13 +34,14 @@
             <td>{{ tuner_dict["method"] }}</td>
             <td>{{ tuner_dict["running_time"] }}</td>
             <td>{{ tuner_dict["downloaded"] }}</td>
+            <td>{{ tuner_dict["served"] }}</td>
 
             <td>
               {% if tuner_dict["status"] != "Inactive" %}
-                <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners?origin={{ origin }}'" type="button">Close</button>
+                <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Close</button>
               {% endif %}
               {% if not tuner_status_dict[origin]["scan_count"] and tuner_dict["status"] == "Inactive" %}
-                <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners?origin={{ origin }}'" type="button">Channel Scan</button>
+                <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Channel Scan</button>
               {% endif %}
             </td>
           </tr>

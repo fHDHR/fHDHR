@@ -1,8 +1,3 @@
-import sys
-import time
-import datetime
-
-# from fHDHR.exceptions import TunerError
 
 
 class Direct_Stream():
@@ -16,9 +11,6 @@ class Direct_Stream():
 
     def get(self):
 
-        if not self.stream_args["duration"] == 0:
-            self.stream_args["time_end"] = self.stream_args["duration"] + time.time()
-
         self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
 
         if self.stream_args["transcode_quality"]:
@@ -31,45 +23,22 @@ class Direct_Stream():
 
         def generate():
 
-            start_time = datetime.datetime.utcnow()
+            chunk_counter = 0
 
             try:
-
-                chunk_counter = 1
 
                 while self.tuner.tuner_lock.locked():
 
                     for chunk in req.iter_content(chunk_size=self.bytes_per_read):
+                        chunk_counter += 1
+                        self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
 
                         if not chunk:
                             break
-                            # raise TunerError("807 - No Video Data")
 
-                        chunk_size = int(sys.getsizeof(chunk))
-                        self.fhdhr.logger.info("Passing Through Chunk #%s: size %s" % (chunk_counter, chunk_size))
                         yield chunk
-                        self.tuner.add_downloaded_size(chunk_size)
 
-                        chunk_counter += 1
-
-                        runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
-                        if self.stream_args["duration"]:
-                            if runtime >= self.stream_args["duration"]:
-                                self.fhdhr.logger.info("Requested Duration Expired.")
-                                self.tuner.close()
-
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
-
-            except GeneratorExit:
-                self.fhdhr.logger.info("Connection Closed.")
-            except Exception as e:
-                self.fhdhr.logger.info("Connection Closed: %s" % e)
             finally:
                 req.close()
-                self.fhdhr.logger.info("Connection Closed: Tuner Lock Removed")
-                if hasattr(self.fhdhr.origins.origins_dict[self.tuner.origin], "close_stream"):
-                    self.fhdhr.origins.origins_dict[self.tuner.origin].close_stream(self.tuner.number, self.stream_args)
-                self.tuner.close()
-                # raise TunerError("806 - Tune Failed")
 
         return generate()
