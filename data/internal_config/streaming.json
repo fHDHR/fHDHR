@@ -27,5 +27,12 @@
                               "config_web": true,
                               "description": "What method to stream with."
                 }
+                ,
+                "buffer_size": {
+                              "value": 3,
+                              "config_file": true,
+                              "config_web": true,
+                              "description": "How Many chunks to buffer."
+                }
               }
 }
