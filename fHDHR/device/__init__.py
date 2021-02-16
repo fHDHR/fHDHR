@@ -32,4 +32,5 @@ class fHDHR_Device():
                 plugin_utils.tuners = self.tuners
                 plugin_utils.images = self.images
                 plugin_utils.ssdp = self.ssdp
+                plugin_utils.origins = self.fhdhr.origins
                 self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
