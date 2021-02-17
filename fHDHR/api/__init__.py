@@ -1,4 +1,5 @@
 import urllib.parse
+import threading
 
 
 class Fillin_Client():
@@ -15,10 +16,11 @@ class Fillin_Client():
 
 class fHDHR_API_URLs():
 
-    def __init__(self, settings, web, versions):
+    def __init__(self, settings, web, versions, logger):
         self.config = settings
         self.web = web
         self.versions = versions
+        self.logger = logger
 
         self.headers = {'User-Agent': "fHDHR/%s" % self.versions.dict["fHDHR"]}
 
@@ -40,6 +42,16 @@ class fHDHR_API_URLs():
     @property
     def port(self):
         return self.config.dict["fhdhr"]["port"]
+
+    def threadget(self, url, *args):
+        self.fhdhr.logger.debug("Starting a thread to simulate a GET request to %s" % url)
+        api_get = threading.Thread(target=self.get, args=(url, *args,))
+        api_get.start()
+
+    def threadpost(self, url, *args):
+        self.fhdhr.logger.debug("Starting a thread to simulate a POST request to %s" % url)
+        api_post = threading.Thread(target=self.post, args=(url, *args,))
+        api_post.start()
 
     def get(self, url, *args):
 

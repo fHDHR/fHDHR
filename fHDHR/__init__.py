@@ -22,7 +22,7 @@ class fHDHR_INT_OBJ():
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
 
-        self.api = fHDHR_API_URLs(settings, self.web, versions)
+        self.api = fHDHR_API_URLs(settings, self.web, versions, logger)
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.api = self.api
 
