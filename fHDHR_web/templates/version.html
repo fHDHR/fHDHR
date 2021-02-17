@@ -4,15 +4,49 @@
 
   <h4 style="text-align: center;">fHDHR Version Information</h4>
 
-
   <div class="container">
-    <table class="table-medium center">
+    <table class="table-medium center action-col">
       <tbody>
+        <tr>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Version</th>
+          <th>Online Version</th>
+        </tr>
+
         {% for key in list(version_dict.keys()) %}
           <tr>
             <td>{{ version_dict[key]["type"] }}</td>
             <td>{{ key }}</td>
             <td>{{ version_dict[key]["version"] }}</td>
+            <td>{{ version_dict[key]["online_version"] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="text-align: center;">Not Installed Official Plugins</h4>
+
+  <div style="text-align: center;">
+    <button onclick="location.href='/api/versions?method=check&redirect=/versions'" type="button">Check For Updates</button>
+  </div>
+  <br>
+
+  <div class="container">
+    <table class="table-medium center action-col">
+      <tbody>
+        <tr>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Version</th>
+        </tr>
+
+        {% for key in list(available_version_dict.keys()) %}
+          <tr>
+            <td>{{ available_version_dict[key]["type"] }}</td>
+            <td>{{ key }}</td>
+            <td>{{ available_version_dict[key]["version"] }}</td>
           </tr>
         {% endfor %}
       </tbody>
