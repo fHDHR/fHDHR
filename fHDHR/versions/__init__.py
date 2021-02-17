@@ -8,10 +8,11 @@ from fHDHR.tools import is_docker
 
 class Versions():
 
-    def __init__(self, settings, fHDHR_web, logger, web):
+    def __init__(self, settings, fHDHR_web, logger, web, scheduler):
         self.fHDHR_web = fHDHR_web
         self.logger = logger
         self.web = web
+        self.scheduler = scheduler
 
         self.github_org_list_url = "https://api.github.com/orgs/fHDHR/repos?type=all"
         self.github_fhdhr_core_info_url = "https://raw.githubusercontent.com/fHDHR/fHDHR/main/version.json"
@@ -23,6 +24,9 @@ class Versions():
         self.register_env()
 
         self.get_online_versions()
+
+        self.update_url = "/api/versions?method=check"
+        self.scheduler.every(2).to(3).hours.do(self.web.session.get, url=self.update_url)
 
     def get_online_versions(self):
 

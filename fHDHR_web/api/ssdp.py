@@ -25,7 +25,7 @@ class SSDP_API():
             self.fhdhr.device.ssdp.m_search()
 
         elif method == 'alive':
-            self.fhdhr.device.ssdp.do_alive(forcealive=True)
+            self.fhdhr.device.ssdp.do_alive()
 
         else:
             return "Invalid Method"

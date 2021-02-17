@@ -9,6 +9,7 @@ import fHDHR.config
 import fHDHR.logger
 import fHDHR.plugins
 import fHDHR.versions
+import fHDHR.scheduler
 import fHDHR.web
 import fHDHR.origins
 from fHDHR.db import fHDHRdb
@@ -26,9 +27,9 @@ def build_args_parser(script_dir):
     return parser.parse_args()
 
 
-def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web):
+def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler):
 
-    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web)
+    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
     try:
@@ -43,13 +44,12 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web):
         if fhdhr.device.ssdp.multicast_address and "ssdp" in list(fhdhr.threads.keys()):
             fhdhr.device.ssdp.start()
 
-        # Start EPG Thread
-        if settings.dict["epg"]["method"] and "epg" in list(fhdhr.threads.keys()):
-            fhdhr.device.epg.start()
-
         for interface_plugin in fhdhr.device.interfaces.keys():
             if hasattr(fhdhr.device.interfaces[interface_plugin], 'run_thread'):
                 fhdhr.device.interfaces[interface_plugin].run_thread()
+
+        # Run Scheduled Jobs thread
+        fhdhr.scheduler.run()
 
         logger.noob("fHDHR and fHDHR_web should now be running and accessible via the web interface at %s" % fhdhr.api.base)
         if settings.dict["logging"]["level"].upper() == "NOOB":
@@ -90,6 +90,8 @@ def start(args, script_dir, fHDHR_web):
     # Continue non-core settings setup
     settings.secondary_setup()
 
+    scheduler = fHDHR.scheduler.Scheduler()
+
     # Setup Database
     db = fHDHRdb(settings, logger)
 
@@ -97,12 +99,12 @@ def start(args, script_dir, fHDHR_web):
     web = fHDHR.web.WebReq()
 
     # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web)
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web, scheduler)
 
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions)
 
-    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web)
+    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler)
 
 
 def config_setup(args, script_dir, fHDHR_web):
