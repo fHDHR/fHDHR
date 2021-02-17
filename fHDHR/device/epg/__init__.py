@@ -1,6 +1,5 @@
 import time
 import datetime
-import threading
 
 from fHDHR.tools import channel_sort
 
@@ -23,7 +22,10 @@ class EPG():
 
         self.epg_update_url = "/api/epg?method=update"
 
-        self.fhdhr.threads["epg"] = threading.Thread(target=self.run)
+        for epg_method in self.epg_methods:
+            frequency_seconds = self.epg_handling[epg_method]["class"].update_frequency
+            update_url = "%s&source=%s" % (self.epg_update_url, epg_method)
+            self.fhdhr.scheduler.every(frequency_seconds).seconds.do(self.fhdhr.api.get, url=update_url)
 
     @property
     def valid_epg_methods(self):
@@ -386,26 +388,3 @@ class EPG():
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
         self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
         self.fhdhr.logger.noob("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))
-
-    def start(self):
-        self.fhdhr.logger.info("EPG Update Thread Starting")
-        self.fhdhr.threads["epg"].start()
-
-    def stop(self):
-        self.fhdhr.logger.info("EPG Update Thread Stopping")
-
-    def run(self):
-        time.sleep(1800)
-        while True:
-            for epg_method in self.epg_methods:
-                last_update_time = self.fhdhr.db.get_fhdhr_value("update_time", epg_method)
-                updatetheepg = False
-                if not last_update_time:
-                    updatetheepg = True
-                elif time.time() >= (last_update_time + self.epg_handling[epg_method]["class"].update_frequency):
-                    updatetheepg = True
-                if updatetheepg:
-                    self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
-            time.sleep(1800)
-
-        self.stop()

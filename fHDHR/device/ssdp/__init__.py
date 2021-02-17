@@ -1,7 +1,6 @@
 # Adapted from https://github.com/MoshiBin/ssdpy and https://github.com/ZeWaren/python-upnp-ssdp-example
 import socket
 import struct
-import time
 import threading
 
 
@@ -27,9 +26,10 @@ class SSDPServer():
             self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
             self.age_time = None
 
+            self.fhdhr.scheduler.every(self.max_age).seconds.do(self.do_alive)
+
             self.ssdp_method_selfadd()
 
-            self.do_alive()
             self.m_search()
         elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
             self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
@@ -57,26 +57,15 @@ class SSDPServer():
         self.sock.close()
 
     def run(self):
+        self.do_alive()
         while True:
             data, address = self.sock.recvfrom(1024)
             self.on_recv(data, address)
-            self.do_alive()
         self.stop()
 
-    def do_alive(self, forcealive=False):
-
-        send_alive = False
-        if not self.age_time:
-            send_alive = True
-        elif forcealive:
-            send_alive = True
-        elif time.time() >= (self.age_time + self.max_age):
-            send_alive = True
-
-        if send_alive:
-            self.fhdhr.logger.info("Sending Alive message to network.")
-            self.do_notify(self.broadcast_address_tuple)
-            self.age_time = time.time()
+    def do_alive(self):
+        self.fhdhr.logger.info("Sending Alive message to network.")
+        self.do_notify(self.broadcast_address_tuple)
 
     def do_notify(self, address):
 
