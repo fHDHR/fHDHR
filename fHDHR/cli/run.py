@@ -9,6 +9,7 @@ import fHDHR.config
 import fHDHR.logger
 import fHDHR.plugins
 import fHDHR.versions
+import fHDHR.web
 import fHDHR.origins
 from fHDHR.db import fHDHRdb
 
@@ -25,9 +26,9 @@ def build_args_parser(script_dir):
     return parser.parse_args()
 
 
-def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions):
+def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web):
 
-    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions)
+    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
     try:
@@ -92,13 +93,16 @@ def start(args, script_dir, fHDHR_web):
     # Setup Database
     db = fHDHRdb(settings, logger)
 
+    logger.debug("Setting Up shared Web Requests system.")
+    web = fHDHR.web.WebReq()
+
     # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger)
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web)
 
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions)
 
-    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions)
+    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web)
 
 
 def config_setup(args, script_dir, fHDHR_web):

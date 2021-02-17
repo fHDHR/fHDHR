@@ -1,7 +1,6 @@
 import os
 import re
 import ast
-import requests
 import xml.etree.ElementTree
 
 UNARY_OPS = (ast.UAdd, ast.USub)
@@ -148,14 +147,3 @@ def humanized_time(countdownseconds):
     return displaymsg
     # just for ignoring a pep error
     year, day, hour, minute, second
-
-
-class WebReq():
-    def __init__(self):
-        self.session = requests.Session()
-        self.exceptions = requests.exceptions
-
-    def __getattr__(self, name):
-        ''' will only get called for undefined attributes '''
-        if hasattr(self.session, name):
-            return eval("self.session.%s" % name)

@@ -2,23 +2,21 @@
 
 from .device import fHDHR_Device
 from .api import fHDHR_API_URLs
-
-import fHDHR.tools
+from fHDHR.origins import Origins
 fHDHR_VERSION = "v0.9.0-beta"
 
 
 class fHDHR_INT_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions):
+    def __init__(self, settings, logger, db, plugins, versions, web):
         self.version = fHDHR_VERSION
         self.versions = versions
         self.config = settings
         self.logger = logger
         self.db = db
         self.plugins = plugins
+        self.web = web
 
-        self.logger.debug("Setting Up shared Web Requests system.")
-        self.web = fHDHR.tools.WebReq()
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
 
@@ -31,11 +29,11 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions):
+    def __init__(self, settings, logger, db, plugins, versions, web):
         logger.info("Initializing fHDHR Core Functions.")
-        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions)
+        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions, web)
 
-        self.fhdhr.origins = fHDHR.origins.Origins(self.fhdhr)
+        self.fhdhr.origins = Origins(self.fhdhr)
 
         self.device = fHDHR_Device(self.fhdhr, self.fhdhr.origins)
 
