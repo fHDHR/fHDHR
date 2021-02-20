@@ -5,6 +5,7 @@ from .startup_tasks import Startup_Tasks
 from .settings import Settings
 from .versions import Versions
 from .channels import Channels
+from .origins import Origins
 from .xmltv import xmlTV
 from .m3u import M3U
 from .w3u import W3U
@@ -30,6 +31,7 @@ class fHDHR_API():
         self.settings = Settings(fhdhr)
         self.versions = Versions(fhdhr)
         self.channels = Channels(fhdhr)
+        self.origins = Origins(fhdhr)
         self.xmltv = xmlTV(fhdhr)
         self.m3u = M3U(fhdhr)
         self.w3u = W3U(fhdhr)
