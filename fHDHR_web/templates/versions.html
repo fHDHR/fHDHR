@@ -45,7 +45,7 @@
         {% for key in list(available_version_dict.keys()) %}
           <tr>
             <td>{{ available_version_dict[key]["type"] }}</td>
-            <td>{{ key }}</td>
+            <td>{{ available_version_dict[key]["url"] }}</td>
             <td>{{ available_version_dict[key]["version"] }}</td>
           </tr>
         {% endfor %}

@@ -45,5 +45,6 @@ class Versions_HTML():
         for version_item in sorted_available_version_list:
             if version_item:
                 sorted_available_version_dict[version_item] = available_version_dict[version_item]
+                sorted_available_version_dict[version_item]["url"] = "https://github.com/fHDHR/%s" % version_item
 
-        return render_template('version.html', request=request, session=session, fhdhr=self.fhdhr, version_dict=sorted_version_dict, available_version_dict=sorted_available_version_dict, list=list)
+        return render_template('versions.html', request=request, session=session, fhdhr=self.fhdhr, version_dict=sorted_version_dict, available_version_dict=sorted_available_version_dict, list=list)
