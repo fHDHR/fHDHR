@@ -12,7 +12,7 @@ from .w3u import W3U
 from .epg import EPG
 from .tuners import Tuners
 from .debug import Debug_JSON
-from .plugins import Plugins_JSON
+from .plugins import Plugins
 from .ssdp import SSDP_API
 
 from .route_list import Route_List
@@ -38,7 +38,7 @@ class fHDHR_API():
         self.epg = EPG(fhdhr)
         self.tuners = Tuners(fhdhr)
         self.debug = Debug_JSON(fhdhr)
-        self.plugins = Plugins_JSON(fhdhr)
+        self.plugins = Plugins(fhdhr)
         self.ssdp = SSDP_API(fhdhr)
 
         self.route_list = Route_List(fhdhr)
