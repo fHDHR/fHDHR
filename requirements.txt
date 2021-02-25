@@ -7,3 +7,4 @@ pycryptodome
 sqlalchemy
 simplejson
 schedule
+bitstring
