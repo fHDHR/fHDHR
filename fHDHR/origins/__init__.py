@@ -49,8 +49,8 @@ class Origins():
 
                 if not hasattr(self.origins_dict[method], 'tuners'):
                     self.origins_dict[method].tuners = 4
-                    self.fhdhr.logger.debug("%s Origin Does not have a tuners attribute, setting to `%s`" % self.default_tuners)
+                    self.fhdhr.logger.debug("%s Origin Does not have a tuners attribute, setting to `%s`" % (method, self.default_tuners))
 
                 if not hasattr(self.origins_dict[method], 'stream_method'):
                     self.origins_dict[method].stream_method = None
-                    self.fhdhr.logger.debug("%s Origin Does not have a stream_method attribute, setting to `%s`" % self.default_stream_method)
+                    self.fhdhr.logger.debug("%s Origin Does not have a stream_method attribute, setting to `%s`" % (method, self.default_stream_method))
