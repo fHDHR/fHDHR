@@ -160,7 +160,7 @@ class Tuners():
         if "headers" not in list(stream_args["stream_info"].keys()):
             stream_args["stream_info"]["headers"] = None
 
-        if stream_args["stream_info"]["url"].startswith("udp://"):
+        if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
             stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
         else:
