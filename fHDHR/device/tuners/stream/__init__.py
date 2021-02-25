@@ -5,6 +5,8 @@ from collections import OrderedDict
 
 from .direct_stream import Direct_Stream
 from .direct_m3u8_stream import Direct_M3U8_Stream
+from .direct_rtp_stream import Direct_RTP_Stream
+
 from fHDHR.exceptions import TunerError
 
 
@@ -17,7 +19,10 @@ class Stream():
         self.buffer_size = int(self.fhdhr.config.dict["streaming"]["buffer_size"])
 
         if stream_args["method"] == "direct":
-            if self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
+
+            if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
+                self.method = Direct_RTP_Stream(fhdhr, stream_args, tuner)
+            elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
                 self.method = Direct_M3U8_Stream(fhdhr, stream_args, tuner)
             else:
                 self.method = Direct_Stream(fhdhr, stream_args, tuner)
