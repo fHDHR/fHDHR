@@ -162,6 +162,7 @@ class Tuners():
             try:
                 tuner.setup_stream(stream_args, tuner)
             except TunerError as e:
+                response = Response("Service Unavailable", status=503)
                 response.headers["X-fHDHR-Error"] = str(e)
                 self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
                 tuner.close()
