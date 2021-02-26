@@ -25,7 +25,7 @@ class Versions():
 
         self.get_online_versions()
 
-        self.update_url = "/api/versions?method=check"
+        self.update_url = "%s/api/versions?method=check" % "http://127.0.0.1"
         self.scheduler.every(2).to(3).hours.do(self.web.session.get, url=self.update_url)
 
     def get_online_versions(self):
