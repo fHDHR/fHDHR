@@ -16,14 +16,6 @@ class xmlTV():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.xmltv_offset = {}
-        for epg_method in list(self.fhdhr.device.epg.epg_handling.keys()):
-            if epg_method in list(self.fhdhr.config.dict.keys()):
-                if "xmltv_offset" in list(self.fhdhr.config.dict[epg_method].keys()):
-                    self.xmltv_offset[epg_method] = self.fhdhr.config.dict[epg_method]["xmltv_offset"]
-            if epg_method not in list(self.xmltv_offset.keys()):
-                self.xmltv_offset[epg_method] = self.fhdhr.config.dict["epg"]["xmltv_offset"]
-
     def __call__(self, *args):
         return self.get(*args)
 
@@ -117,7 +109,7 @@ class xmlTV():
 
     def timestamp_to_datetime(self, time_start, time_end, source):
         xmltvtimetamps = {}
-        source_offset = self.xmltv_offset[source]
+        source_offset = self.fhdhr.device.epg.epg_handling[source]["class"].xmltv_offset
         for time_item, time_value in zip(["time_start", "time_end"], [time_start, time_end]):
             timestampval = datetime.datetime.fromtimestamp(time_value).strftime('%Y%m%d%H%M%S')
             xmltvtimetamps[time_item] = "%s %s" % (timestampval, source_offset)
