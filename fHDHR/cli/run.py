@@ -27,9 +27,9 @@ def build_args_parser(script_dir):
     return parser.parse_args()
 
 
-def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler):
+def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps):
 
-    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler)
+    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
     versions.sched_init(fhdhr)
@@ -71,7 +71,7 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
     return ERR_CODE
 
 
-def start(args, script_dir, fHDHR_web):
+def start(args, script_dir, fHDHR_web, deps):
     """Get Configuration for fHDHR and start"""
 
     try:
@@ -104,9 +104,9 @@ def start(args, script_dir, fHDHR_web):
     versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web, db, scheduler)
 
     # Find Plugins and import their default configs
-    plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions)
+    plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions, deps)
 
-    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler)
+    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps)
 
 
 def config_setup(args, script_dir, fHDHR_web):
@@ -116,7 +116,7 @@ def config_setup(args, script_dir, fHDHR_web):
     return ERR_CODE
 
 
-def main(script_dir, fHDHR_web):
+def main(script_dir, fHDHR_web, deps):
     """fHDHR run script entry point"""
 
     try:
@@ -126,7 +126,7 @@ def main(script_dir, fHDHR_web):
             return config_setup(args, script_dir, fHDHR_web)
 
         while True:
-            returned_code = start(args, script_dir, fHDHR_web)
+            returned_code = start(args, script_dir, fHDHR_web, deps)
             if returned_code not in ["restart"]:
                 return returned_code
     except KeyboardInterrupt:

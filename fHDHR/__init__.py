@@ -9,7 +9,7 @@ fHDHR_VERSION = "v0.9.0-beta"
 
 class fHDHR_INT_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions, web, scheduler):
+    def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
         self.version = fHDHR_VERSION
         self.versions = versions
         self.config = settings
@@ -18,6 +18,7 @@ class fHDHR_INT_OBJ():
         self.plugins = plugins
         self.web = web
         self.scheduler = scheduler
+        self.deps = deps
 
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
@@ -34,9 +35,9 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions, web, scheduler):
+    def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
         logger.info("Initializing fHDHR Core Functions.")
-        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions, web, scheduler)
+        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
 
         self.fhdhr.origins = Origins(self.fhdhr)
 

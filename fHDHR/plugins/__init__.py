@@ -6,11 +6,12 @@ from .plugin import Plugin
 
 class PluginsHandler():
 
-    def __init__(self, settings, logger, db, versions):
+    def __init__(self, settings, logger, db, versions, deps):
         self.config = settings
         self.logger = logger
         self.db = db
         self.versions = versions
+        self.deps = deps
 
         self.plugins = {}
 
