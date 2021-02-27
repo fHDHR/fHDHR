@@ -8,25 +8,32 @@ from fHDHR.tools import is_docker
 
 class Versions():
 
-    def __init__(self, settings, fHDHR_web, logger, web, scheduler):
+    def __init__(self, settings, fHDHR_web, logger, web, db, scheduler):
         self.fHDHR_web = fHDHR_web
         self.logger = logger
         self.web = web
+        self.db = db
         self.scheduler = scheduler
 
         self.github_org_list_url = "https://api.github.com/orgs/fHDHR/repos?type=all"
         self.github_fhdhr_core_info_url = "https://raw.githubusercontent.com/fHDHR/fHDHR/main/version.json"
 
         self.dict = {}
-        self.official_plugins = {}
+        self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
 
         self.register_fhdhr()
         self.register_env()
 
         self.get_online_versions()
 
-        self.update_url = "%s/api/versions?method=check" % "http://127.0.0.1"
-        self.scheduler.every(2).to(3).hours.do(self.web.session.get, url=self.update_url)
+        self.update_url = "/api/versions?method=check"
+
+    def sched_init(self, fhdhr):
+        self.api = fhdhr.api
+        self.scheduler.every(2).to(3).hours.do(self.sched_update)
+
+    def sched_update(self):
+        self.api.client.get(self.update_url)
 
     def get_online_versions(self):
 
@@ -48,6 +55,8 @@ class Versions():
         core_json = self.web.session.get(self.github_fhdhr_core_info_url).json()
         for key in list(core_json.keys()):
             self.official_plugins[key] = {"name": key, "version": core_json[key], "type": "core"}
+
+        self.db.set_fhdhr_value("versions", "dict", official_plugins)
 
     def register_version(self, item_name, item_version, item_type):
         self.logger.debug("Registering %s item: %s %s" % (item_type, item_name, item_version))
