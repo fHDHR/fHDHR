@@ -19,7 +19,7 @@ class Versions():
         self.github_fhdhr_core_info_url = "https://raw.githubusercontent.com/fHDHR/fHDHR/main/version.json"
 
         self.dict = {}
-        self.official_plugins = self.fhdhr.db.get_fhdhr_value("versions", "dict") or {}
+        self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
 
         self.register_fhdhr()
         self.register_env()
@@ -56,7 +56,7 @@ class Versions():
         for key in list(core_json.keys()):
             self.official_plugins[key] = {"name": key, "version": core_json[key], "type": "core"}
 
-        self.fhdhr.db.set_fhdhr_value("versions", "dict", official_plugins)
+        self.db.set_fhdhr_value("versions", "dict", official_plugins)
 
     def register_version(self, item_name, item_version, item_type):
         self.logger.debug("Registering %s item: %s %s" % (item_type, item_name, item_version))
