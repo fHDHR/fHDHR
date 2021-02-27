@@ -32,6 +32,8 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
     fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
+    versions.sched_init(fhdhr)
+
     try:
 
         # Start Flask Thread
@@ -99,7 +101,7 @@ def start(args, script_dir, fHDHR_web):
     web = fHDHR.web.WebReq()
 
     # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web, scheduler)
+    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web, db, scheduler)
 
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions)
