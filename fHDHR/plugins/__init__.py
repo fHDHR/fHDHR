@@ -94,6 +94,13 @@ class PluginsHandler():
 
                     self.logger.info(plugin_import_print_string)
 
+                    self.logger.info("Checking For %s Plugin Requirements file." % plugin_manifest["name"])
+                    requirements_txt = os.path.join(abspath, 'requirements.txt')
+                    if os.path.isfile(requirements_txt):
+                        self.logger.info("Installing %s Plugin Requirements from %s" % (plugin_manifest["name"], requirements_txt))
+                        plugin_reqs = self.deps.get_requirements(requirements_txt)
+                        self.deps.check_requirements(plugin_reqs)
+
     def load_plugins(self):
         self.logger.info("Loading plugins.")
         for plugin_name, plugin_path, plugin_conf, plugin_manifest in self.found_plugins:
