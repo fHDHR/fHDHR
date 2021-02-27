@@ -13,4 +13,4 @@ from fHDHR.cli import run
 import fHDHR_web
 
 if __name__ == "__main__":
-    sys.exit(run.main(SCRIPT_DIR, fHDHR_web))
+    sys.exit(run.main(SCRIPT_DIR, fHDHR_web, deps))

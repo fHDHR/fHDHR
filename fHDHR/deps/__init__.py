@@ -39,9 +39,9 @@ class Dependencies():
             packages_dict[pypipreq[0]] = pypipreq[-1]
         return packages_dict
 
-    def get_requirements(self, req_file):
+    def get_requirements(self, requirements_txt):
         pipreqsdeps = {}
-        piprequires = [line.rstrip('\n') for line in open(req_file)]
+        piprequires = [line.rstrip('\n') for line in open(requirements_txt)]
         for pypipreq in piprequires:
             if "=" in pypipreq:
                 pypipreq = pypipreq.split("=")
@@ -59,4 +59,7 @@ class Dependencies():
         not_installed = [x for x in list(reqs.keys()) if x not in list(installed.keys())]
         for pipdep in not_installed:
             print("%s missing. Attempting installation" % pipdep)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", pipdep])
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", pipdep])
+            except subprocess.CalledProcessError:
+                print("%s Installation failed" % pipdep)
