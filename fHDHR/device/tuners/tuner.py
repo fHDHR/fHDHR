@@ -45,7 +45,7 @@ class Tuner():
         self.fhdhr.api.get("%s&origin=%s" % (self.chanscan_url, origin))
         self.fhdhr.logger.info("Requested Channel Scan for %s origin Complete." % origin)
         self.close()
-        self.fhdhr.api.get(self.close_url)
+        self.fhdhr.api.threadget(self.close_url)
 
     def add_downloaded_size(self, bytes_count):
         if "downloaded" in list(self.status.keys()):

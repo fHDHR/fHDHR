@@ -33,7 +33,7 @@ class Versions():
         self.scheduler.every(2).to(3).hours.do(self.sched_update)
 
     def sched_update(self):
-        self.api.client.get(self.update_url)
+        self.api.threadget(self.update_url)
 
     def get_online_versions(self):
 

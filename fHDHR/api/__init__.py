@@ -44,12 +44,12 @@ class fHDHR_API_URLs():
         return self.config.dict["fhdhr"]["port"]
 
     def threadget(self, url, *args):
-        self.fhdhr.logger.debug("Starting a thread to simulate a GET request to %s" % url)
+        self.logger.debug("Starting a thread to simulate a GET request to %s" % url)
         api_get = threading.Thread(target=self.get, args=(url, *args,))
         api_get.start()
 
     def threadpost(self, url, *args):
-        self.fhdhr.logger.debug("Starting a thread to simulate a POST request to %s" % url)
+        self.logger.debug("Starting a thread to simulate a POST request to %s" % url)
         api_post = threading.Thread(target=self.post, args=(url, *args,))
         api_post.start()
 
