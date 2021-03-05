@@ -1,7 +1,5 @@
-from flask import request, redirect, Response, session
+from flask import request, redirect, Response
 import urllib.parse
-import threading
-import time
 import json
 
 
@@ -73,14 +71,6 @@ class Versions():
         elif method == "update":
             return "Not Implemented"
 
-        elif method == "restart":
-            restart_thread = threading.Thread(target=self.restart_thread)
-            restart_thread.start()
-            return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("Restarting in %s seconds" % self.restart_sleep)))
-
-        elif method == "restart_actual":
-            session["restart"] = True
-
         if redirect_url:
             if "?" in redirect_url:
                 return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
@@ -88,10 +78,3 @@ class Versions():
                 return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
         else:
             return "%s Success" % method
-
-    def restart_thread(self):
-        time.sleep(self.restart_sleep)
-        try:
-            self.fhdhr.api.get(self.restart_url)
-        except AttributeError:
-            return

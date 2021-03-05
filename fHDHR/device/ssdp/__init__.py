@@ -26,7 +26,9 @@ class SSDPServer():
             self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
             self.age_time = None
 
-            self.fhdhr.scheduler.every(self.max_age).seconds.do(self.do_alive)
+            self.ssdp_doalive_url = "/api/ssdp?method=alive"
+
+            self.fhdhr.scheduler.every(self.max_age).seconds.do(self.fhdhr.api.threadget, url=self.ssdp_doalive_url)
 
             self.ssdp_method_selfadd()
 

@@ -26,7 +26,7 @@ class Channels():
 
         for origin in list(self.list.keys()):
             update_url = "%s&source=%s" % (self.channel_update_url, origin)
-            self.fhdhr.scheduler.every(4).to(5).hours.do(self.fhdhr.api.get, url=update_url)
+            self.fhdhr.scheduler.every(4).to(5).hours.do(self.fhdhr.api.threadget, url=update_url)
 
     def get_channel_obj(self, keyfind, valfind, origin=None):
         if origin:
