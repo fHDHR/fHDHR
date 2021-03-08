@@ -3,6 +3,7 @@ from .root_url import Root_URL
 from .startup_tasks import Startup_Tasks
 
 from .settings import Settings
+from .logs import Logs
 from .versions import Versions
 from .channels import Channels
 from .origins import Origins
@@ -29,6 +30,7 @@ class fHDHR_API():
         self.startup_tasks = Startup_Tasks(fhdhr)
 
         self.settings = Settings(fhdhr)
+        self.logs = Logs(fhdhr)
         self.versions = Versions(fhdhr)
         self.channels = Channels(fhdhr)
         self.origins = Origins(fhdhr)
