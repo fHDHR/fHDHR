@@ -103,6 +103,10 @@ def isfloat(x):
         return True
 
 
+def closest_int_from_list(lst, K):
+    return lst[min(range(len(lst)), key=lambda i: abs(lst[i]-K))]
+
+
 def hours_between_datetime(first_time, later_time):
     timebetween = first_time - later_time
     return (timebetween.total_seconds() / 60 / 60)
