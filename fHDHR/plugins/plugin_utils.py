@@ -5,6 +5,9 @@ from .plugin_db import Plugin_DB
 
 
 class Plugin_Utils():
+    """
+    A wrapper for core functions for a plugin to have access to.
+    """
 
     def __init__(self, config, logger, db, versions, plugin_name, plugin_manifest, modname, path):
         self.config = Plugin_Config(config, plugin_manifest["name"], logger)

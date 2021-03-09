@@ -1,6 +1,9 @@
 
 
 class Direct_Stream():
+    """
+    A method to stream in chunks.
+    """
 
     def __init__(self, fhdhr, stream_args, tuner):
         self.fhdhr = fhdhr
@@ -10,6 +13,9 @@ class Direct_Stream():
         self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
     def get(self):
+        """
+        Produce chunks of video data.
+        """
 
         self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
 

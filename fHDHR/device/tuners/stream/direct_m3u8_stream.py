@@ -6,6 +6,9 @@ from Crypto.Cipher import AES
 
 
 class Direct_M3U8_Stream():
+    """
+    A method to stream m3u8.
+    """
 
     def __init__(self, fhdhr, stream_args, tuner):
         self.fhdhr = fhdhr
@@ -15,6 +18,9 @@ class Direct_M3U8_Stream():
         self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
     def get(self):
+        """
+        Produce chunks of video data.
+        """
 
         self.fhdhr.logger.info("Detected stream of m3u8 URL: %s" % self.stream_args["stream_info"]["url"])
 

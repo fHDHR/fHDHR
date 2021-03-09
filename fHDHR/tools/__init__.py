@@ -2,9 +2,21 @@ import os
 import re
 import ast
 import xml.etree.ElementTree
+import json
 
 UNARY_OPS = (ast.UAdd, ast.USub)
 BINARY_OPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)
+
+
+"""Various Tools for fHDHR Usage."""
+
+
+def is_jsonable(x):
+    try:
+        json.dumps(x)
+        return True
+    except Exception:
+        return False
 
 
 def inlist_match(bot, searchterm, termlist):

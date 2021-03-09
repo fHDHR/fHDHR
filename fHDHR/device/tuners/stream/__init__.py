@@ -11,6 +11,9 @@ from fHDHR.exceptions import TunerError
 
 
 class Stream():
+    """
+    fHDHR Stream Management system.
+    """
 
     def __init__(self, fhdhr, stream_args, tuner):
         self.fhdhr = fhdhr
@@ -22,25 +25,41 @@ class Stream():
 
             if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
                 self.method = Direct_RTP_Stream(fhdhr, stream_args, tuner)
+
             elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
                 self.method = Direct_M3U8_Stream(fhdhr, stream_args, tuner)
+
             else:
                 self.method = Direct_Stream(fhdhr, stream_args, tuner)
+
         else:
+
             plugin_name = self.get_alt_stream_plugin(stream_args["method"])
             if plugin_name:
                 self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, stream_args, tuner)
+
             else:
                 raise TunerError("806 - Tune Failed: Plugin Not Found")
 
     def get_alt_stream_plugin(self, method):
+        """
+        Import Stream Plugins.
+        """
+
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
+
                 if self.fhdhr.plugins.plugins[plugin_name].name == method:
                     return plugin_name
+
         return None
 
     def get(self):
+        """
+        Handle a stream.
+        """
+
         def buffer_generator():
             start_time = datetime.datetime.utcnow()
             segments_dict = OrderedDict()

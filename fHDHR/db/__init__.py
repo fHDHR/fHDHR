@@ -12,11 +12,14 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 def _deserialize(value):
+
     if value is None:
         return None
+
     # sqlite likes to return ints for strings that look like ints, even though
     # the column type is string. That's how you do dynamic typing wrong.
     value = str(value)
+
     # Just in case someone's mucking with the DB in a way we can't account for,
     # ignore json parsing errors
     try:
@@ -51,6 +54,9 @@ class fHDHRValues(BASE):
 
 
 class fHDHRdb(object):
+    """
+    The Database system for fHDHR.
+    """
 
     def __init__(self, settings, logger):
         self.config = settings
@@ -134,9 +140,15 @@ class fHDHRdb(object):
     def get_uri(self):
         return self.url
 
+    """Below functions are for manipulation of data in the database."""
+
     # fHDHR Values
 
     def set_fhdhr_value(self, item, key, value, namespace='default'):
+        """
+        Set fHDHR value.
+        """
+
         item = item.lower()
         value = json.dumps(value, ensure_ascii=False)
         session = self.ssession()
@@ -162,6 +174,10 @@ class fHDHRdb(object):
             session.close()
 
     def get_fhdhr_value(self, item, key, namespace='default'):
+        """
+        Get fHDHR value.
+        """
+
         item = item.lower()
         session = self.ssession()
         try:
@@ -180,6 +196,10 @@ class fHDHRdb(object):
             session.close()
 
     def delete_fhdhr_value(self, item, key, namespace='default'):
+        """
+        Delete fHDHR value.
+        """
+
         item = item.lower()
         session = self.ssession()
         try:
@@ -201,6 +221,10 @@ class fHDHRdb(object):
     # Plugin Values
 
     def set_plugin_value(self, pluginitem, key, value, namespace='default'):
+        """
+        Set plugin value.
+        """
+
         pluginitem = pluginitem.lower()
         value = json.dumps(value, ensure_ascii=False)
         session = self.ssession()
@@ -226,6 +250,10 @@ class fHDHRdb(object):
             session.close()
 
     def get_plugin_value(self, pluginitem, key, namespace='default'):
+        """
+        Get plugin value.
+        """
+
         pluginitem = pluginitem.lower()
         session = self.ssession()
         try:
@@ -244,6 +272,10 @@ class fHDHRdb(object):
             session.close()
 
     def delete_plugin_value(self, pluginitem, key, namespace='default'):
+        """
+        Delete plugin value.
+        """
+
         pluginitem = pluginitem.lower()
         session = self.ssession()
         try:

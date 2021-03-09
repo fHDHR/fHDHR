@@ -7,6 +7,9 @@ from fHDHR.tools import is_docker
 
 
 class Versions():
+    """
+    fHDHR versioning management system.
+    """
 
     def __init__(self, settings, fHDHR_web, logger, web, db, scheduler):
         self.fHDHR_web = fHDHR_web
@@ -22,6 +25,7 @@ class Versions():
         self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
 
         self.register_fhdhr()
+
         self.register_env()
 
         self.get_online_versions()
@@ -29,13 +33,24 @@ class Versions():
         self.update_url = "/api/versions?method=check"
 
     def sched_init(self, fhdhr):
+        """
+        The Scheduled update method.
+        """
+
         self.api = fhdhr.api
         self.scheduler.every(2).to(3).hours.do(self.sched_update)
 
     def sched_update(self):
+        """
+        Use an API thread to update Versions listing.
+        """
+
         self.api.threadget(self.update_url)
 
     def get_online_versions(self):
+        """
+        Update Onling versions listing.
+        """
 
         self.logger.debug("Checking for Online Plugin Information")
 
@@ -49,6 +64,7 @@ class Versions():
 
         online_plugin_names = [x["name"] for x in github_org_json if x["name"].startswith("fHDHR_plugin_")]
         for plugin_name in online_plugin_names:
+
             plugin_json_url = "https://raw.githubusercontent.com/fHDHR/%s/main/plugin.json" % plugin_name
             try:
                 plugin_json = self.web.session.get(plugin_json_url)
@@ -67,6 +83,10 @@ class Versions():
         self.db.set_fhdhr_value("versions", "dict", official_plugins)
 
     def register_version(self, item_name, item_version, item_type):
+        """
+        Register a version item.
+        """
+
         self.logger.debug("Registering %s item: %s %s" % (item_type, item_name, item_version))
         self.dict[item_name] = {
                                 "name": item_name,
@@ -75,11 +95,17 @@ class Versions():
                                 }
 
     def register_fhdhr(self):
+        """
+        Register core version items.
+        """
 
         self.register_version("fHDHR", fHDHR_VERSION, "fHDHR")
         self.register_version("fHDHR_web", self.fHDHR_web.fHDHR_web_VERSION, "fHDHR")
 
     def register_env(self):
+        """
+        Register env version items.
+        """
 
         self.register_version("Python", sys.version, "env")
         if sys.version_info.major == 2 or sys.version_info < (3, 7):
@@ -87,14 +113,19 @@ class Versions():
 
         opersystem = platform.system()
         self.register_version("Operating System", opersystem, "env")
+
         if opersystem in ["Linux", "Darwin"]:
+
             # Linux/Mac
             if os.getuid() == 0 or os.geteuid() == 0:
                 self.logger.warning('Do not run fHDHR with root privileges.')
+
         elif opersystem in ["Windows"]:
+
             # Windows
             if os.environ.get("USERNAME") == "Administrator":
                 self.logger.warning('Do not run fHDHR as Administrator.')
+
         else:
             self.logger.warning("Uncommon Operating System, use at your own risk.")
 
@@ -102,10 +133,15 @@ class Versions():
         self.register_version("Docker", isdocker, "env")
 
     def register_plugins(self, plugins):
+        """
+        Register plugin version items.
+        """
+
         self.logger.info("Scanning Plugins for Version Information.")
         self.plugins = plugins
         plugin_names = []
         for plugin in list(self.plugins.plugins.keys()):
+
             if self.plugins.plugins[plugin].plugin_name not in plugin_names:
                 plugin_names.append(self.plugins.plugins[plugin].plugin_name)
                 self.register_version(self.plugins.plugins[plugin].plugin_name, self.plugins.plugins[plugin].manifest["version"], "plugin")
