@@ -10,6 +10,10 @@ fHDHR_VERSION = "v0.9.0-beta"
 class fHDHR_INT_OBJ():
 
     def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
+        """
+        An internal catalogue of core methods.
+        """
+
         self.version = fHDHR_VERSION
         self.versions = versions
         self.config = settings
@@ -36,6 +40,10 @@ class fHDHR_INT_OBJ():
 class fHDHR_OBJ():
 
     def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
+        """
+        The Core Backend.
+        """
+
         logger.info("Initializing fHDHR Core Functions.")
         self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
 
@@ -44,8 +52,12 @@ class fHDHR_OBJ():
         self.device = fHDHR_Device(self.fhdhr, self.fhdhr.origins)
 
     def __getattr__(self, name):
-        ''' will only get called for undefined attributes '''
+        """
+        Quick and dirty shortcuts. Will only get called for undefined attributes.
+        """
+
         if hasattr(self.fhdhr, name):
             return eval("self.fhdhr.%s" % name)
+
         elif hasattr(self.fhdhr.device, name):
             return eval("self.fhdhr.device.%s" % name)

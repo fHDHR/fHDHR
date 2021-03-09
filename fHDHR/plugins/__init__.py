@@ -5,6 +5,9 @@ from .plugin import Plugin
 
 
 class PluginsHandler():
+    """
+    fHDHR plugins handling.
+    """
 
     def __init__(self, settings, logger, db, versions, deps):
         self.config = settings
@@ -17,18 +20,29 @@ class PluginsHandler():
 
         self.found_plugins = []
         self.list_plugins(self.config.internal["paths"]["internal_plugins_dir"])
+
         if self.config.internal["paths"]["external_plugins_dir"]:
             self.list_plugins(self.config.internal["paths"]["external_plugins_dir"])
+
         self.load_plugins()
+
         versions.register_plugins(self)
+
         self.setup()
 
     def setup(self):
+        """
+        Setup Plugins.
+        """
+
         self.logger.info("Setting Up Plugin Pre-flight setups.")
         for plugin_name in list(self.plugins.keys()):
             self.plugins[plugin_name].setup()
 
     def list_plugins(self, plugins_dir):
+        """
+        List Plugins.
+        """
 
         self.logger.info("Scanning for plugins: %s" % plugins_dir)
 
@@ -40,6 +54,7 @@ class PluginsHandler():
 
                 plugin_conf = []
                 for subfilename in os.listdir(abspath):
+
                     subabspath = os.path.join(abspath, subfilename)
                     if subfilename.endswith("_conf.json"):
                         plugin_conf.append(subabspath)
@@ -78,8 +93,10 @@ class PluginsHandler():
                                         subplugin_manifest = json.load(open(subconffilepath, 'r'))
 
                                         for subplugin_man_item in ["name", "version", "type"]:
+
                                             if subplugin_man_item not in list(subplugin_manifest.keys()):
                                                 subplugin_manifest[subplugin_man_item] = plugin_manifest[subplugin_man_item]
+
                                     else:
                                         subplugin_manifest = plugin_manifest
 
@@ -95,6 +112,7 @@ class PluginsHandler():
                     self.logger.info(plugin_import_print_string)
 
                     self.logger.info("Checking For %s Plugin Requirements file." % plugin_manifest["name"])
+
                     requirements_txt = os.path.join(abspath, 'requirements.txt')
                     if os.path.isfile(requirements_txt):
                         self.logger.info("Installing %s Plugin Requirements from %s" % (plugin_manifest["name"], requirements_txt))
@@ -102,6 +120,10 @@ class PluginsHandler():
                         self.deps.check_requirements(plugin_reqs)
 
     def load_plugins(self):
+        """
+        Load Plugins.
+        """
+
         self.logger.info("Loading plugins.")
         for plugin_name, plugin_path, plugin_conf, plugin_manifest in self.found_plugins:
             plugin_item = Plugin(self.config, self.logger, self.db, self.versions, plugin_name, plugin_path, plugin_conf, plugin_manifest)

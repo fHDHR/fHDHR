@@ -19,7 +19,10 @@ ERR_CODE_NO_RESTART = 2
 
 
 def build_args_parser(script_dir):
-    """Build argument parser for fHDHR"""
+    """
+    Build argument parser for fHDHR.
+    """
+
     parser = argparse.ArgumentParser(description='fHDHR')
     parser.add_argument('-c', '--config', dest='cfg', type=str, default=pathlib.Path(script_dir).joinpath('config.ini'), required=False, help='configuration file to load.')
     parser.add_argument('--setup', dest='setup', type=str, required=False, nargs='?', const=True, default=False, help='Setup Configuration file.')
@@ -28,6 +31,9 @@ def build_args_parser(script_dir):
 
 
 def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps):
+    """
+    Create fHDHR and fHDHH_web objects, and run threads.
+    """
 
     fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
@@ -47,6 +53,7 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
             fhdhr.device.ssdp.start()
 
         for interface_plugin in fhdhr.device.interfaces.keys():
+
             if hasattr(fhdhr.device.interfaces[interface_plugin], 'run_thread'):
                 fhdhr.device.interfaces[interface_plugin].run_thread()
 
@@ -61,8 +68,10 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
         restart_code = "restart"
         while fhdhr.threads["flask"].is_alive():
             time.sleep(1)
+
         if restart_code in ["restart"]:
             logger.noob("fHDHR has been signaled to restart.")
+
         return restart_code
 
     except KeyboardInterrupt:
@@ -72,7 +81,9 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
 
 
 def start(args, script_dir, fHDHR_web, deps):
-    """Get Configuration for fHDHR and start"""
+    """
+    Get Configuration for fHDHR and start.
+    """
 
     try:
         settings = fHDHR.config.Config(args, script_dir)
@@ -110,6 +121,10 @@ def start(args, script_dir, fHDHR_web, deps):
 
 
 def config_setup(args, script_dir, fHDHR_web):
+    """
+    Setup Config file.
+    """
+
     settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
     fHDHR.plugins.PluginsHandler(settings)
     settings.setup_user_config()
@@ -117,7 +132,9 @@ def config_setup(args, script_dir, fHDHR_web):
 
 
 def main(script_dir, fHDHR_web, deps):
-    """fHDHR run script entry point"""
+    """
+    fHDHR run script entry point.
+    """
 
     try:
         args = build_args_parser(script_dir)
@@ -126,13 +143,18 @@ def main(script_dir, fHDHR_web, deps):
             return config_setup(args, script_dir, fHDHR_web)
 
         while True:
+
             returned_code = start(args, script_dir, fHDHR_web, deps)
             if returned_code not in ["restart"]:
                 return returned_code
+
     except KeyboardInterrupt:
         print("\n\nInterrupted")
         return ERR_CODE
 
 
 if __name__ == '__main__':
+    """
+    Trigger main function.
+    """
     main()

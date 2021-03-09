@@ -13,6 +13,10 @@ fHDHR_web_VERSION = "v0.9.0-beta"
 
 
 class fHDHR_HTTP_Server():
+    """
+    fHDHR_web HTTP Frontend.
+    """
+
     app = None
 
     def __init__(self, fhdhr):
@@ -53,6 +57,10 @@ class fHDHR_HTTP_Server():
         self.fhdhr.threads["flask"] = threading.Thread(target=self.run)
 
     def selfadd_web_plugins(self):
+        """
+        Import web Plugins.
+        """
+
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "web":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
@@ -63,17 +71,32 @@ class fHDHR_HTTP_Server():
                     self.fhdhr.logger.error(e)
 
     def start(self):
+        """
+        Start Flask.
+        """
+
         self.fhdhr.logger.info("Flask HTTP Thread Starting")
         self.fhdhr.threads["flask"].start()
 
     def stop(self):
+        """
+        Safely Stop Flask.
+        """
+
         self.fhdhr.logger.info("Flask HTTP Thread Stopping")
         self.http.stop()
 
     def before_first_request(self):
+        """
+        Handling before a first request can be handled.
+        """
+
         self.fhdhr.logger.info("HTTP Server Online.")
 
     def before_request(self):
+        """
+        Handling before a request is processed.
+        """
 
         session["session_id"] = str(uuid.uuid4())
         session["instance_id"] = self.instance_id
@@ -102,6 +125,9 @@ class fHDHR_HTTP_Server():
         self.fhdhr.logger.debug("Client %s requested %s Opening" % (request.method, request.path))
 
     def after_request(self, response):
+        """
+        Handling after a request is processed.
+        """
 
         # Close Tuner if it was in use, and did not close already
         # if session["tuner_used"] is not None:
@@ -111,12 +137,18 @@ class fHDHR_HTTP_Server():
         #        tuner.close()
 
         self.fhdhr.logger.debug("Client %s requested %s Closing" % (request.method, request.path))
+
         if not session["restart"]:
             return response
+
         else:
             return self.stop()
 
     def detect_internal_api(self, request):
+        """
+        Detect if accessed by internal API.
+        """
+
         user_agent = request.headers.get('User-Agent')
         if not user_agent:
             return False
@@ -126,28 +158,49 @@ class fHDHR_HTTP_Server():
             return False
 
     def detect_deviceauth(self, request):
+        """
+        Detect if accessed with DeviceAuth.
+        """
+
         return request.args.get('DeviceAuth', default=None, type=str)
 
     def detect_mobile(self, request):
+        """
+        Detect if accessed by mobile.
+        """
+
         user_agent = request.headers.get('User-Agent')
         phones = ["iphone", "android", "blackberry"]
+
         if not user_agent:
             return False
+
         elif any(phone in user_agent.lower() for phone in phones):
             return True
+
         else:
             return False
 
     def detect_plexmediaserver(self, request):
+        """
+        Detect if accessed by plexmediaserver.
+        """
+
         user_agent = request.headers.get('User-Agent')
+
         if not user_agent:
             return False
+
         elif str(user_agent).lower().startswith("plexmediaserver"):
             return True
+
         else:
             return False
 
     def add_endpoints(self, index_name):
+        """
+        Add Endpoints.
+        """
 
         item_list = [x for x in dir(self.endpoints_obj[index_name]) if self.isapath(x)]
         endpoint_main = self.endpoints_obj[index_name]
@@ -191,6 +244,7 @@ class fHDHR_HTTP_Server():
                                       endpoint_name=endpoint_name,
                                       handler=handler,
                                       methods=endpoint_methods)
+
             except AssertionError:
                 endpoint_added = False
 
@@ -202,6 +256,7 @@ class fHDHR_HTTP_Server():
 
                 if endpoint_name not in list(self.route_list[endpoint_category].keys()):
                     self.route_list[endpoint_category][endpoint_name] = {}
+
                 self.route_list[endpoint_category][endpoint_name]["name"] = endpoint_name
                 self.route_list[endpoint_category][endpoint_name]["endpoints"] = endpoints
                 self.route_list[endpoint_category][endpoint_name]["endpoint_methods"] = endpoint_methods
@@ -211,18 +266,31 @@ class fHDHR_HTTP_Server():
                 self.route_list[endpoint_category][endpoint_name]["endpoint_category"] = endpoint_category
 
     def isapath(self, item):
+        """
+        Ignore instances.
+        """
+
         not_a_page_list = ["fhdhr", "plugin_utils"]
         if item in not_a_page_list:
             return False
+
         elif item.startswith("__") and item.endswith("__"):
             return False
+
         else:
             return True
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, methods=['GET']):
+        """
+        Add Endpoint.
+        """
+
         self.fhdhr.app.add_url_rule(endpoint, endpoint_name, handler, methods=methods)
 
     def run(self):
+        """
+        Run the WSGIServer.
+        """
 
         self.http = WSGIServer(self.fhdhr.api.address_tuple,
                                self.fhdhr.app.wsgi_app,

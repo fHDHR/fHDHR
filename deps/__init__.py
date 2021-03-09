@@ -13,6 +13,7 @@ import pkg_resources
 
 
 class Dependencies():
+    """Methods to check for missing dependencies."""
 
     def __init__(self, script_dir):
         self.script_dir = script_dir
@@ -24,6 +25,7 @@ class Dependencies():
 
     @property
     def pipinstalled(self):
+        """Output a dict of currently installed python modules."""
         packages_dict = {}
         installed_packages = pkg_resources.working_set
         sorted_packages = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
@@ -40,6 +42,7 @@ class Dependencies():
         return packages_dict
 
     def get_requirements(self, requirements_txt):
+        """Reads a requirements.txt file for dependencies."""
         pipreqsdeps = {}
         piprequires = [line.rstrip('\n') for line in open(requirements_txt)]
         for pypipreq in piprequires:
@@ -55,6 +58,7 @@ class Dependencies():
         return pipreqsdeps
 
     def check_requirements(self, reqs):
+        """Check for, and install missing python modules dependencies."""
         installed = self.pipinstalled
         not_installed = [x for x in list(reqs.keys()) if x not in list(installed.keys())]
         for pipdep in not_installed:

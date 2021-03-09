@@ -6,6 +6,9 @@ from .tuner import Tuner
 
 
 class Tuners():
+    """
+    fHDHR emulated Tuners system.
+    """
 
     def __init__(self, fhdhr, epg, channels, origins):
         self.fhdhr = fhdhr
@@ -34,46 +37,82 @@ class Tuners():
 
     @property
     def streaming_method(self):
+        """
+        Method to use for streaming.
+        """
+
         if not self.fhdhr.config.dict["streaming"]["method"]:
             return "direct"
+
         if self.fhdhr.config.dict["streaming"]["method"] not in self.streaming_methods:
             return "direct"
+
         return self.fhdhr.config.dict["streaming"]["method"]
 
     @property
     def streaming_methods(self):
+        """
+        List valid streaming methods.
+        """
+
         streaming_methods = ["direct", "passthrough"]
+
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
                 streaming_methods.append(self.fhdhr.plugins.plugins[plugin_name].name)
+
         return streaming_methods
 
     def alt_stream_methods_selfadd(self):
+        """
+        Import stream methods.
+        """
+
         self.fhdhr.logger.info("Detecting and Opening any found Stream Method plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
                 method = self.fhdhr.plugins.plugins[plugin_name].name
                 self.alt_stream_handlers[method] = self.fhdhr.plugins.plugins[plugin_name]
 
     def get_available_tuner(self, origin):
+        """
+        Get an available tuner
+        """
+
         for tunernum in list(self.tuners[origin].keys()):
+
             if not self.tuners[origin][tunernum].tuner_lock.locked():
                 return tunernum
+
         return None
 
     def get_scanning_tuner(self, origin):
+        """
+        Find what tuner is scanning.
+        """
+
         for tunernum in list(self.tuners[origin].keys()):
+
             if self.tuners[origin][tunernum].status["status"] == "Scanning":
                 return tunernum
+
         return None
 
     def stop_tuner_scan(self, origin):
+        """
+        Stop a Tuner Scan.
+        """
+
         tunernum = self.get_scanning_tuner(origin)
         if tunernum:
             self.tuners[origin][str(tunernum)].close()
 
     def tuner_scan(self, origin="all"):
-        """Temporarily use a tuner for a scan"""
+        """
+        Temporarily use a tuner for a scan.
+        """
 
         if origin == "all":
             origins = list(self.tuners.keys())
@@ -92,6 +131,9 @@ class Tuners():
                 raise TunerError("805 - All Tuners In Use")
 
     def tuner_grab(self, tuner_number, origin, channel_number):
+        """
+        Attempt to grab a tuner.
+        """
 
         if str(tuner_number) not in list(self.tuners[origin].keys()):
             self.fhdhr.logger.error("Tuner %s does not exist for %s." % (tuner_number, origin))
@@ -103,6 +145,9 @@ class Tuners():
         return tuner_number
 
     def first_available(self, origin, channel_number, dograb=True):
+        """
+        Grab first avaiable tuner.
+        """
 
         if not self.available_tuner_count(origin):
             raise TunerError("805 - All Tuners In Use")
@@ -116,35 +161,63 @@ class Tuners():
             return tunernumber
 
     def tuner_close(self, tunernum, origin):
+        """
+        Close a tuner.
+        """
+
         self.tuners[origin][str(tunernum)].close()
 
     def status(self, origin=None):
+        """
+        Get Tuners status.
+        """
+
         all_status = {}
         if origin:
+
             for tunernum in list(self.tuners[origin].keys()):
                 all_status[tunernum] = self.tuners[origin][str(tunernum)].get_status()
+
         else:
+
             for origin in list(self.tuners.keys()):
+
                 all_status[origin] = {}
                 for tunernum in list(self.tuners[origin].keys()):
                     all_status[origin][tunernum] = self.tuners[origin][str(tunernum)].get_status()
+
         return all_status
 
     def available_tuner_count(self, origin):
+        """
+        Return number of Avaiable tuners.
+        """
+
         available_tuners = 0
         for tunernum in list(self.tuners[origin].keys()):
+
             if not self.tuners[origin][str(tunernum)].tuner_lock.locked():
                 available_tuners += 1
+
         return available_tuners
 
     def inuse_tuner_count(self, origin):
+        """
+        Return number of tuners being used.
+        """
+
         inuse_tuners = 0
         for tunernum in list(self.tuners[origin].keys()):
+
             if self.tuners[origin][str(tunernum)].tuner_lock.locked():
                 inuse_tuners += 1
+
         return inuse_tuners
 
     def get_stream_info(self, stream_args):
+        """
+        Attempt to gather info on a stream.
+        """
 
         stream_info = self.channels.get_channel_stream(stream_args, stream_args["origin"])
         if not stream_info:
@@ -163,32 +236,41 @@ class Tuners():
         if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
             stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
+
         else:
 
             channel_stream_url_headers = self.fhdhr.web.session.head(stream_args["stream_info"]["url"]).headers
             stream_args["true_content_type"] = channel_stream_url_headers['Content-Type']
 
             if stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
+
                 stream_args["content_type"] = "video/mpeg"
                 if stream_args["origin_quality"] != -1:
                     stream_args["stream_info"]["url"] = self.m3u8_quality(stream_args)
+
             else:
                 stream_args["content_type"] = stream_args["true_content_type"]
 
         return stream_args
 
     def m3u8_quality(self, stream_args):
+        """
+        Set the m3u8 Quality.
+        """
 
         m3u8_url = stream_args["stream_info"]["url"]
         quality_profile = stream_args["origin_quality"]
 
         if not quality_profile:
+
             if stream_args["method"] in ["direct", "passthrough"]:
                 quality_profile = "high"
                 self.fhdhr.logger.info("Origin Quality not set in config. %s Method set and will default to Highest Quality" % stream_args["method"])
+
             else:
                 self.fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
                 return m3u8_url
+
         else:
             quality_profile = quality_profile.lower()
             self.fhdhr.logger.info("Origin Quality set in config to %s" % (quality_profile))
@@ -197,10 +279,13 @@ class Tuners():
             self.fhdhr.logger.info("Opening m3u8 for reading %s" % m3u8_url)
 
             try:
+
                 if stream_args["stream_info"]["headers"]:
                     videoUrlM3u = m3u8.load(m3u8_url, headers=stream_args["stream_info"]["headers"])
+
                 else:
                     videoUrlM3u = m3u8.load(m3u8_url)
+
             except Exception as e:
                 self.fhdhr.logger.info("m3u8 load error: %s" % e)
                 return m3u8_url
@@ -220,10 +305,13 @@ class Tuners():
                     if not playlist_item.stream_info.resolution:
                         playlist_dict["width"] = None
                         playlist_dict["height"] = None
+
                     else:
+
                         try:
                             playlist_dict["width"] = playlist_item.stream_info.resolution[0]
                             playlist_dict["height"] = playlist_item.stream_info.resolution[1]
+
                         except TypeError:
                             playlist_dict["width"] = None
                             playlist_dict["height"] = None
@@ -239,8 +327,10 @@ class Tuners():
 
                 if not quality_profile or quality_profile == "high":
                     selected_index = -1
+
                 elif quality_profile == "medium":
                     selected_index = int((len(sorted_playlists) - 1)/2)
+
                 elif quality_profile == "low":
                     selected_index = 0
 

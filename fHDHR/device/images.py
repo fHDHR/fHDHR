@@ -5,6 +5,9 @@ import PIL.ImageFont
 
 
 class imageHandler():
+    """
+    The fHDHR Image Handling System.
+    """
 
     def __init__(self, fhdhr, epg):
         self.fhdhr = fhdhr
@@ -12,6 +15,10 @@ class imageHandler():
         self.fhdhr.logger.info("Initializing Images system")
 
     def get_epg_image(self, image_type, content_id):
+        """
+        Retrieve EPG image URL.
+        """
+
         imageUri = self.epg.get_thumbnail(image_type, str(content_id))
         if not imageUri:
             return self.generate_image(image_type, str(content_id))
@@ -20,11 +27,19 @@ class imageHandler():
         return req.content
 
     def getSize(self, txt, font):
+        """
+        Get Size of image.
+        """
+
         testImg = PIL.Image.new('RGB', (1, 1))
         testDraw = PIL.ImageDraw.Draw(testImg)
         return testDraw.textsize(txt, font)
 
     def generate_image(self, messagetype, message):
+        """
+        Generate image.
+        """
+
         if messagetype == "channel":
             width = 360
             height = 270
@@ -51,6 +66,10 @@ class imageHandler():
         return s.getvalue()
 
     def get_image_type(self, image_data):
+        """
+        Get type of image.
+        """
+
         header_byte = image_data[0:3].hex().lower()
         if header_byte == '474946':
             return "image/gif"

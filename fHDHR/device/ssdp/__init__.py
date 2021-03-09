@@ -5,6 +5,9 @@ import threading
 
 
 class SSDPServer():
+    """
+    fHDHR SSDP server.
+    """
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
@@ -43,6 +46,10 @@ class SSDPServer():
             self.fhdhr.logger.info("SSDP system will not be Initialized")
 
     def ssdp_method_selfadd(self):
+        """
+        Add SSDP methods.
+        """
+
         self.fhdhr.logger.info("Detecting and Opening any found SSDP plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             if self.fhdhr.plugins.plugins[plugin_name].type == "ssdp":
@@ -51,14 +58,26 @@ class SSDPServer():
                 self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
 
     def start(self):
+        """
+        Start SSDP.
+        """
+
         self.fhdhr.logger.info("SSDP Server Starting")
         self.fhdhr.threads["ssdp"].start()
 
     def stop(self):
+        """
+        Safely Shutdown SSDP.
+        """
+
         self.fhdhr.logger.info("SSDP Server Stopping")
         self.sock.close()
 
     def run(self):
+        """
+        Listen for SSDP Requests.
+        """
+
         self.do_alive()
         while True:
             data, address = self.sock.recvfrom(1024)
@@ -66,10 +85,17 @@ class SSDPServer():
         self.stop()
 
     def do_alive(self):
+        """
+        Notify Network of SSDP.
+        """
+
         self.fhdhr.logger.info("Sending Alive message to network.")
         self.do_notify(self.broadcast_address_tuple)
 
     def do_notify(self, address):
+        """
+        Notify Network of SSDP.
+        """
 
         notify_list = []
         for ssdp_handler in list(self.ssdp_handling.keys()):
@@ -92,6 +118,10 @@ class SSDPServer():
                 pass
 
     def on_recv(self, data, address):
+        """
+        Handle Reqeusts for SSDP information.
+        """
+
         self.fhdhr.logger.ssdp("Received packet from {}: {}".format(address, data))
 
         try:
@@ -125,10 +155,17 @@ class SSDPServer():
             self.fhdhr.logger.ssdp('Unknown SSDP command %s %s' % (cmd[0], cmd[1]))
 
     def m_search(self):
+        """
+        Search Network for SSDP
+        """
+
         data = self.msearch_payload
         self.sock.sendto(data, self.broadcast_address_tuple)
 
     def create_msearch_payload(self):
+        """
+        Create Payload for searching network.
+        """
 
         data = ''
         data_command = "M-SEARCH * HTTP/1.1"
@@ -149,13 +186,23 @@ class SSDPServer():
 
     @property
     def multicast_address(self):
+        """
+        The Address for multicast to listen.
+        """
+
         if self.fhdhr.config.dict["ssdp"]["multicast_address"]:
             return self.fhdhr.config.dict["ssdp"]["multicast_address"]
+
         elif self.fhdhr.config.dict["fhdhr"]["discovery_address"]:
             return self.fhdhr.config.dict["fhdhr"]["discovery_address"]
+
         return None
 
     def setup_ssdp(self):
+        """
+        Setup SSDP basics.
+        """
+
         self.sock = None
 
         self.proto = self.setup_proto()
@@ -170,18 +217,29 @@ class SSDPServer():
         self.setup_multicasting()
 
     def setup_proto(self):
+        """
+        Setup SSDP protocols.
+        """
+
         proto = self.fhdhr.config.dict["ssdp"]["proto"]
         allowed_protos = ("ipv4", "ipv6")
+
         if proto not in allowed_protos:
             raise ValueError("Invalid proto - expected one of {}".format(allowed_protos))
+
         return proto
 
     def setup_addressing(self):
+        """
+        Setup SSDP addressing.
+        """
+
         if self.proto == "ipv4":
             self.af_type = socket.AF_INET
             self.broadcast_ip = "239.255.255.250"
             self.broadcast_address_tuple = (self.broadcast_ip, 1900)
             self.bind_address = "0.0.0.0"
+
         elif self.proto == "ipv6":
             self.af_type = socket.AF_INET6
             self.broadcast_ip = "ff02::c"
@@ -189,33 +247,51 @@ class SSDPServer():
             self.bind_address = "::"
 
     def setup_interface(self):
+        """
+        Setup SSDP interface.
+        """
+
         # Bind to specific interface
         if self.iface is not None:
             self.sock.setsockopt(socket.SOL_SOCKET, getattr(socket, "SO_BINDTODEVICE", 25), self.iface)
 
     def setup_multicasting(self):
+        """
+        Setup SSDP multicasting.
+        """
+
         # Subscribe to multicast address
         if self.proto == "ipv4":
+
             mreq = socket.inet_aton(self.broadcast_ip)
             if self.multicast_address is not None:
                 mreq += socket.inet_aton(self.multicast_address)
+
             else:
                 mreq += struct.pack(b"@I", socket.INADDR_ANY)
+
             self.sock.setsockopt(
                 socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
             # Allow multicasts on loopback devices (necessary for testing)
             self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+
         elif self.proto == "ipv6":
+
             # In IPv6 we use the interface index, not the address when subscribing to the group
             mreq = socket.inet_pton(socket.AF_INET6, self.broadcast_ip)
+
             if self.iface is not None:
                 iface_index = socket.if_nametoindex(self.iface)
                 # Send outgoing packets from the same interface
                 self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_IF, iface_index)
                 mreq += struct.pack(b"@I", iface_index)
+
             else:
                 mreq += socket.inet_pton(socket.AF_INET6, "::")
+
             self.sock.setsockopt(
                 socket.IPPROTO_IPV6, socket.IPV6_JOIN_GROUP, mreq,
             )
+
             self.sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_MULTICAST_LOOP, 1)

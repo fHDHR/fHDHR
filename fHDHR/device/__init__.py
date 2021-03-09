@@ -6,6 +6,9 @@ from .ssdp import SSDPServer
 
 
 class fHDHR_Device():
+    """
+    The fHDHR devices.
+    """
 
     def __init__(self, fhdhr, origins):
         self.fhdhr = fhdhr
@@ -22,10 +25,13 @@ class fHDHR_Device():
         self.ssdp = SSDPServer(fhdhr)
 
         self.interfaces = {}
+
         self.fhdhr.logger.info("Detecting and Opening any found Interface plugins.")
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+
             if self.fhdhr.plugins.plugins[plugin_name].manifest["type"] == "interface":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+
                 plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
                 plugin_utils.channels = self.channels
                 plugin_utils.epg = self.epg
@@ -33,4 +39,5 @@ class fHDHR_Device():
                 plugin_utils.images = self.images
                 plugin_utils.ssdp = self.ssdp
                 plugin_utils.origins = self.fhdhr.origins
+
                 self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)

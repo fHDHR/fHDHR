@@ -7,6 +7,9 @@ from fHDHR.exceptions import TunerError
 
 
 class Direct_RTP_Stream():
+    """
+    A method to stream rtp/udp.
+    """
 
     def __init__(self, fhdhr, stream_args, tuner):
         self.fhdhr = fhdhr
@@ -67,6 +70,9 @@ class Direct_RTP_Stream():
             raise TunerError("806 - Tune Failed: Could Not Create Socket: %s" % e)
 
     def get(self):
+        """
+        Produce chunks of video data.
+        """
 
         self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
 

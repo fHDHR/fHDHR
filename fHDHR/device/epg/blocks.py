@@ -2,6 +2,9 @@ import datetime
 
 
 class blocksEPG():
+    """
+    Blocks EPG Data for Origins missing EPG data.
+    """
 
     def __init__(self, fhdhr, channels, origins, origin):
         self.fhdhr = fhdhr
@@ -10,6 +13,10 @@ class blocksEPG():
         self.origin = origin
 
     def update_epg(self):
+        """
+        Generate a full program guide without data.
+        """
+
         programguide = {}
 
         timestamps = self.timestamps
@@ -29,11 +36,19 @@ class blocksEPG():
 
     @property
     def timestamps(self):
+        """
+        Generate timestamps for a star and end time for EPG data.
+        """
+
         desired_start_time = (datetime.datetime.today() + datetime.timedelta(days=-abs(self.fhdhr.config.dict["epg"]["reverse_days"]))).timestamp()
         desired_end_time = (datetime.datetime.today() + datetime.timedelta(days=self.fhdhr.config.dict["epg"]["forward_days"])).timestamp()
         return self.timestamps_between(desired_start_time, desired_end_time)
 
     def timestamps_between(self, starttime, endtime):
+        """
+        Create Blocks of time between two times.
+        """
+
         timestamps = []
         desired_blocksize = self.fhdhr.config.dict["epg"]["block_size"]
         current_time = starttime
@@ -53,6 +68,9 @@ class blocksEPG():
         return timestamps
 
     def single_channel_epg(self, timestampdict, chan_obj=None, chan_dict=None):
+        """
+        Generate EPG for a single Channel between timeslots.
+        """
 
         if chan_obj:
             content_id = "%s_%s" % (chan_obj.dict["origin_id"], timestampdict['time_start'])
@@ -85,13 +103,22 @@ class blocksEPG():
         return clean_prog_dict
 
     def empty_channel_epg(self, timestamps, chan_obj=None, chan_dict=None):
+        """
+        Generate EPG for a channel.
+        """
+
         clean_prog_dicts = []
         for timestampdict in timestamps:
             clean_prog_dict = self.single_channel_epg(timestampdict, chan_obj=chan_obj, chan_dict=chan_dict)
             clean_prog_dicts.append(clean_prog_dict)
+
         return clean_prog_dicts
 
     def empty_listing(self, chan_obj=None, chan_dict=None):
+        """
+        Create empty program info.
+        """
+
         clean_prog_dict = {
                             "time_start": None,
                             "time_end": None,
@@ -111,10 +138,13 @@ class blocksEPG():
 
         if chan_obj:
             clean_prog_dict["thumbnail"] = chan_obj.thumbnail
+
         elif chan_dict:
             clean_prog_dict["thumbnail"] = chan_dict["thumbnail"]
+
         else:
             clean_prog_dict["thumbnail"] = None
+
         if not clean_prog_dict["thumbnail"]:
             clean_prog_dict["thumbnail"] = "/api/images?method=generate&type=content&message=Unavailable"
 
