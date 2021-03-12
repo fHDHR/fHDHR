@@ -19,23 +19,28 @@ class SSDPServer():
 
             self.fhdhr.logger.info("Initializing SSDP system")
 
-            self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
-            self.setup_ssdp()
+            try:
+                self.setup_ssdp()
+                self.sock.bind((self.bind_address, 1900))
 
-            self.sock.bind((self.bind_address, 1900))
+                self.msearch_payload = self.create_msearch_payload()
 
-            self.msearch_payload = self.create_msearch_payload()
+                self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
+                self.age_time = None
 
-            self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
-            self.age_time = None
+                self.ssdp_doalive_url = "/api/ssdp?method=alive"
 
-            self.ssdp_doalive_url = "/api/ssdp?method=alive"
+                self.fhdhr.scheduler.every(self.max_age).seconds.do(self.fhdhr.api.threadget, url=self.ssdp_doalive_url)
 
-            self.fhdhr.scheduler.every(self.max_age).seconds.do(self.fhdhr.api.threadget, url=self.ssdp_doalive_url)
+                self.ssdp_method_selfadd()
 
-            self.ssdp_method_selfadd()
+                self.m_search()
 
-            self.m_search()
+                self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
+
+            except OSError as err:
+                self.fhdhr.logger.Error("SSDP system will not be Initialized: %s" % err)
+
         elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
             self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
         elif not self.multicast_address:
