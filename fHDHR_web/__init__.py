@@ -299,5 +299,7 @@ class fHDHR_HTTP_Server():
         try:
             self.http.serve_forever()
             self.stop()
+        except OSError as err:
+            self.fhdhr.logger.error("HTTP Server Offline: %s" % err)
         except AttributeError:
             self.fhdhr.logger.info("HTTP Server Offline")
