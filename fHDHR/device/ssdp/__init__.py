@@ -94,8 +94,9 @@ class SSDPServer():
         Notify Network of SSDP.
         """
 
-        self.fhdhr.logger.info("Sending Alive message to network.")
-        self.do_notify(self.broadcast_address_tuple)
+        if self.broadcast_address_tuple:
+            self.fhdhr.logger.info("Sending Alive message to network.")
+            self.do_notify(self.broadcast_address_tuple)
 
     def do_notify(self, address):
         """
@@ -165,7 +166,8 @@ class SSDPServer():
         """
 
         data = self.msearch_payload
-        self.sock.sendto(data, self.broadcast_address_tuple)
+        if self.broadcast_address_tuple:
+            self.sock.sendto(data, self.broadcast_address_tuple)
 
     def create_msearch_payload(self):
         """
@@ -250,6 +252,9 @@ class SSDPServer():
             self.broadcast_ip = "ff02::c"
             self.broadcast_address_tuple = (self.broadcast_ip, 1900, 0, 0)
             self.bind_address = "::"
+
+        else:
+            self.broadcast_address_tuple = None
 
     def setup_interface(self):
         """
