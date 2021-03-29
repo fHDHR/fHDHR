@@ -239,8 +239,16 @@ class Tuners():
 
         else:
 
-            channel_stream_url_headers = self.fhdhr.web.session.head(stream_args["stream_info"]["url"]).headers
-            stream_args["true_content_type"] = channel_stream_url_headers['Content-Type']
+            try:
+                channel_stream_url_headers = self.fhdhr.web.session.head(stream_args["stream_info"]["url"]).headers
+                stream_args["true_content_type"] = channel_stream_url_headers['Content-Type']
+            except KeyError:
+                if stream_args["stream_info"]["url"].endswith(".m3u8"):
+                    stream_args["true_content_type"] = "application/text"
+                    stream_args["content_type"] = "video/mpeg"
+                else:
+                    stream_args["true_content_type"] = "video/mpeg"
+                    stream_args["content_type"] = "video/mpeg"
 
             if stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
 
