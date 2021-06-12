@@ -73,17 +73,17 @@
             <td><input type="text" class="channels" name="thumbnail" value="{{ chan_dict["thumbnail"] }}" placeholder="{{ chan_dict["thumbnail"] }}"></td>
             <input type="hidden" class="reset" name="thumbnail" value="{{ chan_dict["origin_thumbnail"] }}" placeholder="{{ chan_dict["thumbnail"] }}">
 
-            {% if chan_dict["enabled"]  %}
-              <td><input type="checkbox" class="channels" name="enabled" value=True checked placeholder="{{ chan_dict["enabled"] }}"></td>
+            {% if chan_dict["enabled"] in [True, "True"]  %}
+              <td><input type="checkbox" class="channels" name="enabled" value=True checked=True placeholder=True></td>
             {% else %}
-              <td><input type="checkbox" class="channels" name="enabled" value=True placeholder="{{ chan_dict["enabled"] }}"></td>
+              <td><input type="checkbox" class="channels" name="enabled" value=True placeholder=False></td>
             {% endif %}
             <input type="hidden" class="reset" name="enabled" value=True placeholder="{{ chan_dict["enabled"] }}">
 
-            {% if chan_dict["favorite"]  %}
-              <td><input type="checkbox" class="channels" name="favorite" value=1 checked placeholder="{{ chan_dict["favorite"] }}"></td>
+            {% if chan_dict["favorite"]  in [1, "1"] %}
+              <td><input type="checkbox" class="channels" name="favorite" value=1 checked=True placeholder=1></td>
             {% else %}
-              <td><input type="checkbox" class="channels" name="favorite" value=1 placeholder="{{ chan_dict["favorite"] }}"></td>
+              <td><input type="checkbox" class="channels" name="favorite" value=1 placeholder=0></td>
             {% endif %}
             <input type="hidden" class="reset" name="favorite" value="0" placeholder="{{ chan_dict["favorite"] }}">
 
