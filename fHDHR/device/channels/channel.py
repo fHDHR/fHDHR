@@ -89,6 +89,15 @@ class Channel():
                 self.dict["subnumber"] = self.dict["number"].split(".")[1]
                 self.dict["number"] = self.dict["number"].split(".")[0]
 
+        self.dict["favorite"] = int(self.dict["favorite"])
+
+        self.dict["HD"] = int(self.dict["HD"])
+
+        if str(self.dict["enabled"]).lower() in ["true"]:
+            self.dict["enabled"] = True
+        else:
+            self.dict["enabled"] = False
+
     def basics(self, channel_info):
         """
         Some Channel Information is Critical.
@@ -209,6 +218,16 @@ class Channel():
                 else:
                     self.dict["number"] = str(number)
                     self.dict["subnumber"] = None
+
+            elif key in ["favorite", "HD"]:
+                self.dict[key] = int(updatedict[key])
+
+            elif key in ["enabled"]:
+                if str(updatedict[key]).lower() in ["true"]:
+                    updatedict[key] = True
+                else:
+                    updatedict[key] = False
+                self.dict[key] = updatedict[key]
 
             else:
                 self.dict[key] = str(updatedict[key])
