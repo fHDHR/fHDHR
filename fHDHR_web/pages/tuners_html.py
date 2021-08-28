@@ -57,5 +57,7 @@ class Tuners_HTML():
             origin = request.args.get('origin', default=self.fhdhr.origins.valid_origins[0], type=str)
             if origin not in origin_methods:
                 origin = origin_methods[0]
+        else:
+            origin = None
 
         return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, origin=origin, origin_methods=origin_methods, tuner_status_dict=tuner_status_dict, list=list)
