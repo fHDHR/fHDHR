@@ -65,14 +65,22 @@ class Versions():
         online_plugin_names = [x["name"] for x in github_org_json if x["name"].startswith("fHDHR_plugin_")]
         for plugin_name in online_plugin_names:
 
-            plugin_json_url = "https://raw.githubusercontent.com/fHDHR/%s/main/plugin.json" % plugin_name
-            try:
-                plugin_json = self.web.session.get(plugin_json_url)
-                if plugin_json.status_code == 200:
-                    plugin_json = plugin_json.json()
-                    official_plugins[plugin_name] = plugin_json
-            except self.web.exceptions.ReadTimeout as err:
-                self.logger.error("Online Plugin Information Check Failed for %s: %s" % (plugin_name, err))
+            plugin_version_check_success = 0
+
+            for branch in ["main", "master", "dev"]:
+
+                if not plugin_version_check_success:
+
+                    self.logger.debug("Attempting Online Plugin Information for %s %s branch" % (plugin_name, branch))
+                    plugin_json_url = "https://raw.githubusercontent.com/fHDHR/%s/%s/plugin.json" % (plugin_name, branch)
+                    try:
+                        plugin_json = self.web.session.get(plugin_json_url)
+                        if plugin_json.status_code == 200:
+                            plugin_json = plugin_json.json()
+                            official_plugins[plugin_name] = plugin_json
+                            plugin_version_check_success = 1
+                    except self.web.exceptions.ReadTimeout as err:
+                        self.logger.error("Online Plugin Information Check Failed for %s %s branch: %s" % (plugin_name, branch, err))
 
         self.official_plugins = official_plugins
 
