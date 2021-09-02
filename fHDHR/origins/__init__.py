@@ -25,8 +25,9 @@ class Origins():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.default_tuners = 4
-        self.default_stream_method = None
+        self.default_tuners = self.fhdhr.config.dict["fhdhr"]["default_tuners"]
+        self.default_stream_method = self.fhdhr.config.dict["fhdhr"]["default_stream_method"]
+        self.default_chanscan_on_start = self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]
 
         self.origins_dict = {}
         self.origin_selfadd()
@@ -70,9 +71,13 @@ class Origins():
                     self.origins_dict[method] = Origin_StandIN()
 
                 if not hasattr(self.origins_dict[method], 'tuners'):
-                    self.origins_dict[method].tuners = 4
+                    self.origins_dict[method].tuners = self.default_tuners
                     self.fhdhr.logger.debug("%s Origin Does not have a tuners attribute, setting to `%s`" % (method, self.default_tuners))
 
                 if not hasattr(self.origins_dict[method], 'stream_method'):
-                    self.origins_dict[method].stream_method = None
+                    self.origins_dict[method].stream_method = self.default_stream_method
                     self.fhdhr.logger.debug("%s Origin Does not have a stream_method attribute, setting to `%s`" % (method, self.default_stream_method))
+
+                if not hasattr(self.origins_dict[method], 'chanscan_on_start'):
+                    self.origins_dict[method].chanscan_on_start = self.default_chanscan_on_start
+                    self.fhdhr.logger.debug("%s Origin Does not have a chanscan_on_start attribute, setting to `%s`" % (method, self.default_chanscan_on_start))

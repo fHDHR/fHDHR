@@ -42,6 +42,18 @@
                     "config_file": true,
                     "config_web": true,
                     "description": "The friendly name for this instance of fHDHR."
+                },
+          "default_tuners":{
+                    "value": "fHDHR",
+                    "config_file": true,
+                    "config_web": true,
+                    "description": "The default amount of tuners for origins."
+                },
+          "default_stream_method":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": true,
+                    "description": "The default stream method for origins."
                 }
   }
 }
