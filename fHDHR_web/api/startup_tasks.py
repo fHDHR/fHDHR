@@ -23,8 +23,13 @@ class Startup_Tasks():
 
             haseverscanned = self.fhdhr.db.get_fhdhr_value("channels", "scanned_time", origin)
             updatechannels = False
+
             if not haseverscanned:
                 updatechannels = True
+
+            elif hasattr(self.fhdhr.origins.origins_dict[origin], "chanscan_on_start"):
+                updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
+
             elif self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]:
                 updatechannels = True
 
