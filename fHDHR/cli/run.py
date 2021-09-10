@@ -27,6 +27,7 @@ def build_args_parser(script_dir):
     parser.add_argument('-c', '--config', dest='cfg', type=str, default=pathlib.Path(script_dir).joinpath('config.ini'), required=False, help='configuration file to load.')
     parser.add_argument('--setup', dest='setup', type=str, required=False, nargs='?', const=True, default=False, help='Setup Configuration file.')
     parser.add_argument('--iliketobreakthings', dest='iliketobreakthings', type=str, nargs='?', const=True, required=False, default=False, help='Override Config Settings not meant to be overridden.')
+    parser.add_argument('--version', dest='version', type=str, required=False, nargs='?', const=True, default=False, help='Show Version Number.')
     return parser.parse_args()
 
 
@@ -138,6 +139,10 @@ def main(script_dir, fHDHR_web, deps):
 
     try:
         args = build_args_parser(script_dir)
+
+        if args.version:
+            print(fHDHR_VERSION)
+            return ERR_CODE
 
         if args.setup:
             return config_setup(args, script_dir, fHDHR_web)
