@@ -246,7 +246,7 @@ class Logger():
             level = self.config.dict["logging"]["level"].upper()
 
             if self.config.dict["logging"]["level"].upper() not in levels:
-                level = self.fhdhr.config.conf_default["logging"]["level"]["value"]
+                level = self.config.conf_default["logging"]["level"]["value"]
 
             return logging.getLevelName(level)
 
@@ -273,7 +273,7 @@ class Logger():
             level = self.config.dict["logging"]["level"].upper()
 
             if self.config.dict["logging"]["level"].upper() not in levels:
-                level = self.fhdhr.config.conf_default["logging"]["level"]["value"]
+                level = self.config.conf_default["logging"]["level"]["value"]
 
             return level
 
