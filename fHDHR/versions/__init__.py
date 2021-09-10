@@ -137,6 +137,9 @@ class Versions():
         else:
             self.logger.warning("Uncommon Operating System, use at your own risk.")
 
+        cpu_type = platform.machine()
+        self.register_version("CPU Type", cpu_type, "env")
+
         isdocker = is_docker()
         self.register_version("Docker", isdocker, "env")
 
