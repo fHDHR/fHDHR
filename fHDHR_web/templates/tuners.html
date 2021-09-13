@@ -16,21 +16,21 @@
     <h4 style="text-align: center;">Tuners</h4>
   {% endif %}
 
-  {% if origin %}
+  <div class="container">
+    <table class="table-medium center action-col">
+      <tbody>
+        <tr>
+          <th>Tuner</th>
+          <th>Status</th>
+          <th>Channel</th>
+          <th>Method</th>
+          <th>Time Active</th>
+          <th>Downloaded</th>
+          <th>Served</th>
+          <th>Actions</th>
+        </tr>
 
-    <div class="container">
-      <table class="table-medium center action-col">
-        <tbody>
-          <tr>
-            <th>Tuner</th>
-            <th>Status</th>
-            <th>Channel</th>
-            <th>Method</th>
-            <th>Time Active</th>
-            <th>Downloaded</th>
-            <th>Served</th>
-            <th>Actions</th>
-          </tr>
+        {% if origin %}
 
           {% for tuner_dict in tuner_status_dict[origin]["status_list"] %}
             <tr>
@@ -52,9 +52,11 @@
               </td>
             </tr>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% endif %}
+
+        {% endif %}
+
+      </tbody>
+    </table>
+  </div>
 
 {% endblock %}
