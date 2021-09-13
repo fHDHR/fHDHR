@@ -160,7 +160,10 @@ class xmlTV():
 
                 sub_el(prog_out, 'desc', lang='en', text=program['description'])
 
-                sub_el(prog_out, 'sub-title', lang='en', text='Movie: %s' % program['sub-title'])
+                if program['seasonnumber'] and program['episodenumber']:
+                    sub_el(prog_out, 'sub-title', lang='en', text=program['sub-title'])
+                else:
+                    sub_el(prog_out, 'sub-title', lang='en', text='Movie: %s' % program['sub-title'])
 
                 sub_el(prog_out, 'length', units='minutes', text=str(int(program['duration_minutes'])))
 
