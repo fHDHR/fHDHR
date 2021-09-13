@@ -28,15 +28,24 @@ def inlist_match(bot, searchterm, termlist):
 
 def channel_sort(channel_list):
     """Take a list of channel number strings and sort the Numbers and SubNumbers"""
+
     chan_dict_list_split = {}
     for number in channel_list:
-        try:
-            subnumber = number.split(".")[1]
-        except IndexError:
-            subnumber = None
-        prinumber = number.split(".")[0]
+
+        if number and (isint(number) or isfloat(number)):
+
+            if "." in number:
+                subnumber = number.split(".")[1]
+            else:
+                subnumber = None
+            prinumber = number.split(".")[0]
+
+        else:
+            prinumber, subnumber = None, None
+
         chan_dict_list_split[number] = {"number": prinumber, "subnumber": subnumber}
-    return sorted(chan_dict_list_split, key=lambda i: (int(chan_dict_list_split[i]['number']), int(chan_dict_list_split[i]['subnumber'] or 0)))
+
+    return sorted(chan_dict_list_split, key=lambda i: (int(chan_dict_list_split[i]['number'] or 0), int(chan_dict_list_split[i]['subnumber'] or 0)))
 
 
 def is_docker():
