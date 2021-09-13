@@ -10,44 +10,51 @@
     {% endfor %}
   </p>
 
-  <h4 style="text-align: center;">{{ origin }}</h4>
+  {% if origin %}
+    <h4 style="text-align: center;">{{ origin }} Tuners</h4>
+  {% else %}
+    <h4 style="text-align: center;">Tuners</h4>
+  {% endif %}
 
-  <div class="container">
-    <table class="table-medium center action-col">
-      <tbody>
-        <tr>
-          <th>Tuner</th>
-          <th>Status</th>
-          <th>Channel</th>
-          <th>Method</th>
-          <th>Time Active</th>
-          <th>Downloaded</th>
-          <th>Served</th>
-          <th>Actions</th>
-        </tr>
+  {% if origin %}
 
-        {% for tuner_dict in tuner_status_dict[origin]["status_list"] %}
+    <div class="container">
+      <table class="table-medium center action-col">
+        <tbody>
           <tr>
-            <td>{{ tuner_dict["number"] }}</td>
-            <td>{{ tuner_dict["status"] }}</td>
-            <td>{{ tuner_dict["channel_number"] }}</td>
-            <td>{{ tuner_dict["method"] }}</td>
-            <td>{{ tuner_dict["running_time"] }}</td>
-            <td>{{ tuner_dict["downloaded"] }}</td>
-            <td>{{ tuner_dict["served"] }}</td>
-
-            <td>
-              {% if tuner_dict["status"] != "Inactive" %}
-                <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Close</button>
-              {% endif %}
-              {% if not tuner_status_dict[origin]["scan_count"] and tuner_dict["status"] == "Inactive" %}
-                <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Channel Scan</button>
-              {% endif %}
-            </td>
+            <th>Tuner</th>
+            <th>Status</th>
+            <th>Channel</th>
+            <th>Method</th>
+            <th>Time Active</th>
+            <th>Downloaded</th>
+            <th>Served</th>
+            <th>Actions</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+
+          {% for tuner_dict in tuner_status_dict[origin]["status_list"] %}
+            <tr>
+              <td>{{ tuner_dict["number"] }}</td>
+              <td>{{ tuner_dict["status"] }}</td>
+              <td>{{ tuner_dict["channel_number"] }}</td>
+              <td>{{ tuner_dict["method"] }}</td>
+              <td>{{ tuner_dict["running_time"] }}</td>
+              <td>{{ tuner_dict["downloaded"] }}</td>
+              <td>{{ tuner_dict["served"] }}</td>
+
+              <td>
+                {% if tuner_dict["status"] != "Inactive" %}
+                  <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Close</button>
+                {% endif %}
+                {% if not tuner_status_dict[origin]["scan_count"] and tuner_dict["status"] == "Inactive" %}
+                  <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Channel Scan</button>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
 
 {% endblock %}
