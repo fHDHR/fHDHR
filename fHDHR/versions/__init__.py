@@ -1,9 +1,9 @@
 import os
 import sys
 import platform
+import re
 
 from fHDHR import fHDHR_VERSION
-from fHDHR.tools import is_docker
 
 
 class Versions():
@@ -110,6 +110,23 @@ class Versions():
         self.register_version("fHDHR", fHDHR_VERSION, "fHDHR")
         self.register_version("fHDHR_web", self.fHDHR_web.fHDHR_web_VERSION, "fHDHR")
 
+    def is_docker(self):
+        path = "/proc/self/cgroup"
+        if not os.path.isfile(path):
+            return False
+        with open(path) as f:
+            for line in f:
+                if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):
+                    return True
+            return False
+
+    def is_virtualenv(self):
+        # return True if Bazarr have been start from within a virtualenv or venv
+        base_prefix = getattr(sys, "base_prefix", None)
+        # real_prefix will return None if not in a virtualenv enviroment or the default python path
+        real_prefix = getattr(sys, "real_prefix", None) or sys.prefix
+        return base_prefix != real_prefix
+
     def register_env(self):
         """
         Register env version items.
@@ -140,7 +157,10 @@ class Versions():
         cpu_type = platform.machine()
         self.register_version("CPU Type", cpu_type, "env")
 
-        isdocker = is_docker()
+        isvirtualenv = self.is_virtualenv()
+        self.register_version("Virtualenv", isvirtualenv, "env")
+
+        isdocker = self.is_docker()
         self.register_version("Docker", isdocker, "env")
 
     def register_plugins(self, plugins):
