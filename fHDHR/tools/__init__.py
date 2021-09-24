@@ -1,5 +1,3 @@
-import os
-import re
 import ast
 import xml.etree.ElementTree
 import json
@@ -46,17 +44,6 @@ def channel_sort(channel_list):
         chan_dict_list_split[number] = {"number": prinumber, "subnumber": subnumber}
 
     return sorted(chan_dict_list_split, key=lambda i: (int(chan_dict_list_split[i]['number'] or 0), int(chan_dict_list_split[i]['subnumber'] or 0)))
-
-
-def is_docker():
-    path = "/proc/self/cgroup"
-    if not os.path.isfile(path):
-        return False
-    with open(path) as f:
-        for line in f:
-            if re.match("\d+:[\w=]+:/docker(-[ce]e)?/\w+", line):
-                return True
-        return False
 
 
 def sub_el(parent, sub_el_item_name, text=None, **kwargs):
