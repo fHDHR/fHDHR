@@ -1,9 +1,9 @@
 import os
 import sys
 import platform
+import pathlib
+import json
 import re
-
-from fHDHR import fHDHR_VERSION
 
 
 class Versions():
@@ -11,26 +11,29 @@ class Versions():
     fHDHR versioning management system.
     """
 
-    def __init__(self, settings, fHDHR_web, logger, web, db, scheduler):
-        self.fHDHR_web = fHDHR_web
+    def __init__(self, settings, logger):
+        self.config = settings
         self.logger = logger
-        self.web = web
-        self.db = db
-        self.scheduler = scheduler
 
         self.github_org_list_url = "https://api.github.com/orgs/fHDHR/repos?type=all"
         self.github_fhdhr_core_info_url = "https://raw.githubusercontent.com/fHDHR/fHDHR/main/version.json"
 
         self.dict = {}
-        self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
 
         self.register_fhdhr()
 
         self.register_env()
 
-        self.get_online_versions()
-
         self.update_url = "/api/versions?method=check"
+
+    def secondary_setup(self, db, web, scheduler):
+        self.db = db
+        self.web = web
+        self.scheduler = scheduler
+
+        self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
+        self.core_versions = self.db.get_fhdhr_value("core_versions", "dict") or {}
+        self.get_online_versions()
 
     def sched_init(self, fhdhr):
         """
@@ -52,43 +55,60 @@ class Versions():
         Update Onling versions listing.
         """
 
-        self.logger.debug("Checking for Online Plugin Information")
+        self.logger.debug("Checking for Online Core Versioning Information")
+        core_versions = {}
 
+        try:
+            core_json = self.web.session.get(self.github_fhdhr_core_info_url).json()
+        except self.web.exceptions.ReadTimeout as err:
+            self.logger.error("Online Core Versioning Information Check Failed: %s" % err)
+            core_json = None
+
+        if core_json:
+            for key in list(core_json.keys()):
+                core_versions[key] = {"name": key, "version": core_json[key], "type": "core"}
+            self.db.set_fhdhr_value("core_versions", "dict", core_versions)
+            self.core_versions = core_versions
+
+        self.logger.debug("Checking for Online Plugin Information")
         official_plugins = {}
 
         try:
             github_org_json = self.web.session.get(self.github_org_list_url).json()
         except self.web.exceptions.ReadTimeout as err:
             self.logger.error("Online Plugin Information Check Failed: %s" % err)
-            return
+            github_org_json = None
 
-        online_plugin_names = [x["name"] for x in github_org_json if x["name"].startswith("fHDHR_plugin_")]
-        for plugin_name in online_plugin_names:
+        if github_org_json:
+            online_plugin_names = [x["name"] for x in github_org_json if x["name"].startswith("fHDHR_plugin_")]
+            for plugin_name in online_plugin_names:
 
-            plugin_version_check_success = 0
+                plugin_version_check_success = 0
 
-            for branch in ["main", "master", "dev"]:
+                for branch in ["main", "master", "dev"]:
 
-                if not plugin_version_check_success:
+                    if not plugin_version_check_success:
 
-                    self.logger.debug("Attempting Online Plugin Information for %s %s branch" % (plugin_name, branch))
-                    plugin_json_url = "https://raw.githubusercontent.com/fHDHR/%s/%s/plugin.json" % (plugin_name, branch)
-                    try:
-                        plugin_json = self.web.session.get(plugin_json_url)
-                        if plugin_json.status_code == 200:
-                            plugin_json = plugin_json.json()
-                            official_plugins[plugin_name] = plugin_json
-                            plugin_version_check_success = 1
-                    except self.web.exceptions.ReadTimeout as err:
-                        self.logger.error("Online Plugin Information Check Failed for %s %s branch: %s" % (plugin_name, branch, err))
+                        self.logger.debug("Attempting Online Plugin Information for %s %s branch" % (plugin_name, branch))
+                        plugin_json_url = "https://raw.githubusercontent.com/fHDHR/%s/%s/plugin.json" % (plugin_name, branch)
+                        try:
+                            plugin_json = self.web.session.get(plugin_json_url)
+                            if plugin_json.status_code == 200:
+                                plugin_json = plugin_json.json()
+                                official_plugins[plugin_name] = plugin_json
+                                plugin_version_check_success = 1
+                        except self.web.exceptions.ReadTimeout as err:
+                            self.logger.error("Online Plugin Information Check Failed for %s %s branch: %s" % (plugin_name, branch, err))
 
-        self.official_plugins = official_plugins
+            self.db.set_fhdhr_value("versions", "dict", official_plugins)
+            self.official_plugins = official_plugins
 
-        core_json = self.web.session.get(self.github_fhdhr_core_info_url).json()
-        for key in list(core_json.keys()):
-            self.official_plugins[key] = {"name": key, "version": core_json[key], "type": "core"}
-
-        self.db.set_fhdhr_value("versions", "dict", official_plugins)
+    def get_core_versions(self):
+        returndict = {}
+        for item in list(self.dict.keys()):
+            if self.dict[item]["type"] == "fHDHR":
+                returndict[item] = self.dict[item].copy()
+        return returndict
 
     def register_version(self, item_name, item_version, item_type):
         """
@@ -107,8 +127,13 @@ class Versions():
         Register core version items.
         """
 
-        self.register_version("fHDHR", fHDHR_VERSION, "fHDHR")
-        self.register_version("fHDHR_web", self.fHDHR_web.fHDHR_web_VERSION, "fHDHR")
+        script_dir = self.config.internal["paths"]["script_dir"]
+        version_file = pathlib.Path(script_dir).joinpath("version.json")
+        with open(version_file, 'r') as jsonversion:
+            versions = json.load(jsonversion)
+
+        for key in list(versions.keys()):
+            self.register_version(key, versions[key], "fHDHR")
 
     def is_docker(self):
         path = "/proc/self/cgroup"
