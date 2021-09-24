@@ -9,9 +9,6 @@ from .brython import fHDHR_Brython
 from .api import fHDHR_API
 
 
-fHDHR_web_VERSION = "v0.9.0-beta"
-
-
 class fHDHR_HTTP_Server():
     """
     fHDHR_web HTTP Frontend.

@@ -4,8 +4,6 @@ from .device import fHDHR_Device
 from .api import fHDHR_API_URLs
 from fHDHR.origins import Origins
 
-fHDHR_VERSION = "v0.9.0-beta"
-
 
 class fHDHR_INT_OBJ():
 
@@ -14,8 +12,8 @@ class fHDHR_INT_OBJ():
         An internal catalogue of core methods.
         """
 
-        self.version = fHDHR_VERSION
         self.versions = versions
+        self.version = versions.dict["fHDHR"]["version"]
         self.config = settings
         self.logger = logger
         self.db = db

@@ -2,8 +2,9 @@ import os
 import argparse
 import time
 import pathlib
+import json
 
-from fHDHR import fHDHR_VERSION, fHDHR_OBJ
+from fHDHR import fHDHR_OBJ
 import fHDHR.exceptions
 import fHDHR.config
 import fHDHR.logger
@@ -27,7 +28,7 @@ def build_args_parser(script_dir):
     parser.add_argument('-c', '--config', dest='cfg', type=str, default=pathlib.Path(script_dir).joinpath('config.ini'), required=False, help='configuration file to load.')
     parser.add_argument('--setup', dest='setup', type=str, required=False, nargs='?', const=True, default=False, help='Setup Configuration file.')
     parser.add_argument('--iliketobreakthings', dest='iliketobreakthings', type=str, nargs='?', const=True, required=False, default=False, help='Override Config Settings not meant to be overridden.')
-    parser.add_argument('--version', dest='version', type=str, required=False, nargs='?', const=True, default=False, help='Show Version Number.')
+    parser.add_argument('-v', '--version', dest='version', type=str, required=False, nargs='?', const=True, default=False, help='Show Version Number.')
     return parser.parse_args()
 
 
@@ -96,7 +97,19 @@ def start(args, script_dir, fHDHR_web, deps):
     logger = fHDHR.logger.Logger(settings)
     settings.logger = logger
 
-    logger.noob("Loading fHDHR %s with fHDHR_web %s" % (fHDHR_VERSION, fHDHR_web.fHDHR_web_VERSION))
+    # Setup Version System
+    versions = fHDHR.versions.Versions(settings, logger)
+
+    loading_versions_string = ""
+    core_versions = versions.get_core_versions()
+    for item in list(core_versions.keys()):
+        if loading_versions_string != "":
+            spaceprefix = ", "
+        else:
+            spaceprefix = " "
+        loading_versions_string += "%s%s %s" % (spaceprefix, core_versions[item]["name"], core_versions[item]["version"])
+
+    logger.noob("Loading %s" % loading_versions_string)
     logger.info("Importing Core config values from Configuration File: %s" % settings.config_file)
 
     logger.debug("Logging to File: %s" % os.path.join(settings.internal["paths"]["logs_dir"], '.fHDHR.log'))
@@ -112,8 +125,8 @@ def start(args, script_dir, fHDHR_web, deps):
     logger.debug("Setting Up shared Web Requests system.")
     web = fHDHR.web.WebReq()
 
-    # Setup Version System
-    versions = fHDHR.versions.Versions(settings, fHDHR_web, logger, web, db, scheduler)
+    # Continue Version System Setup
+    versions.secondary_setup(db, web, scheduler)
 
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions, deps)
@@ -141,7 +154,17 @@ def main(script_dir, fHDHR_web, deps):
         args = build_args_parser(script_dir)
 
         if args.version:
-            print(fHDHR_VERSION)
+            versions_string = ""
+            version_file = pathlib.Path(script_dir).joinpath("version.json")
+            with open(version_file, 'r') as jsonversion:
+                core_versions = json.load(jsonversion)
+            for item in list(core_versions.keys()):
+                if versions_string != "":
+                    spaceprefix = ", "
+                else:
+                    spaceprefix = ""
+                versions_string += "%s%s %s" % (spaceprefix, item, core_versions[item])
+            print(versions_string)
             return ERR_CODE
 
         if args.setup:

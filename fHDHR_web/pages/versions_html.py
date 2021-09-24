@@ -20,18 +20,20 @@ class Versions_HTML():
         for key in list(self.fhdhr.versions.dict.keys()):
             version_dict[key] = self.fhdhr.versions.dict[key]
             online_version = "N/A"
-            if key in list(self.fhdhr.versions.official_plugins.keys()):
+            if key in list(self.fhdhr.versions.core_versions.keys()):
+                online_version = self.fhdhr.versions.core_versions[key]["version"]
+            elif key in list(self.fhdhr.versions.official_plugins.keys()):
                 online_version = self.fhdhr.versions.official_plugins[key]["version"]
             version_dict[key]["online_version"] = online_version
 
         # Sort the Version Info
+        sorted_version_dict = {}
+        for item in list(version_dict.keys()):
+            if version_dict[item]["type"] == "fHDHR":
+                sorted_version_dict[item] = version_dict[item]
         sorted_version_list = sorted(version_dict, key=lambda i: (version_dict[i]['type'], version_dict[i]['name']))
-        sorted_version_dict = {
-                                "fHDHR": version_dict["fHDHR"],
-                                "fHDHR_web": version_dict["fHDHR_web"]
-                                }
         for version_item in sorted_version_list:
-            if version_item not in ["fHDHR", "fHDHR_web"]:
+            if version_dict[version_item]["type"] != "fHDHR":
                 sorted_version_dict[version_item] = version_dict[version_item]
 
         available_version_dict = {}
