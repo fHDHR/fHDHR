@@ -33,8 +33,9 @@ class fHDHR_API_URLs():
 
         self.headers = {'User-Agent': "fHDHR/%s" % self.versions.dict["fHDHR"]}
 
+        self.fillinclient = Fillin_Client(settings, web)
         # Replaced later
-        self.client = Fillin_Client(settings, web)
+        self.client = self.fillinclient
 
     @property
     def address(self):
@@ -67,6 +68,42 @@ class fHDHR_API_URLs():
         """
 
         return self.config.dict["fhdhr"]["port"]
+
+    def no_response_get(self, url, *args):
+        """
+        A method to simulate a GET request to the fHDHR_web API internally, but without waiting for a response.
+        """
+        self.logger.debug("Using a GET request to %s without waiting for a response" % url)
+
+        if not url.startswith("http"):
+
+            if not url.startswith("/"):
+                url = "/%s" % url
+
+            url = "%s%s" % (self.base, url)
+
+        try:
+            self.fillinclient.get(url, headers=self.headers, timeout=0.0000000001, *args)
+        except self.fillinclient.exceptions.ReadTimeout:
+            pass
+
+    def no_response_post(self, url, *args):
+        """
+        A method to simulate a POST request to the fHDHR_web API internally, but without waiting for a response.
+        """
+        self.logger.debug("Using a GET request to %s without waiting for a response" % url)
+
+        if not url.startswith("http"):
+
+            if not url.startswith("/"):
+                url = "/%s" % url
+
+            url = "%s%s" % (self.base, url)
+
+        try:
+            self.fillinclient.post(url, headers=self.headers, timeout=0.0000000001, *args)
+        except self.fillinclient.exceptions.ReadTimeout:
+            pass
 
     def threadget(self, url, *args):
         """

@@ -17,7 +17,7 @@ def is_jsonable(x):
         return False
 
 
-def inlist_match(bot, searchterm, termlist):
+def inlist_match(searchterm, termlist):
     for termlist_item in termlist:
         if termlist_item.lower() == str(searchterm).lower():
             return termlist_item, True
