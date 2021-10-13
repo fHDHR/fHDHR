@@ -37,6 +37,12 @@
                     "config_web": true,
                     "description": "Determines if channels are scanned at start. Decreases start time, but channels should be scanned at least once prior to toggling this."
                 },
+          "chanscan_interval":{
+                    "value": 14400,
+                    "config_file": true,
+                    "config_web": true,
+                    "description": "Determines How often to scan for new channels."
+                },
           "friendlyname":{
                     "value": "fHDHR",
                     "config_file": true,
@@ -54,6 +60,12 @@
                     "config_file": true,
                     "config_web": true,
                     "description": "The default stream method for origins."
+                },
+          "versions_check_interval":{
+                    "value": 10800,
+                    "config_file": true,
+                    "config_web": true,
+                    "description": "Determines How often to scan for new channels."
                 }
   }
 }

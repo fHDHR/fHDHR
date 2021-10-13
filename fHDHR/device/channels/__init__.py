@@ -28,9 +28,11 @@ class Channels():
         self.channel_update_url = "/api/channels?method=scan"
 
         for origin in list(self.list.keys()):
-            update_url = "%s&source=%s" % (self.channel_update_url, origin)
-            self.fhdhr.scheduler.every(4).to(5).hours.do(
-                self.fhdhr.scheduler.job_wrapper(self.fhdhr.api.threadget), url=update_url).tag("%s Channel Scan" % origin)
+            chanscan_interval = self.origins.origins_dict[origin].chanscan_interval
+            if chanscan_interval:
+                update_url = "%s&source=%s" % (self.channel_update_url, origin)
+                self.fhdhr.scheduler.every(chanscan_interval).seconds.do(
+                    self.fhdhr.scheduler.job_wrapper(self.fhdhr.api.threadget), url=update_url).tag("%s Channel Scan" % origin)
 
     def get_channel_obj(self, keyfind, valfind, origin=None):
         """

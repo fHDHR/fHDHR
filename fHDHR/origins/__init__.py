@@ -28,6 +28,7 @@ class Origins():
         self.default_tuners = self.fhdhr.config.dict["fhdhr"]["default_tuners"]
         self.default_stream_method = self.fhdhr.config.dict["fhdhr"]["default_stream_method"]
         self.default_chanscan_on_start = self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]
+        self.default_chanscan_interval = self.fhdhr.config.dict["fhdhr"]["chanscan_interval"]
 
         self.origins_dict = {}
         self.origin_selfadd()
@@ -71,13 +72,33 @@ class Origins():
                     self.origins_dict[method] = Origin_StandIN()
 
                 if not hasattr(self.origins_dict[method], 'tuners'):
-                    self.origins_dict[method].tuners = self.default_tuners
-                    self.fhdhr.logger.debug("%s Origin Does not have a tuners attribute, setting to `%s`" % (method, self.default_tuners))
+                    tuners = self.default_tuners
+                    if method in list(self.fhdhr.config.dict.keys()):
+                        if "tuners" in list(self.fhdhr.config.dict[method].keys()):
+                            tuners = self.fhdhr.config.dict[method]["tuners"]
+                    self.fhdhr.logger.debug("Setting %s tuners attribute to: %s" % (method, tuners))
+                    self.origins_dict[method].tuners = tuners
 
                 if not hasattr(self.origins_dict[method], 'stream_method'):
-                    self.origins_dict[method].stream_method = self.default_stream_method
-                    self.fhdhr.logger.debug("%s Origin Does not have a stream_method attribute, setting to `%s`" % (method, self.default_stream_method))
+                    stream_method = self.default_stream_method
+                    if method in list(self.fhdhr.config.dict.keys()):
+                        if "stream_method" in list(self.fhdhr.config.dict[method].keys()):
+                            stream_method = self.fhdhr.config.dict[method]["stream_method"]
+                    self.fhdhr.logger.debug("Setting %s stream_method attribute to: %s" % (method, stream_method))
+                    self.origins_dict[method].stream_method = stream_method
 
                 if not hasattr(self.origins_dict[method], 'chanscan_on_start'):
-                    self.origins_dict[method].chanscan_on_start = self.default_chanscan_on_start
-                    self.fhdhr.logger.debug("%s Origin Does not have a chanscan_on_start attribute, setting to `%s`" % (method, self.default_chanscan_on_start))
+                    chanscan_on_start = self.default_chanscan_on_start
+                    if method in list(self.fhdhr.config.dict.keys()):
+                        if "chanscan_on_start" in list(self.fhdhr.config.dict[method].keys()):
+                            chanscan_on_start = self.fhdhr.config.dict[method]["chanscan_on_start"]
+                    self.fhdhr.logger.debug("Setting %s chanscan_on_start attribute to: %s" % (method, chanscan_on_start))
+                    self.origins_dict[method].chanscan_on_start = chanscan_on_start
+
+                if not hasattr(self.origins_dict[method], 'chanscan_interval'):
+                    chanscan_interval = self.default_chanscan_interval
+                    if method in list(self.fhdhr.config.dict.keys()):
+                        if "chanscan_interval" in list(self.fhdhr.config.dict[method].keys()):
+                            chanscan_interval = self.fhdhr.config.dict[method]["chanscan_interval"]
+                    self.fhdhr.logger.debug("Setting %s chanscan_interval attribute to: %s" % (method, chanscan_interval))
+                    self.origins_dict[method].chanscan_interval = chanscan_interval
