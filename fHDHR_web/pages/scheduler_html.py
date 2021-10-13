@@ -35,23 +35,28 @@ class Scheduler_HTML():
             formatted_jobsdicts.append(job_dict_copy)
 
         unscheduled_job_items = []
+        enabled_jobs = [x["name"] for x in jobsdicts]
 
         origin_methods = self.fhdhr.origins.valid_origins
         for origin in origin_methods:
-            chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
-            unscheduled_job_items.append({
-                "name": origin,
-                "type": "Channel Scan",
-                "interval": humanized_time(chanscan_interval)
-                })
+            if "%s Channel Scan" % origin not in enabled_jobs:
+                chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
+                unscheduled_job_items.append({
+                    "name": origin,
+                    "type": "Channel Scan",
+                    "interval": humanized_time(chanscan_interval),
+                    "interval_epoch": chanscan_interval
+                    })
 
         epg_methods = self.fhdhr.device.epg.valid_epg_methods
         for epg_method in epg_methods:
-            frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
-            unscheduled_job_items.append({
-                "name": epg_method,
-                "type": "EPG Update",
-                "interval": humanized_time(frequency_seconds)
-                })
+            if "%s EPG Update" % epg_method not in enabled_jobs:
+                frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
+                unscheduled_job_items.append({
+                    "name": epg_method,
+                    "type": "EPG Update",
+                    "interval": humanized_time(frequency_seconds),
+                    "interval_epoch": frequency_seconds
+                    })
 
         return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)

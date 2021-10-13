@@ -26,6 +26,10 @@
                 <input type="hidden" name="job_tag" value="{{ jobdict["name"] }}">
                 <input type="submit" value="Run">
               </form>
+              <form method="post" action="/api/scheduler?method=remove&redirect=/scheduler">
+                <input type="hidden" name="job_tag" value="{{ jobdict["name"] }}">
+                <input type="submit" value="Remove">
+              </form>
             </td>
           </tr>
         {% endfor %}
@@ -39,6 +43,7 @@
         <tr>
           <th>Name</th>
           <th>Type</th>
+          <th>Interval</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -50,6 +55,12 @@
             <td>{{ jobdict["type"] }}</td>
             <td>{{ jobdict["interval"] }}</td>
             <td>
+              <form method="post" action="/api/scheduler?method=add&redirect=/scheduler">
+                <input type="hidden" name="name" value="{{ jobdict["name"] }}">
+                <input type="hidden" name="type" value="{{ jobdict["type"] }}">
+                <input type="hidden" name="interval" value="{{ jobdict["interval_epoch"] }}">
+                <input type="submit" value="Add">
+              </form>
             </td>
           </tr>
         {% endfor %}

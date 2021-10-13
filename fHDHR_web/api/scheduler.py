@@ -49,6 +49,32 @@ class Scheduler_API():
 
             self.fhdhr.scheduler.run_from_tag(job_tag)
 
+        elif method == "remove":
+            job_tag = request.form.get('job_tag', None)
+
+            if not job_tag:
+                if redirect_url:
+                    return redirect("%s?retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
+                else:
+                    return "%s Falied" % method
+
+            self.fhdhr.scheduler.remove(job_tag)
+
+        elif method == "add":
+            job_name = request.form.get('name', None)
+            job_type = request.form.get('type', None)
+            job_interval = request.form.get('interval', None)
+
+            if job_type == "EPG Update":
+                if job_interval:
+                    self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.epg.update), job_name).tag("%s EPG Update" % job_name)
+
+            elif job_type == "Channel Scan":
+                if job_interval:
+                    self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.channels.get_channels), origin=job_name, forceupdate=True).tag("%s Channel Scan" % job_name)
+
         if redirect_url:
             if "?" in redirect_url:
                 return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
