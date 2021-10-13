@@ -49,7 +49,7 @@ class Startup_Tasks():
                     updateepg = self.fhdhr.config.dict["fhdhr"]["epg_update_on_start"]
 
             elif self.fhdhr.config.dict["epg"]["epg_update_on_start"]:
-                updateepg = True
+                updateepg = self.fhdhr.config.dict["epg"]["epg_update_on_start"]
 
             if updateepg:
                 self.fhdhr.scheduler.run_from_tag("%s EPG Update" % epg_method)
