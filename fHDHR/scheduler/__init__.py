@@ -36,6 +36,13 @@ class Scheduler():
 
         return wrapper
 
+    def remove(self, remtag):
+        joblist = self.jobs
+        for job_item in joblist:
+            if len(list(job_item.tags)):
+                if remtag in list(job_item.tags):
+                    self.schedule.cancel_job(job_item)
+
     def list_tags(self):
         tagslist = []
         joblist = self.jobs
