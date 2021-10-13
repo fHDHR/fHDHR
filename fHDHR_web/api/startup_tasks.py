@@ -38,8 +38,8 @@ class Startup_Tasks():
             haseverpulled = self.fhdhr.db.get_fhdhr_value("epg", "update_time", epg_method)
             updateepg = False
 
-            if hasattr(self.fhdhr.device.epg.epg_methods[epg_method]["class"], "epg_update_on_start"):
-                updateepg = self.fhdhr.device.epg.epg_methods[epg_method]["class"].epg_update_on_start
+            if hasattr(self.fhdhr.device.epg.epg_handling[epg_method]["class"], "epg_update_on_start"):
+                updateepg = self.fhdhr.device.epg.epg_handling[epg_method]["class"].epg_update_on_start
 
             elif epg_method in list(self.fhdhr.config.dict.keys()):
                 if "epg_update_on_start" in list(self.fhdhr.config.dict[epg_method].keys()):
