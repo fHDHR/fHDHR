@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <h4 style="text-align: center;">Scheduler</h4>
+
+  <div class="container">
+    <table class="table-scroll">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Last Run</th>
+          <th>Next Run</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="body-half-screen">
+        {% for jobdict in jobsdicts %}
+          <tr>
+            <td>{{ jobdict["name"] }}</td>
+            <td>{{ jobdict["last_run"] }}</td>
+            <td>{{ jobdict["next_run"] }}</td>
+            <td>
+              <form method="post" action="/api/scheduler?method=run&redirect=/scheduler">
+                <input type="hidden" name="job_tag" value="{{ jobdict["name"] }}">
+                <input type="submit" value="Run">
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+{% endblock %}

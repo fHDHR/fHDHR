@@ -28,7 +28,8 @@ class EPG():
         for epg_method in self.epg_methods:
             frequency_seconds = self.epg_handling[epg_method]["class"].update_frequency
             update_url = "%s&source=%s" % (self.epg_update_url, epg_method)
-            self.fhdhr.scheduler.every(frequency_seconds).seconds.do(self.fhdhr.api.threadget, url=update_url)
+            self.fhdhr.scheduler.every(frequency_seconds).seconds.do(
+                self.fhdhr.scheduler.job_wrapper(self.fhdhr.api.threadget), url=update_url).tag("%s EPG Update" % epg_method)
 
     @property
     def valid_epg_methods(self):

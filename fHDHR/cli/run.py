@@ -117,13 +117,13 @@ def start(args, script_dir, fHDHR_web, deps):
     # Continue non-core settings setup
     settings.secondary_setup()
 
-    scheduler = fHDHR.scheduler.Scheduler()
-
     # Setup Database
     db = fHDHRdb(settings, logger)
 
     logger.debug("Setting Up shared Web Requests system.")
     web = fHDHR.web.WebReq()
+
+    scheduler = fHDHR.scheduler.Scheduler(settings, logger, db)
 
     # Continue Version System Setup
     versions.secondary_setup(db, web, scheduler)
