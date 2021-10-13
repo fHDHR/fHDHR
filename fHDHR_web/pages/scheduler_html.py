@@ -41,7 +41,7 @@ class Scheduler_HTML():
             chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
             unscheduled_job_items.append({
                 "name": origin,
-                "type": "origin",
+                "type": "Channel Scan",
                 "interval": humanized_time(chanscan_interval)
                 })
 
@@ -50,7 +50,7 @@ class Scheduler_HTML():
             frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
             unscheduled_job_items.append({
                 "name": epg_method,
-                "type": "epg",
+                "type": "EPG Update",
                 "interval": humanized_time(frequency_seconds)
                 })
 
