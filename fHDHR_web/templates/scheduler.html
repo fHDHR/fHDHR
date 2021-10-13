@@ -33,5 +33,29 @@
     </table>
   </div>
 
+  <div class="container">
+    <table class="table-scroll">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="body-half-screen">
+        {% for jobdict in unscheduled_job_items %}
+          <tr>
+            <td>{{ jobdict["name"] }}</td>
+            <td>{{ jobdict["type"] }}</td>
+            <td>{{ jobdict["interval"] }}</td>
+            <td>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 
 {% endblock %}

@@ -97,7 +97,11 @@ class EPG():
                             mimetype='application/json')
 
         elif method == "update":
-            self.fhdhr.scheduler.run_from_tag("%s EPG Update" % source)
+            tags_list = self.fhdhr.scheduler.list_tags()
+            if ("%s EPG Update" % source) not in tags_list:
+                self.fhdhr.device.epg.update(source)
+            else:
+                self.fhdhr.scheduler.run_from_tag("%s EPG Update" % source)
 
         elif method == "map":
             channels_list = json.loads(request.form.get('channels', []))

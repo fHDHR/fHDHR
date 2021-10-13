@@ -36,6 +36,14 @@ class Scheduler():
 
         return wrapper
 
+    def list_tags(self):
+        tagslist = []
+        joblist = self.jobs
+        for job_item in joblist:
+            if len(list(job_item.tags)):
+                tagslist.extend(list(job_item.tags))
+        return tagslist
+
     def list_jobs(self):
         jobsdicts = []
         joblist = self.jobs

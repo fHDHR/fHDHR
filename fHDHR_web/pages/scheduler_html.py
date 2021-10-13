@@ -34,4 +34,24 @@ class Scheduler_HTML():
                     job_dict_copy[run_item] = "Never"
             formatted_jobsdicts.append(job_dict_copy)
 
-        return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts)
+        unscheduled_job_items = []
+
+        origin_methods = self.fhdhr.origins.valid_origins
+        for origin in origin_methods:
+            chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
+            unscheduled_job_items.append({
+                "name": origin,
+                "type": "origin",
+                "interval": humanized_time(chanscan_interval)
+                })
+
+        epg_methods = self.fhdhr.device.epg.valid_epg_methods
+        for epg_method in epg_methods:
+            frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
+            unscheduled_job_items.append({
+                "name": epg_method,
+                "type": "epg",
+                "interval": humanized_time(frequency_seconds)
+                })
+
+        return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)
