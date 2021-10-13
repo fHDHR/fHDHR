@@ -30,8 +30,14 @@ class Startup_Tasks():
             elif hasattr(self.fhdhr.origins.origins_dict[origin], "chanscan_on_start"):
                 updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
 
+            elif origin in list(self.fhdhr.config.dict.keys()):
+                if "chanscan_on_start" in list(self.fhdhr.config.dict[origin].keys()):
+                    updatechannels = self.fhdhr.config.dict[origin]["chanscan_on_start"]
+                else:
+                    updatechannels = self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]
+
             elif self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]:
-                updatechannels = True
+                updatechannels = self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]
 
             if updatechannels:
                 self.fhdhr.api.get("%s&origin=%s" % (self.channel_update_url, origin))
@@ -46,6 +52,12 @@ class Startup_Tasks():
 
             elif hasattr(self.fhdhr.device.epg.epg_methods[epg_method]["class"], "epg_update_on_start"):
                 updateepg = self.fhdhr.device.epg.epg_methods[epg_method]["class"].epg_update_on_start
+
+            elif epg_method in list(self.fhdhr.config.dict.keys()):
+                if "epg_update_on_start" in list(self.fhdhr.config.dict[epg_method].keys()):
+                    updateepg = self.fhdhr.config.dict[epg_method]["epg_update_on_start"]
+                else:
+                    updateepg = self.fhdhr.config.dict["fhdhr"]["epg_update_on_start"]
 
             elif self.fhdhr.config.dict["epg"]["epg_update_on_start"]:
                 updateepg = True
