@@ -12,6 +12,7 @@ from .channels_editor_html import Channels_Editor_HTML
 from .channel_delete import Channel_Delete_HTML
 from .playlists_html import Playlists_HTML
 from .ssdp_html import SSDP_HTML
+from .scheduler_html import Scheduler_HTML
 
 
 class fHDHR_Pages():
@@ -31,3 +32,4 @@ class fHDHR_Pages():
         self.diagnostics_html = Diagnostics_HTML(fhdhr)
         self.settings_html = Settings_HTML(fhdhr)
         self.ssdp_html = SSDP_HTML(fhdhr)
+        self.scheduler_html = Scheduler_HTML(fhdhr)
