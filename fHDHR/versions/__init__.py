@@ -33,7 +33,6 @@ class Versions():
 
         self.official_plugins = self.db.get_fhdhr_value("versions", "dict") or {}
         self.core_versions = self.db.get_fhdhr_value("core_versions", "dict") or {}
-        self.get_online_versions()
 
     def sched_init(self, fhdhr):
         """
@@ -42,7 +41,7 @@ class Versions():
 
         self.api = fhdhr.api
         self.scheduler.every(self.config.dict["fhdhr"]["versions_check_interval"]).seconds.do(
-            self.scheduler.job_wrapper(self.sched_update)).tag("Versions Update")
+            self.scheduler.job_wrapper(self.get_online_versions)).tag("Versions Update")
 
     def sched_update(self):
         """

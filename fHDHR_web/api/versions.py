@@ -66,7 +66,7 @@ class Versions():
                             mimetype='application/json')
 
         elif method == "check":
-            self.fhdhr.versions.get_online_versions()
+            self.fhdhr.scheduler.run_from_tag("Versions Update")
 
         elif method == "update":
             return "Not Implemented"
