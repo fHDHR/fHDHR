@@ -41,7 +41,7 @@ class Versions():
         """
 
         self.api = fhdhr.api
-        self.scheduler.every(self.config.internal["fhdhr"]["versions_check_interval"]).seconds.do(
+        self.scheduler.every(self.config.dict["fhdhr"]["versions_check_interval"]).seconds.do(
             self.scheduler.job_wrapper(self.sched_update)).tag("Versions Update")
 
     def sched_update(self):

@@ -391,8 +391,12 @@ class EPG():
         for epg_method in list(self.epg_handling.keys()):
 
             if not hasattr(self.epg_handling[epg_method]["class"], 'update_frequency'):
-                self.fhdhr.logger.debug("Setting %s update_frequency to default: %s" % (epg_method, self.fhdhr.config.dict["epg"]["update_frequency"]))
-                self.epg_handling[epg_method]["class"].update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
+                update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
+                if epg_method in list(self.fhdhr.config.dict.keys()):
+                    if "update_frequency" in list(self.fhdhr.config.dict[epg_method].keys()):
+                        update_frequency = self.fhdhr.config.dict[epg_method]["update_frequency"]
+                self.fhdhr.logger.debug("Setting %s update_frequency to: %s" % (epg_method, update_frequency))
+                self.epg_handling[epg_method]["class"].update_frequency = update_frequency
 
             if not hasattr(self.epg_handling[epg_method]["class"], 'xmltv_offset'):
                 xmltv_offset = self.fhdhr.config.dict["epg"]["xmltv_offset"]
