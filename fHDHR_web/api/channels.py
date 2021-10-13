@@ -161,7 +161,11 @@ class Channels():
                 self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict, origin)
 
         elif method == "scan":
-            self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
+            tags_list = self.fhdhr.scheduler.list_tags()
+            if ("%s Channel Scan" % origin) not in tags_list:
+                self.fhdhr.device.channels.get_channels(forceupdate=True, origin=origin)
+            else:
+                self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
 
         elif method == "delete":
             fhdhr_id = request.args.get('fhdhr_id', default=None, type=str)
