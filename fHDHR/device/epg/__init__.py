@@ -406,6 +406,14 @@ class EPG():
                 self.fhdhr.logger.debug("Setting %s xmltv_offset to: %s" % (epg_method, xmltv_offset))
                 self.epg_handling[epg_method]["class"].xmltv_offset = xmltv_offset
 
+            if not hasattr(self.epg_handling[epg_method]["class"], 'epg_update_on_start'):
+                epg_update_on_start = self.fhdhr.config.dict["epg"]["epg_update_on_start"]
+                if epg_method in list(self.fhdhr.config.dict.keys()):
+                    if "epg_update_on_start" in list(self.fhdhr.config.dict[epg_method].keys()):
+                        epg_update_on_start = self.fhdhr.config.dict[epg_method]["epg_update_on_start"]
+                self.fhdhr.logger.debug("Setting %s epg_update_on_start to: %s" % (epg_method, epg_update_on_start))
+                self.epg_handling[epg_method]["class"].epg_update_on_start = epg_update_on_start
+
     def update(self, method=None):
         """
         Update EPG data.
@@ -557,5 +565,5 @@ class EPG():
 
         self.epg_handling[method]["epgdict"] = sorted_chan_guide
         self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
-        self.fhdhr.db.set_fhdhr_value("update_time", method, time.time())
+        self.fhdhr.db.set_fhdhr_value("epg", "update_time", method, time.time())
         self.fhdhr.logger.noob("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))

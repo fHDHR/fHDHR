@@ -38,7 +38,20 @@ class Startup_Tasks():
 
         # Hit EPG Update API
         for epg_method in self.fhdhr.device.epg.epg_methods:
-            self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
+            haseverpulled = self.fhdhr.db.get_fhdhr_value("epg", "update_time", epg_method)
+            updateepg = False
+
+            if not haseverpulled:
+                updateepg = True
+
+            elif hasattr(self.fhdhr.device.epg.epg_methods[epg_method]["class"], "epg_update_on_start"):
+                updateepg = self.fhdhr.device.epg.epg_methods[epg_method]["class"].epg_update_on_start
+
+            elif self.fhdhr.config.dict["epg"]["epg_update_on_start"]:
+                updateepg = True
+
+            if updateepg:
+                self.fhdhr.api.get("%s&source=%s" % (self.epg_update_url, epg_method))
 
         self.fhdhr.logger.noob("Startup Tasks Complete.")
 

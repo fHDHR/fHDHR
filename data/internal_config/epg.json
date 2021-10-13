@@ -40,10 +40,15 @@
                           "config_web": true,
                           "valid_options": "int",
                           "description": "Determines the time in seconds for a block of generated data to be created."
-                        }
-                        ,
+                        },
           "xmltv_offset": {
                           "value": "+0000",
+                          "config_file": true,
+                          "config_web": true,
+                          "description": "Allows users with timezone issues to add an offset in the format +/-HHMM. Defaults to +0000"
+                        },
+          "epg_update_on_start": {
+                          "value": true,
                           "config_file": true,
                           "config_web": true,
                           "description": "Allows users with timezone issues to add an offset in the format +/-HHMM. Defaults to +0000"
