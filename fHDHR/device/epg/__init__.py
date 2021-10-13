@@ -27,8 +27,9 @@ class EPG():
 
         for epg_method in self.epg_methods:
             frequency_seconds = self.epg_handling[epg_method]["class"].update_frequency
-            self.fhdhr.scheduler.every(frequency_seconds).seconds.do(
-                self.fhdhr.scheduler.job_wrapper(self.update), epg_method).tag("%s EPG Update" % epg_method)
+            if frequency_seconds:
+                self.fhdhr.scheduler.every(frequency_seconds).seconds.do(
+                    self.fhdhr.scheduler.job_wrapper(self.update), epg_method).tag("%s EPG Update" % epg_method)
 
     @property
     def valid_epg_methods(self):
