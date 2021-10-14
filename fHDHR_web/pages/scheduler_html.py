@@ -59,4 +59,22 @@ class Scheduler_HTML():
                     "interval_epoch": frequency_seconds
                     })
 
+        if "Versions Update" not in enabled_jobs:
+            frequency_seconds = self.fhdhr.config.dict["fhdhr"]["versions_check_interval"]
+            unscheduled_job_items.append({
+                "name": "Versions Update",
+                "type": "Versions Update",
+                "interval": humanized_time(frequency_seconds),
+                "interval_epoch": frequency_seconds
+                })
+
+        if "SSDP Alive" not in enabled_jobs:
+            frequency_seconds = self.fhdhr.device.ssdp.max_age
+            unscheduled_job_items.append({
+                "name": "SSDP Alive",
+                "type": "SSDP Alive",
+                "interval": humanized_time(frequency_seconds),
+                "interval_epoch": frequency_seconds
+                })
+
         return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)

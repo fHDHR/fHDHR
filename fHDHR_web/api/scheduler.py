@@ -75,6 +75,16 @@ class Scheduler_API():
                     self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
                         self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.channels.get_channels), origin=job_name, forceupdate=True).tag("%s Channel Scan" % job_name)
 
+            elif job_type == "Versions Update":
+                if job_interval:
+                    self.fhdhr.scheduler.every(job_interval).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.versions.get_online_versions)).tag("Versions Update")
+
+            elif job_type == "SSDP Alive":
+                if job_interval:
+                    self.fhdhr.scheduler.every(job_interval).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.ssdp.do_alive)).tag("SSDP Alive")
+
         if redirect_url:
             if "?" in redirect_url:
                 return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Success" % method)))
