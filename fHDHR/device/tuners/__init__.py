@@ -219,6 +219,11 @@ class Tuners():
         Attempt to gather info on a stream.
         """
 
+        self.fhdhr.logger.debug("Attempting to gather stream information for %s channel %s %s %s." %
+                                (stream_args["origin"], stream_args["channel"],
+                                 stream_args["channel_name"],
+                                 stream_args["channel_callsign"]))
+
         stream_info = self.channels.get_channel_stream(stream_args, stream_args["origin"])
         if not stream_info:
             raise TunerError("806 - Tune Failed")
@@ -242,6 +247,10 @@ class Tuners():
             try:
                 channel_stream_url_headers = self.fhdhr.web.session.head(stream_args["stream_info"]["url"]).headers
                 stream_args["true_content_type"] = channel_stream_url_headers['Content-Type']
+
+            except self.web.exceptions.MissingSchema:
+                raise TunerError("806 - Tune Failed")
+
             except KeyError:
                 if stream_args["stream_info"]["url"].endswith(".m3u8"):
                     stream_args["true_content_type"] = "application/text"
