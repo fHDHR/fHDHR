@@ -248,7 +248,7 @@ class Tuners():
                 channel_stream_url_headers = self.fhdhr.web.session.head(stream_args["stream_info"]["url"]).headers
                 stream_args["true_content_type"] = channel_stream_url_headers['Content-Type']
 
-            except self.web.exceptions.MissingSchema:
+            except self.fhdhr.web.exceptions.MissingSchema:
                 raise TunerError("806 - Tune Failed")
 
             except KeyError:
