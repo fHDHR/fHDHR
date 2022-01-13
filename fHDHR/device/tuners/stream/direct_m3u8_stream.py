@@ -73,7 +73,7 @@ class Direct_M3U8_Stream():
 
                 # Cleanup downloaded Queue
                 for uri, data in list(segments_dict.items()):
-                    if data["downloaded"] and (datetime.datetime.utcnow() - data["last_seen"]).total_seconds() > 10:
+                    if data["downloaded"] and (datetime.datetime.utcnow() - data["last_seen"]).total_seconds() > 360:
                         self.fhdhr.logger.debug("Removed %s from download queue." % uri)
                         del segments_dict[uri]
                         removed += 1
