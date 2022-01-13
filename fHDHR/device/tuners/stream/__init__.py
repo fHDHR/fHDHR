@@ -140,6 +140,10 @@ class Stream():
                 self.fhdhr.logger.info("Removing Tuner Lock")
                 self.tuner.close()
 
+                if len(segments_dict.keys()):
+                    self.fhdhr.logger.info("Removing %s chunks from the buffer." % segments_dict.keys())
+                    segments_dict = OrderedDict()
+
                 if hasattr(self.fhdhr.origins.origins_dict[self.tuner.origin], "close_stream"):
                     self.fhdhr.logger.info("Running %s close_stream method." % self.tuner.origin)
                     self.fhdhr.origins.origins_dict[self.tuner.origin].close_stream(self.tuner.number, self.stream_args)
