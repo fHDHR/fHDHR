@@ -20,26 +20,41 @@ class Stream():
         self.tuner = tuner
         self.stream_args = stream_args
         self.buffer_size = int(self.fhdhr.config.dict["streaming"]["buffer_size"])
+        self.stream_restore_attempts = int(self.fhdhr.config.dict["streaming"]["stream_restore_attempts"])
 
-        if stream_args["method"] == "direct":
+        self.stream_setup()
 
-            if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
-                self.method = Direct_RTP_Stream(fhdhr, stream_args, tuner)
+    def stream_setup(self):
+
+        if self.stream_args["method"] == "direct":
+
+            if self.stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
+                self.method = Direct_RTP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
-                self.method = Direct_M3U8_Stream(fhdhr, stream_args, tuner)
+                self.method = Direct_M3U8_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             else:
-                self.method = Direct_Stream(fhdhr, stream_args, tuner)
+                self.method = Direct_Stream(self.fhdhr, self.stream_args, self.tuner)
 
         else:
 
-            plugin_name = self.get_alt_stream_plugin(stream_args["method"])
+            plugin_name = self.get_alt_stream_plugin(self.stream_args["method"])
             if plugin_name:
-                self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, stream_args, tuner)
+                self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, self.stream_args, self.tuner)
 
             else:
                 raise TunerError("806 - Tune Failed: Plugin Not Found")
+
+    def stream_restore(self):
+
+        self.stream_args = self.fhdhr.device.tuners.get_stream_info(self.stream_args)
+
+        self.tuner.set_status(self.stream_args)
+
+        self.tuner.setup_stream(self.stream_args, self.tuner)
+
+        self.stream_setup()
 
     def get_alt_stream_plugin(self, method):
         """
@@ -67,14 +82,29 @@ class Stream():
 
             try:
                 while self.tuner.tuner_lock.locked():
+                    chunks_failure = 0
+
                     for chunk in self.method.get():
                         chunks_counter += 1
 
                         if not chunk:
-                            self.fhdhr.logger.debug("Chunk #%s Failed: No Chunk to add to stream." % chunks_counter)
-                            break
+                            self.fhdhr.logger.debug("Chunk #%s Failed: No Chunk to add to stream. Possible Stream Source Failure." % chunks_counter)
+                            chunks_failure += 1
+
+                            if chunks_failure > self.stream_restore_attempts:
+                                self.fhdhr.logger.debug("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
+                                break
+
+                            self.fhdhr.logger.debug("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
+
+                            try:
+                                self.stream_restore()
+                            except TunerError as e:
+                                self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
+                                break
 
                         else:
+                            chunks_failure = 0
 
                             segments_dict[chunks_counter] = chunk
                             self.fhdhr.logger.debug("Adding Chunk #%s to the buffer." % chunks_counter)
