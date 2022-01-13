@@ -71,30 +71,33 @@ class Stream():
                         chunks_counter += 1
 
                         if not chunk:
+                            self.fhdhr.logger.debug("Chunk #%s Failed: No Chunk to add to stream." % chunks_counter)
                             break
 
-                        segments_dict[chunks_counter] = chunk
-                        self.fhdhr.logger.debug("Adding Chunk #%s to the buffer." % chunks_counter)
-                        chunk_size = int(sys.getsizeof(chunk))
-                        self.tuner.add_downloaded_size(chunk_size)
+                        else:
 
-                        if len(list(segments_dict.items())) >= self.buffer_size:
-                            chunk_number = list(segments_dict.keys())[0]
-                            yield_chunk = segments_dict[chunk_number]
+                            segments_dict[chunks_counter] = chunk
+                            self.fhdhr.logger.debug("Adding Chunk #%s to the buffer." % chunks_counter)
+                            chunk_size = int(sys.getsizeof(chunk))
+                            self.tuner.add_downloaded_size(chunk_size)
 
-                            chunk_size = int(sys.getsizeof(yield_chunk))
-                            self.fhdhr.logger.info("Serving Chunk #%s: size %s" % (chunk_number, chunk_size))
-                            yield yield_chunk
+                            if len(list(segments_dict.items())) >= self.buffer_size:
+                                chunk_number = list(segments_dict.keys())[0]
+                                yield_chunk = segments_dict[chunk_number]
 
-                            self.tuner.add_served_size(chunk_size)
+                                chunk_size = int(sys.getsizeof(yield_chunk))
+                                self.fhdhr.logger.info("Serving Chunk #%s: size %s" % (chunk_number, chunk_size))
+                                yield yield_chunk
 
-                            self.fhdhr.logger.debug("Removing chunk #%s from the buffer." % chunk_number)
-                            del segments_dict[chunk_number]
+                                self.tuner.add_served_size(chunk_size)
 
-                        runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
-                        if self.stream_args["duration"]:
-                            if runtime >= self.stream_args["duration"]:
-                                self.fhdhr.logger.info("Requested Duration Expired.")
+                                self.fhdhr.logger.debug("Removing chunk #%s from the buffer." % chunk_number)
+                                del segments_dict[chunk_number]
+
+                            runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
+                            if self.stream_args["duration"]:
+                                if runtime >= self.stream_args["duration"]:
+                                    self.fhdhr.logger.info("Requested Duration Expired.")
 
             except GeneratorExit:
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
