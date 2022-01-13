@@ -141,7 +141,7 @@ class Stream():
                 self.tuner.close()
 
                 if len(segments_dict.keys()):
-                    self.fhdhr.logger.info("Removing %s chunks from the buffer." % segments_dict.keys())
+                    self.fhdhr.logger.info("Removing %s chunks from the buffer." % len(segments_dict.keys()))
                     segments_dict = OrderedDict()
 
                 if hasattr(self.fhdhr.origins.origins_dict[self.tuner.origin], "close_stream"):
