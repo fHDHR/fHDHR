@@ -18,6 +18,14 @@ class OriginSetupError(Exception):
         return 'OriginSetupError: %s' % self.value
 
 
+class SSDPSetupError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return 'OriginSetupError: %s' % self.value
+
+
 class EPGSetupError(Exception):
     def __init__(self, value):
         self.value = value
@@ -32,6 +40,14 @@ class WEBSetupError(Exception):
 
     def __str__(self):
         return 'WEBSetupError: %s' % self.value
+
+
+class INTERFACESetupError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return 'INTERFACESetupError: %s' % self.value
 
 
 class ConfigurationError(Exception):
