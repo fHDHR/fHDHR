@@ -41,7 +41,15 @@ class Stream():
 
             plugin_name = self.get_alt_stream_plugin(self.stream_args["method"])
             if plugin_name:
-                self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, self.stream_args, self.tuner)
+
+                try:
+                    self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, self.stream_args, self.tuner)
+
+                except TunerError as e:
+                    raise TunerError("Tuner Setup Failed: %s" % e)
+
+                except Exception as e:
+                    raise TunerError("Tuner Setup Failed: %s" % e)
 
             else:
                 raise TunerError("806 - Tune Failed: Plugin Not Found")
