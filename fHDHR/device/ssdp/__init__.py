@@ -3,6 +3,8 @@ import socket
 import struct
 import threading
 
+import fHDHR.exceptions
+
 
 class SSDPServer():
     """
@@ -62,7 +64,15 @@ class SSDPServer():
             if self.fhdhr.plugins.plugins[plugin_name].type == "ssdp":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
                 plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
-                self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
+
+                try:
+                    self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
+
+                except fHDHR.exceptions.SSDPSetupError as e:
+                    self.fhdhr.logger.error(e)
+
+                except Exception as e:
+                    self.fhdhr.logger.error(e)
 
     def start(self):
         """

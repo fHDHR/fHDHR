@@ -2,6 +2,7 @@ import time
 import datetime
 
 from fHDHR.tools import channel_sort
+import fHDHR.exceptions
 
 from .blocks import blocksEPG
 
@@ -374,9 +375,17 @@ class EPG():
 
             if self.fhdhr.plugins.plugins[plugin_name].type == "alt_epg":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-                self.epg_handling[method] = {
-                                            "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
-                                            }
+
+                try:
+                    self.epg_handling[method] = {
+                                                "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
+                                                }
+
+                except fHDHR.exceptions.EPGSetupError as e:
+                    self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, e))
+
+                except Exception as e:
+                    self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
 
         for origin in list(self.origins.origins_dict.keys()):
 

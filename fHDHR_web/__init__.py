@@ -3,6 +3,8 @@ from flask import Flask, request, session
 import threading
 import uuid
 
+import fHDHR.exceptions
+
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
 from .brython import fHDHR_Brython
@@ -62,8 +64,13 @@ class fHDHR_HTTP_Server():
             if self.fhdhr.plugins.plugins[plugin_name].type == "web":
                 method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
                 plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+
                 try:
                     self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
+
+                except fHDHR.exceptions.WEBSetupError as e:
+                    self.fhdhr.logger.error(e)
+
                 except Exception as e:
                     self.fhdhr.logger.error(e)
 

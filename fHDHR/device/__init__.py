@@ -1,3 +1,6 @@
+
+import fHDHR.exceptions
+
 from .channels import Channels
 from .epg import EPG
 from .tuners import Tuners
@@ -40,4 +43,12 @@ class fHDHR_Device():
                 plugin_utils.ssdp = self.ssdp
                 plugin_utils.origins = self.fhdhr.origins
 
-                self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
+                try:
+
+                    self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
+
+                except fHDHR.exceptions.INTERFACESetupError as e:
+                    self.fhdhr.logger.error(e)
+
+                except Exception as e:
+                    self.fhdhr.logger.error(e)
