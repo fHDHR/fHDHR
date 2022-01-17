@@ -71,6 +71,10 @@ class Origins():
                     self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
                     self.origins_dict[method] = Origin_StandIN()
 
+                except Exception as e:
+                    self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
+                    self.origins_dict[method] = Origin_StandIN()
+
                 if not hasattr(self.origins_dict[method], 'tuners'):
                     tuners = self.default_tuners
                     if method in list(self.fhdhr.config.dict.keys()):
