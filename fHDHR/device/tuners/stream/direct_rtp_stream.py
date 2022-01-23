@@ -8,7 +8,7 @@ from fHDHR.exceptions import TunerError
 
 class Direct_RTP_Stream():
     """
-    A method to stream rtp/udp.
+    A method to stream rtp/s.
     """
 
     def __init__(self, fhdhr, stream_args, tuner):

@@ -238,10 +238,22 @@ class Tuners():
         if "headers" not in list(stream_args["stream_info"].keys()):
             stream_args["stream_info"]["headers"] = None
 
-        if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
+        # Set parameters for RTP/s protocols
+        if stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://"])):
             stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
 
+        # Set parameters for UDP protocol
+        elif stream_args["stream_info"]["url"].startswith(tuple(["udp://"])):
+            stream_args["true_content_type"] = "video/mpeg"
+            stream_args["content_type"] = "video/mpeg"
+
+        # Set parameters for Hardware Devices
+        elif stream_args["stream_info"]["url"].startswith(tuple(["/dev/"])):
+            stream_args["true_content_type"] = "video/mpeg"
+            stream_args["content_type"] = "video/mpeg"
+
+        # Set parameters for HTTP/s Protocols
         else:
 
             try:
