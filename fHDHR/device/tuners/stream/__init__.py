@@ -6,6 +6,8 @@ from collections import OrderedDict
 from .direct_stream import Direct_Stream
 from .direct_m3u8_stream import Direct_M3U8_Stream
 from .direct_rtp_stream import Direct_RTP_Stream
+from .direct_udp_stream import Direct_UDP_Stream
+from .direct_hardware_stream import Direct_HardWare_Stream
 
 from fHDHR.exceptions import TunerError
 
@@ -28,12 +30,23 @@ class Stream():
 
         if self.stream_args["method"] == "direct":
 
-            if self.stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://", "udp://"])):
+            # Select the RTP stream method for RTP/s addresses
+            if self.stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://"])):
                 self.method = Direct_RTP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
+            # Select the UDP stream method for UDP addresses
+            elif self.stream_args["stream_info"]["url"].startswith(tuple(["udp://"])):
+                self.method = Direct_UDP_Stream(self.fhdhr, self.stream_args, self.tuner)
+
+            # Select the HardWare stream method for /dev/ hardware devices
+            elif self.stream_args["stream_info"]["url"].startswith(tuple(["/dev/"])):
+                self.method = Direct_HardWare_Stream(self.fhdhr, self.stream_args, self.tuner)
+
+            # Select the M3U8 stream method for hadnling M3U/8 streams
             elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
                 self.method = Direct_M3U8_Stream(self.fhdhr, self.stream_args, self.tuner)
 
+            # Select the Direct stream method for streams that can pull chunks of data
             else:
                 self.method = Direct_Stream(self.fhdhr, self.stream_args, self.tuner)
 
