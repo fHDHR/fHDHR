@@ -204,16 +204,16 @@ class Stream():
                             buffer_chunk_script += "Not Serving chunk(s)."
                             self.fhdhr.logger.debug(buffer_chunk_script)
 
+                        # If the stream has failed
+                        if stream_failure:
+                            break
+
                         # Kill stream if duration has been passed
-                        runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
-                        if self.stream_args["duration"]:
+                        elif self.stream_args["duration"]:
+                            runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
                             if runtime >= self.stream_args["duration"]:
                                 self.fhdhr.logger.info("Requested Duration Expired.")
                                 break
-
-                        # If the stream has failed
-                        elif stream_failure:
-                            break
 
             except GeneratorExit:
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
