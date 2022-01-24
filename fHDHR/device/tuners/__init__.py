@@ -270,6 +270,12 @@ class Tuners():
             else:
                 stream_args["content_type"] = stream_args["true_content_type"]
 
+        # Set parameters for file://
+        elif stream_args["stream_info"]["url"].startswith(tuple(["file://"])):
+            # TODO some attempt to determine this information properly
+            stream_args["true_content_type"] = "video/mpeg"
+            stream_args["content_type"] = "video/mpeg"
+
         # Set parameters for RTP/s protocols
         elif stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://"])):
             # TODO some attempt to determine this information properly
