@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 
 from .direct_http_stream import Direct_HTTP_Stream
-from .direct_http_stream import Direct_FILE_Stream
+from .direct_file_stream import Direct_FILE_Stream
 from .direct_m3u8_stream import Direct_M3U8_Stream
 from .direct_rtp_stream import Direct_RTP_Stream
 from .direct_udp_stream import Direct_UDP_Stream
