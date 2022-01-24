@@ -25,6 +25,8 @@ class Direct_RTP_Stream():
         if not self.address:
             raise TunerError("806 - Tune Failed: Could Not Create Socket")
 
+        # TODO determine if the RTP stream is TCP or UDP
+
         try:
             self.tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.tcp_socket.bind((self.address, 0))
