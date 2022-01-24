@@ -5,6 +5,8 @@ import base64
 
 from fHDHR.exceptions import TunerError
 
+# TODO Needs more work, testing, and cleanup
+
 
 class Direct_RTP_Stream():
     """
@@ -75,9 +77,6 @@ class Direct_RTP_Stream():
         """
 
         self.fhdhr.logger.info("Direct Stream of %s URL: %s" % (self.stream_args["true_content_type"], self.stream_args["stream_info"]["url"]))
-
-        if self.stream_args["transcode_quality"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream. Direct Method cannot transcode." % self.stream_args["transcode_quality"])
 
         self.fhdhr.logger.info("Sending PLAY")
         self.tcp_socket.send(self.play.encode("utf-8"))
