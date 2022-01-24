@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 
 from .direct_http_stream import Direct_HTTP_Stream
+from .direct_http_stream import Direct_FILE_Stream
 from .direct_m3u8_stream import Direct_M3U8_Stream
 from .direct_rtp_stream import Direct_RTP_Stream
 from .direct_udp_stream import Direct_UDP_Stream
@@ -35,6 +36,12 @@ class Stream():
                and not self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"]))):
                 self.fhdhr.logger.info("Stream Method Detected as HTTP/s.")
                 self.method = Direct_HTTP_Stream(self.fhdhr, self.stream_args, self.tuner)
+
+            # Select the FILE method for file:// PATHS
+            elif (self.stream_args["stream_info"]["url"].startswith(tuple(["file://"]))
+                  and not self.stream_args["true_content_type"].startswith(tuple(["file://dev/"]))):
+                self.fhdhr.logger.info("Stream Method Detected as file://.")
+                self.method = Direct_FILE_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             # Select the M3U8 stream method for hadnling M3U/8 streams
             elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
