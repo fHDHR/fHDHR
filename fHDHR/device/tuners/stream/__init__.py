@@ -186,7 +186,7 @@ class Stream():
                             buffer_chunk_script += "Serving %s chunk(s)." % yield_chunks
                             self.fhdhr.logger.debug(buffer_chunk_script)
 
-                            for chunk_yield in yield_chunks:
+                            for chunk_yield in range(yield_chunks):
 
                                 chunk_number = list(segments_dict.keys())[chunk_yield]
                                 yield_chunk = segments_dict[chunk_number]
