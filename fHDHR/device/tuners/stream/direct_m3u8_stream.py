@@ -22,10 +22,7 @@ class Direct_M3U8_Stream():
         Produce chunks of video data.
         """
 
-        self.fhdhr.logger.info("Detected stream of m3u8 URL: %s" % self.stream_args["stream_info"]["url"])
-
-        if self.stream_args["transcode_quality"]:
-            self.fhdhr.logger.info("Client requested a %s transcode for stream. Direct Method cannot transcode." % self.stream_args["transcode_quality"])
+        self.fhdhr.logger.info("Detected M3U8 stream URL: %s" % self.stream_args["stream_info"]["url"])
 
         def generate():
 
@@ -121,3 +118,98 @@ class Direct_M3U8_Stream():
                     time.sleep(wait)
 
         return generate()
+
+
+def m3u8_quality(self, stream_args):
+    """
+    Set the m3u8 Quality.
+    """
+
+    m3u8_url = stream_args["stream_info"]["url"]
+    quality_profile = stream_args["origin_quality"]
+
+    if not quality_profile:
+
+        if stream_args["method"] in ["direct", "passthrough"]:
+            quality_profile = "high"
+            self.fhdhr.logger.info("Origin Quality not set in config. %s Method set and will default to Highest Quality" % stream_args["method"])
+
+        else:
+            self.fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
+            return m3u8_url
+
+    else:
+        quality_profile = quality_profile.lower()
+        self.fhdhr.logger.info("Origin Quality set in config to %s" % (quality_profile))
+
+    while True:
+        self.fhdhr.logger.info("Opening m3u8 for reading %s" % m3u8_url)
+
+        try:
+
+            if stream_args["stream_info"]["headers"]:
+                videoUrlM3u = m3u8.load(m3u8_url, headers=stream_args["stream_info"]["headers"])
+
+            else:
+                videoUrlM3u = m3u8.load(m3u8_url)
+
+        except Exception as e:
+            self.fhdhr.logger.info("m3u8 load error: %s" % e)
+            return m3u8_url
+
+        if len(videoUrlM3u.playlists):
+            self.fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))
+
+            # Create list of dicts
+            playlists, playlist_index = {}, 0
+            for playlist_item in videoUrlM3u.playlists:
+                playlist_index += 1
+                playlist_dict = {
+                                "url": playlist_item.absolute_uri,
+                                "bandwidth": playlist_item.stream_info.bandwidth,
+                                }
+
+                if not playlist_item.stream_info.resolution:
+                    playlist_dict["width"] = None
+                    playlist_dict["height"] = None
+
+                else:
+
+                    try:
+                        playlist_dict["width"] = playlist_item.stream_info.resolution[0]
+                        playlist_dict["height"] = playlist_item.stream_info.resolution[1]
+
+                    except TypeError:
+                        playlist_dict["width"] = None
+                        playlist_dict["height"] = None
+
+                playlists[playlist_index] = playlist_dict
+
+            sorted_playlists = sorted(playlists, key=lambda i: (
+                int(playlists[i]['bandwidth']),
+                int(playlists[i]['width'] or 0),
+                int(playlists[i]['height'] or 0)
+                ))
+            sorted_playlists = [playlists[x] for x in sorted_playlists]
+
+            if not quality_profile or quality_profile == "high":
+                selected_index = -1
+
+            elif quality_profile == "medium":
+                selected_index = int((len(sorted_playlists) - 1)/2)
+
+            elif quality_profile == "low":
+                selected_index = 0
+
+            m3u8_stats = ",".join(
+                ["%s %s" % (x, sorted_playlists[selected_index][x])
+                 for x in list(sorted_playlists[selected_index].keys())
+                 if x != "url" and sorted_playlists[selected_index][x]])
+            self.fhdhr.logger.info("Selected m3u8 details: %s" % m3u8_stats)
+            m3u8_url = sorted_playlists[selected_index]["url"]
+
+        else:
+            self.fhdhr.logger.info("No m3u8 varients found")
+            break
+
+    return m3u8_url

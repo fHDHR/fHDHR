@@ -3,7 +3,7 @@ import datetime
 from collections import OrderedDict
 
 
-from .direct_stream import Direct_Stream
+from .direct_http_stream import Direct_HTTP_Stream
 from .direct_m3u8_stream import Direct_M3U8_Stream
 from .direct_rtp_stream import Direct_RTP_Stream
 from .direct_udp_stream import Direct_UDP_Stream
@@ -30,25 +30,36 @@ class Stream():
 
         if self.stream_args["method"] == "direct":
 
+            # Select the HTTP stream method for HTTP/s addresses
+            if (self.stream_args["stream_info"]["url"].startswith(tuple(["http://", "https://"]))
+               and not self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"]))):
+                self.fhdhr.logger.info("Stream Method Detected as HTTP/s.")
+                self.method = Direct_HTTP_Stream(self.fhdhr, self.stream_args, self.tuner)
+
+            # Select the M3U8 stream method for hadnling M3U/8 streams
+            elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
+                self.fhdhr.logger.info("Stream Method Detected as M3U8.")
+                self.method = Direct_M3U8_Stream(self.fhdhr, self.stream_args, self.tuner)
+
             # Select the RTP stream method for RTP/s addresses
-            if self.stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://"])):
+            elif self.stream_args["stream_info"]["url"].startswith(tuple(["rtp://", "rtsp://"])):
+                self.fhdhr.logger.info("Stream Method Detected as RTP/s.")
                 self.method = Direct_RTP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             # Select the UDP stream method for UDP addresses
             elif self.stream_args["stream_info"]["url"].startswith(tuple(["udp://"])):
+                self.fhdhr.logger.info("Stream Method Detected as UDP.")
                 self.method = Direct_UDP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             # Select the HardWare stream method for /dev/ hardware devices
             elif self.stream_args["stream_info"]["url"].startswith(tuple(["/dev/", "file://dev/"])):
+                self.fhdhr.logger.info("Stream Method Detected as a /dev/ hardware device.")
                 self.method = Direct_HardWare_Stream(self.fhdhr, self.stream_args, self.tuner)
 
-            # Select the M3U8 stream method for hadnling M3U/8 streams
-            elif self.stream_args["true_content_type"].startswith(tuple(["application/", "text/"])):
-                self.method = Direct_M3U8_Stream(self.fhdhr, self.stream_args, self.tuner)
-
-            # Select the Direct stream method for streams that can pull chunks of data
+            # Select the Direct HTTP stream method as a fallback
             else:
-                self.method = Direct_Stream(self.fhdhr, self.stream_args, self.tuner)
+                self.fhdhr.logger.warning("Stream Method couldn't be properly determined, defaulting to HTTP method.")
+                self.method = Direct_HTTP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
         else:
 
@@ -95,6 +106,10 @@ class Stream():
         """
         Handle a stream.
         """
+
+        if self.stream_args["method"] == "direct":
+            if self.stream_args["transcode_quality"]:
+                self.fhdhr.logger.info("Client requested a %s transcode for stream. Direct Method cannot transcode." % self.stream_args["transcode_quality"])
 
         def buffer_generator():
             start_time = datetime.datetime.utcnow()
