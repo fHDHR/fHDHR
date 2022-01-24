@@ -249,7 +249,7 @@ class Tuners():
             stream_args["content_type"] = "video/mpeg"
 
         # Set parameters for Hardware Devices
-        elif stream_args["stream_info"]["url"].startswith(tuple(["/dev/"])):
+        elif stream_args["stream_info"]["url"].startswith(tuple(["/dev/", "file://dev/"])):
             stream_args["true_content_type"] = "video/mpeg"
             stream_args["content_type"] = "video/mpeg"
 

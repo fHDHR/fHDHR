@@ -39,7 +39,7 @@ class Stream():
                 self.method = Direct_UDP_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             # Select the HardWare stream method for /dev/ hardware devices
-            elif self.stream_args["stream_info"]["url"].startswith(tuple(["/dev/"])):
+            elif self.stream_args["stream_info"]["url"].startswith(tuple(["/dev/", "file://dev/"])):
                 self.method = Direct_HardWare_Stream(self.fhdhr, self.stream_args, self.tuner)
 
             # Select the M3U8 stream method for hadnling M3U/8 streams
