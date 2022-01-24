@@ -1,3 +1,4 @@
+import os
 
 from fHDHR.exceptions import TunerError
 
@@ -16,7 +17,8 @@ class Direct_HardWare_Stream():
 
         self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
-        raise TunerError("806 - Tune Failed: Feature not implemented")
+        if not os.path.isfile(self.stream_args["stream_info"]["url"]):
+            raise TunerError("806 - Tune Failed: %s PATH does not seem to exist" % self.stream_args["stream_info"]["url"])
 
     def get(self):
         """

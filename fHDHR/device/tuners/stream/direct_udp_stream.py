@@ -1,7 +1,8 @@
+import socket
 
 from fHDHR.exceptions import TunerError
 
-# TODO write this method
+# TODO Needs more work, testing
 
 
 class Direct_UDP_Stream():
@@ -16,7 +17,21 @@ class Direct_UDP_Stream():
 
         self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
-        raise TunerError("806 - Tune Failed: Feature not implemented")
+        try:
+
+            self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.udp_socket.bind((self.address, 0))
+            self.udp_socket_address = self.udp_socket.getsockname()[0]
+            self.udp_socket_port = self.udp_socket.getsockname()[1]
+            self.udp_socket.settimeout(5)
+            self.fhdhr.logger.info("Created UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
+
+        except Exception as err:
+            raise TunerError("806 - Tune Failed: %s" % err)
+
+        finally:
+            self.fhdhr.logger.info("Closing UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
+            self.udp_socket.close()
 
     def get(self):
         """
@@ -35,14 +50,18 @@ class Direct_UDP_Stream():
                     chunk_counter += 1
                     self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
 
-                    chunk = None
+                    chunk, addr = self.udp_socket.recvfrom(self.bytes_per_read)
 
                     if not chunk:
                         break
 
                     yield chunk
 
-            except Exception:
-                yield None
+            except Exception as err:
+                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, err))
+
+            finally:
+                self.fhdhr.logger.info("Closing UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
+                self.udp_socket.close()
 
         return generate()
