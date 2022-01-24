@@ -126,8 +126,10 @@ class Stream():
             try:
                 while self.tuner.tuner_lock.locked():
                     chunks_failure = 0
+                    stream_failure = False
 
                     for chunk in self.method.get():
+
                         chunks_counter += 1
 
                         if not chunk:
@@ -136,7 +138,7 @@ class Stream():
 
                             if chunks_failure > self.stream_restore_attempts:
                                 self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
-                                break
+                                stream_failure = True
 
                             self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
 
@@ -144,7 +146,7 @@ class Stream():
                                 self.stream_restore()
                             except TunerError as e:
                                 self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
-                                break
+                                stream_failure = True
 
                         else:
                             chunks_failure = 0
@@ -154,8 +156,39 @@ class Stream():
                             chunk_size = int(sys.getsizeof(chunk))
                             self.tuner.add_downloaded_size(chunk_size)
 
-                            if len(list(segments_dict.items())) >= self.buffer_size:
-                                chunk_number = list(segments_dict.keys())[0]
+                        buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.buffer_size)
+
+                        # If Buffer is up to buffer_size, serve chunk
+                        if len(list(segments_dict.items())) >= self.buffer_size:
+                            buffer_chunk_script += "Allowing buffer reduction due to buffer at capacity. "
+                            yield_chunks = 1
+
+                        # OR the stream has been marked as failed, we might as well serve remaining chunks
+                        elif stream_failure and len(list(segments_dict.items())):
+                            buffer_chunk_script += "Allowing buffer depletion due to failed stream. "
+                            yield_chunks = len(list(segments_dict.items()))
+
+                        # yield a chunk after a chunk failure even if the buffer isn't to the maximum
+                        elif chunks_failure and len(list(segments_dict.items())):
+                            buffer_chunk_script += "Allowing buffer reduction due to dropped stream. "
+                            yield_chunks = 1
+
+                        elif len(list(segments_dict.items())) < self.buffer_size:
+                            buffer_chunk_script += "Continuing to build buffer. "
+                            yield_chunks = 0
+
+                        # if not above condition, allow the buffer to build before serving
+                        else:
+                            yield_chunks = 0
+
+                        if yield_chunks:
+
+                            buffer_chunk_script += "Serving %s chunk(s)." % yield_chunks
+                            self.fhdhr.logger.debug(buffer_chunk_script)
+
+                            for chunk_yield in yield_chunks:
+
+                                chunk_number = list(segments_dict.keys())[chunk_yield]
                                 yield_chunk = segments_dict[chunk_number]
 
                                 chunk_size = int(sys.getsizeof(yield_chunk))
@@ -167,10 +200,20 @@ class Stream():
                                 self.fhdhr.logger.debug("Removing chunk #%s from the buffer." % chunk_number)
                                 del segments_dict[chunk_number]
 
-                            runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
-                            if self.stream_args["duration"]:
-                                if runtime >= self.stream_args["duration"]:
-                                    self.fhdhr.logger.info("Requested Duration Expired.")
+                        else:
+                            buffer_chunk_script += "Not Serving chunk(s)."
+                            self.fhdhr.logger.debug(buffer_chunk_script)
+
+                        # Kill stream if duration has been passed
+                        runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
+                        if self.stream_args["duration"]:
+                            if runtime >= self.stream_args["duration"]:
+                                self.fhdhr.logger.info("Requested Duration Expired.")
+                                break
+
+                        # If the stream has failed
+                        elif stream_failure:
+                            break
 
             except GeneratorExit:
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
