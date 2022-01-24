@@ -140,13 +140,13 @@ class Stream():
                                 self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
                                 stream_failure = True
 
-                            self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
-
-                            try:
-                                self.stream_restore()
-                            except TunerError as e:
-                                self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
-                                stream_failure = True
+                            else:
+                                self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
+                                try:
+                                    self.stream_restore()
+                                except TunerError as e:
+                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
+                                    stream_failure = True
 
                         else:
                             chunks_failure = 0
