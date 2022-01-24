@@ -17,7 +17,7 @@ class Direct_HardWare_Stream():
 
         self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
 
-        if not os.path.isfile(self.stream_args["stream_info"]["url"]):
+        if not os.path.exists(self.stream_args["stream_info"]["url"]):
             raise TunerError("806 - Tune Failed: %s PATH does not seem to exist" % self.stream_args["stream_info"]["url"])
 
     def get(self):
