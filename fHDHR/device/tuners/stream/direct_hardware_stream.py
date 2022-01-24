@@ -34,7 +34,7 @@ class Direct_HardWare_Stream():
             try:
                 while self.tuner.tuner_lock.locked():
 
-                    with open(self.stream_args["stream_info"]["url"], 'r') as device_stream:
+                    with open(self.stream_args["stream_info"]["url"], 'rb') as device_stream:
 
                         chunk_counter += 1
                         self.fhdhr.logger.debug("Pulling Chunk #%s" % chunk_counter)
