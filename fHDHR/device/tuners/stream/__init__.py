@@ -109,14 +109,14 @@ class Stream():
                         chunks_counter += 1
 
                         if not chunk:
-                            self.fhdhr.logger.debug("Chunk #%s Failed: No Chunk to add to stream. Possible Stream Source Failure." % chunks_counter)
+                            self.fhdhr.logger.warning("Chunk #%s Failed: No Chunk to add to stream. Possible Stream Source Failure." % chunks_counter)
                             chunks_failure += 1
 
                             if chunks_failure > self.stream_restore_attempts:
-                                self.fhdhr.logger.debug("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
+                                self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
                                 break
 
-                            self.fhdhr.logger.debug("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
+                            self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
 
                             try:
                                 self.stream_restore()
@@ -137,7 +137,7 @@ class Stream():
                                 yield_chunk = segments_dict[chunk_number]
 
                                 chunk_size = int(sys.getsizeof(yield_chunk))
-                                self.fhdhr.logger.info("Serving Chunk #%s: size %s" % (chunk_number, chunk_size))
+                                self.fhdhr.logger.debug("Serving Chunk #%s: size %s" % (chunk_number, chunk_size))
                                 yield yield_chunk
 
                                 self.tuner.add_served_size(chunk_size)
@@ -154,7 +154,7 @@ class Stream():
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
 
             except Exception as e:
-                self.fhdhr.logger.info("Stream Ended: %s" % e)
+                self.fhdhr.logger.warning("Stream Ended: %s" % e)
 
             finally:
 
