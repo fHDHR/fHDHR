@@ -1,7 +1,7 @@
 
 from fHDHR.exceptions import TunerError
 
-# TODO write this method
+# TODO Needs more work, testing
 
 
 class Direct_HardWare_Stream():
@@ -32,17 +32,19 @@ class Direct_HardWare_Stream():
             try:
                 while self.tuner.tuner_lock.locked():
 
-                    chunk_counter += 1
-                    self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
+                    with open(self.stream_args["stream_info"]["url"], 'r') as device_stream:
 
-                    chunk = None
+                        chunk_counter += 1
+                        self.fhdhr.logger.debug("Pulling Chunk #%s" % chunk_counter)
 
-                    if not chunk:
-                        break
+                        chunk = device_stream.read(self.bytes_per_read)
 
-                    yield chunk
+                        if not chunk:
+                            break
 
-            except Exception:
-                yield None
+                        yield chunk
+
+            except Exception as err:
+                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, err))
 
         return generate()
