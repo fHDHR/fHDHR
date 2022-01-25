@@ -168,9 +168,9 @@ class Stream():
 
                         # Allow serving first chunk right away for client speed
                         # we'll hope the buffer can fill up before needing a second one
-                        elif list(segments_dict.keys())[0] == 1:
-                            buffer_chunk_script += "Allowing buffer bypass to serve first chunk to client. "
-                            yield_chunks = 1
+                        # elif list(segments_dict.keys())[0] == 1:
+                        #    buffer_chunk_script += "Allowing buffer bypass to serve first chunk to client. "
+                        #    yield_chunks = 1
 
                         # OR the stream has been marked as failed, we might as well serve remaining chunks
                         elif stream_failure and len(list(segments_dict.items())):
