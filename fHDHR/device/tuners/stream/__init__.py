@@ -189,6 +189,7 @@ class Stream():
                         # if not above condition, allow the buffer to build before serving
                         else:
                             yield_chunks = 0
+                            # TODO maybe a fHDHR splash screen to show it is working
 
                         if yield_chunks:
 
