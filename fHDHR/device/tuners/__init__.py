@@ -248,6 +248,9 @@ class Tuners():
             except self.fhdhr.web.exceptions.MissingSchema:
                 raise TunerError("806 - Tune Failed")
 
+            except self.fhdhr.web.exceptions.ConnectionError:
+                raise TunerError("806 - Tune Failed")
+
             except KeyError:
 
                 # Set for M3U8
