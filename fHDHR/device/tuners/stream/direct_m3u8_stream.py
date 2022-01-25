@@ -15,8 +15,6 @@ class Direct_M3U8_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
-
     def get(self):
         """
         Produce chunks of video data.

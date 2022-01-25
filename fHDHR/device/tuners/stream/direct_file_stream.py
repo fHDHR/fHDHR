@@ -15,8 +15,6 @@ class Direct_FILE_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
-
         if not os.path.isfile(self.stream_args["stream_info"]["url"]):
             raise TunerError("806 - Tune Failed: %s PATH does not seem to exist" % self.stream_args["stream_info"]["url"])
 
@@ -39,7 +37,7 @@ class Direct_FILE_Stream():
                         chunk_counter += 1
                         self.fhdhr.logger.debug("Reading Chunk #%s" % chunk_counter)
 
-                        chunk = device_stream.read(self.bytes_per_read)
+                        chunk = device_stream.read(self.stream_args["bytes_per_read"])
 
                         if not chunk:
                             break

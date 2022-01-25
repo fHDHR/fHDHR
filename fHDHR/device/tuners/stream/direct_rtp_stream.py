@@ -18,8 +18,6 @@ class Direct_RTP_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
-
         self.fhdhr.logger.info("Attempting to create socket to listen on.")
         self.address = self.get_sock_address()
         if not self.address:
@@ -91,7 +89,7 @@ class Direct_RTP_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    chunk = self.udp_socket.recv(self.bytes_per_read)
+                    chunk = self.udp_socket.recv(self.stream_args["bytes_per_read"])
                     chunk_counter += 1
                     self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
 

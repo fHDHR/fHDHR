@@ -22,8 +22,6 @@ class Stream():
         self.fhdhr = fhdhr
         self.tuner = tuner
         self.stream_args = stream_args
-        self.buffer_size = int(self.fhdhr.config.dict["streaming"]["buffer_size"])
-        self.stream_restore_attempts = int(self.fhdhr.config.dict["streaming"]["stream_restore_attempts"])
 
         self.stream_setup()
 
@@ -115,8 +113,12 @@ class Stream():
         """
 
         if self.stream_args["method"] == "direct":
+
             if self.stream_args["transcode_quality"]:
                 self.fhdhr.logger.info("Client requested a %s transcode for stream. Direct Method cannot transcode." % self.stream_args["transcode_quality"])
+
+            if self.stream_args["stream_info"]["url"].endswith(".m3u8"):
+                self.fhdhr.logger.info("Client requested a %s bytes_per_read for stream. Direct M3U8 Method reads the chunks as provided." % self.stream_args["bytes_per_read"])
 
         def buffer_generator():
             start_time = datetime.datetime.utcnow()
@@ -136,12 +138,12 @@ class Stream():
                             self.fhdhr.logger.warning("Chunk #%s Failed: No Chunk to add to stream. Possible Stream Source Failure." % chunks_counter)
                             chunks_failure += 1
 
-                            if chunks_failure > self.stream_restore_attempts:
-                                self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_restore_attempts)
+                            if chunks_failure > self.stream_args["stream_restore_attempts"]:
+                                self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_args["stream_restore_attempts"])
                                 stream_failure = True
 
                             else:
-                                self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_restore_attempts))
+                                self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_args["stream_restore_attempts"]))
                                 try:
                                     self.stream_restore()
                                 except TunerError as e:
@@ -156,10 +158,10 @@ class Stream():
                             chunk_size = int(sys.getsizeof(chunk))
                             self.tuner.add_downloaded_size(chunk_size)
 
-                        buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.buffer_size)
+                        buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.stream_args["buffer_size"])
 
                         # If Buffer is up to buffer_size, serve chunk
-                        if len(list(segments_dict.items())) >= self.buffer_size:
+                        if len(list(segments_dict.items())) >= self.stream_args["buffer_size"]:
                             buffer_chunk_script += "Allowing buffer reduction due to buffer at capacity. "
                             yield_chunks = 1
 
@@ -173,7 +175,7 @@ class Stream():
                             buffer_chunk_script += "Allowing buffer reduction due to dropped stream. "
                             yield_chunks = 1
 
-                        elif len(list(segments_dict.items())) < self.buffer_size:
+                        elif len(list(segments_dict.items())) < self.stream_args["buffer_size"]:
                             buffer_chunk_script += "Continuing to build buffer. "
                             yield_chunks = 0
 
