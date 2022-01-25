@@ -15,8 +15,6 @@ class Direct_UDP_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
-
         try:
 
             self.udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -50,7 +48,7 @@ class Direct_UDP_Stream():
                     chunk_counter += 1
                     self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
 
-                    chunk, addr = self.udp_socket.recvfrom(self.bytes_per_read)
+                    chunk, addr = self.udp_socket.recvfrom(self.stream_args["bytes_per_read"])
 
                     if not chunk:
                         break

@@ -10,8 +10,6 @@ class Direct_HTTP_Stream():
         self.stream_args = stream_args
         self.tuner = tuner
 
-        self.bytes_per_read = int(self.fhdhr.config.dict["streaming"]["bytes_per_read"])
-
     def get(self):
         """
         Produce chunks of video data.
@@ -32,7 +30,7 @@ class Direct_HTTP_Stream():
 
                 while self.tuner.tuner_lock.locked():
 
-                    for chunk in req.iter_content(chunk_size=self.bytes_per_read):
+                    for chunk in req.iter_content(chunk_size=self.stream_args["bytes_per_read"]):
                         chunk_counter += 1
                         self.fhdhr.logger.debug("Downloading Chunk #%s" % chunk_counter)
 
