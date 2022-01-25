@@ -22,9 +22,9 @@ class EPG():
 
         # Gather Default settings to pass to origins later
         self.default_settings = {
-            "tuners": {"section": "epg", "option": "update_frequency"},
-            "chanscan_on_start": {"epg": "fhdhr", "option": "xmltv_offset"},
-            "chanscan_interval": {"epg": "fhdhr", "option": "epg_update_on_start"},
+            "update_frequency": {"section": "epg", "option": "update_frequency"},
+            "xmltv_offset": {"section": "epg", "option": "xmltv_offset"},
+            "epg_update_on_start": {"section": "epg", "option": "epg_update_on_start"},
             }
 
         self.conf_components = ["value", "description", "valid_options",
