@@ -47,10 +47,10 @@ class Tuners_HTML():
 
                 if tuner_status[origin][tuner]["status"] in "Active":
                     tuner_dict["method"] = tuner_status[origin][tuner]["method"]
-                    tuner_dict["downloaded"] = "%s - %s" % (
+                    tuner_dict["downloaded"] = "%s - %s Chunks" % (
                         humanized_filesize(tuner_status[origin][tuner]["downloaded_size"]),
                         tuner_status[origin][tuner]["downloaded_chunks"])
-                    tuner_dict["served"] = "%s - %s" % (
+                    tuner_dict["served"] = "%s - %s Chunks" % (
                         humanized_filesize(tuner_status[origin][tuner]["served_size"]),
                         tuner_status[origin][tuner]["served_chunks"])
 
