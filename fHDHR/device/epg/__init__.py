@@ -30,15 +30,6 @@ class EPG():
         # Create Default Config Values and Descriptions for EPG
         self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
 
-        # Create Default Config Values and Descriptions for origins
-        for default_setting in list(self.default_settings.keys()):
-            conf_section = self.default_settings[default_setting]["section"]
-            conf_option = self.default_settings[default_setting]["option"]
-
-            # Pull values from config system and set them as defaults here
-            for conf_component in self.conf_components:
-                self.default_settings[default_setting][conf_component] = self.fhdhr.config.conf_default[conf_section][conf_option][conf_component]
-
         self.blocks = blocksEPG(self.fhdhr, self.channels, self.origins, None)
         self.epg_handling = {}
         self.epg_method_selfadd()
