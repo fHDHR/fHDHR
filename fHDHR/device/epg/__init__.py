@@ -27,9 +27,8 @@ class EPG():
             "epg_update_on_start": {"section": "epg", "option": "epg_update_on_start"},
             }
 
-        self.conf_components = ["value", "description", "valid_options",
-                                "config_file", "config_web", "valid_options",
-                                "config_web_hidden", "required"]
+        # Create Default Config Values and Descriptions for EPG
+        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
 
         # Create Default Config Values and Descriptions for origins
         for default_setting in list(self.default_settings.keys()):
@@ -427,19 +426,10 @@ class EPG():
             if epg_method not in list(self.fhdhr.config.conf_default.keys()):
                 self.fhdhr.config.conf_default[epg_method] = {}
 
+            # Set config defaults for method
+            self.fhdhr.config.set_plugin_defaults(epg_method, self.default_settings)
+
             for default_setting in list(self.default_settings.keys()):
-
-                # create conf_option in config section for epg_method with default value if missing
-                if default_setting not in list(self.fhdhr.config.dict[epg_method].keys()):
-                    self.fhdhr.config.dict[epg_method][default_setting] = self.default_settings[default_setting]["value"]
-                    self.fhdhr.logger.debug("Setting configuration [%s]%s=%s" % (epg_method, default_setting, self.fhdhr.config.dict[epg_method][default_setting]))
-
-                # create conf_option in config defaults section for epg_method with default values if missing
-                if default_setting not in list(self.fhdhr.config.conf_default[epg_method].keys()):
-                    self.fhdhr.config.conf_default[epg_method][default_setting] = {}
-                    for conf_component in self.conf_components:
-                        if conf_component not in list(self.fhdhr.config.conf_default[epg_method][default_setting].keys()):
-                            self.fhdhr.config.conf_default[epg_method][default_setting][conf_component] = self.default_settings[default_setting][conf_component]
 
                 # Set Origin attributes if missing
                 if not hasattr(self.epg_handling[epg_method]["class"], default_setting):
