@@ -159,11 +159,18 @@ class Stream():
                             self.tuner.add_downloaded_size(chunk_size)
 
                         buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.stream_args["buffer_size"])
+                        print(list(segments_dict.keys())[0])
 
                         # If Buffer is up to buffer_size, serve chunk
                         if len(list(segments_dict.items())) >= self.stream_args["buffer_size"]:
                             buffer_chunk_script += "Allowing buffer reduction due to buffer at capacity. "
                             yield_chunks = 1
+
+                        # Allow serving first chunk right away for client speed
+                        # we'll hope the buffer can fill up before needing a second one
+                        # elif list(segments_dict.keys())[0] == 1:
+                        #    buffer_chunk_script += "Allowing buffer bypass to serve first chunk to client. "
+                        #    yield_chunks = 1
 
                         # OR the stream has been marked as failed, we might as well serve remaining chunks
                         elif stream_failure and len(list(segments_dict.items())):
@@ -182,6 +189,7 @@ class Stream():
                         # if not above condition, allow the buffer to build before serving
                         else:
                             yield_chunks = 0
+                            # TODO maybe a fHDHR splash screen to show it is working
 
                         if yield_chunks:
 
