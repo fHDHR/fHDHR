@@ -108,7 +108,7 @@ class Origins():
 
                     # create conf_option in config section for origin method with default value if missing
                     if default_setting not in list(self.fhdhr.config.dict[method].keys()):
-                        self.fhdhr.config.dict[method][default_setting] = self.default_settings[default_setting]["conf_value"]
+                        self.fhdhr.config.dict[method][default_setting] = self.default_settings[default_setting]["value"]
                         self.fhdhr.logger.debug("Setting configuration [%s]%s=%s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
 
                     # create conf_option in config defaults section for origin method with default values if missing
