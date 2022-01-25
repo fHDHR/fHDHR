@@ -25,16 +25,31 @@ class Origins():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
-        self.default_tuners = self.fhdhr.config.dict["fhdhr"]["default_tuners"]
-        self.default_chanscan_on_start = self.fhdhr.config.dict["fhdhr"]["chanscan_on_start"]
-        self.default_chanscan_interval = self.fhdhr.config.dict["fhdhr"]["chanscan_interval"]
+        # Gather Default settings to pass to origins later
+        self.default_settings = {
+            "tuners": {"section": "fhdhr", "option": "default_tuners"},
+            "chanscan_on_start": {"section": "fhdhr", "option": "chanscan_on_start"},
+            "chanscan_interval": {"section": "fhdhr", "option": "chanscan_interval"},
+            "stream_method": {"section": "fhdhr", "option": "default_stream_method"},
+            "origin_quality": {"section": "streaming", "option": "origin_quality"},
+            "transcode_quality": {"section": "streaming", "option": "transcode_quality"},
+            "bytes_per_read": {"section": "streaming", "option": "bytes_per_read"},
+            "buffer_size": {"section": "streaming", "option": "buffer_size"},
+            "stream_restore_attempts": {"section": "streaming", "option": "stream_restore_attempts"},
+            }
 
-        self.default_stream_method = self.fhdhr.config.dict["fhdhr"]["default_stream_method"]
-        self.default_origin_quality = self.fhdhr.config.dict["streaming"]["origin_quality"]
-        self.default_transcode_quality = self.fhdhr.config.dict["streaming"]["transcode_quality"]
-        self.default_bytes_per_read = self.fhdhr.config.dict["streaming"]["bytes_per_read"]
-        self.default_buffer_size = self.fhdhr.config.dict["streaming"]["buffer_size"]
-        self.default_stream_restore_attempts = self.fhdhr.config.dict["streaming"]["stream_restore_attempts"]
+        self.conf_components = ["value", "description", "valid_options",
+                                "config_file", "config_web", "valid_options",
+                                "config_web_hidden", "required"]
+
+        # Create Default Config Values and Descriptions for origins
+        for default_setting in list(self.default_settings.keys()):
+            conf_section = self.default_settings[default_setting]["section"]
+            conf_option = self.default_settings[default_setting]["option"]
+
+            # Pull values from config system and set them as defaults here
+            for conf_component in self.conf_components:
+                self.default_settings[default_setting][conf_component] = self.fhdhr.config.conf_default[conf_section][conf_option][conf_component]
 
         self.origins_dict = {}
         self.origin_selfadd()
@@ -81,74 +96,29 @@ class Origins():
                     self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
                     self.origins_dict[method] = Origin_StandIN()
 
-                if not hasattr(self.origins_dict[method], 'tuners'):
-                    tuners = self.default_tuners
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "tuners" in list(self.fhdhr.config.dict[method].keys()):
-                            tuners = self.fhdhr.config.dict[method]["tuners"]
-                    self.fhdhr.logger.debug("Setting %s tuners attribute to: %s" % (method, tuners))
-                    self.origins_dict[method].tuners = tuners
+                # Create config section in config system
+                if method not in list(self.fhdhr.config.dict.keys()):
+                    self.fhdhr.config.dict[method] = {}
 
-                if not hasattr(self.origins_dict[method], 'chanscan_on_start'):
-                    chanscan_on_start = self.default_chanscan_on_start
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "chanscan_on_start" in list(self.fhdhr.config.dict[method].keys()):
-                            chanscan_on_start = self.fhdhr.config.dict[method]["chanscan_on_start"]
-                    self.fhdhr.logger.debug("Setting %s chanscan_on_start attribute to: %s" % (method, chanscan_on_start))
-                    self.origins_dict[method].chanscan_on_start = chanscan_on_start
+                # Create config defaults section in config system
+                if method not in list(self.fhdhr.config.conf_default.keys()):
+                    self.fhdhr.config.conf_default[method] = {}
 
-                if not hasattr(self.origins_dict[method], 'chanscan_interval'):
-                    chanscan_interval = self.default_chanscan_interval
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "chanscan_interval" in list(self.fhdhr.config.dict[method].keys()):
-                            chanscan_interval = self.fhdhr.config.dict[method]["chanscan_interval"]
-                    self.fhdhr.logger.debug("Setting %s chanscan_interval attribute to: %s" % (method, chanscan_interval))
-                    self.origins_dict[method].chanscan_interval = chanscan_interval
+                for default_setting in list(self.default_settings.keys()):
 
-                if not hasattr(self.origins_dict[method], 'stream_method'):
-                    stream_method = self.default_stream_method
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "stream_method" in list(self.fhdhr.config.dict[method].keys()):
-                            stream_method = self.fhdhr.config.dict[method]["stream_method"]
-                    self.fhdhr.logger.debug("Setting %s stream_method attribute to: %s" % (method, stream_method))
-                    self.origins_dict[method].stream_method = stream_method
+                    # create conf_option in config section for origin method with default value if missing
+                    if default_setting not in list(self.fhdhr.config.dict[method].keys()):
+                        self.fhdhr.config.dict[method][default_setting] = self.default_settings[default_setting]["value"]
+                        self.fhdhr.logger.debug("Setting configuration [%s]%s=%s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
 
-                if not hasattr(self.origins_dict[method], 'origin_quality'):
-                    origin_quality = self.default_origin_quality
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "origin_quality" in list(self.fhdhr.config.dict[method].keys()):
-                            origin_quality = self.fhdhr.config.dict[method]["origin_quality"]
-                    self.fhdhr.logger.debug("Setting %s origin_quality attribute to: %s" % (method, origin_quality))
-                    self.origins_dict[method].origin_quality = origin_quality
+                    # create conf_option in config defaults section for origin method with default values if missing
+                    if default_setting not in list(self.fhdhr.config.conf_default[method].keys()):
+                        self.fhdhr.config.conf_default[method][default_setting] = {}
+                        for conf_component in self.conf_components:
+                            if conf_component not in list(self.fhdhr.config.conf_default[method][default_setting].keys()):
+                                self.fhdhr.config.conf_default[method][default_setting][conf_component] = self.default_settings[default_setting][conf_component]
 
-                if not hasattr(self.origins_dict[method], 'transcode_quality'):
-                    transcode_quality = self.default_transcode_quality
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "transcode_quality" in list(self.fhdhr.config.dict[method].keys()):
-                            transcode_quality = self.fhdhr.config.dict[method]["transcode_quality"]
-                    self.fhdhr.logger.debug("Setting %s transcode_quality attribute to: %s" % (method, transcode_quality))
-                    self.origins_dict[method].transcode_quality = transcode_quality
-
-                if not hasattr(self.origins_dict[method], 'bytes_per_read'):
-                    bytes_per_read = self.default_bytes_per_read
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "bytes_per_read" in list(self.fhdhr.config.dict[method].keys()):
-                            bytes_per_read = self.fhdhr.config.dict[method]["bytes_per_read"]
-                    self.fhdhr.logger.debug("Setting %s bytes_per_read attribute to: %s" % (method, bytes_per_read))
-                    self.origins_dict[method].bytes_per_read = bytes_per_read
-
-                if not hasattr(self.origins_dict[method], 'buffer_size'):
-                    buffer_size = self.default_buffer_size
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "buffer_size" in list(self.fhdhr.config.dict[method].keys()):
-                            buffer_size = self.fhdhr.config.dict[method]["buffer_size"]
-                    self.fhdhr.logger.debug("Setting %s buffer_size attribute to: %s" % (method, buffer_size))
-                    self.origins_dict[method].buffer_size = buffer_size
-
-                if not hasattr(self.origins_dict[method], 'stream_restore_attempts'):
-                    stream_restore_attempts = self.default_stream_restore_attempts
-                    if method in list(self.fhdhr.config.dict.keys()):
-                        if "stream_restore_attempts" in list(self.fhdhr.config.dict[method].keys()):
-                            stream_restore_attempts = self.fhdhr.config.dict[method]["stream_restore_attempts"]
-                    self.fhdhr.logger.debug("Setting %s stream_restore_attempts attribute to: %s" % (method, stream_restore_attempts))
-                    self.origins_dict[method].stream_restore_attempts = stream_restore_attempts
+                    # Set Origin attributes if missing
+                    if not hasattr(self.origins_dict[method], default_setting):
+                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                        setattr(self.origins_dict[method], default_setting, self.fhdhr.config.dict[method][default_setting])
