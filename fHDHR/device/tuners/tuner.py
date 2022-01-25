@@ -61,21 +61,29 @@ class Tuner():
         self.close()
         self.fhdhr.api.threadget(self.close_url)
 
-    def add_downloaded_size(self, bytes_count):
+    def add_downloaded_size(self, bytes_count, chunks_count):
         """
-        Append size of total downloaded.
-        """
-
-        if "downloaded" in list(self.status.keys()):
-            self.status["downloaded"] += bytes_count
-
-    def add_served_size(self, bytes_count):
-        """
-        Append Served size.
+        Append size of total downloaded size and count.
         """
 
-        if "served" in list(self.status.keys()):
-            self.status["served"] += bytes_count
+        if "downloaded_size" in list(self.status.keys()):
+            self.status["downloaded_size"] += bytes_count
+        else:
+            self.status["downloaded_size"] = bytes_count
+
+        self.status["downloaded_chunks"] = chunks_count
+
+    def add_served_size(self, bytes_count, chunks_count):
+        """
+        Append Served size and count.
+        """
+
+        if "served_size" in list(self.status.keys()):
+            self.status["served_size"] += bytes_count
+        else:
+            self.status["served_size"] = bytes_count
+
+        self.status["served_chunks"] = chunks_count
 
     def grab(self, origin, channel_number):
         """
@@ -154,8 +162,10 @@ class Tuner():
                             "channel": stream_args["channel"],
                             "proxied_url": stream_args["stream_info"]["url"],
                             "time_start": datetime.datetime.utcnow(),
-                            "downloaded": 0,
-                            "served": 0
+                            "downloaded_size": 0,
+                            "downloaded_chunks": 0,
+                            "served_size": 0,
+                            "served_chunks": 0
                             }
 
         if stream_args["client"] not in self.status["clients"]:
