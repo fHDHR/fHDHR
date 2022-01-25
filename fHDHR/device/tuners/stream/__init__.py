@@ -156,7 +156,7 @@ class Stream():
                             segments_dict[chunks_counter] = chunk
                             self.fhdhr.logger.debug("Adding Chunk #%s to the buffer." % chunks_counter)
                             chunk_size = int(sys.getsizeof(chunk))
-                            self.tuner.add_downloaded_size(chunk_size)
+                            self.tuner.add_downloaded_size(chunk_size, chunks_counter)
 
                         buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.stream_args["buffer_size"])
 
@@ -204,7 +204,7 @@ class Stream():
                                 self.fhdhr.logger.debug("Serving Chunk #%s: size %s" % (chunk_number, chunk_size))
                                 yield yield_chunk
 
-                                self.tuner.add_served_size(chunk_size)
+                                self.tuner.add_served_size(chunk_size, chunk_number)
 
                                 self.fhdhr.logger.debug("Removing chunk #%s from the buffer." % chunk_number)
                                 del segments_dict[chunk_number]
@@ -276,10 +276,12 @@ class Stream():
                             chunks_failure = 0
 
                             chunk_size = int(sys.getsizeof(chunk))
-                            self.tuner.add_downloaded_size(chunk_size)
+                            self.tuner.add_downloaded_size(chunk_size, chunks_counter)
 
                             self.fhdhr.logger.debug("Serving Chunk #%s: size %s" % (chunks_counter, chunk_size))
+
                             yield chunk
+                            self.tuner.add_served_size(chunk_size, chunks_counter)
 
                         # If the stream has failed
                         if stream_failure:
