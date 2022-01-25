@@ -21,6 +21,10 @@ class Config():
         self.config_file = args.cfg
         self.iliketobreakthings = args.iliketobreakthings
 
+        self.conf_components = ["value", "description", "valid_options",
+                                "config_file", "config_web", "valid_options",
+                                "config_web_hidden", "required"]
+
         self.check_config_file()
         self.core_setup(script_dir)
         self.user_config_core()
@@ -424,6 +428,47 @@ class Config():
 
         with open(self.config_file, 'w') as config_file:
             config_handler.write(config_file)
+
+    def get_plugin_defaults(self, default_settings):
+        """
+        Pull Defaults from dictionary of sections and options and return
+        """
+
+        for default_setting in list(default_settings.keys()):
+            conf_section = default_settings[default_setting]["section"]
+            conf_option = default_settings[default_setting]["option"]
+
+            for conf_component in self.conf_components:
+                default_settings[default_setting][conf_component] = self.conf_default[conf_section][conf_option][conf_component]
+
+        return default_settings
+
+    def set_plugin_defaults(self, section, default_settings):
+        """
+        Set Defaults from dictionary of sections and options and return
+        """
+
+        # Create config section in config system
+        if section not in list(self.dict.keys()):
+            self.dict[section] = {}
+
+        # Create config defaults section in config system
+        if section not in list(self.conf_default.keys()):
+            self.conf_default[section] = {}
+
+        for default_setting in list(default_settings.keys()):
+
+            # create conf_option in config section for section with default value if missing
+            if default_setting not in list(self.dict[section].keys()):
+                self.dict[section][default_setting] = default_settings[default_setting]["value"]
+                self.logger.debug("Setting configuration [%s]%s=%s" % (section, default_setting, self.dict[section][default_setting]))
+
+            # create conf_option in config defaults section for origin method with default values if missing
+            if default_setting not in list(self.conf_default[section].keys()):
+                self.conf_default[section][default_setting] = {}
+                for conf_component in self.conf_components:
+                    if conf_component not in list(self.conf_default[section][default_setting].keys()):
+                        self.conf_default[section][default_setting][conf_component] = default_settings[default_setting][conf_component]
 
     def __getattr__(self, name):
         """

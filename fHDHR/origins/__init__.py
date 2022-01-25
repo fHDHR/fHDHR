@@ -38,18 +38,8 @@ class Origins():
             "stream_restore_attempts": {"section": "streaming", "option": "stream_restore_attempts"},
             }
 
-        self.conf_components = ["value", "description", "valid_options",
-                                "config_file", "config_web", "valid_options",
-                                "config_web_hidden", "required"]
-
         # Create Default Config Values and Descriptions for origins
-        for default_setting in list(self.default_settings.keys()):
-            conf_section = self.default_settings[default_setting]["section"]
-            conf_option = self.default_settings[default_setting]["option"]
-
-            # Pull values from config system and set them as defaults here
-            for conf_component in self.conf_components:
-                self.default_settings[default_setting][conf_component] = self.fhdhr.config.conf_default[conf_section][conf_option][conf_component]
+        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
 
         self.origins_dict = {}
         self.origin_selfadd()
@@ -96,27 +86,10 @@ class Origins():
                     self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
                     self.origins_dict[method] = Origin_StandIN()
 
-                # Create config section in config system
-                if method not in list(self.fhdhr.config.dict.keys()):
-                    self.fhdhr.config.dict[method] = {}
-
-                # Create config defaults section in config system
-                if method not in list(self.fhdhr.config.conf_default.keys()):
-                    self.fhdhr.config.conf_default[method] = {}
+                # Set config defaults for method
+                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
 
                 for default_setting in list(self.default_settings.keys()):
-
-                    # create conf_option in config section for origin method with default value if missing
-                    if default_setting not in list(self.fhdhr.config.dict[method].keys()):
-                        self.fhdhr.config.dict[method][default_setting] = self.default_settings[default_setting]["value"]
-                        self.fhdhr.logger.debug("Setting configuration [%s]%s=%s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-
-                    # create conf_option in config defaults section for origin method with default values if missing
-                    if default_setting not in list(self.fhdhr.config.conf_default[method].keys()):
-                        self.fhdhr.config.conf_default[method][default_setting] = {}
-                        for conf_component in self.conf_components:
-                            if conf_component not in list(self.fhdhr.config.conf_default[method][default_setting].keys()):
-                                self.fhdhr.config.conf_default[method][default_setting][conf_component] = self.default_settings[default_setting][conf_component]
 
                     # Set Origin attributes if missing
                     if not hasattr(self.origins_dict[method], default_setting):
