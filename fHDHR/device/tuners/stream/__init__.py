@@ -159,7 +159,6 @@ class Stream():
                             self.tuner.add_downloaded_size(chunk_size)
 
                         buffer_chunk_script = "Buffer has %s/%s chunks. " % (len(list(segments_dict.items())), self.stream_args["buffer_size"])
-                        print(list(segments_dict.keys())[0])
 
                         # If Buffer is up to buffer_size, serve chunk
                         if len(list(segments_dict.items())) >= self.stream_args["buffer_size"]:
@@ -244,4 +243,72 @@ class Stream():
                     self.fhdhr.logger.info("Running %s close_stream method." % self.tuner.origin)
                     self.fhdhr.origins.origins_dict[self.tuner.origin].close_stream(self.tuner.number, self.stream_args)
 
-        return buffer_generator()
+        def unbuffered_generator():
+            start_time = datetime.datetime.utcnow()
+            chunks_counter = 0
+
+            try:
+                while self.tuner.tuner_lock.locked():
+                    chunks_failure = 0
+                    stream_failure = False
+
+                    for chunk in self.method.get():
+
+                        chunks_counter += 1
+
+                        if not chunk:
+                            self.fhdhr.logger.warning("Chunk #%s Failed: No Chunk to add to stream. Possible Stream Source Failure." % chunks_counter)
+                            chunks_failure += 1
+
+                            if chunks_failure > self.stream_args["stream_restore_attempts"]:
+                                self.fhdhr.logger.warning("Attempts to restore stream exhausted: Limit %s." % self.stream_args["stream_restore_attempts"])
+                                stream_failure = True
+
+                            else:
+                                self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_args["stream_restore_attempts"]))
+                                try:
+                                    self.stream_restore()
+                                except TunerError as e:
+                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
+                                    stream_failure = True
+
+                        else:
+                            chunks_failure = 0
+
+                            chunk_size = int(sys.getsizeof(chunk))
+                            self.tuner.add_downloaded_size(chunk_size)
+
+                            self.fhdhr.logger.debug("Serving Chunk #%s: size %s" % (chunks_counter, chunk_size))
+                            yield chunk
+
+                        # If the stream has failed
+                        if stream_failure:
+                            break
+
+                        # Kill stream if duration has been passed
+                        elif self.stream_args["duration"]:
+                            runtime = (datetime.datetime.utcnow() - start_time).total_seconds()
+                            if runtime >= self.stream_args["duration"]:
+                                self.fhdhr.logger.info("Requested Duration Expired.")
+                                break
+
+            except GeneratorExit:
+                self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
+
+            except Exception as e:
+                self.fhdhr.logger.warning("Stream Ended: %s" % e)
+
+            finally:
+
+                self.fhdhr.logger.info("Removing Tuner Lock")
+                self.tuner.close()
+
+                if hasattr(self.fhdhr.origins.origins_dict[self.tuner.origin], "close_stream"):
+                    self.fhdhr.logger.info("Running %s close_stream method." % self.tuner.origin)
+                    self.fhdhr.origins.origins_dict[self.tuner.origin].close_stream(self.tuner.number, self.stream_args)
+
+        if self.stream_args["buffer_size"] in [0, None, "0"]:
+            self.fhdhr.logger.info("Stream will not use Any Buffering.")
+            return unbuffered_generator()
+        else:
+            return buffer_generator()
