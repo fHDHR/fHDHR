@@ -20,6 +20,26 @@ class EPG():
         self.origins = origins
         self.channels = channels
 
+        # Gather Default settings to pass to origins later
+        self.default_settings = {
+            "update_frequency": {"section": "epg", "option": "update_frequency"},
+            "xmltv_offset": {"section": "epg", "option": "xmltv_offset"},
+            "epg_update_on_start": {"section": "epg", "option": "epg_update_on_start"},
+            }
+
+        self.conf_components = ["value", "description", "valid_options",
+                                "config_file", "config_web", "valid_options",
+                                "config_web_hidden", "required"]
+
+        # Create Default Config Values and Descriptions for origins
+        for default_setting in list(self.default_settings.keys()):
+            conf_section = self.default_settings[default_setting]["section"]
+            conf_option = self.default_settings[default_setting]["option"]
+
+            # Pull values from config system and set them as defaults here
+            for conf_component in self.conf_components:
+                self.default_settings[default_setting][conf_component] = self.fhdhr.config.conf_default[conf_section][conf_option][conf_component]
+
         self.blocks = blocksEPG(self.fhdhr, self.channels, self.origins, None)
         self.epg_handling = {}
         self.epg_method_selfadd()
@@ -399,29 +419,32 @@ class EPG():
 
         for epg_method in list(self.epg_handling.keys()):
 
-            if not hasattr(self.epg_handling[epg_method]["class"], 'update_frequency'):
-                update_frequency = self.fhdhr.config.dict["epg"]["update_frequency"]
-                if epg_method in list(self.fhdhr.config.dict.keys()):
-                    if "update_frequency" in list(self.fhdhr.config.dict[epg_method].keys()):
-                        update_frequency = self.fhdhr.config.dict[epg_method]["update_frequency"]
-                self.fhdhr.logger.debug("Setting %s update_frequency to: %s" % (epg_method, update_frequency))
-                self.epg_handling[epg_method]["class"].update_frequency = update_frequency
+            # Create config section in config system
+            if epg_method not in list(self.fhdhr.config.dict.keys()):
+                self.fhdhr.config.dict[epg_method] = {}
 
-            if not hasattr(self.epg_handling[epg_method]["class"], 'xmltv_offset'):
-                xmltv_offset = self.fhdhr.config.dict["epg"]["xmltv_offset"]
-                if epg_method in list(self.fhdhr.config.dict.keys()):
-                    if "xmltv_offset" in list(self.fhdhr.config.dict[epg_method].keys()):
-                        xmltv_offset = self.fhdhr.config.dict[epg_method]["xmltv_offset"]
-                self.fhdhr.logger.debug("Setting %s xmltv_offset to: %s" % (epg_method, xmltv_offset))
-                self.epg_handling[epg_method]["class"].xmltv_offset = xmltv_offset
+            # Create config defaults section in config system
+            if epg_method not in list(self.fhdhr.config.conf_default.keys()):
+                self.fhdhr.config.conf_default[epg_method] = {}
 
-            if not hasattr(self.epg_handling[epg_method]["class"], 'epg_update_on_start'):
-                epg_update_on_start = self.fhdhr.config.dict["epg"]["epg_update_on_start"]
-                if epg_method in list(self.fhdhr.config.dict.keys()):
-                    if "epg_update_on_start" in list(self.fhdhr.config.dict[epg_method].keys()):
-                        epg_update_on_start = self.fhdhr.config.dict[epg_method]["epg_update_on_start"]
-                self.fhdhr.logger.debug("Setting %s epg_update_on_start to: %s" % (epg_method, epg_update_on_start))
-                self.epg_handling[epg_method]["class"].epg_update_on_start = epg_update_on_start
+            for default_setting in list(self.default_settings.keys()):
+
+                # create conf_option in config section for epg_method with default value if missing
+                if default_setting not in list(self.fhdhr.config.dict[epg_method].keys()):
+                    self.fhdhr.config.dict[epg_method][default_setting] = self.default_settings[default_setting]["value"]
+                    self.fhdhr.logger.debug("Setting configuration [%s]%s=%s" % (epg_method, default_setting, self.fhdhr.config.dict[epg_method][default_setting]))
+
+                # create conf_option in config defaults section for epg_method with default values if missing
+                if default_setting not in list(self.fhdhr.config.conf_default[epg_method].keys()):
+                    self.fhdhr.config.conf_default[epg_method][default_setting] = {}
+                    for conf_component in self.conf_components:
+                        if conf_component not in list(self.fhdhr.config.conf_default[epg_method][default_setting].keys()):
+                            self.fhdhr.config.conf_default[epg_method][default_setting][conf_component] = self.default_settings[default_setting][conf_component]
+
+                # Set Origin attributes if missing
+                if not hasattr(self.epg_handling[epg_method]["class"], default_setting):
+                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (epg_method, default_setting, self.fhdhr.config.dict[epg_method][default_setting]))
+                    setattr(self.epg_handling[epg_method]["class"], default_setting, self.fhdhr.config.dict[epg_method][default_setting])
 
     def update(self, method=None):
         """
