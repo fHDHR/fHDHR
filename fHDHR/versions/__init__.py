@@ -166,6 +166,9 @@ class Versions():
         opersystem = platform.system()
         self.register_version("Operating System", opersystem, "env")
 
+        system_alias = platform.release()
+        self.register_version("OS Release", system_alias, "env")
+
         if opersystem in ["Linux", "Darwin"]:
 
             # Linux/Mac
@@ -179,7 +182,12 @@ class Versions():
                 self.logger.warning('Do not run fHDHR as Administrator.')
 
         else:
-            self.logger.warning("Uncommon Operating System, use at your own risk.")
+            # ['Java']
+            if not len(opersystem):
+                os_string = "."
+            else:
+                os_string = ": %s" % opersystem
+            self.logger.warning("Uncommon Operating System, use at your own risk%s" % os_string)
 
         cpu_type = platform.machine()
         self.register_version("CPU Type", cpu_type, "env")
