@@ -176,6 +176,7 @@ class Logger():
         self.memory = memlog
         self.memory.logger = self
 
+    @property
     def log_filepath(self):
         return os.path.join(self.config.internal["paths"]["logs_dir"], '.fHDHR.log')
 
@@ -286,7 +287,7 @@ class Logger():
         """
 
         default_log_format = '[%(asctime)s] %(levelname)s - %(message)s'
-        default_debug_log_format = '[%(asctime)s] %(levelname)s - %(message)s'
+        default_debug_log_format = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} - %(levelname)s - %(message)s'
         conf_format = self.config.dict["logging"]["format"]
         if not conf_format:
             if self.levelname == "debug":
