@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from fHDHR.exceptions import TunerError
 
@@ -24,27 +25,35 @@ class Direct_HardWare_Stream():
         """
 
         self.fhdhr.logger.info("Direct Hardware Stream from device: %s" % (self.stream_args["stream_info"]["url"]))
+        opersystem = self.fhdhr.versions.dict["Operating System"]["version"]
+        if opersystem in ["Linux", "Darwin"]:
+            self.directstr_commmand = 'cat %s' % self.stream_args["stream_info"]["url"]
+        elif opersystem in ["Windows"]:
+            self.directstr_commmand = 'type %s' % self.stream_args["stream_info"]["url"]
+        else:
+            self.fhdhr.logger.error("Operating System not recognized: %s" % opersystem)
+
+        self.fhdhr.logger.debug("Operating System is: %s" % opersystem)
+        self.fhdhr.logger.debug("Command is: %s" % self.directstr_commmand)
+        directstr_proc = subprocess.Popen(self.directstr_commmand.split(' '), stdout=subprocess.PIPE)
 
         def generate():
-
             chunk_counter = 0
-
             try:
                 while self.tuner.tuner_lock.locked():
-
-                    with open(self.stream_args["stream_info"]["url"], 'rb') as device_stream:
-
-                        chunk_counter += 1
-                        self.fhdhr.logger.debug("Pulling Chunk #%s" % chunk_counter)
-
-                        chunk = device_stream.read(self.stream_args["bytes_per_read"])
-
-                        if not chunk:
-                            break
-
-                        yield chunk
+                    chunk = directstr_proc.stdout.read(self.stream_args["bytes_per_read"])
+                    chunk_counter += 1
+                    self.fhdhr.logger.debug("Pulling Chunk #%s" % chunk_counter)
+                    if not chunk:
+                        break
+                    yield chunk
 
             except Exception as err:
                 self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, err))
+
+            finally:
+                directstr_proc.terminate()
+                directstr_proc.communicate()
+                directstr_proc.kill()
 
         return generate()
