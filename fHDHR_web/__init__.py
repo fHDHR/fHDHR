@@ -102,6 +102,9 @@ class fHDHR_HTTP_Server():
                             self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
                             setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
 
+                    # Extend Refresh Page list
+                    if isinstance(self.fhdhr.config.dict[method]["pages_to_refresh"], str):
+                        self.fhdhr.config.dict[method]["pages_to_refresh"] = [self.fhdhr.config.dict[method]["pages_to_refresh"]]
                     self.refresh_pages.extend(self.fhdhr.config.dict[method]["pages_to_refresh"])
 
     def start(self):
