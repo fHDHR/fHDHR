@@ -11,6 +11,7 @@
                     "value": "none",
                     "config_file": true,
                     "config_web": false,
+                    "valid_options": "str",
                     "description": "Determines the format of logging to file as well as console output."
                 }
   }

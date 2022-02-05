@@ -4,7 +4,7 @@
                 "value": true,
                 "config_file": true,
                 "config_web": true,
-                "valid_options": "True,False",
+                "valid_options": "bool",
                 "description": "Determines if SSDP broadcasts or not."
               },
           "max_age":{
@@ -25,12 +25,14 @@
                     "value": "none",
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "Determines the physical interface to broadcast SSDP."
                     },
             "multicast_address":{
                       "value": "none",
                       "config_file": true,
                       "config_web": true,
+                      "valid_options": "str",
                       "description": "Determines the Address used by SSDP, if not set, fHDHR will use the discovery address, if not set."
                       }
   }

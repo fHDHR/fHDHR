@@ -30,7 +30,7 @@ class Origins():
             "tuners": {"section": "fhdhr", "option": "default_tuners"},
             "chanscan_on_start": {"section": "fhdhr", "option": "chanscan_on_start"},
             "chanscan_interval": {"section": "fhdhr", "option": "chanscan_interval"},
-            "stream_method": {"section": "fhdhr", "option": "default_stream_method"},
+            "stream_method": {"section": "streaming", "option": "method"},
             "origin_quality": {"section": "streaming", "option": "origin_quality"},
             "transcode_quality": {"section": "streaming", "option": "transcode_quality"},
             "bytes_per_read": {"section": "streaming", "option": "bytes_per_read"},
