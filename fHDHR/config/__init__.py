@@ -336,10 +336,14 @@ class Config():
                 else:
 
                     config_option_value = confimport[section][key]["valid_options"]
-                    if "," in config_option_value:
+
+                    if "," in config_option_value or config_option_value in ["list"]:
                         config_option_value = config_option_value.split(",")
 
-                    elif config_option_value in ["integer"]:
+                    elif config_option_value in ["integer", "int"]:
+                        config_option_value = config_option_value
+
+                    elif config_option_value in ["string", "str"]:
                         config_option_value = config_option_value
 
                     else:
