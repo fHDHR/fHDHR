@@ -34,7 +34,7 @@ class Scheduler():
             result = func(*args, **kwargs)
 
             total_time = humanized_time(time.time() - start_timestamp)
-            self.logger.debug('Job %s completed in %s seconds' % (job_name, total_time))
+            self.logger.debug('Job %s completed in %s' % (job_name, total_time))
 
             return result
 
