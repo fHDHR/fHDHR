@@ -11,36 +11,42 @@
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "str",
                     "description": "Database driver to use."
                 },
           "user":{
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "str",
                     "description": "Database user to use."
                 },
           "pass":{
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "str",
                     "description": "Database password to use."
                 },
           "host":{
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "str",
                     "description": "Database host to use."
                 },
           "port":{
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "int",
                     "description": "Database port to use."
                 },
           "name":{
                     "value": "none",
                     "config_file": true,
                     "config_web": "visible_only",
+                    "valid_options": "str",
                     "description": "Database name to use."
                 }
   }

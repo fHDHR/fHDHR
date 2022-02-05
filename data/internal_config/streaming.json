@@ -25,18 +25,21 @@
                               "value": "direct",
                               "config_file": true,
                               "config_web": true,
+                              "valid_options": "direct",
                               "description": "What method to stream with."
                 },
                 "buffer_size": {
                               "value": 3,
                               "config_file": true,
                               "config_web": true,
+                              "valid_options": "int",
                               "description": "How Many chunks to buffer."
                 },
                 "stream_restore_attempts": {
                               "value": 3,
                               "config_file": true,
                               "config_web": true,
+                              "valid_options": "int",
                               "description": "How Many times to attempt to regain source stream upon failure."
                 }
               }

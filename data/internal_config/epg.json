@@ -11,6 +11,7 @@
                     "value": "origins",
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "Which EPG methods will be updated on the schedule. Can be set to None, or Origins, or a comma seperated list of Origins."
                 },
           "update_frequency":{
@@ -45,12 +46,14 @@
                           "value": "+0000",
                           "config_file": true,
                           "config_web": true,
+                          "valid_options": "str",
                           "description": "Allows users with timezone issues to add an offset in the format +/-HHMM. Defaults to +0000"
                         },
           "epg_update_on_start": {
                           "value": true,
                           "config_file": true,
                           "config_web": true,
+                          "valid_options": "bool",
                           "description": "Allows users with timezone issues to add an offset in the format +/-HHMM. Defaults to +0000"
                         }
   }

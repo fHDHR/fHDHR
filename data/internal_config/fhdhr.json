@@ -4,12 +4,14 @@
                     "value": "0.0.0.0",
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "The IP address to listen on. Can be the IP of the device, or 0.0.0.0"
                 },
           "discovery_address":{
                               "value": "none",
                               "config_file": true,
                               "config_web": true,
+                              "valid_options": "str",
                               "description": "The IP address to to be discovered at. Cannot be set to 0.0.0.0"
                               },
           "port":{
@@ -23,48 +25,49 @@
                         "value": "fHDHR",
                         "config_file": true,
                         "config_web": true,
+                        "valid_options": "str",
                         "description": "Currently Unused Authentication setting."
                       },
           "require_auth":{
                           "value": false,
                           "config_file": true,
                           "config_web": true,
+                          "valid_options": "bool",
                           "description": "Currently Unused Authentication setting."
                         },
           "chanscan_on_start":{
                     "value": true,
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "bool",
                     "description": "Determines if channels are scanned at start. Decreases start time, but channels should be scanned at least once prior to toggling this."
                 },
           "chanscan_interval":{
                     "value": 14400,
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "Determines How often to scan for new channels."
                 },
           "friendlyname":{
                     "value": "fHDHR",
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "The friendly name for this instance of fHDHR."
                 },
           "default_tuners":{
-                    "value": "fHDHR",
+                    "value": 4,
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "str",
                     "description": "The default amount of tuners for origins."
-                },
-          "default_stream_method":{
-                    "value": "none",
-                    "config_file": true,
-                    "config_web": true,
-                    "description": "The default stream method for origins."
                 },
           "versions_check_interval":{
                     "value": 10800,
                     "config_file": true,
                     "config_web": true,
+                    "valid_options": "int",
                     "description": "Determines How often to scan for new channels."
                 }
   }

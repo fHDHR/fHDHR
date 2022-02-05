@@ -4,6 +4,7 @@
                       "value": "none",
                       "config_file": true,
                       "config_web": true,
+                      "valid_options": "str",
                       "description": "A URL to a CSS file that themes the WebUI."
                   },
             "access_level":{
@@ -24,7 +25,7 @@
                       "value": "page_tuners_html",
                       "config_file": false,
                       "config_web": false,
-                      "valid_options": ",",
+                      "valid_options": "list",
                       "description": "A Comma Seperated list of pages to enable automatic refresh."
                   }
   }
