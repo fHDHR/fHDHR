@@ -288,13 +288,15 @@ class Logger():
 
         default_log_format = '[%(asctime)s] %(levelname)s - %(message)s'
         default_debug_log_format = '[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} - %(levelname)s - %(message)s'
+
         conf_format = self.config.dict["logging"]["format"]
-        if not conf_format:
-            if self.levelname == "debug":
-                conf_format = default_debug_log_format
-            else:
-                conf_format = default_log_format
-        return conf_format
+        if conf_format:
+            return conf_format
+
+        if self.levelname == "DEBUG":
+            return default_debug_log_format
+        else:
+            return default_log_format
 
     def custom_log_levels(self):
         """
