@@ -52,3 +52,14 @@ class fHDHR_Device():
 
                 except Exception as e:
                     self.fhdhr.logger.error(e)
+
+    def run_interface_plugin_threads(self):
+
+        self.fhdhr.logger.debug("Checking Interface Plugins for threads to run.")
+
+        for interface_plugin in list(self.interfaces.keys()):
+
+            if hasattr(self.interfaces[interface_plugin], 'run_thread'):
+                self.fhdhr.logger.info("Starting %s interface plugin thread." % interface_plugin)
+                self.interfaces[interface_plugin].run_thread()
+                self.fhdhr.logger.debug("Started %s interface plugin thread." % interface_plugin)

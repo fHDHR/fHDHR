@@ -22,7 +22,7 @@ class Config():
         self.iliketobreakthings = args.iliketobreakthings
 
         self.conf_components = ["value", "description", "valid_options",
-                                "config_file", "config_web", "valid_options",
+                                "config_file", "config_web",
                                 "config_web_hidden", "required"]
 
         self.check_config_file()
@@ -461,7 +461,10 @@ class Config():
             # create conf_option in config section for section with default value if missing
             if default_setting not in list(self.dict[section].keys()):
                 self.dict[section][default_setting] = default_settings[default_setting]["value"]
-                self.logger.debug("Setting configuration [%s]%s=%s" % (section, default_setting, self.dict[section][default_setting]))
+
+                # Only Log if the configuration is configurable versus a setting a plugin needs to have
+                if default_settings[default_setting]["config_file"] or default_settings[default_setting]["config_web"]:
+                    self.logger.debug("Setting configuration [%s]%s=%s" % (section, default_setting, self.dict[section][default_setting]))
 
             # create conf_option in config defaults section for origin method with default values if missing
             if default_setting not in list(self.conf_default[section].keys()):

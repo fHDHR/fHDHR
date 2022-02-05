@@ -47,20 +47,19 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
         # Start Flask Thread
         fhdhrweb.start()
 
-        # Perform some actions now that HTTP Server is running
-        fhdhr.api.get("/api/startup_tasks")
-
         # Start SSDP Thread
         if fhdhr.device.ssdp.multicast_address and "ssdp" in list(fhdhr.threads.keys()):
             fhdhr.device.ssdp.start()
 
-        for interface_plugin in fhdhr.device.interfaces.keys():
-
-            if hasattr(fhdhr.device.interfaces[interface_plugin], 'run_thread'):
-                fhdhr.device.interfaces[interface_plugin].run_thread()
+        # Start additional interface Plugin threads
+        fhdhr.device.run_interface_plugin_threads()
 
         # Run Scheduled Jobs thread
+        fhdhr.scheduler.fhdhr_self_add(fhdhr)
         fhdhr.scheduler.run()
+
+        # Perform Startup Tasks
+        fhdhr.scheduler.startup_tasks()
 
         logger.noob("fHDHR and fHDHR_web should now be running and accessible via the web interface at %s" % fhdhr.api.base)
         if settings.dict["logging"]["level"].upper() == "NOOB":

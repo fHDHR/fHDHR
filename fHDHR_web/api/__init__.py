@@ -1,6 +1,5 @@
 
 from .root_url import Root_URL
-from .startup_tasks import Startup_Tasks
 
 from .settings import Settings
 from .logs import Logs
@@ -28,7 +27,6 @@ class fHDHR_API():
         self.fhdhr = fhdhr
 
         self.root_url = Root_URL(fhdhr)
-        self.startup_tasks = Startup_Tasks(fhdhr)
 
         self.settings = Settings(fhdhr)
         self.logs = Logs(fhdhr)

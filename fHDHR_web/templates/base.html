@@ -9,6 +9,11 @@
     <script type="text/javascript" src="/brython_stdlib.js"></script>
     <script type="text/python" src="brython.bry"></script>
 
+    {% if session["endpoint_name"] in session["refresh_pages"] %}
+      {% set auto_page_refresh = fhdhr.config.dict["web_ui"]["auto_page_refresh"] %}
+      <meta http-equiv="refresh" content="{{ auto_page_refresh }}">
+    {% endif %}
+
   </head>
 
   <body onload="brython({debug: 1, indexedDB: false})">

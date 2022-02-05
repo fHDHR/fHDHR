@@ -81,6 +81,7 @@ class SSDPServer():
 
         self.fhdhr.logger.info("SSDP Server Starting")
         self.fhdhr.threads["ssdp"].start()
+        self.fhdhr.logger.debug("SSDP Server Started")
 
     def stop(self):
         """
@@ -89,6 +90,7 @@ class SSDPServer():
 
         self.fhdhr.logger.info("SSDP Server Stopping")
         self.sock.close()
+        self.fhdhr.logger.debug("SSDP Server Stopped")
 
     def run(self):
         """
