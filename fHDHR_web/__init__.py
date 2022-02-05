@@ -23,6 +23,22 @@ class fHDHR_HTTP_Server():
 
         self.template_folder = fhdhr.config.internal["paths"]["www_templates_dir"]
 
+        # Gather Default settings to pass to webpages later
+        self.default_settings = {
+            "pages_to_refresh": {"section": "web_ui", "option": "pages_to_refresh"},
+            }
+
+        # Create Default Config Values and Descriptions for web plugins
+        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
+
+        # PLugins that refresh pages should have an empty list
+        self.default_settings["pages_to_refresh"]["value"] = []
+
+        # Create list of pages to refresh
+        self.refresh_pages = self.fhdhr.config.dict["web_ui"]["pages_to_refresh"] or []
+        if isinstance(self.refresh_pages, str):
+            self.refresh_pages = [self.refresh_pages]
+
         self.fhdhr.logger.info("Loading Flask.")
 
         self.fhdhr.app = Flask("fHDHR", template_folder=self.template_folder)
@@ -74,6 +90,20 @@ class fHDHR_HTTP_Server():
                 except Exception as e:
                     self.fhdhr.logger.error(e)
 
+                if method in list(self.endpoints_obj.keys()):
+
+                    # Set config defaults for method
+                    self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
+
+                    for default_setting in list(self.default_settings.keys()):
+
+                        # Set webpage plugin attributes if missing
+                        if not hasattr(self.endpoints_obj[method], default_setting):
+                            self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                            setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+
+                    self.refresh_pages.extend(self.fhdhr.config.dict[method]["pages_to_refresh"])
+
     def start(self):
         """
         Start Flask.
@@ -105,6 +135,7 @@ class fHDHR_HTTP_Server():
         session["session_id"] = str(uuid.uuid4())
         session["instance_id"] = self.instance_id
         session["route_list"] = self.route_list
+        session["refresh_pages"] = self.refresh_pages
 
         session["user_agent"] = request.headers.get('User-Agent')
 
@@ -274,7 +305,7 @@ class fHDHR_HTTP_Server():
         Ignore instances.
         """
 
-        not_a_page_list = ["fhdhr", "plugin_utils"]
+        not_a_page_list = ["fhdhr", "plugin_utils", "auto_page_refresh", "pages_to_refresh"]
         if item in not_a_page_list:
             return False
 
