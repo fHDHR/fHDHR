@@ -136,6 +136,7 @@ class fHDHR_HTTP_Server():
         session["instance_id"] = self.instance_id
         session["route_list"] = self.route_list
         session["refresh_pages"] = self.refresh_pages
+        session["endpoint_name"] = str(request.url_rule.endpoint)
 
         session["user_agent"] = request.headers.get('User-Agent')
 
