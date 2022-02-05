@@ -24,7 +24,7 @@
                       "value": "page_tuners_html",
                       "config_file": false,
                       "config_web": false,
-                      "valid_options": "list",
+                      "valid_options": ",",
                       "description": "A Comma Seperated list of pages to enable automatic refresh."
                   }
   }
