@@ -1,0 +1,14 @@
+[Unit]
+Description=fHDHR Service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/mnt/ProgSSD/fHDHR/venv/bin/python3.9 /mnt/ProgSSD/fHDHR/main.py -c=/mnt/ProgSSD/fHDHR/config.ini
+Restart=on-failure
+RestartSec=5s
+StandardOutput=append:/var/log/fHDHR.log
+StandardError=append:/var/log/fHDHR.log
+
+[Install]
+WantedBy=multi-user.target
