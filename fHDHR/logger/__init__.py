@@ -137,7 +137,7 @@ class Logger():
             'version': 1,
             'formatters': {
                 'fHDHR': {
-                    'format': '[%(asctime)s] %(levelname)s - %(message)s',
+                    'format': self.log_format,
                     },
             },
             'loggers': {
@@ -158,8 +158,7 @@ class Logger():
                 'logfile': {
                     'level': 'DEBUG',
                     'class': 'logging.handlers.TimedRotatingFileHandler',
-                    'filename': os.path.join(
-                        self.config.internal["paths"]["logs_dir"], '.fHDHR.log'),
+                    'filename': self.log_filepath,
                     'when': 'midnight',
                     'formatter': 'fHDHR',
                 },
@@ -176,6 +175,9 @@ class Logger():
 
         self.memory = memlog
         self.memory.logger = self
+
+    def log_filepath(self):
+        return os.path.join(self.config.internal["paths"]["logs_dir"], '.fHDHR.log')
 
     def get_levelno(self, level):
         """
@@ -276,6 +278,22 @@ class Logger():
                 level = self.config.conf_default["logging"]["level"]["value"]
 
             return level
+
+    @property
+    def log_format(self):
+        """
+        Add Custom fHDHR log formatting.
+        """
+
+        default_log_format = '[%(asctime)s] %(levelname)s - %(message)s'
+        default_debug_log_format = '[%(asctime)s] %(levelname)s - %(message)s'
+        conf_format = self.config.dict["logging"]["format"]
+        if not conf_format:
+            if self.levelname == "debug":
+                conf_format = default_debug_log_format
+            else:
+                conf_format = default_log_format
+        return conf_format
 
     def custom_log_levels(self):
         """

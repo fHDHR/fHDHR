@@ -6,6 +6,12 @@
                     "config_web": true,
                     "valid_options": "CRITICAL,ERROR,WARNING,NOOB,INFO,DEBUG,SSDP",
                     "description": "Determines the level of logging to file as well as console output."
+                },
+          "format":{
+                    "value": "none",
+                    "config_file": true,
+                    "config_web": false,
+                    "description": "Determines the format of logging to file as well as console output."
                 }
   }
 }
