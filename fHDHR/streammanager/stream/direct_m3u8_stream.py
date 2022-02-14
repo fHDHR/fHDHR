@@ -118,7 +118,7 @@ class Direct_M3U8_Stream():
         return generate()
 
 
-def m3u8_quality(self, stream_args):
+def m3u8_quality(fhdhr, stream_args):
     """
     Set the m3u8 Quality.
     """
@@ -130,18 +130,18 @@ def m3u8_quality(self, stream_args):
 
         if stream_args["method"] in ["direct", "passthrough"]:
             quality_profile = "high"
-            self.fhdhr.logger.info("Origin Quality not set in config. %s Method set and will default to Highest Quality" % stream_args["method"])
+            fhdhr.logger.info("Origin Quality not set in config. %s Method set and will default to Highest Quality" % stream_args["method"])
 
         else:
-            self.fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
+            fhdhr.logger.info("Origin Quality not set in config. %s Method will select the Quality Automatically" % stream_args["method"])
             return m3u8_url
 
     else:
         quality_profile = quality_profile.lower()
-        self.fhdhr.logger.info("Origin Quality set in config to %s" % (quality_profile))
+        fhdhr.logger.info("Origin Quality set in config to %s" % (quality_profile))
 
     while True:
-        self.fhdhr.logger.info("Opening m3u8 for reading %s" % m3u8_url)
+        fhdhr.logger.info("Opening m3u8 for reading %s" % m3u8_url)
 
         try:
 
@@ -152,11 +152,11 @@ def m3u8_quality(self, stream_args):
                 videoUrlM3u = m3u8.load(m3u8_url)
 
         except Exception as e:
-            self.fhdhr.logger.info("m3u8 load error: %s" % e)
+            fhdhr.logger.info("m3u8 load error: %s" % e)
             return m3u8_url
 
         if len(videoUrlM3u.playlists):
-            self.fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))
+            fhdhr.logger.info("%s m3u8 varients found" % len(videoUrlM3u.playlists))
 
             # Create list of dicts
             playlists, playlist_index = {}, 0
@@ -203,11 +203,11 @@ def m3u8_quality(self, stream_args):
                 ["%s %s" % (x, sorted_playlists[selected_index][x])
                  for x in list(sorted_playlists[selected_index].keys())
                  if x != "url" and sorted_playlists[selected_index][x]])
-            self.fhdhr.logger.info("Selected m3u8 details: %s" % m3u8_stats)
+            fhdhr.logger.info("Selected m3u8 details: %s" % m3u8_stats)
             m3u8_url = sorted_playlists[selected_index]["url"]
 
         else:
-            self.fhdhr.logger.info("No m3u8 varients found")
+            fhdhr.logger.info("No m3u8 varients found")
             break
 
     return m3u8_url

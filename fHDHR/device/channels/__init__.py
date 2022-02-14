@@ -33,6 +33,35 @@ class Channels():
                 self.fhdhr.scheduler.every(chanscan_interval).seconds.do(
                     self.fhdhr.scheduler.job_wrapper(self.get_channels), origin=origin, forceupdate=True).tag("%s Channel Scan" % origin)
 
+    def get_channel_obj_search(self, origin, channel_number):
+        """
+        An alternative method to find a channel Object
+        """
+
+        if not channel_number:
+            return None
+
+        # Find Channel without a provided origin
+        if not origin:
+            if str(channel_number) in [str(x) for x in self.get_channel_list("id")]:
+                chan_obj = self.get_channel_obj("id", channel_number)
+
+        # Origin provided, but invalid
+        elif origin not in self.origins.valid_origins:
+            origin = None
+
+        # If origin provided
+        else:
+
+            # Try to find channel by channel_number
+            if str(channel_number) in [str(x) for x in self.get_channel_list("number", origin)]:
+                chan_obj = self.get_channel_obj("number", channel_number, origin)
+
+            # Try to find channel by channel ID
+            elif str(channel_number) in [str(x) for x in self.get_channel_list("id", origin)]:
+                chan_obj = self.get_channel_obj("id", channel_number, origin)
+        return chan_obj
+
     def get_channel_obj(self, keyfind, valfind, origin=None):
         """
         Retrieve channel object by keyfind property.

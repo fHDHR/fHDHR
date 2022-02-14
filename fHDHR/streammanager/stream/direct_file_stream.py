@@ -23,7 +23,7 @@ class Direct_FILE_Stream():
         Produce chunks of video data.
         """
 
-        self.fhdhr.logger.info("Direct Hardware Stream from device: %s" % (self.stream_args["stream_info"]["url"]))
+        self.fhdhr.logger.info("Direct Hardware Stream from file: %s" % (self.stream_args["stream_info"]["url"]))
 
         def generate():
 
