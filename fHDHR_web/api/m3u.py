@@ -89,7 +89,7 @@ class M3U():
                 return "Invalid Channel"
 
             stream_method = request.args.get('stream_method', default=None, type=str)
-            if stream_method and stream_method not in self.fhdhr.device.tuners.streaming_methods:
+            if stream_method and stream_method not in self.fhdhr.streammanager.streaming_methods:
                 return "Invalid stream_method"
 
             channels_info = {}

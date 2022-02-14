@@ -4,8 +4,6 @@ import datetime
 from fHDHR.exceptions import TunerError
 from fHDHR.tools import humanized_time
 
-from .stream import Stream
-
 
 class Tuner():
     """
@@ -60,30 +58,6 @@ class Tuner():
         self.fhdhr.logger.info("Requested Channel Scan for %s origin Complete." % origin)
         self.close()
         self.fhdhr.api.threadget(self.close_url)
-
-    def add_downloaded_size(self, bytes_count, chunks_count):
-        """
-        Append size of total downloaded size and count.
-        """
-
-        if "downloaded_size" in list(self.status.keys()):
-            self.status["downloaded_size"] += bytes_count
-        else:
-            self.status["downloaded_size"] = bytes_count
-
-        self.status["downloaded_chunks"] = chunks_count
-
-    def add_served_size(self, bytes_count, chunks_count):
-        """
-        Append Served size and count.
-        """
-
-        if "served_size" in list(self.status.keys()):
-            self.status["served_size"] += bytes_count
-        else:
-            self.status["served_size"] = bytes_count
-
-        self.status["served_chunks"] = chunks_count
 
     def grab(self, origin, channel_number):
         """
@@ -140,11 +114,6 @@ class Tuner():
 
         self.stream = None
         self.status = {"status": "Inactive"}
-
-    def setup_stream(self, stream_args, tuner):
-        """Setup Stream."""
-
-        self.stream = Stream(self.fhdhr, stream_args, tuner)
 
     def set_status(self, stream_args):
         """

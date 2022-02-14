@@ -4,6 +4,8 @@ from .device import fHDHR_Device
 from .api import fHDHR_API_URLs
 from fHDHR.origins import Origins
 
+from .streammanager import StreamManager
+
 
 class fHDHR_INT_OBJ():
 
@@ -48,6 +50,8 @@ class fHDHR_OBJ():
         self.fhdhr.origins = Origins(self.fhdhr)
 
         self.device = fHDHR_Device(self.fhdhr, self.fhdhr.origins)
+
+        self.streammanager = StreamManager(self.fhdhr, self.device, self.origins)
 
     def __getattr__(self, name):
         """
