@@ -31,6 +31,7 @@ class Tuners():
             try:
                 stream_obj, stream_args, response_dict = streammanager.setup_stream(request, session)
             except TunerError as tune_error:
+                stream_obj, stream_args = None, None
                 response_dict = {"message": "Service Unavailable", "status_code": 503, "headers": tune_error}
 
             if not stream_obj or tune_error:
