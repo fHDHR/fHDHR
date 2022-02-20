@@ -29,8 +29,12 @@ class Stream_OBJ():
         return self.chan_obj.dict
 
     @property
+    def origin(self):
+        return self.chan_obj.origin
+
+    @property
     def origin_plugin(self):
-        return self.fhdhr.origins.origins_dict[self.chan_obj.origin]
+        return self.fhdhr.origins.origins_dict[self.origin]
 
     @property
     def tuner_needed(self):
