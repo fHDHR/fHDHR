@@ -22,7 +22,6 @@ class SSDPServer():
         self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
 
         self.ssdp_handling = {}
-        self.methods = [x for x in list(self.fhdhr.plugins.plugins.keys()) if self.fhdhr.plugins.plugins[x].type == "ssdp"]
 
         if self.multicast_address and self.fhdhr.config.dict["ssdp"]["enabled"] and len(self.methods):
 
@@ -60,6 +59,10 @@ class SSDPServer():
             self.fhdhr.logger.info("SSDP system will not be Initialized: No SSDP Plugins installed.")
         else:
             self.fhdhr.logger.info("SSDP system will not be Initialized")
+
+    @property
+    def methods(self):
+        return self.fhdhr.plugins.search_by_type("ssdp")
 
     def ssdp_method_selfadd(self):
         """

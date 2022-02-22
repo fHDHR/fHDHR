@@ -1,5 +1,6 @@
-from flask import request, redirect
+from flask import request, redirect, Response
 import urllib.parse
+import json
 
 
 class SSDP_API():
@@ -21,7 +22,14 @@ class SSDP_API():
         method = request.args.get('method', default=None, type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)
 
-        if method == "scan":
+        if method == "get":
+
+            ssdp_methods_json = json.dumps(self.fhdhr.device.ssdp.methods, indent=4)
+
+            return Response(status=200,
+                            response=ssdp_methods_json,
+                            mimetype='application/json')
+        elif method == "scan":
             self.fhdhr.device.ssdp.m_search()
 
         elif method == 'alive':
