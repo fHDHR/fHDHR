@@ -35,6 +35,8 @@ class Plugin():
         # Load the module
         self._module = self._load()
 
+        self._module.Plugin_OBJ.plugin_utils = self.plugin_utils
+
     def setup(self):
         """
         If a plugin has a setup function, run it.
