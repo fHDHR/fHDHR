@@ -76,36 +76,36 @@ class fHDHR_HTTP_Server():
         Import web Plugins.
         """
 
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
-            if self.fhdhr.plugins.plugins[plugin_name].type == "web":
-                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+        for plugin_name in self.fhdhr.plugins.search_by_type("web"):
 
-                try:
-                    self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
+            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
 
-                except fHDHR.exceptions.WEBSetupError as e:
-                    self.fhdhr.logger.error(e)
+            try:
+                self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
 
-                except Exception as e:
-                    self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.WEBSetupError as e:
+                self.fhdhr.logger.error(e)
 
-                if method in list(self.endpoints_obj.keys()):
+            except Exception as e:
+                self.fhdhr.logger.error(e)
 
-                    # Set config defaults for method
-                    self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
+            if method in list(self.endpoints_obj.keys()):
 
-                    for default_setting in list(self.default_settings.keys()):
+                # Set config defaults for method
+                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
 
-                        # Set webpage plugin attributes if missing
-                        if not hasattr(self.endpoints_obj[method], default_setting):
-                            self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-                            setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+                for default_setting in list(self.default_settings.keys()):
 
-                    # Extend Refresh Page list
-                    if isinstance(self.fhdhr.config.dict[method]["pages_to_refresh"], str):
-                        self.fhdhr.config.dict[method]["pages_to_refresh"] = [self.fhdhr.config.dict[method]["pages_to_refresh"]]
-                    self.refresh_pages.extend(self.fhdhr.config.dict[method]["pages_to_refresh"])
+                    # Set webpage plugin attributes if missing
+                    if not hasattr(self.endpoints_obj[method], default_setting):
+                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                        setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+
+                # Extend Refresh Page list
+                if isinstance(self.fhdhr.config.dict[method]["pages_to_refresh"], str):
+                    self.fhdhr.config.dict[method]["pages_to_refresh"] = [self.fhdhr.config.dict[method]["pages_to_refresh"]]
+                self.refresh_pages.extend(self.fhdhr.config.dict[method]["pages_to_refresh"])
 
     def start(self):
         """

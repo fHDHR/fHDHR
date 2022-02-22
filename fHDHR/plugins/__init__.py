@@ -30,6 +30,13 @@ class PluginsHandler():
 
         self.setup()
 
+    def search_by_type(self, searchtype):
+        plugin_list = []
+        for plugin_name in list(self.plugins.keys()):
+            if self.plugins[plugin_name].type == searchtype:
+                plugin_list.append(plugin_name)
+        return plugin_list
+
     def setup(self):
         """
         Setup Plugins.

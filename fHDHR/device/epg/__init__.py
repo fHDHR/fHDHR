@@ -381,21 +381,20 @@ class EPG():
         """
 
         self.fhdhr.logger.info("Detecting and Opening any found EPG plugins.")
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+        for plugin_name in self.fhdhr.plugins.search_by_type("alt_epg"):
 
-            if self.fhdhr.plugins.plugins[plugin_name].type == "alt_epg":
-                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
 
-                try:
-                    self.epg_handling[method] = {
-                                                "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
-                                                }
+            try:
+                self.epg_handling[method] = {
+                                            "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
+                                            }
 
-                except fHDHR.exceptions.EPGSetupError as e:
-                    self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, e))
+            except fHDHR.exceptions.EPGSetupError as e:
+                self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, e))
 
-                except Exception as e:
-                    self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
+            except Exception as e:
+                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
 
         for origin in list(self.origins.origins_dict.keys()):
 

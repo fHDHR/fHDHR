@@ -30,28 +30,27 @@ class fHDHR_Device():
         self.interfaces = {}
 
         self.fhdhr.logger.info("Detecting and Opening any found Interface plugins.")
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+        for plugin_name in self.fhdhr.plugins.search_by_type("interface"):
 
-            if self.fhdhr.plugins.plugins[plugin_name].manifest["type"] == "interface":
-                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
 
-                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
-                plugin_utils.channels = self.channels
-                plugin_utils.epg = self.epg
-                plugin_utils.tuners = self.tuners
-                plugin_utils.images = self.images
-                plugin_utils.ssdp = self.ssdp
-                plugin_utils.origins = self.fhdhr.origins
+            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+            plugin_utils.channels = self.channels
+            plugin_utils.epg = self.epg
+            plugin_utils.tuners = self.tuners
+            plugin_utils.images = self.images
+            plugin_utils.ssdp = self.ssdp
+            plugin_utils.origins = self.fhdhr.origins
 
-                try:
+            try:
 
-                    self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
+                self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
 
-                except fHDHR.exceptions.INTERFACESetupError as e:
-                    self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.INTERFACESetupError as e:
+                self.fhdhr.logger.error(e)
 
-                except Exception as e:
-                    self.fhdhr.logger.error(e)
+            except Exception as e:
+                self.fhdhr.logger.error(e)
 
     def run_interface_plugin_threads(self):
 
