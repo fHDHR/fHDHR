@@ -14,6 +14,13 @@ class SSDPServer():
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
+        # Gather Default settings to pass to ssdp plugins later
+        self.default_settings = {
+            }
+
+        # Create Default Config Values and Descriptions for ssdp plugins
+        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
+
         self.ssdp_handling = {}
         self.methods = [x for x in list(self.fhdhr.plugins.plugins.keys()) if self.fhdhr.plugins.plugins[x].type == "ssdp"]
 
@@ -73,6 +80,16 @@ class SSDPServer():
 
                 except Exception as e:
                     self.fhdhr.logger.error(e)
+
+                # Set config defaults for method
+                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
+
+                for default_setting in list(self.default_settings.keys()):
+
+                    # Set ssdp plugin attributes if missing
+                    if not hasattr(self.ssdp_handling[method], default_setting):
+                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                        setattr(self.ssdp_handling[method], default_setting, self.fhdhr.config.dict[method][default_setting])
 
     def start(self):
         """
