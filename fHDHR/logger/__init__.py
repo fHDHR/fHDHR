@@ -178,7 +178,7 @@ class Logger():
 
     @property
     def log_filepath(self):
-        return os.path.join(self.config.internal["paths"]["logs_dir"], '.fHDHR.log')
+        return os.path.join(self.config.internal["paths"]["logs_dir"], 'fHDHR.log')
 
     def get_levelno(self, level):
         """
