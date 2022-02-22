@@ -33,7 +33,7 @@ class PluginsHandler():
     def search_by_type(self, searchtype):
         plugin_list = []
         for plugin_name in list(self.plugins.keys()):
-            if self.fhdhr.plugins.plugins[plugin_name].type == searchtype:
+            if self.plugins[plugin_name].type == searchtype:
                 plugin_list.append(plugin_name)
         return plugin_list
 
