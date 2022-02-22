@@ -67,29 +67,28 @@ class SSDPServer():
         """
 
         self.fhdhr.logger.info("Detecting and Opening any found SSDP plugins.")
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
-            if self.fhdhr.plugins.plugins[plugin_name].type == "ssdp":
-                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+        for plugin_name in self.fhdhr.plugins.search_by_type("ssdp"):
+            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
 
-                try:
-                    self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
+            try:
+                self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
 
-                except fHDHR.exceptions.SSDPSetupError as e:
-                    self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.SSDPSetupError as e:
+                self.fhdhr.logger.error(e)
 
-                except Exception as e:
-                    self.fhdhr.logger.error(e)
+            except Exception as e:
+                self.fhdhr.logger.error(e)
 
-                # Set config defaults for method
-                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
+            # Set config defaults for method
+            self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
 
-                for default_setting in list(self.default_settings.keys()):
+            for default_setting in list(self.default_settings.keys()):
 
-                    # Set ssdp plugin attributes if missing
-                    if not hasattr(self.ssdp_handling[method], default_setting):
-                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-                        setattr(self.ssdp_handling[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+                # Set ssdp plugin attributes if missing
+                if not hasattr(self.ssdp_handling[method], default_setting):
+                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                    setattr(self.ssdp_handling[method], default_setting, self.fhdhr.config.dict[method][default_setting])
 
     def start(self):
         """

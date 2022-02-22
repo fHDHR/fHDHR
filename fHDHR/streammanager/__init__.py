@@ -31,11 +31,10 @@ class StreamManager():
         """
 
         self.fhdhr.logger.info("Detecting and Opening any found Stream Method plugins.")
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+        for plugin_name in self.fhdhr.plugins.search_by_type("alt_stream"):
 
-            if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
-                method = self.fhdhr.plugins.plugins[plugin_name].name
-                self.alt_stream_handlers[method] = self.fhdhr.plugins.plugins[plugin_name]
+            method = self.fhdhr.plugins.plugins[plugin_name].name
+            self.alt_stream_handlers[method] = self.fhdhr.plugins.plugins[plugin_name]
 
         for stream_method in list(self.alt_stream_handlers.keys()):
 

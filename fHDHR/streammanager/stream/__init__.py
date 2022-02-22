@@ -96,12 +96,10 @@ class Stream():
         Import Stream Plugins.
         """
 
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+        for plugin_name in self.fhdhr.plugins.search_by_type("alt_stream"):
 
-            if self.fhdhr.plugins.plugins[plugin_name].type == "alt_stream":
-
-                if self.fhdhr.plugins.plugins[plugin_name].name == method:
-                    return plugin_name
+            if self.fhdhr.plugins.plugins[plugin_name].name == method:
+                return plugin_name
 
         return None
 

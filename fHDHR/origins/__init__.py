@@ -65,33 +65,31 @@ class Origins():
         """
 
         self.fhdhr.logger.info("Detecting and Opening any found origin plugins.")
-        for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
+        for plugin_name in self.fhdhr.plugins.search_by_type("origin"):
 
-            if self.fhdhr.plugins.plugins[plugin_name].type == "origin":
+            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
+            self.fhdhr.logger.info("Found Origin: %s" % method)
 
-                method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-                self.fhdhr.logger.info("Found Origin: %s" % method)
+            try:
+                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+                self.origins_dict[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(plugin_utils)
+                self.fhdhr.logger.info("%s Origin Setup Success" % method)
+                self.origins_dict[method].setup_success = True
 
-                try:
-                    plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
-                    self.origins_dict[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(plugin_utils)
-                    self.fhdhr.logger.info("%s Origin Setup Success" % method)
-                    self.origins_dict[method].setup_success = True
+            except fHDHR.exceptions.OriginSetupError as e:
+                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
+                self.origins_dict[method] = Origin_StandIN()
 
-                except fHDHR.exceptions.OriginSetupError as e:
-                    self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
-                    self.origins_dict[method] = Origin_StandIN()
+            except Exception as e:
+                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
+                self.origins_dict[method] = Origin_StandIN()
 
-                except Exception as e:
-                    self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
-                    self.origins_dict[method] = Origin_StandIN()
+            # Set config defaults for method
+            self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
 
-                # Set config defaults for method
-                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
+            for default_setting in list(self.default_settings.keys()):
 
-                for default_setting in list(self.default_settings.keys()):
-
-                    # Set Origin attributes if missing
-                    if not hasattr(self.origins_dict[method], default_setting):
-                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-                        setattr(self.origins_dict[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+                # Set Origin attributes if missing
+                if not hasattr(self.origins_dict[method], default_setting):
+                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
+                    setattr(self.origins_dict[method], default_setting, self.fhdhr.config.dict[method][default_setting])
