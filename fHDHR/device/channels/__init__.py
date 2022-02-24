@@ -49,6 +49,7 @@ class Channels():
         # Origin provided, but invalid
         elif origin not in self.origins.valid_origins:
             origin = None
+            chan_obj = None
 
         # If origin provided
         else:
@@ -60,6 +61,9 @@ class Channels():
             # Try to find channel by channel ID
             elif str(channel_number) in [str(x) for x in self.get_channel_list("id", origin)]:
                 chan_obj = self.get_channel_obj("id", channel_number, origin)
+            else:
+                chan_obj = None
+
         return chan_obj
 
     def get_channel_obj(self, keyfind, valfind, origin=None):
