@@ -76,6 +76,7 @@ class SSDPServer():
 
             try:
                 self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
+                self.fhdhr.logger.info("Added plugin %s, method %s" % (plugin_name, method))
 
             except fHDHR.exceptions.SSDPSetupError as e:
                 self.fhdhr.logger.error(e)
