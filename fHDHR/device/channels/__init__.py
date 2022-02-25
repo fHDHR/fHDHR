@@ -46,6 +46,10 @@ class Channels():
         if not origin:
             if str(channel_number) in [str(x) for x in self.get_channel_list("id")]:
                 chan_obj = self.get_channel_obj("id", channel_number)
+            elif (len(list(self.list.keys())) == 1
+                  and str(channel_number) in [str(x) for x in self.get_channel_list("number")]):
+                origin = list(self.list.keys())[0]
+                chan_obj = self.get_channel_obj("number", channel_number, origin)
 
         # Origin provided, but invalid
         elif origin not in self.origins.valid_origins:
