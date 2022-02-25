@@ -33,7 +33,7 @@ class Channels():
                 self.fhdhr.scheduler.every(chanscan_interval).seconds.do(
                     self.fhdhr.scheduler.job_wrapper(self.get_channels), origin=origin, forceupdate=True).tag("%s Channel Scan" % origin)
 
-    def get_channel_obj_search(self, origin, channel_number):
+    def get_channel_obj_search(self, channel_number, origin=None):
         """
         An alternative method to find a channel Object
         """
