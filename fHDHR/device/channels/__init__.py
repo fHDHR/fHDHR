@@ -37,6 +37,7 @@ class Channels():
         """
         An alternative method to find a channel Object
         """
+        chan_obj = None
 
         if not channel_number:
             return None
