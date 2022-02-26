@@ -384,10 +384,3 @@ class Channels():
                 return_chan_list.extend([self.list[origin][x].dict for x in list(self.list[origin].keys())])
 
         return return_chan_list
-
-    def get_channel_stream(self, stream_args, origin):
-        """
-        Retrieve Stream from Channel.
-        """
-
-        return self.origins.origins_dict[origin].get_channel_stream(self.get_channel_dict("number", stream_args["channel"]), stream_args)
