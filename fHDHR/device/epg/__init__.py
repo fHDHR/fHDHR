@@ -126,7 +126,7 @@ class EPG():
         origin_matches = [x["fhdhr_id"] for x in self.get_origin_matches(origin, method)]
         for fhdhr_id in [x["id"] for x in self.channels.get_channels(origin)]:
 
-            chan_obj = self.channels.get_channel_obj("id", fhdhr_id, origin)
+            chan_obj = self.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=origin)
             if chan_obj:
 
                 if chan_obj.dict["id"] not in origin_matches:
@@ -274,7 +274,7 @@ class EPG():
 
             if method in [origin for origin in list(self.origins.origins_dict.keys())]:
 
-                chan_obj = self.channels.get_channel_obj("origin_id", epgdict[c]["id"])
+                chan_obj = self.channels.find_channel_obj(epgdict[c]["id"], searchkey="origin_id", origin=None)
                 if chan_obj:
                     channel_number = chan_obj.number
                     epgdict[channel_number] = epgdict.pop(c)
@@ -463,7 +463,7 @@ class EPG():
                 clean_prog_guide[cnum]["listing"] = []
 
             if method in [origin for origin in list(self.origins.origins_dict.keys())]:
-                chan_obj = self.channels.get_channel_obj("origin_id", programguide[cnum]["id"])
+                chan_obj = self.channels.find_channel_obj(programguide[cnum]["id"], searchkey="origin_id", origin=None)
 
             else:
                 chan_obj = None
@@ -540,7 +540,7 @@ class EPG():
             timestamps = self.blocks.timestamps
             for fhdhr_id in [x["id"] for x in self.channels.get_channels(method)]:
 
-                chan_obj = self.channels.get_channel_obj("id", fhdhr_id, method)
+                chan_obj = self.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=method)
                 if chan_obj:
 
                     if str(chan_obj.number) not in list(programguide.keys()):

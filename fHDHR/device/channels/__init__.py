@@ -33,41 +33,146 @@ class Channels():
                 self.fhdhr.scheduler.every(chanscan_interval).seconds.do(
                     self.fhdhr.scheduler.job_wrapper(self.get_channels), origin=origin, forceupdate=True).tag("%s Channel Scan" % origin)
 
-    def get_channel_obj_search(self, channel_number, origin=None):
+    def find_channel_obj(self, chan_searchfor, searchkey=None, origin=None):
         """
-        An alternative method to find a channel Object
+        Get a channel_obj
         """
         chan_obj = None
 
-        if not channel_number:
+        # Must have a channel to search for
+        if not chan_searchfor:
             return None
 
-        # Find Channel without a provided origin
-        if not origin:
-            if str(channel_number) in [str(x) for x in self.get_channel_list("id")]:
-                chan_obj = self.get_channel_obj("id", channel_number)
-            elif (len(list(self.list.keys())) == 1
-                  and str(channel_number) in [str(x) for x in self.get_channel_list("number")]):
-                origin = list(self.list.keys())[0]
-                chan_obj = self.get_channel_obj("number", channel_number, origin)
+        # If not origin, but there's only one origin,
+        # we can safely make an assumption here
+        if not origin and len(list(self.list.keys())) == 1:
+            origin = list(self.list.keys())[0]
 
-        # Origin provided, but invalid
-        elif origin not in self.origins.valid_origins:
-            origin = None
-            chan_obj = None
+        # Handling for when origin is provided, which is an optimal situation
+        if origin:
 
-        # If origin provided
-        else:
+            # if the origin is invalid, then so is the channel
+            if origin not in self.origins.valid_origins:
+                return None
 
-            # Try to find channel by channel_number
-            if str(channel_number) in [str(x) for x in self.get_channel_list("number", origin)]:
-                chan_obj = self.get_channel_obj("number", channel_number, origin)
+            # Get a list of dict for all channels in origin
+            origin_channels_dict_list = [self.list[origin][channel_id].dict for channel_id in list(self.list[origin].keys())]
 
-            # Try to find channel by channel ID
-            elif str(channel_number) in [str(x) for x in self.get_channel_list("id", origin)]:
-                chan_obj = self.get_channel_obj("id", channel_number, origin)
+            # If a searchkey is provided, this can be helpful for identifying a channel easier
+            if searchkey:
+
+                # search for origin channel by searchkey
+                if searchkey != "number":
+                    origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                        if searchkey in list(self.list[origin][channel_id].dict.keys())
+                                                        and self.list[origin][channel_id].dict[searchkey] == chan_searchfor]
+                # Searching by number is unique as the @property combines number and subnumber
+                else:
+                    origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                        if self.list[origin][channel_id].number == chan_searchfor]
+
+                # searchkey produced no results
+                if not len(origin_channel_searchkey_matches):
+                    return None
+
+                # Channel matched, really shouldn't find more than one
+                channel_id = origin_channel_searchkey_matches[0]
+                chan_obj = self.list[origin][channel_id]
+
+                return chan_obj
+
             else:
-                chan_obj = None
+
+                # attempt searching by ID and then number
+                searchkey_matches = []
+                for searchkey in ["id", "number", "name", "callsign"
+                                  "origin_id", "origin_number", "origin_name", "origin_callsign"]:
+
+                    # search for origin channel by searchkey
+                    if searchkey != "number":
+                        origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                            if searchkey in list(self.list[origin][channel_id].dict.keys())
+                                                            and self.list[origin][channel_id].dict[searchkey] == chan_searchfor]
+                    # Searching by number is unique as the @property combines number and subnumber
+                    else:
+                        origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                            if self.list[origin][channel_id].number == chan_searchfor]
+
+                    # Append matches to list
+                    searchkey_matches.extend(origin_channel_searchkey_matches)
+
+                # searchkey produced no results
+                if not len(searchkey_matches):
+                    return None
+
+                # Channel matched, really shouldn't find more than one
+                channel_id = searchkey_matches[0]
+                chan_obj = self.list[origin][channel_id]
+
+                return chan_obj
+
+        # No provided origin makes searching harder, but not impossible
+        # this will however select the first possible match, and is not
+        # an optimal situation
+        else:
+            searchkey_matches = []
+            for origin in list(self.list.keys()):
+
+                # If a searchkey is provided, this can be helpful for identifying a channel easier
+                if searchkey:
+
+                    # Get a list of dict for all channels in origin
+                    origin_channels_dict_list = [self.list[origin][channel_id].dict for channel_id in list(self.list[origin].keys())]
+
+                    # search for origin channel by searchkey
+                    if searchkey != "number":
+                        origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                            if searchkey in list(self.list[origin][channel_id].dict.keys())
+                                                            and self.list[origin][channel_id].dict[searchkey] == chan_searchfor]
+                    # Searching by number is unique as the @property combines number and subnumber
+                    else:
+                        origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                            if self.list[origin][channel_id].number == chan_searchfor]
+
+                    # Append matches to list
+                    searchkey_matches.extend(origin_channel_searchkey_matches)
+
+                # No searchkey, no origin
+                # This is a desperate attempt at getting this channel object, if it exists
+                else:
+
+                    for searchkey in ["id", "number", "name", "callsign"
+                                      "origin_id", "origin_number", "origin_name", "origin_callsign"]:
+
+                        # search for origin channel by searchkey
+                        if searchkey != "number":
+                            origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                                if searchkey in list(self.list[origin][channel_id].dict.keys())
+                                                                and self.list[origin][channel_id].dict[searchkey] == chan_searchfor]
+                        # Searching by number is unique as the @property combines number and subnumber
+                        else:
+                            origin_channel_searchkey_matches = [channel_id for channel_id in [channel["id"] for channel in origin_channels_dict_list]
+                                                                if self.list[origin][channel_id].number == chan_searchfor]
+
+                        # Append matches to list
+                        searchkey_matches.extend(origin_channel_searchkey_matches)
+
+            if not len(searchkey_matches):
+                return None
+
+            # Grab first matched channel_id and reverse search the origin
+            channel_id = searchkey_matches[0]
+            origins = [origin for origin in list(self.list.keys()) if channel_id in list(self.list[origin].keys())]
+
+            # Hopefully we found an origin
+            if not len(origins):
+                return None
+            origin = origins[0]
+
+            # Channel matched, really shouldn't find more than one
+            chan_obj = self.list[origin][channel_id]
+
+            return chan_obj
 
         return chan_obj
 
@@ -75,37 +180,8 @@ class Channels():
         """
         Retrieve channel object by keyfind property.
         """
-
-        if origin:
-
-            origin = origin.lower()
-            if keyfind == "number":
-                matches = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys()) if self.list[origin][x].number == valfind]
-
-            else:
-                matches = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys()) if self.list[origin][x].dict[keyfind] == valfind]
-
-            if len(matches):
-                return self.list[origin][matches[0]]
-
-        else:
-
-            matches = []
-            for origin in list(self.list.keys()):
-
-                if keyfind == "number":
-                    matches = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys()) if self.list[origin][x].number == valfind]
-
-                else:
-                    matches = [self.list[origin][x].dict["id"] for x in list(self.list[origin].keys()) if self.list[origin][x].dict[keyfind] == valfind]
-
-                if len(matches):
-                    return self.list[origin][matches[0]]
-
-            if len(matches):
-                return self.list[origin][matches[0]]
-
-        return None
+        # TODO deprecate
+        return self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
 
     def get_channel_list(self, keyfind, origin=None):
         """
@@ -141,7 +217,7 @@ class Channels():
         Retrieve channel object dict by keyfind property.
         """
 
-        chan_obj = self.get_channel_obj(keyfind, valfind, origin)
+        chan_obj = self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
         if chan_obj:
             return chan_obj.dict
         return None
@@ -150,8 +226,9 @@ class Channels():
         """
         Set channel object property.
         """
-
-        self.get_channel_obj(keyfind, valfind, origin).set_status(updatedict)
+        chan_obj = self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
+        if chan_obj:
+            chan_obj.set_status(updatedict)
 
     def set_channel_enablement_all(self, enablement, origin):
         """
@@ -165,15 +242,17 @@ class Channels():
         """
         Enable Channel.
         """
-
-        self.get_channel_obj(keyfind, valfind, origin).set_enablement(enablement)
+        chan_obj = self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
+        if chan_obj:
+            chan_obj.set_enablement(enablement)
 
     def set_channel_favorite(self, keyfind, valfind, enablement, origin):
         """
         Favorite a Channel.
         """
-
-        self.get_channel_obj(keyfind, valfind, origin).set_favorite(enablement)
+        chan_obj = self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
+        if chan_obj:
+            chan_obj.set_favorite(enablement)
 
     def get_db_channels(self, origin=None):
         """
@@ -278,7 +357,7 @@ class Channels():
                     chan_existing = str(channel_info["id"]) in channel_origin_id_list
 
                     if chan_existing:
-                        channel_obj = self.get_channel_obj("origin_id", channel_info["id"], origin)
+                        channel_obj = self.find_channel_obj(channel_info["id"], searchkey="origin_id", origin=origin)
                         self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (origin, channel_info))
 
                     else:

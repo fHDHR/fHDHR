@@ -22,7 +22,7 @@ class blocksEPG():
         timestamps = self.timestamps
 
         for fhdhr_id in [x["id"] for x in self.channels.get_channels(self.origin)]:
-            chan_obj = self.channels.get_channel_obj("id", fhdhr_id, self.origin)
+            chan_obj = self.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=self.origin)
             if chan_obj:
 
                 if str(chan_obj.number) not in list(programguide.keys()):

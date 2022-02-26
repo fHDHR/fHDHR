@@ -109,7 +109,7 @@ class EPG():
                 if channel["fhdhr_id"] in [None, "None"]:
                     self.fhdhr.device.epg.unset_epg_chan_match(channel["epg_method"], channel["id"])
                 else:
-                    chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel["fhdhr_id"])
+                    chan_obj = self.fhdhr.device.channels.find_channel_obj(channel["fhdhr_id"], searchkey="id", origin=None)
                     if chan_obj:
                         self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_id"], chan_obj.origin)
 
