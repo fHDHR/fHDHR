@@ -47,7 +47,7 @@ class Plugin():
             }
 
         # Create Default Config Values and Descriptions for plugin
-        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
+        self.default_settings = self.config.get_plugin_defaults(self.default_settings)
 
     def setup(self):
         """
@@ -106,9 +106,9 @@ class Plugin():
         for default_setting in list(self.default_settings.keys()):
 
             # Set plugin attributes if missing
-            if not checkattr(self.origins_dict[self.plugin_name], default_setting):
+            if not checkattr(self._module.Plugin_OBJ, default_setting):
                 self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (self.plugin_name, default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting]))
-                setattr(self.origins_dict[self.plugin_name], default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting])
+                setattr(self._module.Plugin_OBJ, default_setting, self.config.dict[self.plugin_name][default_setting])
 
     def __getattr__(self, name):
         """

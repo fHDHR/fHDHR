@@ -1,3 +1,4 @@
+from fHDHR.tools import checkattr
 
 
 class Plugin_Config():
@@ -48,3 +49,11 @@ class Plugin_Config():
             return
 
         return self._config.write(key, value, self.namespace)
+
+    def __getattr__(self, name):
+        """
+        Quick and dirty shortcuts. Will only get called for undefined attributes.
+        """
+
+        if checkattr(self._config, name):
+            return eval("self._config.%s" % name)
