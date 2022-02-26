@@ -11,10 +11,12 @@ from fHDHR.tools import checkattr
 
 class fHDHR_INT_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
+    def __init__(self, ext_fhdhr, settings, logger, db, plugins, versions, web, scheduler, deps):
         """
         An internal catalogue of core methods.
         """
+
+        self.ext_fhdhr = ext_fhdhr
 
         self.versions = versions
         self.version = versions.dict["fHDHR"]["version"]
@@ -38,6 +40,14 @@ class fHDHR_INT_OBJ():
 
         self.threads = {}
 
+    def __getattr__(self, name):
+        """
+        Quick and dirty shortcuts. Will only get called for undefined attributes.
+        """
+
+        if checkattr(self.ext_fhdhr, name):
+            return eval("self.ext_fhdhr.%s" % name)
+
 
 class fHDHR_OBJ():
 
@@ -47,7 +57,7 @@ class fHDHR_OBJ():
         """
 
         logger.info("Initializing fHDHR Core Functions.")
-        self.fhdhr = fHDHR_INT_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
+        self.fhdhr = fHDHR_INT_OBJ(self, settings, logger, db, plugins, versions, web, scheduler, deps)
 
         self.fhdhr.origins = Origins(self.fhdhr)
 
