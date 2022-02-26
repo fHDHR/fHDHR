@@ -2,6 +2,9 @@ import urllib.parse
 import threading
 
 
+from fHDHR.tools import checkattr
+
+
 class Fillin_Client():
     """
     Until fHDHR_web is loaded, use requests for internal API calls.
@@ -16,7 +19,7 @@ class Fillin_Client():
         Quick and dirty shortcuts. Will only get called for undefined attributes.
         """
 
-        if hasattr(self.web.session, name):
+        if checkattr(self.web.session, name):
             return eval("self.web.session.%s" % name)
 
 

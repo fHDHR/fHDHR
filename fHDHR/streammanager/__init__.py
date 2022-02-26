@@ -1,4 +1,5 @@
 
+from fHDHR.tools import checkattr
 from.stream_obj import Stream_OBJ
 
 
@@ -52,7 +53,7 @@ class StreamManager():
             for default_setting in list(self.default_settings.keys()):
 
                 # Set Origin attributes if missing
-                if not hasattr(self.alt_stream_handlers[stream_method], default_setting):
+                if not checkattr(self.alt_stream_handlers[stream_method], default_setting):
                     self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (stream_method, default_setting, self.fhdhr.config.dict[stream_method][default_setting]))
                     setattr(self.alt_stream_handlers[stream_method], default_setting, self.fhdhr.config.dict[stream_method][default_setting])
 

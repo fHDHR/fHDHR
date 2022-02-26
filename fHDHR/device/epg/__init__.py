@@ -1,7 +1,7 @@
 import time
 import datetime
 
-from fHDHR.tools import channel_sort
+from fHDHR.tools import channel_sort, checkattr
 import fHDHR.exceptions
 
 from .blocks import blocksEPG
@@ -195,7 +195,7 @@ class EPG():
 
         self.fhdhr.logger.info("Clearing %s EPG cache." % method)
 
-        if hasattr(self.epg_handling[method]["class"], 'clear_cache'):
+        if checkattr(self.epg_handling[method]["class"], 'clear_cache'):
             self.epg_handling[method]["class"].clear_cache()
 
         if method in list(self.epg_handling.keys()):
@@ -422,7 +422,7 @@ class EPG():
             for default_setting in list(self.default_settings.keys()):
 
                 # Set Origin attributes if missing
-                if not hasattr(self.epg_handling[epg_method]["class"], default_setting):
+                if not checkattr(self.epg_handling[epg_method]["class"], default_setting):
                     self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (epg_method, default_setting, self.fhdhr.config.dict[epg_method][default_setting]))
                     setattr(self.epg_handling[epg_method]["class"], default_setting, self.fhdhr.config.dict[epg_method][default_setting])
 

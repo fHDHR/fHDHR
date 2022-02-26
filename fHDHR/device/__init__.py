@@ -1,5 +1,6 @@
 
 import fHDHR.exceptions
+from fHDHR.tools import checkattr
 
 from .channels import Channels
 from .epg import EPG
@@ -58,7 +59,7 @@ class fHDHR_Device():
 
         for interface_plugin in list(self.interfaces.keys()):
 
-            if hasattr(self.interfaces[interface_plugin], 'run_thread'):
+            if checkattr(self.interfaces[interface_plugin], 'run_thread'):
                 self.fhdhr.logger.info("Starting %s interface plugin thread." % interface_plugin)
                 self.interfaces[interface_plugin].run_thread()
                 self.fhdhr.logger.debug("Started %s interface plugin thread." % interface_plugin)

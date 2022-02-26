@@ -4,7 +4,7 @@ import logging
 from logging.config import dictConfig
 
 
-from fHDHR.tools import isint, closest_int_from_list, is_jsonable
+from fHDHR.tools import isint, closest_int_from_list, is_jsonable, checkattr
 
 
 def sorted_levels(method):
@@ -334,8 +334,8 @@ class Logger():
         Quick and dirty shortcuts. Will only get called for undefined attributes.
         """
 
-        if hasattr(self.logger, name):
+        if checkattr(self.logger, name):
             return eval("self.logger.%s" % name)
 
-        elif hasattr(self.logger, name.lower()):
+        elif checkattr(self.logger, name.lower()):
             return eval("self.logger.%s" % name.lower())

@@ -9,6 +9,19 @@ BINARY_OPS = (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)
 """Various Tools for fHDHR Usage."""
 
 
+def checkattr(inst_obj, attrcheck):
+
+    # Quick check of hasattr
+    if hasattr(inst_obj, attrcheck):
+        return True
+
+    # Check if attribute is in dir list
+    if attrcheck in [x for x in dir(inst_obj) if not x.startswith("__")]:
+        return True
+
+    return False
+
+
 def is_jsonable(x):
     try:
         json.dumps(x)
