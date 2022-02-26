@@ -2,6 +2,8 @@ from flask import request, redirect, Response
 import urllib.parse
 import json
 
+from fHDHR.tools import checkattr
+
 
 class Origins():
     endpoints = ["/api/origins"]
@@ -33,7 +35,7 @@ class Origins():
                 origins_info[origin_item]["channel_count"] = len(list(self.fhdhr.device.channels.list[origin_item].keys()))
                 origins_info[origin_item]["stream_method"] = self.fhdhr.origins.origins_dict[origin_item].stream_method
 
-                if hasattr(self.fhdhr.origins.origins_dict[origin_item], "close_stream"):
+                if checkattr(self.fhdhr.origins.origins_dict[origin_item], "close_stream"):
                     origins_info[origin_item]["close_stream_method"] = True
                 else:
                     origins_info[origin_item]["close_stream_method"] = False

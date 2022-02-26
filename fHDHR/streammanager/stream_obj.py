@@ -1,4 +1,5 @@
 from fHDHR.exceptions import TunerError
+from fHDHR.tools import checkattr
 
 from .stream.direct_m3u8_stream import m3u8_quality
 
@@ -124,7 +125,7 @@ class Stream_OBJ():
                                  self.stream_args["channel_name"],
                                  self.stream_args["channel_callsign"]))
 
-        if hasattr(self.origin_plugin, "get_channel_stream"):
+        if checkattr(self.origin_plugin, "get_channel_stream"):
             stream_info = self.origin_plugin.get_channel_stream(self.chan_dict, self.stream_args)
         else:
             raise TunerError("806 - Tune Failed")

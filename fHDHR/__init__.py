@@ -6,6 +6,8 @@ from fHDHR.origins import Origins
 
 from .streammanager import StreamManager
 
+from fHDHR.tools import checkattr
+
 
 class fHDHR_INT_OBJ():
 
@@ -58,8 +60,8 @@ class fHDHR_OBJ():
         Quick and dirty shortcuts. Will only get called for undefined attributes.
         """
 
-        if hasattr(self.fhdhr, name):
+        if checkattr(self.fhdhr, name):
             return eval("self.fhdhr.%s" % name)
 
-        elif hasattr(self.fhdhr.device, name):
+        elif checkattr(self.fhdhr.device, name):
             return eval("self.fhdhr.device.%s" % name)

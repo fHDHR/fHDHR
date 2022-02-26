@@ -4,6 +4,7 @@ import threading
 import uuid
 
 import fHDHR.exceptions
+from fHDHR.tools import checkattr
 
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
@@ -98,7 +99,7 @@ class fHDHR_HTTP_Server():
                 for default_setting in list(self.default_settings.keys()):
 
                     # Set webpage plugin attributes if missing
-                    if not hasattr(self.endpoints_obj[method], default_setting):
+                    if not checkattr(self.endpoints_obj[method], default_setting):
                         self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
                         setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
 

@@ -1,5 +1,7 @@
 import requests
 
+from fHDHR.tools import checkattr
+
 
 class WebReq():
     """
@@ -15,5 +17,5 @@ class WebReq():
         Quick and dirty shortcuts. Will only get called for undefined attributes.
         """
 
-        if hasattr(self.session, name):
+        if checkattr(self.session, name):
             return eval("self.session.%s" % name)

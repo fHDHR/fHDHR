@@ -2,6 +2,7 @@ import os
 import imp
 
 from .plugin_utils import Plugin_Utils
+from fHDHR.tools import checkattr
 
 
 class Plugin():
@@ -51,7 +52,7 @@ class Plugin():
         Check if a plugin has a setup function.
         """
 
-        return hasattr(self._module, 'setup')
+        return checkattr(self._module, 'setup')
 
     def _load(self):
         """

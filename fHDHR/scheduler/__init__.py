@@ -3,7 +3,7 @@ import threading
 import schedule
 import time
 
-from fHDHR.tools import humanized_time
+from fHDHR.tools import humanized_time, checkattr
 
 
 class Scheduler():
@@ -112,7 +112,7 @@ class Scheduler():
             haseverpulled = self.db.get_fhdhr_value("epg", "update_time", epg_method)
             updateepg = False
 
-            if hasattr(self.fhdhr.device.epg.epg_handling[epg_method]["class"], "epg_update_on_start"):
+            if checkattr(self.fhdhr.device.epg.epg_handling[epg_method]["class"], "epg_update_on_start"):
                 updateepg = self.fhdhr.device.epg.epg_handling[epg_method]["class"].epg_update_on_start
 
             elif epg_method in list(self.config.dict.keys()):
@@ -137,7 +137,7 @@ class Scheduler():
             haseverscanned = self.db.get_fhdhr_value("channels", "scanned_time", origin)
             updatechannels = False
 
-            if hasattr(self.fhdhr.origins.origins_dict[origin], "chanscan_on_start"):
+            if checkattr(self.fhdhr.origins.origins_dict[origin], "chanscan_on_start"):
                 updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
 
             elif origin in list(self.config.dict.keys()):
@@ -169,5 +169,5 @@ class Scheduler():
         Quick and dirty shortcuts. Will only get called for undefined attributes.
         """
 
-        if hasattr(self.schedule, name):
+        if checkattr(self.schedule, name):
             return eval("self.schedule.%s" % name)

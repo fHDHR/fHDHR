@@ -5,6 +5,8 @@ import threading
 
 import fHDHR.exceptions
 
+from fHDHR.tools import checkattr
+
 
 class SSDPServer():
     """
@@ -89,7 +91,7 @@ class SSDPServer():
             for default_setting in list(self.default_settings.keys()):
 
                 # Set ssdp plugin attributes if missing
-                if not hasattr(self.ssdp_handling[method], default_setting):
+                if not checkattr(self.ssdp_handling[method], default_setting):
                     self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
                     setattr(self.ssdp_handling[method], default_setting, self.fhdhr.config.dict[method][default_setting])
 
@@ -137,7 +139,7 @@ class SSDPServer():
 
         notify_list = []
         for ssdp_handler in list(self.ssdp_handling.keys()):
-            if self.ssdp_handling[ssdp_handler].enabled and hasattr(self.ssdp_handling[ssdp_handler], 'notify'):
+            if self.ssdp_handling[ssdp_handler].enabled and checkattr(self.ssdp_handling[ssdp_handler], 'notify'):
                 notify_data = self.ssdp_handling[ssdp_handler].notify
                 if isinstance(notify_data, list):
                     notify_list.extend(notify_data)
@@ -177,7 +179,7 @@ class SSDPServer():
         headers = dict(map(lambda x: (x[0].lower(), x[1]), headers))
 
         for ssdp_handler in list(self.ssdp_handling.keys()):
-            if self.ssdp_handling[ssdp_handler].enabled and hasattr(self.ssdp_handling[ssdp_handler], 'on_recv'):
+            if self.ssdp_handling[ssdp_handler].enabled and checkattr(self.ssdp_handling[ssdp_handler], 'on_recv'):
                 self.ssdp_handling[ssdp_handler].on_recv(headers, cmd, list(self.ssdp_handling.keys()))
 
         if cmd[0] == 'M-SEARCH' and cmd[1] == '*':

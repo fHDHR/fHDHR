@@ -1,5 +1,6 @@
 
 import fHDHR.exceptions
+from fHDHR.tools import checkattr
 
 
 class Origin_StandIN():
@@ -90,6 +91,6 @@ class Origins():
             for default_setting in list(self.default_settings.keys()):
 
                 # Set Origin attributes if missing
-                if not hasattr(self.origins_dict[method], default_setting):
+                if not checkattr(self.origins_dict[method], default_setting):
                     self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
                     setattr(self.origins_dict[method], default_setting, self.fhdhr.config.dict[method][default_setting])

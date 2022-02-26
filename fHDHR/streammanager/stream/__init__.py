@@ -11,6 +11,7 @@ from .direct_udp_stream import Direct_UDP_Stream
 from .direct_hardware_stream import Direct_HardWare_Stream
 
 from fHDHR.exceptions import TunerError
+from fHDHR.tools import checkattr
 
 
 class Stream():
@@ -237,7 +238,7 @@ class Stream():
                     self.fhdhr.logger.info("Removing %s chunks from the buffer." % len(segments_dict.keys()))
                     segments_dict = OrderedDict()
 
-                if hasattr(self.stream_obj.origin_plugin, "close_stream"):
+                if checkattr(self.stream_obj.origin_plugin, "close_stream"):
                     self.fhdhr.logger.info("Running %s close_stream method." % self.stream_obj.origin)
                     self.stream_obj.origin_plugin.close_stream(self.tuner.number, self.stream_obj.stream_args)
 
@@ -303,7 +304,7 @@ class Stream():
                 self.fhdhr.logger.info("Removing Tuner Lock")
                 self.tuner.close()
 
-                if hasattr(self.stream_obj.origin_plugin, "close_stream"):
+                if checkattr(self.stream_obj.origin_plugin, "close_stream"):
                     self.fhdhr.logger.info("Running %s close_stream method." % self.stream_obj.origin)
                     self.stream_obj.origin_plugin.close_stream(self.tuner.number, self.stream_obj.stream_args)
 
