@@ -110,7 +110,7 @@ class Plugin():
 
             # Set plugin attributes if missing
             if not checkattr(self._module.Plugin_OBJ, default_setting):
-                self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (self.plugin_name, default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting]))
+                self.logger.debug("Setting %s %s attribute to: %s" % (self.plugin_name, default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting]))
                 setattr(self._module.Plugin_OBJ, default_setting, self.config.dict[self.plugin_name][default_setting])
 
     def __getattr__(self, name):
