@@ -8,8 +8,9 @@ class Origin_StandIN():
     A standin for Origins that fail to setup properly.
     """
 
-    def __init__(self):
+    def __init__(self, plugin_utils):
         self.setup_success = False
+        self.plugin_utils = plugin_utils
 
     def get_channels(self):
         return []
@@ -71,19 +72,20 @@ class Origins():
             method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
             self.fhdhr.logger.info("Found Origin: %s" % method)
 
+            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+
             try:
-                plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
                 self.origins_dict[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(plugin_utils)
                 self.fhdhr.logger.info("%s Origin Setup Success" % method)
                 self.origins_dict[method].setup_success = True
 
             except fHDHR.exceptions.OriginSetupError as e:
                 self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
-                self.origins_dict[method] = Origin_StandIN()
+                self.origins_dict[method] = Origin_StandIN(plugin_utils)
 
             except Exception as e:
                 self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
-                self.origins_dict[method] = Origin_StandIN()
+                self.origins_dict[method] = Origin_StandIN(plugin_utils)
 
             # Set config defaults for method
             self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
