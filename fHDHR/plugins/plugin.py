@@ -101,7 +101,7 @@ class Plugin():
     def setup_proxy(self):
 
         # Set config defaults for plugin name
-        self.fhdhr.config.set_plugin_defaults(self.plugin_name, self.default_settings)
+        self.config.set_plugin_defaults(self.plugin_name, self.default_settings)
 
         for default_setting in list(self.default_settings.keys()):
 
