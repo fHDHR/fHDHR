@@ -1,0 +1,32 @@
+{
+  "proxy":{
+                "enabled": {
+                                  "value": false,
+                                  "config_file": true,
+                                  "config_web": true,
+                                  "valid_options": "bool",
+                                  "description": "Enable Global Proxying of all requests."
+                },
+                "proto": {
+                              "value": "none",
+                              "config_file": true,
+                              "config_web": true,
+                              "valid_options": "http,https",
+                              "description": "The http(s) protocol of the proxy server."
+                },
+                "host": {
+                              "value": "none",
+                              "config_file": true,
+                              "config_web": true,
+                              "valid_options": "",
+                              "description": "The IP address or FQDN of the proxy server."
+                },
+                "port": {
+                              "value": "none",
+                              "config_file": true,
+                              "config_web": true,
+                              "valid_options": "direct",
+                              "description": "The port of the proxy server."
+                }
+              }
+}

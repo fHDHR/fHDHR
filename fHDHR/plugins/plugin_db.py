@@ -1,3 +1,4 @@
+from fHDHR.tools import checkattr
 
 
 class Plugin_DB():
@@ -73,3 +74,11 @@ class Plugin_DB():
             return
 
         return self._db.delete_plugin_value(pluginitem, key, namespace=self.namespace)
+
+    def __getattr__(self, name):
+        """
+        Quick and dirty shortcuts. Will only get called for undefined attributes.
+        """
+
+        if checkattr(self._db, name):
+            return eval("self._db.%s" % name)

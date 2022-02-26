@@ -317,6 +317,9 @@ class fHDHR_HTTP_Server():
         if item in not_a_page_list:
             return False
 
+        if item.startswith("proxy_"):
+            return False
+
         elif item.startswith("__") and item.endswith("__"):
             return False
 
