@@ -38,6 +38,17 @@ class Plugin():
 
         self._module.Plugin_OBJ.plugin_utils = self.plugin_utils
 
+        # Gather Default settings to pass to plugin
+        self.default_settings = {
+            "proxy_enabled": {"section": "proxy", "option": "enabled"},
+            "proxy_proto": {"section": "proxy", "option": "proto"},
+            "proxy_host": {"section": "proxy", "option": "host"},
+            "proxy_port": {"section": "proxy", "option": "port"},
+            }
+
+        # Create Default Config Values and Descriptions for plugin
+        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
+
     def setup(self):
         """
         If a plugin has a setup function, run it.
@@ -86,6 +97,18 @@ class Plugin():
         """
 
         return self.manifest["type"]
+
+    def setup_proxy(self):
+
+        # Set config defaults for plugin name
+        self.fhdhr.config.set_plugin_defaults(self.plugin_name, self.default_settings)
+
+        for default_setting in list(self.default_settings.keys()):
+
+            # Set plugin attributes if missing
+            if not checkattr(self.origins_dict[self.plugin_name], default_setting):
+                self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (self.plugin_name, default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting]))
+                setattr(self.origins_dict[self.plugin_name], default_setting, self.fhdhr.config.dict[self.plugin_name][default_setting])
 
     def __getattr__(self, name):
         """
