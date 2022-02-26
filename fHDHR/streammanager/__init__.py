@@ -115,7 +115,7 @@ class StreamManager():
         if not channel_number:
             return chan_obj, {"message": "Not Found", "status_code": 404, "headers": "801 - Missing Channel"}
 
-        chan_obj = self.device.channels.get_channel_obj_search(origin, channel_number)
+        chan_obj = self.device.channels.find_channel_obj(channel_number, searchkey=None, origin=origin)
 
         if not chan_obj:
             if not origin:

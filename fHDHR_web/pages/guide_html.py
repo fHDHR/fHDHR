@@ -56,7 +56,7 @@ class Guide_HTML():
         now_playing = whatson_all[channel]["listing"][0]
 
         if source in origin_methods:
-            channel_obj = self.fhdhr.device.channels.get_channel_obj("origin_id", whatson_all[channel]["id"], source)
+            channel_obj = self.fhdhr.device.channels.find_channel_obj(whatson_all[channel]["id"], searchkey="origin_id", origin=source)
             if channel_obj:
 
                 channel_dict = {
@@ -115,7 +115,7 @@ class Guide_HTML():
         if source in epg_methods:
             channel_dict["chan_match"] = self.fhdhr.device.epg.get_epg_chan_match(source, whatson_all[channel]["id"])
             if channel_dict["chan_match"]:
-                chan_obj = self.fhdhr.device.channels.get_channel_obj("id", channel_dict["chan_match"]["fhdhr_id"], channel_dict["chan_match"]["origin"])
+                chan_obj = self.fhdhr.device.channels.find_channel_obj(channel_dict["chan_match"]["fhdhr_id"], searchkey="id", origin=channel_dict["chan_match"]["origin"])
                 if chan_obj:
                     channel_dict["chan_match"]["number"] = chan_obj.number
                     channel_dict["chan_match"]["name"] = chan_obj.dict["name"]
