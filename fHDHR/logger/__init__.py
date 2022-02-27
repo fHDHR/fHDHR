@@ -329,6 +329,13 @@ class Logger():
             # Yes, logger takes its '*args' as 'args'.
             self._log(self.LOG_LEVEL_CUSTOM_SSDP, message, args, **kws)
 
+    def lazy_exception(self, exception_text, exception_error):
+        error_out = "%s:%s - %s line %s" % (exception_text,
+                                            type(exception_error).__name__,
+                                            exception_error.__traceback__.tb_frame.f_code.co_filename,
+                                            exception_error.__traceback__.tb_lineno)
+        return error_out
+
     def __getattr__(self, name):
         """
         Quick and dirty shortcuts. Will only get called for undefined attributes.
