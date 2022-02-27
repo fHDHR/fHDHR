@@ -113,6 +113,16 @@ class Plugin():
                 self.logger.debug("Setting %s %s attribute to: %s" % (self.plugin_name, default_setting, self.config.dict[self.name.lower()][default_setting]))
                 setattr(self._module.Plugin_OBJ, default_setting, self.config.dict[self.name.lower()][default_setting])
 
+    @property
+    def proxy_domains_list(self):
+        """Allow Plugins to return a list of domains for proxying"""
+        if checkattr(self._module.Plugin_OBJ, 'proxy_domains_list'):
+            domains_list = self._module.Plugin_OBJ.proxy_domains_list
+            if isinstance(domains_list, str):
+                domains_list = [domains_list]
+            return domains_list
+        return []
+
     def __getattr__(self, name):
         """
         Quick and dirty shortcuts. Will only get called for undefined attributes.
