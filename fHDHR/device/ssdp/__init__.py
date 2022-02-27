@@ -82,8 +82,8 @@ class SSDPServer():
             except fHDHR.exceptions.SSDPSetupError as e:
                 self.fhdhr.logger.error(e)
 
-            except Exception as e:
-                self.fhdhr.logger.error(e)
+            except Exception as exerror:
+                self.fhdhr.logger.error(exerror)
 
             # Set config defaults for method
             self.fhdhr.config.set_plugin_defaults(method, self.default_settings)

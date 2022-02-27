@@ -227,8 +227,8 @@ class Stream():
             except GeneratorExit:
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
 
-            except Exception as e:
-                self.fhdhr.logger.warning("Stream Ended: %s" % e)
+            except Exception as exerror:
+                self.fhdhr.logger.warning("Stream Ended: %s" % exerror)
 
             finally:
 
@@ -297,8 +297,8 @@ class Stream():
             except GeneratorExit:
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
 
-            except Exception as e:
-                self.fhdhr.logger.warning("Stream Ended: %s" % e)
+            except Exception as exerror:
+                self.fhdhr.logger.warning("Stream Ended: %s" % exerror)
 
             finally:
 

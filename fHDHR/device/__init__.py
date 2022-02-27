@@ -50,8 +50,8 @@ class fHDHR_Device():
             except fHDHR.exceptions.INTERFACESetupError as e:
                 self.fhdhr.logger.error(e)
 
-            except Exception as e:
-                self.fhdhr.logger.error(e)
+            except Exception as exerror:
+                self.fhdhr.logger.error(exerror)
 
     def run_interface_plugin_threads(self):
 

@@ -48,8 +48,8 @@ class Direct_HardWare_Stream():
                         break
                     yield chunk
 
-            except Exception as err:
-                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, err))
+            except Exception as exerror:
+                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, exerror))
 
             finally:
                 directstr_proc.terminate()

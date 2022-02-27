@@ -64,12 +64,12 @@ class Direct_RTP_Stream():
             self.fhdhr.logger.info("SessionID=%s" % self.sessionid)
             self.play = "PLAY %s RTSP/1.0\r\nCSeq: 5\r\nUser-Agent: python\r\nSession: %s\r\nRange: npt=0.000-\r\nAuthorization: Basic %s\r\n\r\n" % (self.stream_args["stream_info"]["url"], self.sessionid, credentials_base64_string)
 
-        except Exception as e:
+        except Exception as exerror:
             self.fhdhr.logger.info("Closing UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
             self.udp_socket.close()
             self.fhdhr.logger.info("Closing TCP socket at %s:%s." % (self.tcp_socket_address, self.tcp_socket_port))
             self.tcp_socket.close()
-            raise TunerError("806 - Tune Failed: Could Not Create Socket: %s" % e)
+            raise TunerError("806 - Tune Failed: Could Not Create Socket: %s" % exerror)
 
     def get(self):
         """

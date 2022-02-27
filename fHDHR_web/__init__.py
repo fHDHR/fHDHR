@@ -88,8 +88,8 @@ class fHDHR_HTTP_Server():
             except fHDHR.exceptions.WEBSetupError as e:
                 self.fhdhr.logger.error(e)
 
-            except Exception as e:
-                self.fhdhr.logger.error(e)
+            except Exception as exerror:
+                self.fhdhr.logger.error(exerror)
 
             if method in list(self.endpoints_obj.keys()):
 
