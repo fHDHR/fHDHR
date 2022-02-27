@@ -88,8 +88,8 @@ def start(args, script_dir, fHDHR_web, deps):
 
     try:
         settings = fHDHR.config.Config(args, script_dir)
-    except fHDHR.exceptions.ConfigurationError as e:
-        print(e)
+    except fHDHR.exceptions.ConfigurationError as exerror:
+        print(exerror)
         return ERR_CODE_NO_RESTART
 
     # Setup Logging

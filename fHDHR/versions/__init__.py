@@ -62,8 +62,8 @@ class Versions():
 
         try:
             core_json = self.web.session.get(self.github_fhdhr_core_info_url).json()
-        except self.web.exceptions.ReadTimeout as err:
-            self.logger.error("Online Core Versioning Information Check Failed: %s" % err)
+        except self.web.exceptions.ReadTimeout as exerror:
+            self.logger.error("Online Core Versioning Information Check Failed: %s" % exerror)
             core_json = None
 
         if core_json:
@@ -77,8 +77,8 @@ class Versions():
 
         try:
             github_org_json = self.web.session.get(self.github_org_list_url).json()
-        except self.web.exceptions.ReadTimeout as err:
-            self.logger.error("Online Plugin Information Check Failed: %s" % err)
+        except self.web.exceptions.ReadTimeout as exerror:
+            self.logger.error("Online Plugin Information Check Failed: %s" % exerror)
             github_org_json = None
 
         if github_org_json:
@@ -99,8 +99,8 @@ class Versions():
                                 plugin_json = plugin_json.json()
                                 official_plugins[plugin_name] = plugin_json
                                 plugin_version_check_success = 1
-                        except self.web.exceptions.ReadTimeout as err:
-                            self.logger.error("Online Plugin Information Check Failed for %s %s branch: %s" % (plugin_name, branch, err))
+                        except self.web.exceptions.ReadTimeout as exerror:
+                            self.logger.error("Online Plugin Information Check Failed for %s %s branch: %s" % (plugin_name, branch, exerror))
 
             self.db.set_fhdhr_value("versions", "dict", official_plugins)
             self.official_plugins = official_plugins

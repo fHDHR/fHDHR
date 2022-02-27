@@ -47,8 +47,8 @@ class fHDHR_Device():
 
                 self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
 
-            except fHDHR.exceptions.INTERFACESetupError as e:
-                self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.INTERFACESetupError as exerror:
+                self.fhdhr.logger.error(exerror)
 
             except Exception as exerror:
                 self.fhdhr.logger.error(exerror)

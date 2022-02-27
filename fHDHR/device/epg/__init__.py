@@ -390,8 +390,8 @@ class EPG():
                                             "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
                                             }
 
-            except fHDHR.exceptions.EPGSetupError as e:
-                self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, e))
+            except fHDHR.exceptions.EPGSetupError as exerror:
+                self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, exerror))
 
             except Exception as exerror:
                 self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, exerror))
