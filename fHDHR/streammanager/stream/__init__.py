@@ -79,10 +79,10 @@ class Stream():
                     raise TunerError("Tuner Setup Failed: %s" % e)
 
                 except Exception as e:
-                    raise TunerError("Tuner Setup Failed: %s" % e)
+                    raise TunerError("Tuner Setup Failed (lazily handled): %s" % e)
 
             else:
-                raise TunerError("806 - Tune Failed: Plugin Not Found")
+                raise TunerError("806 - Tune Failed: %s Plugin Not Found." % self.stream_obj.stream_args["method"])
 
     def stream_restore(self):
 
