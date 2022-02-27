@@ -38,6 +38,9 @@ class Tuners():
                 self.fhdhr.logger.error("Unable to Stream: %s" % response_dict["headers"])
                 response = Response(response_dict["message"], status=response_dict["status_code"])
                 response.headers["X-fHDHR-Error"] = response_dict["headers"]
+                if stream_obj:
+                    if stream_obj.tuner:
+                        stream_obj.tuner.close()
                 abort(response)
 
             if stream_args["method"] == "passthrough":
