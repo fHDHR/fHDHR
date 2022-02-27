@@ -75,8 +75,8 @@ class Stream():
                 try:
                     self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, self.stream_obj.stream_args, self.tuner)
 
-                except TunerError as e:
-                    raise TunerError("Tuner Setup Failed: %s" % e)
+                except TunerError as exerror:
+                    raise TunerError("Tuner Setup Failed: %s" % exerror)
 
                 except Exception as exerror:
                     error_out = self.fhdhr.logger.lazy_exception("Tuner Setup Failed (lazily handled)", exerror)
@@ -146,8 +146,8 @@ class Stream():
                                 self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_obj.stream_args["stream_restore_attempts"]))
                                 try:
                                     self.stream_restore()
-                                except TunerError as e:
-                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
+                                except TunerError as exerror:
+                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % exerror)
                                     stream_failure = True
 
                         else:
@@ -268,8 +268,8 @@ class Stream():
                                 self.fhdhr.logger.warning("Attempting to restore stream: %s/%s." % (chunks_failure, self.stream_obj.stream_args["stream_restore_attempts"]))
                                 try:
                                     self.stream_restore()
-                                except TunerError as e:
-                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % e)
+                                except TunerError as exerror:
+                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % exerror)
                                     stream_failure = True
 
                         else:

@@ -85,8 +85,8 @@ class fHDHR_HTTP_Server():
             try:
                 self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
 
-            except fHDHR.exceptions.WEBSetupError as e:
-                self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.WEBSetupError as exerror:
+                self.fhdhr.logger.error(exerror)
 
             except Exception as exerror:
                 self.fhdhr.logger.error(exerror)
@@ -345,7 +345,7 @@ class fHDHR_HTTP_Server():
         try:
             self.http.serve_forever()
             self.stop()
-        except OSError as err:
-            self.fhdhr.logger.error("HTTP Server Offline: %s" % err)
+        except OSError as exerror:
+            self.fhdhr.logger.error("HTTP Server Offline: %s" % exerror)
         except AttributeError:
             self.fhdhr.logger.info("HTTP Server Offline")

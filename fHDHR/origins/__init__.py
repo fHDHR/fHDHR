@@ -79,8 +79,8 @@ class Origins():
                 self.fhdhr.logger.info("%s Origin Setup Success" % method)
                 self.origins_dict[method].setup_success = True
 
-            except fHDHR.exceptions.OriginSetupError as e:
-                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, e))
+            except fHDHR.exceptions.OriginSetupError as exerror:
+                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, exerror))
                 self.origins_dict[method] = Origin_StandIN(plugin_utils)
 
             except Exception as exerror:

@@ -50,8 +50,8 @@ class SSDPServer():
 
                 self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
 
-            except OSError as err:
-                self.fhdhr.logger.Error("SSDP system will not be Initialized: %s" % err)
+            except OSError as exerror:
+                self.fhdhr.logger.Error("SSDP system will not be Initialized: %s" % exerror)
 
         elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
             self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
@@ -79,8 +79,8 @@ class SSDPServer():
             try:
                 self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
 
-            except fHDHR.exceptions.SSDPSetupError as e:
-                self.fhdhr.logger.error(e)
+            except fHDHR.exceptions.SSDPSetupError as exerror:
+                self.fhdhr.logger.error(exerror)
 
             except Exception as exerror:
                 self.fhdhr.logger.error(exerror)
@@ -152,9 +152,9 @@ class SSDPServer():
             self.fhdhr.logger.ssdp("Created {}".format(notifydata))
             try:
                 self.sock.sendto(notifydata, address)
-            except OSError as e:
+            except OSError as exerror:
                 # Most commonly: We received a multicast from an IP not in our subnet
-                self.fhdhr.logger.ssdp("Unable to send NOTIFY: %s" % e)
+                self.fhdhr.logger.ssdp("Unable to send NOTIFY: %s" % exerror)
                 pass
 
     def on_recv(self, data, address):
