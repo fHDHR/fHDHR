@@ -24,8 +24,8 @@ class Direct_UDP_Stream():
             self.udp_socket.settimeout(5)
             self.fhdhr.logger.info("Created UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
 
-        except Exception as err:
-            raise TunerError("806 - Tune Failed: %s" % err)
+        except Exception as exerror:
+            raise TunerError("806 - Tune Failed: %s" % exerror)
 
         finally:
             self.fhdhr.logger.info("Closing UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
@@ -55,8 +55,8 @@ class Direct_UDP_Stream():
 
                     yield chunk
 
-            except Exception as err:
-                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, err))
+            except Exception as exerror:
+                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, exerror))
 
             finally:
                 self.fhdhr.logger.info("Closing UDP socket at %s:%s." % (self.udp_socket_address, self.udp_socket_port))
