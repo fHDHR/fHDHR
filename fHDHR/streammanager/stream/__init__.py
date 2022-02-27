@@ -78,8 +78,9 @@ class Stream():
                 except TunerError as e:
                     raise TunerError("Tuner Setup Failed: %s" % e)
 
-                except Exception as e:
-                    raise TunerError("Tuner Setup Failed (lazily handled): %s" % e)
+                except Exception as exerror:
+                    error_out = self.fhdhr.logger.lazy_exception("Tuner Setup Failed (lazily handled)", exerror)
+                    raise TunerError(error_out)
 
             else:
                 raise TunerError("806 - Tune Failed: %s Plugin Not Found." % self.stream_obj.stream_args["method"])
