@@ -45,7 +45,7 @@ class Origin():
         for default_setting in list(self.default_settings.keys()):
             setting_value = eval("self.%s" % default_setting)
             # Set Origin attributes if missing
-            self.fhdhr.logger.debug("Setting %s Configuration %s=%s" % (self.name, default_setting, setting_value))
+            self.fhdhr.logger.debug("Setting %s Origin Configuration %s=%s" % (self.name, default_setting, setting_value))
 
     @property
     def setup_success(self):
