@@ -68,7 +68,7 @@ class StreamManager():
 
     def get_stream_obj(self, chan_obj, request, session, stream_args):
         self.fhdhr.logger.debug("Instantiating Stream_OBJ Object")
-        return Stream_OBJ(self.fhdhr, self.device, self.origins, request, session, chan_obj, stream_args)
+        return Stream_OBJ(self.fhdhr, self.device, self.origins, self.alt_stream_handlers, request, session, chan_obj, stream_args)
 
     def setup_stream(self, request, session):
         """
