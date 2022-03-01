@@ -50,7 +50,7 @@ class Plugin():
         self.default_settings = self.config.get_plugin_defaults(self.default_settings)
 
         # Setup proxy settings for the plugin
-        self.setup_proxy()
+        # self.setup_proxy()
 
     def setup(self):
         """
