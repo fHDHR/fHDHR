@@ -217,7 +217,7 @@ class fHDHR_HTTP_Server():
         Add Endpoints.
         """
 
-        if not type(self.endpoints_dict[index_name]).__name__ == "WebPlugin":
+        if type(self.endpoints_dict[index_name]).__name__ == "WebPlugin":
             item_list = [x for x in self.endpoints_dict[index_name].endpoint_directory if self.isapath(x)]
         else:
             item_list = [x for x in dir(self.endpoints_dict[index_name]) if self.isapath(x)]
