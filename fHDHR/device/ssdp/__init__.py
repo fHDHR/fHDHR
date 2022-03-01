@@ -3,9 +3,7 @@ import socket
 import struct
 import threading
 
-import fHDHR.exceptions
-
-from fHDHR.tools import checkattr
+from .ssdp_handler import SSDP_Handler
 
 
 class SSDPServer():
@@ -15,13 +13,6 @@ class SSDPServer():
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
-
-        # Gather Default settings to pass to ssdp plugins later
-        self.default_settings = {
-            }
-
-        # Create Default Config Values and Descriptions for ssdp plugins
-        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
 
         self.ssdp_handling = {}
 
@@ -33,19 +24,16 @@ class SSDPServer():
                 self.setup_ssdp()
                 self.sock.bind((self.bind_address, 1900))
 
-                self.msearch_payload = self.create_msearch_payload()
-
-                self.max_age = int(fhdhr.config.dict["ssdp"]["max_age"])
-                self.age_time = None
-
-                self.ssdp_doalive_url = "/api/ssdp?method=alive"
-
-                if self.max_age:
-                    self.fhdhr.scheduler.every(self.max_age).seconds.do(
-                        self.fhdhr.scheduler.job_wrapper(self.do_alive)).tag("SSDP Alive")
-
                 self.ssdp_method_selfadd()
 
+                for ssdp_handler in list(self.ssdp_handling.keys()):
+
+                    max_age = int(self.ssdp_handling[ssdp_handler].max_age)
+
+                    self.fhdhr.scheduler.every(max_age).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.do_alive), [ssdp_handler]).tag("SSDP Alive")
+
+                self.msearch_payload = self.create_msearch_payload()
                 self.m_search()
 
                 self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
@@ -54,14 +42,19 @@ class SSDPServer():
                 error_out = self.fhdhr.logger.lazy_exception(exerror, "SSDP system will not be Initialized")
                 self.fhdhr.logger.error(error_out)
 
-        elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
-            self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
-        elif not self.multicast_address:
-            self.fhdhr.logger.info("SSDP system will not be Initialized: Address not set in [ssdp]multicast_address or [fhdhr]discovery_address")
-        elif not len(self.methods):
-            self.fhdhr.logger.info("SSDP system will not be Initialized: No SSDP Plugins installed.")
         else:
-            self.fhdhr.logger.info("SSDP system will not be Initialized")
+            ssdp_off_reason = "SSDP system will not be Initialized: "
+
+        if not self.fhdhr.config.dict["ssdp"]["enabled"]:
+            ssdp_off_reason += "Not Enabled"
+
+        if not self.multicast_address:
+            ssdp_off_reason += ", Address not set in [ssdp]multicast_address or [fhdhr]discovery_address"
+
+        if not len(self.methods):
+            ssdp_off_reason += ", No SSDP Plugins installed"
+
+        self.fhdhr.logger.info(ssdp_off_reason)
 
     @property
     def methods(self):
@@ -74,30 +67,11 @@ class SSDPServer():
 
         self.fhdhr.logger.info("Detecting and Opening any found SSDP plugins.")
         for plugin_name in self.fhdhr.plugins.search_by_type("ssdp"):
+
             plugin = self.fhdhr.plugins.plugins[plugin_name]
             method = plugin.name.lower()
-            plugin_utils = plugin.plugin_utils
-
-            try:
-                self.ssdp_handling[method] = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
-
-            except fHDHR.exceptions.SSDPSetupError as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror)
-                self.fhdhr.logger.error(error_out)
-
-            except Exception as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror)
-                self.fhdhr.logger.error(error_out)
-
-            # Set config defaults for method
-            self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
-
-            for default_setting in list(self.default_settings.keys()):
-
-                # Set ssdp plugin attributes if missing
-                if not checkattr(self.ssdp_handling[method], default_setting):
-                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-                    setattr(self.ssdp_handling[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+            self.fhdhr.logger.info("Found SSDP: %s" % method)
+            self.ssdp_handling[method] = SSDP_Handler(self.fhdhr, self, plugin)
 
     def start(self):
         """
@@ -127,28 +101,38 @@ class SSDPServer():
             self.on_recv(data, address)
         self.stop()
 
-    def do_alive(self):
+    def do_alive(self, ssdp_handlers=None):
         """
         Notify Network of SSDP.
         """
+        if not ssdp_handlers:
+            ssdp_handlers = list(self.ssdp_handling.keys())
 
         if self.broadcast_address_tuple:
             self.fhdhr.logger.info("Sending Alive message to network.")
-            self.do_notify(self.broadcast_address_tuple)
+            self.do_notify(self.broadcast_address_tuple, ssdp_handlers)
 
-    def do_notify(self, address):
+    def do_notify(self, address, ssdp_handlers=None):
         """
         Notify Network of SSDP.
         """
 
+        if not ssdp_handlers:
+            ssdp_handlers = list(self.ssdp_handling.keys())
+
         notify_list = []
-        for ssdp_handler in list(self.ssdp_handling.keys()):
-            if self.ssdp_handling[ssdp_handler].enabled and checkattr(self.ssdp_handling[ssdp_handler], 'notify'):
+        for ssdp_handler in ssdp_handlers:
+            if self.ssdp_handling[ssdp_handler].enabled:
                 notify_data = self.ssdp_handling[ssdp_handler].notify
-                if isinstance(notify_data, list):
-                    notify_list.extend(notify_data)
-                else:
-                    notify_list.append(notify_data)
+                if notify_data:
+
+                    if isinstance(notify_data, list):
+                        notify_list.extend(notify_data)
+                    else:
+                        notify_list.append(notify_data)
+
+        if not len(notify_list):
+            return
 
         for notifydata in notify_list:
             notifydata = notifydata.encode("utf-8")
@@ -184,7 +168,7 @@ class SSDPServer():
         headers = dict(map(lambda x: (x[0].lower(), x[1]), headers))
 
         for ssdp_handler in list(self.ssdp_handling.keys()):
-            if self.ssdp_handling[ssdp_handler].enabled and checkattr(self.ssdp_handling[ssdp_handler], 'on_recv'):
+            if self.ssdp_handling[ssdp_handler].enabled:
                 self.ssdp_handling[ssdp_handler].on_recv(headers, cmd, list(self.ssdp_handling.keys()))
 
         if cmd[0] == 'M-SEARCH' and cmd[1] == '*':
