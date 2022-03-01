@@ -42,7 +42,7 @@ class Scheduler_HTML():
             if "%s Channel Scan" % origin not in enabled_jobs:
                 chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
                 unscheduled_job_items.append({
-                    "name": origin,
+                    "name": "%s Channel Scan" % origin,
                     "type": "Channel Scan",
                     "interval": humanized_time(chanscan_interval),
                     "interval_epoch": chanscan_interval
@@ -53,7 +53,7 @@ class Scheduler_HTML():
             if "%s EPG Update" % epg_method not in enabled_jobs:
                 frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
                 unscheduled_job_items.append({
-                    "name": epg_method,
+                    "name": "%s EPG Update" % epg_method,
                     "type": "EPG Update",
                     "interval": humanized_time(frequency_seconds),
                     "interval_epoch": frequency_seconds
@@ -68,13 +68,16 @@ class Scheduler_HTML():
                 "interval_epoch": frequency_seconds
                 })
 
+        ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
         if "SSDP Alive" not in enabled_jobs:
-            frequency_seconds = self.fhdhr.device.ssdp.max_age
-            unscheduled_job_items.append({
-                "name": "SSDP Alive",
-                "type": "SSDP Alive",
-                "interval": humanized_time(frequency_seconds),
-                "interval_epoch": frequency_seconds
-                })
+            for ssdp_method in ssdp_methods:
+                if "%s SSDP Alive" % ssdp_method not in enabled_jobs:
+                    frequency_seconds = self.fhdhr.device.ssdp.ssdp_handling[ssdp_method].max_age
+                    unscheduled_job_items.append({
+                        "name": "%s SSDP Alive" % ssdp_method,
+                        "type": "SSDP Alive",
+                        "interval": humanized_time(frequency_seconds),
+                        "interval_epoch": frequency_seconds
+                        })
 
         return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)

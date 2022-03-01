@@ -31,7 +31,7 @@ class SSDPServer():
                     max_age = int(self.ssdp_handling[ssdp_handler].max_age)
 
                     self.fhdhr.scheduler.every(max_age).seconds.do(
-                        self.fhdhr.scheduler.job_wrapper(self.do_alive), [ssdp_handler]).tag("SSDP Alive")
+                        self.fhdhr.scheduler.job_wrapper(self.do_alive), [ssdp_handler]).tag("%s SSDP Alive" % ssdp_handler)
 
                 self.msearch_payload = self.create_msearch_payload()
                 self.m_search()
