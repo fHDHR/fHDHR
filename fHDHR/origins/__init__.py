@@ -2,22 +2,6 @@
 from .origin import Origin
 
 
-class Origin_StandIN():
-    """
-    A standin for Origins that fail to setup properly.
-    """
-
-    def __init__(self, plugin_utils):
-        self.setup_success = False
-        self.plugin_utils = plugin_utils
-
-    def get_channels(self):
-        return []
-
-    def get_channel_stream(self, chandict, stream_args):
-        return None
-
-
 class Origins():
     """
     fHDHR Origins system.
