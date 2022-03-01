@@ -72,7 +72,7 @@ class fHDHR_HTTP_Server():
             plugin = self.fhdhr.plugins.plugins[plugin_name]
             method = plugin.name.lower()
             self.fhdhr.logger.info("Found Web Plugin: %s" % method)
-            self.origins_dict[method] = WebPlugin(self.fhdhr, plugin)
+            self.endpoints_dict[method] = WebPlugin(self.fhdhr, plugin)
 
             if method in list(self.endpoints_dict.keys()):
 
