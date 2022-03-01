@@ -1,5 +1,5 @@
 
-from fHDHR.tools import checkattr, humanized_time
+from fHDHR.tools import humanized_time
 from.stream_obj import Stream_OBJ
 
 
@@ -48,13 +48,6 @@ class StreamManager():
 
             # Set config defaults for method
             self.fhdhr.config.set_plugin_defaults(stream_method, self.default_settings)
-
-            for default_setting in list(self.default_settings.keys()):
-
-                # Set Origin attributes if missing
-                if not checkattr(self.alt_stream_handlers[stream_method], default_setting):
-                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (stream_method, default_setting, self.fhdhr.config.dict[stream_method][default_setting]))
-                    setattr(self.alt_stream_handlers[stream_method], default_setting, self.fhdhr.config.dict[stream_method][default_setting])
 
     @property
     def streaming_methods(self):
