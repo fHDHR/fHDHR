@@ -8,10 +8,11 @@ from .stream import Stream
 
 class Stream_OBJ():
 
-    def __init__(self, fhdhr, device, origins, request, session, chan_obj, stream_args):
+    def __init__(self, fhdhr, device, origins, alt_stream_handlers, request, session, chan_obj, stream_args):
         self.fhdhr = fhdhr
         self.device = device
         self.origins = origins
+        self.alt_stream_handlers = alt_stream_handlers
 
         self.request = request
         self.session = session

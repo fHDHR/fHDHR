@@ -23,6 +23,7 @@ class Stream():
         self.fhdhr = fhdhr
         self.tuner = tuner
         self.stream_obj = stream_obj
+        self.alt_stream_handlers = stream_obj.alt_stream_handlers
 
         self.stream_setup()
 
@@ -69,25 +70,24 @@ class Stream():
 
         else:
 
-            plugin_name = self.get_alt_stream_plugin(self.stream_obj.stream_args["method"])
-            if plugin_name:
-
-                try:
-                    plugin = self.fhdhr.plugins.plugins[plugin_name]
-                    plugin_utils = plugin.plugin_utils
-                    stream_args = self.stream_obj.stream_args
-                    self.method = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, stream_args, self.tuner)
-
-                except TunerError as exerror:
-                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed")
-                    raise TunerError(error_out)
-
-                except Exception as exerror:
-                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed (lazily handled)")
-                    raise TunerError(error_out)
-
-            else:
+            if self.stream_obj.stream_args["method"] not in list(self.alt_stream_handlers.keys()):
                 raise TunerError("806 - Tune Failed: %s Plugin Not Found." % self.stream_obj.stream_args["method"])
+
+            stream_args = self.stream_obj.stream_args
+
+            plugin = self.alt_stream_handlers[self.stream_obj.stream_args["method"]]
+            plugin_utils = plugin.plugin_utils
+
+            try:
+                self.method = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, stream_args, self.tuner)
+
+            except TunerError as exerror:
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed")
+                raise TunerError(error_out)
+
+            except Exception as exerror:
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed (lazily handled)")
+                raise TunerError(error_out)
 
     def stream_restore(self):
 
@@ -96,18 +96,6 @@ class Stream():
         self.tuner.set_status(self.stream_obj.stream_args)
 
         self.stream_setup()
-
-    def get_alt_stream_plugin(self, method):
-        """
-        Import Stream Plugins.
-        """
-
-        for plugin_name in self.fhdhr.plugins.search_by_type("alt_stream"):
-
-            if self.fhdhr.plugins.plugins[plugin_name].name == method:
-                return plugin_name
-
-        return None
 
     def get(self):
         """
