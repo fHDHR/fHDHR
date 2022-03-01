@@ -329,11 +329,14 @@ class Logger():
             # Yes, logger takes its '*args' as 'args'.
             self._log(self.LOG_LEVEL_CUSTOM_SSDP, message, args, **kws)
 
-    def lazy_exception(self, exception_text, exception_error):
-        error_out = "%s:%s - %s line %s" % (exception_text,
-                                            type(exception_error).__name__,
-                                            exception_error.__traceback__.tb_frame.f_code.co_filename,
-                                            exception_error.__traceback__.tb_lineno)
+    def lazy_exception(self, exception_error, exception_text=None):
+        error_out = "%s:%s %s- %s line %s" % (exception_text,
+                                              type(exception_error).__name__,
+                                              exception_error,
+                                              exception_error.__traceback__.tb_frame.f_code.co_filename,
+                                              exception_error.__traceback__.tb_lineno)
+        if exception_text:
+            error_out = "%s: %s" % (exception_text, error_out)
         return error_out
 
     def __getattr__(self, name):
