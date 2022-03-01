@@ -391,10 +391,12 @@ class EPG():
                                             }
 
             except fHDHR.exceptions.EPGSetupError as exerror:
-                self.fhdhr.logger.error("%s EPG Setup Failed: %s" % (method, exerror))
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "%s EPG Setup Failed" % method)
+                self.fhdhr.logger.error(error_out)
 
             except Exception as exerror:
-                self.fhdhr.logger.error("%s Origin Setup Failed: %s" % (method, exerror))
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "%s Origin EPG Setup Failed" % method)
+                self.fhdhr.logger.error(error_out)
 
         for origin in list(self.origins.origins_dict.keys()):
 
