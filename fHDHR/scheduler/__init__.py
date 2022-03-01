@@ -146,7 +146,7 @@ class Scheduler():
         ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
         for ssdp_method in ssdp_methods:
             if "%s SSDP Alive" % ssdp_method in tags_list:
-                self.fhdhr.scheduler.run_from_tag("SSDP Alive")
+                self.fhdhr.scheduler.run_from_tag("%s SSDP Alive")
 
     def __getattr__(self, name):
         """
