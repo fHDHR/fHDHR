@@ -73,7 +73,10 @@ class Stream():
             if plugin_name:
 
                 try:
-                    self.method = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, self.fhdhr.plugins.plugins[plugin_name].plugin_utils, self.stream_obj.stream_args, self.tuner)
+                    plugin = self.fhdhr.plugins.plugins[plugin_name]
+                    plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+                    stream_args = self.stream_obj.stream_args
+                    self.method = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, stream_args, self.tuner)
 
                 except TunerError as exerror:
                     raise TunerError("Tuner Setup Failed: %s" % exerror)
