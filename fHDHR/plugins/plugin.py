@@ -123,10 +123,6 @@ class Plugin():
             return domains_list
         return []
 
-    def __getattr__(self, name):
-        """
-        Quick and dirty shortcuts. Will only get called for undefined attributes.
-        """
-
-        if name == "Plugin_OBJ":
-            return self._module.Plugin_OBJ
+    @property
+    def Plugin_OBJ(self):
+        return self._module.Plugin_OBJ
