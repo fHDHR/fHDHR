@@ -7,10 +7,6 @@ class Origin_failed():
     def __init__(self):
         pass
 
-    @property
-    def origin_setup_was_a_failure(self):
-        return True
-
 
 class Origin():
     """
@@ -53,8 +49,8 @@ class Origin():
 
     @property
     def setup_success(self):
-        if checkattr(self.method, "origin_setup_was_a_failure"):
-            return self.method.origin_setup_was_a_failure
+        if type(self.method).__name__ == "Origin_failed":
+            return False
         return True
 
     @property
