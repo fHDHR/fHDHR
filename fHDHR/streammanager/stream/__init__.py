@@ -79,7 +79,7 @@ class Stream():
                     raise TunerError("Tuner Setup Failed: %s" % exerror)
 
                 except Exception as exerror:
-                    error_out = self.fhdhr.logger.lazy_exception("Tuner Setup Failed (lazily handled)", exerror)
+                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed (lazily handled)")
                     raise TunerError(error_out)
 
             else:
