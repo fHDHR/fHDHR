@@ -45,16 +45,16 @@ class SSDPServer():
         else:
             ssdp_off_reason = "SSDP system will not be Initialized: "
 
-        if not self.fhdhr.config.dict["ssdp"]["enabled"]:
-            ssdp_off_reason += "Not Enabled"
+            if not self.fhdhr.config.dict["ssdp"]["enabled"]:
+                ssdp_off_reason += "Not Enabled"
 
-        if not self.multicast_address:
-            ssdp_off_reason += ", Address not set in [ssdp]multicast_address or [fhdhr]discovery_address"
+            if not self.multicast_address:
+                ssdp_off_reason += ", Address not set in [ssdp]multicast_address or [fhdhr]discovery_address"
 
-        if not len(self.methods):
-            ssdp_off_reason += ", No SSDP Plugins installed"
+            if not len(self.methods):
+                ssdp_off_reason += ", No SSDP Plugins installed"
 
-        self.fhdhr.logger.info(ssdp_off_reason)
+            self.fhdhr.logger.info(ssdp_off_reason)
 
     @property
     def methods(self):
