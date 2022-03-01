@@ -293,7 +293,7 @@ class Logger():
         if conf_format:
             return conf_format
 
-        if self.levelname == "DEBUG":
+        if self.levelname in ["DEBUG", "SSDP"]:
             return default_debug_log_format
         else:
             return default_log_format

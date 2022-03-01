@@ -69,7 +69,8 @@ class Direct_RTP_Stream():
             self.udp_socket.close()
             self.fhdhr.logger.info("Closing TCP socket at %s:%s." % (self.tcp_socket_address, self.tcp_socket_port))
             self.tcp_socket.close()
-            raise TunerError("806 - Tune Failed: Could Not Create Socket: %s" % exerror)
+            error_out = self.fhdhr.logger.lazy_exception(exerror, "806 - Tune Failed: Could Not Create Socket")
+            raise TunerError(error_out)
 
     def get(self):
         """

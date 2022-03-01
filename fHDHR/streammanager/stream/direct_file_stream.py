@@ -45,6 +45,7 @@ class Direct_FILE_Stream():
                         yield chunk
 
             except Exception as exerror:
-                self.fhdhr.logger.error("Chunk #%s unable to process: %s" % (chunk_counter, exerror))
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Chunk #%s unable to process" % chunk_counter)
+                self.fhdhr.logger.error(error_out)
 
         return generate()

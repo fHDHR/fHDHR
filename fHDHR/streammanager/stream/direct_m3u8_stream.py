@@ -40,7 +40,8 @@ class Direct_M3U8_Stream():
                     else:
                         m3u8_obj = m3u8.load(self.stream_args["stream_info"]["url"])
                 except Exception as exerror:
-                    self.fhdhr.logger.info("Connection Closed: %s" % exerror)
+                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Connection Closed")
+                    self.fhdhr.logger.error(error_out)
                     return None
 
                 m3u8_segments = m3u8_obj.segments
@@ -152,7 +153,8 @@ def m3u8_quality(fhdhr, stream_args):
                 videoUrlM3u = m3u8.load(m3u8_url)
 
         except Exception as exerror:
-            fhdhr.logger.info("m3u8 load error: %s" % exerror)
+            error_out = fhdhr.logger.lazy_exception(exerror, "m3u8 load error")
+            fhdhr.logger.error(error_out)
             return m3u8_url
 
         if len(videoUrlM3u.playlists):

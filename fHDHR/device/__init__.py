@@ -48,10 +48,12 @@ class fHDHR_Device():
                 self.interfaces[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(fhdhr, plugin_utils)
 
             except fHDHR.exceptions.INTERFACESetupError as exerror:
-                self.fhdhr.logger.error(exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror)
+                self.fhdhr.logger.error(error_out)
 
             except Exception as exerror:
-                self.fhdhr.logger.error(exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror)
+                self.fhdhr.logger.error(error_out)
 
     def run_interface_plugin_threads(self):
 

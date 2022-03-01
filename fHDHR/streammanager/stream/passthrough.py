@@ -1,6 +1,6 @@
 
 
-class Direct_FILE_Stream():
+class Passthrough_Stream():
     """
     A method to stream from /dev/ hardware devices directly.
     """

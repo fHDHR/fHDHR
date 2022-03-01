@@ -51,7 +51,8 @@ class SSDPServer():
                 self.fhdhr.threads["ssdp"] = threading.Thread(target=self.run)
 
             except OSError as exerror:
-                self.fhdhr.logger.Error("SSDP system will not be Initialized: %s" % exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "SSDP system will not be Initialized")
+                self.fhdhr.logger.error(error_out)
 
         elif not self.fhdhr.config.dict["ssdp"]["enabled"]:
             self.fhdhr.logger.info("SSDP system will not be Initialized: Not Enabled")
@@ -73,17 +74,20 @@ class SSDPServer():
 
         self.fhdhr.logger.info("Detecting and Opening any found SSDP plugins.")
         for plugin_name in self.fhdhr.plugins.search_by_type("ssdp"):
-            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+            plugin = self.fhdhr.plugins.plugins[plugin_name]
+            method = plugin.name.lower()
+            plugin_utils = plugin.plugin_utils
 
             try:
-                self.ssdp_handling[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
+                self.ssdp_handling[method] = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, self.broadcast_ip, self.max_age)
 
             except fHDHR.exceptions.SSDPSetupError as exerror:
-                self.fhdhr.logger.error(exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror)
+                self.fhdhr.logger.error(error_out)
 
             except Exception as exerror:
-                self.fhdhr.logger.error(exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror)
+                self.fhdhr.logger.error(error_out)
 
             # Set config defaults for method
             self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
@@ -154,7 +158,8 @@ class SSDPServer():
                 self.sock.sendto(notifydata, address)
             except OSError as exerror:
                 # Most commonly: We received a multicast from an IP not in our subnet
-                self.fhdhr.logger.ssdp("Unable to send NOTIFY: %s" % exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Unable to send NOTIFY")
+                self.fhdhr.logger.ssdp(error_out)
                 pass
 
     def on_recv(self, data, address):

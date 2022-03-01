@@ -74,12 +74,13 @@ class Stream():
 
                 try:
                     plugin = self.fhdhr.plugins.plugins[plugin_name]
-                    plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+                    plugin_utils = plugin.plugin_utils
                     stream_args = self.stream_obj.stream_args
                     self.method = plugin.Plugin_OBJ(self.fhdhr, plugin_utils, stream_args, self.tuner)
 
                 except TunerError as exerror:
-                    raise TunerError("Tuner Setup Failed: %s" % exerror)
+                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed")
+                    raise TunerError(error_out)
 
                 except Exception as exerror:
                     error_out = self.fhdhr.logger.lazy_exception(exerror, "Tuner Setup Failed (lazily handled)")
@@ -150,7 +151,8 @@ class Stream():
                                 try:
                                     self.stream_restore()
                                 except TunerError as exerror:
-                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % exerror)
+                                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Unable to Restore Stream")
+                                    self.fhdhr.logger.error(error_out)
                                     stream_failure = True
 
                         else:
@@ -231,7 +233,8 @@ class Stream():
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
 
             except Exception as exerror:
-                self.fhdhr.logger.warning("Stream Ended: %s" % exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Stream Ended")
+                self.fhdhr.logger.warning(error_out)
 
             finally:
 
@@ -272,7 +275,8 @@ class Stream():
                                 try:
                                     self.stream_restore()
                                 except TunerError as exerror:
-                                    self.fhdhr.logger.error("Unable to Restore Stream: %s" % exerror)
+                                    error_out = self.fhdhr.logger.lazy_exception(exerror, "Unable to Restore Stream")
+                                    self.fhdhr.logger.error(error_out)
                                     stream_failure = True
 
                         else:
@@ -301,7 +305,8 @@ class Stream():
                 self.fhdhr.logger.info("Stream Ended: Client has disconnected.")
 
             except Exception as exerror:
-                self.fhdhr.logger.warning("Stream Ended: %s" % exerror)
+                error_out = self.fhdhr.logger.lazy_exception(exerror, "Stream Ended")
+                self.fhdhr.logger.warning(error_out)
 
             finally:
 
