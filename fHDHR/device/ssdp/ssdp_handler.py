@@ -11,6 +11,9 @@ class SSDP_failed():
 
 
 class SSDP_Handler():
+    """
+    A wrapper for SSDP Handlers to maintain consistancy.
+    """
 
     def __init__(self, fhdhr, ssdp, plugin):
         self.fhdhr = fhdhr
