@@ -24,6 +24,8 @@ class Origin():
         # Setup Config Options
         self.setup_config()
 
+    """Functions/properties called During init"""
+
     def instatiate_origin(self):
 
         try:
@@ -48,16 +50,6 @@ class Origin():
             self.fhdhr.logger.debug("Setting %s Origin Configuration %s=%s" % (self.name, default_setting, setting_value))
 
     @property
-    def setup_success(self):
-        if type(self.method).__name__ == "Origin_failed":
-            return False
-        return True
-
-    @property
-    def name(self):
-        return self.plugin.name.lower()
-
-    @property
     def default_settings(self):
         # Gather Default settings to pass to origins later
         default_settings = {
@@ -78,6 +70,34 @@ class Origin():
     @property
     def config_dict(self):
         return self.fhdhr.config.dict[self.name]
+
+    """Expected Properties for an Origin"""
+
+    @property
+    def setup_success(self):
+        if type(self.method).__name__ == "Origin_failed":
+            return False
+        return True
+
+    @property
+    def name(self):
+        return self.plugin.name.lower()
+
+    def get_channels(self):
+        if checkattr(self.method, "get_channels"):
+            return self.method.get_channels()
+        return []
+
+    def get_channel_stream(self, chandict, stream_args):
+        if checkattr(self.method, "get_channel_stream"):
+            return self.method.get_channel_stream(chandict, stream_args)
+        return None
+
+    """
+    Returns configuration values in the following order
+    1) If the plugin manually handles it
+    2) The value we use in the config system
+    """
 
     @property
     def tuners(self):
@@ -133,15 +153,7 @@ class Origin():
             return self.method.stream_restore_attempts
         return self.config_dict["stream_restore_attempts"]
 
-    def get_channels(self):
-        if checkattr(self.method, "get_channels"):
-            return self.method.get_channels()
-        return []
-
-    def get_channel_stream(self, chandict, stream_args):
-        if checkattr(self.method, "get_channel_stream"):
-            return self.method.get_channel_stream(chandict, stream_args)
-        return None
+    """Dirty Shortcut area"""
 
     def __getattr__(self, name):
         """
