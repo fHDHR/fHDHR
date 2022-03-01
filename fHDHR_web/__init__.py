@@ -3,13 +3,12 @@ from flask import Flask, request, session
 import threading
 import uuid
 
-import fHDHR.exceptions
-from fHDHR.tools import checkattr
-
 from .pages import fHDHR_Pages
 from .files import fHDHR_Files
 from .brython import fHDHR_Brython
 from .api import fHDHR_API
+
+from .webplugin import WebPlugin
 
 
 class fHDHR_HTTP_Server():
@@ -23,17 +22,6 @@ class fHDHR_HTTP_Server():
         self.fhdhr = fhdhr
 
         self.template_folder = fhdhr.config.internal["paths"]["www_templates_dir"]
-
-        # Gather Default settings to pass to webpages later
-        self.default_settings = {
-            "pages_to_refresh": {"section": "web_ui", "option": "pages_to_refresh"},
-            }
-
-        # Create Default Config Values and Descriptions for web plugins
-        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
-
-        # PLugins that refresh pages should have an empty list
-        self.default_settings["pages_to_refresh"]["value"] = []
 
         # Create list of pages to refresh
         self.refresh_pages = self.fhdhr.config.dict["web_ui"]["pages_to_refresh"] or []
@@ -54,15 +42,17 @@ class fHDHR_HTTP_Server():
 
         self.route_list = {}
 
-        self.endpoints_obj = {}
-        self.endpoints_obj["brython"] = fHDHR_Brython(fhdhr)
-        self.endpoints_obj["api"] = fHDHR_API(fhdhr)
+        self.endpoints_dict = {}
+        self.endpoints_dict["brython"] = fHDHR_Brython(fhdhr)
+        self.endpoints_dict["api"] = fHDHR_API(fhdhr)
+
         # Load Plugins before pages so they can override core web pages
         self.selfadd_web_plugins()
-        self.endpoints_obj["pages"] = fHDHR_Pages(fhdhr)
-        self.endpoints_obj["files"] = fHDHR_Files(fhdhr)
 
-        for endpoint_type in list(self.endpoints_obj.keys()):
+        self.endpoints_dict["pages"] = fHDHR_Pages(fhdhr)
+        self.endpoints_dict["files"] = fHDHR_Files(fhdhr)
+
+        for endpoint_type in list(self.endpoints_dict.keys()):
             self.fhdhr.logger.info("Loading HTTP %s Endpoints." % endpoint_type)
             self.add_endpoints(endpoint_type)
 
@@ -79,36 +69,16 @@ class fHDHR_HTTP_Server():
 
         for plugin_name in self.fhdhr.plugins.search_by_type("web"):
 
-            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-            plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
+            plugin = self.fhdhr.plugins.plugins[plugin_name]
+            method = plugin.name.lower()
+            self.fhdhr.logger.info("Found Web Plugin: %s" % method)
+            self.origins_dict[method] = WebPlugin(self.fhdhr, plugin)
 
-            try:
-                self.endpoints_obj[method] = self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.fhdhr, plugin_utils)
-
-            except fHDHR.exceptions.WEBSetupError as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror)
-                self.fhdhr.logger.error(error_out)
-
-            except Exception as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror)
-                self.fhdhr.logger.error(error_out)
-
-            if method in list(self.endpoints_obj.keys()):
-
-                # Set config defaults for method
-                self.fhdhr.config.set_plugin_defaults(method, self.default_settings)
-
-                for default_setting in list(self.default_settings.keys()):
-
-                    # Set webpage plugin attributes if missing
-                    if not checkattr(self.endpoints_obj[method], default_setting):
-                        self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (method, default_setting, self.fhdhr.config.dict[method][default_setting]))
-                        setattr(self.endpoints_obj[method], default_setting, self.fhdhr.config.dict[method][default_setting])
+            if method in list(self.endpoints_dict.keys()):
 
                 # Extend Refresh Page list
-                if isinstance(self.fhdhr.config.dict[method]["pages_to_refresh"], str):
-                    self.fhdhr.config.dict[method]["pages_to_refresh"] = [self.fhdhr.config.dict[method]["pages_to_refresh"]]
-                self.refresh_pages.extend(self.fhdhr.config.dict[method]["pages_to_refresh"])
+                pages_to_refresh = self.endpoints_dict[method].pages_to_refresh
+                self.refresh_pages.extend(pages_to_refresh)
 
     def start(self):
         """
@@ -247,8 +217,12 @@ class fHDHR_HTTP_Server():
         Add Endpoints.
         """
 
-        item_list = [x for x in dir(self.endpoints_obj[index_name]) if self.isapath(x)]
-        endpoint_main = self.endpoints_obj[index_name]
+        if not type(self.endpoints_dict[index_name]).__name__ == "WebPlugin":
+            item_list = [x for x in self.endpoints_dict[index_name].endpoint_directory if self.isapath(x)]
+        else:
+            item_list = [x for x in dir(self.endpoints_dict[index_name]) if self.isapath(x)]
+
+        endpoint_main = self.endpoints_dict[index_name]
         endpoint_main.fhdhr.version  # dummy line
         for item in item_list:
             endpoints = eval("endpoint_main.%s.%s" % (item, "endpoints"))
@@ -315,6 +289,9 @@ class fHDHR_HTTP_Server():
         Ignore instances.
         """
 
+        if item.startswith("__") and item.endswith("__"):
+            return False
+
         not_a_page_list = ["fhdhr", "plugin_utils", "auto_page_refresh", "pages_to_refresh"]
         if item in not_a_page_list:
             return False
@@ -322,11 +299,7 @@ class fHDHR_HTTP_Server():
         if item.startswith("proxy_"):
             return False
 
-        elif item.startswith("__") and item.endswith("__"):
-            return False
-
-        else:
-            return True
+        return True
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None, methods=['GET']):
         """
