@@ -93,6 +93,11 @@ class Origin():
             return self.method.get_channel_stream(chandict, stream_args)
         return None
 
+    def close_stream(self, tuner_number, stream_args):
+        if checkattr(self.method, "close_stream"):
+            self.fhdhr.logger.info("Running %s close_stream method." % self.name)
+            self.method.close_stream()
+
     """
     Returns configuration values in the following order
     1) If the plugin manually handles it

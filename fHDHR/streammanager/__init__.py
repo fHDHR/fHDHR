@@ -16,7 +16,6 @@ class StreamManager():
 
         # Gather Default settings to pass to origins later
         self.default_settings = {
-            # "reconnect": {"section": "streaming", "option": "reconnect"}
             }
 
         # Create Default Config Values and Descriptions for Streaming
