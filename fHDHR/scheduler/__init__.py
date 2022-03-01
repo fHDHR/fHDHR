@@ -107,26 +107,8 @@ class Scheduler():
         return "Success"
 
     def startup_epg_update(self, tags_list):
-
         for epg_method in self.fhdhr.device.epg.epg_methods:
-            haseverpulled = self.db.get_fhdhr_value("epg", "update_time", epg_method)
-            updateepg = False
-
-            if checkattr(self.fhdhr.device.epg.epg_handling[epg_method]["class"], "epg_update_on_start"):
-                updateepg = self.fhdhr.device.epg.epg_handling[epg_method]["class"].epg_update_on_start
-
-            elif epg_method in list(self.config.dict.keys()):
-                if "epg_update_on_start" in list(self.config.dict[epg_method].keys()):
-                    updateepg = self.config.dict[epg_method]["epg_update_on_start"]
-                else:
-                    updateepg = self.config.dict["fhdhr"]["epg_update_on_start"]
-
-            elif self.config.dict["epg"]["epg_update_on_start"]:
-                updateepg = self.config.dict["epg"]["epg_update_on_start"]
-
-            elif haseverpulled:
-                updateepg = False
-
+            updateepg = self.fhdhr.device.epg.epg_handling[epg_method].epg_update_on_start
             if updateepg:
                 if ("%s EPG Update" % epg_method) in tags_list:
                     self.fhdhr.scheduler.run_from_tag("%s EPG Update" % epg_method)

@@ -109,7 +109,7 @@ class xmlTV():
 
     def timestamp_to_datetime(self, time_start, time_end, source):
         xmltvtimetamps = {}
-        source_offset = self.fhdhr.device.epg.epg_handling[source]["class"].xmltv_offset
+        source_offset = self.fhdhr.device.epg.epg_handling[source].xmltv_offset
         for time_item, time_value in zip(["time_start", "time_end"], [time_start, time_end]):
             timestampval = datetime.datetime.fromtimestamp(time_value).strftime('%Y%m%d%H%M%S')
             xmltvtimetamps[time_item] = "%s %s" % (timestampval, source_offset)

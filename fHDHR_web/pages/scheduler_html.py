@@ -51,7 +51,7 @@ class Scheduler_HTML():
         epg_methods = self.fhdhr.device.epg.valid_epg_methods
         for epg_method in epg_methods:
             if "%s EPG Update" % epg_method not in enabled_jobs:
-                frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method]["class"].update_frequency
+                frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method].update_frequency
                 unscheduled_job_items.append({
                     "name": "%s EPG Update" % epg_method,
                     "type": "EPG Update",

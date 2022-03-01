@@ -1,9 +1,9 @@
 import time
 import datetime
 
-from fHDHR.tools import channel_sort, checkattr
-import fHDHR.exceptions
+from fHDHR.tools import channel_sort
 
+from .epg_handler import EPG_Handler
 from .blocks import blocksEPG
 
 
@@ -20,24 +20,12 @@ class EPG():
         self.origins = origins
         self.channels = channels
 
-        # Gather Default settings to pass to origins later
-        self.default_settings = {
-            "update_frequency": {"section": "epg", "option": "update_frequency"},
-            "xmltv_offset": {"section": "epg", "option": "xmltv_offset"},
-            "epg_update_on_start": {"section": "epg", "option": "epg_update_on_start"},
-            }
-
-        # Create Default Config Values and Descriptions for EPG
-        self.default_settings = self.fhdhr.config.get_plugin_defaults(self.default_settings)
-
         self.blocks = blocksEPG(self.fhdhr, self.channels, self.origins, None)
         self.epg_handling = {}
         self.epg_method_selfadd()
 
-        self.epg_update_url = "/api/epg?method=update"
-
         for epg_method in self.epg_methods:
-            frequency_seconds = self.epg_handling[epg_method]["class"].update_frequency
+            frequency_seconds = self.epg_handling[epg_method].update_frequency
             if frequency_seconds:
                 self.fhdhr.scheduler.every(frequency_seconds).seconds.do(
                     self.fhdhr.scheduler.job_wrapper(self.update), epg_method).tag("%s EPG Update" % epg_method)
@@ -194,16 +182,7 @@ class EPG():
             method = self.def_method
 
         self.fhdhr.logger.info("Clearing %s EPG cache." % method)
-
-        if checkattr(self.epg_handling[method]["class"], 'clear_cache'):
-            self.epg_handling[method]["class"].clear_cache()
-
-        if method in list(self.epg_handling.keys()):
-
-            if "epgdict" in list(self.epg_handling[method].keys()):
-                del self.epg_handling[method]["epgdict"]
-
-        self.fhdhr.db.delete_fhdhr_value("epg_dict", method)
+        self.epg_handling[method].clear_cache()
 
     def whats_on_now(self, channel_number, method=None, chan_obj=None, chan_dict=None):
         """
@@ -318,14 +297,13 @@ class EPG():
             method = self.def_method
 
         if method in list(self.epg_handling.keys()):
-
-            if "epgdict" in list(self.epg_handling[method].keys()):
-                return self.epg_handling[method]["epgdict"]
+            epgdict = self.epg_handling[method].get_epg()
+            if epgdict:
+                return epgdict
 
         self.update(method)
-        self.epg_handling[method]["epgdict"] = self.fhdhr.db.get_fhdhr_value("epg_dict", method) or {}
 
-        return self.epg_handling[method]["epgdict"]
+        return {}
 
     def get_thumbnail(self, itemtype, itemid):
         """
@@ -383,50 +361,17 @@ class EPG():
         self.fhdhr.logger.info("Detecting and Opening any found EPG plugins.")
         for plugin_name in self.fhdhr.plugins.search_by_type("alt_epg"):
 
-            method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
-
-            try:
-                self.epg_handling[method] = {
-                                            "class": self.fhdhr.plugins.plugins[plugin_name].Plugin_OBJ(self.channels, self.fhdhr.plugins.plugins[plugin_name].plugin_utils)
-                                            }
-
-            except fHDHR.exceptions.EPGSetupError as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror, "%s EPG Setup Failed" % method)
-                self.fhdhr.logger.error(error_out)
-
-            except Exception as exerror:
-                error_out = self.fhdhr.logger.lazy_exception(exerror, "%s Origin EPG Setup Failed" % method)
-                self.fhdhr.logger.error(error_out)
+            plugin = self.fhdhr.plugins.plugins[plugin_name]
+            method = plugin.name.lower()
+            self.fhdhr.logger.info("Found EPG: %s" % method)
+            self.epg_handling[method] = EPG_Handler(self.fhdhr, plugin)
 
         for origin in list(self.origins.origins_dict.keys()):
 
             if origin.lower() not in list(self.epg_handling.keys()):
                 self.fhdhr.logger.debug("Creating Blocks EPG for %s." % origin)
-                self.epg_handling[origin.lower()] = {
-                                                    "class": blocksEPG(self.fhdhr, self.channels, self.origins, origin)
-                                                    }
-
+                self.epg_handling[origin.lower()] = blocksEPG(self.fhdhr, self.channels, self.origins, origin)
                 self.valid_epg_methods.append(origin.lower())
-
-        for epg_method in list(self.epg_handling.keys()):
-
-            # Create config section in config system
-            if epg_method not in list(self.fhdhr.config.dict.keys()):
-                self.fhdhr.config.dict[epg_method] = {}
-
-            # Create config defaults section in config system
-            if epg_method not in list(self.fhdhr.config.conf_default.keys()):
-                self.fhdhr.config.conf_default[epg_method] = {}
-
-            # Set config defaults for method
-            self.fhdhr.config.set_plugin_defaults(epg_method, self.default_settings)
-
-            for default_setting in list(self.default_settings.keys()):
-
-                # Set Origin attributes if missing
-                if not checkattr(self.epg_handling[epg_method]["class"], default_setting):
-                    self.fhdhr.logger.debug("Setting %s %s attribute to: %s" % (epg_method, default_setting, self.fhdhr.config.dict[epg_method][default_setting]))
-                    setattr(self.epg_handling[epg_method]["class"], default_setting, self.fhdhr.config.dict[epg_method][default_setting])
 
     def update(self, method=None):
         """
@@ -448,7 +393,7 @@ class EPG():
             method = self.def_method
 
         self.fhdhr.logger.noob("Updating %s EPG cache." % method)
-        programguide = self.epg_handling[method]["class"].update_epg()
+        programguide = self.epg_handling[method].update_epg()
 
         # sort the channel listings by time stamp
         for cnum in list(programguide.keys()):
@@ -577,7 +522,5 @@ class EPG():
             total_programs += len(programguide[cnum]["listing"])
             sorted_chan_guide[channel] = programguide[channel]
 
-        self.epg_handling[method]["epgdict"] = sorted_chan_guide
-        self.fhdhr.db.set_fhdhr_value("epg_dict", method, programguide)
-        self.fhdhr.db.set_fhdhr_value("epg", "update_time", method, time.time())
+        self.epg_handling[method].set_epg(sorted_chan_guide)
         self.fhdhr.logger.noob("Wrote %s EPG cache. %s Programs for %s Channels" % (method, total_programs, total_channels))
