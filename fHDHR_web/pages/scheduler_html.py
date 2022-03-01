@@ -69,15 +69,14 @@ class Scheduler_HTML():
                 })
 
         ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
-        if "SSDP Alive" not in enabled_jobs:
-            for ssdp_method in ssdp_methods:
-                if "%s SSDP Alive" % ssdp_method not in enabled_jobs:
-                    frequency_seconds = self.fhdhr.device.ssdp.ssdp_handling[ssdp_method].max_age
-                    unscheduled_job_items.append({
-                        "name": "%s SSDP Alive" % ssdp_method,
-                        "type": "SSDP Alive",
-                        "interval": humanized_time(frequency_seconds),
-                        "interval_epoch": frequency_seconds
-                        })
+        for ssdp_method in ssdp_methods:
+            if "%s SSDP Alive" % ssdp_method not in enabled_jobs:
+                frequency_seconds = self.fhdhr.device.ssdp.ssdp_handling[ssdp_method].max_age
+                unscheduled_job_items.append({
+                    "name": "%s SSDP Alive" % ssdp_method,
+                    "type": "SSDP Alive",
+                    "interval": humanized_time(frequency_seconds),
+                    "interval_epoch": frequency_seconds
+                    })
 
         return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)

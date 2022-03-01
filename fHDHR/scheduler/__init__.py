@@ -133,25 +133,7 @@ class Scheduler():
 
     def startup_channel_scan(self, tags_list):
         for origin in list(self.fhdhr.origins.origins_dict.keys()):
-
-            haseverscanned = self.db.get_fhdhr_value("channels", "scanned_time", origin)
-            updatechannels = False
-
-            if checkattr(self.fhdhr.origins.origins_dict[origin], "chanscan_on_start"):
-                updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
-
-            elif origin in list(self.config.dict.keys()):
-                if "chanscan_on_start" in list(self.config.dict[origin].keys()):
-                    updatechannels = self.config.dict[origin]["chanscan_on_start"]
-                else:
-                    updatechannels = self.config.dict["fhdhr"]["chanscan_on_start"]
-
-            elif self.config.dict["fhdhr"]["chanscan_on_start"]:
-                updatechannels = self.config.dict["fhdhr"]["chanscan_on_start"]
-
-            elif haseverscanned:
-                updatechannels = False
-
+            updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
             if updatechannels:
                 if ("%s Channel Scan" % origin) in tags_list:
                     self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
@@ -161,8 +143,10 @@ class Scheduler():
             self.fhdhr.scheduler.run_from_tag("Versions Update")
 
     def startup_ssdp_alive(self, tags_list):
-        if "SSDP Alive" in tags_list:
-            self.fhdhr.scheduler.run_from_tag("SSDP Alive")
+        ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
+        for ssdp_method in ssdp_methods:
+            if "%s SSDP Alive" % ssdp_method in tags_list:
+                self.fhdhr.scheduler.run_from_tag("SSDP Alive")
 
     def __getattr__(self, name):
         """
