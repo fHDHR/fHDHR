@@ -68,7 +68,7 @@ class Scheduler_HTML():
                 "interval_epoch": frequency_seconds
                 })
 
-        ssdp_methods = self.fhdhr.device.ssdp.methods
+        ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
         if "SSDP Alive" not in enabled_jobs:
             for ssdp_method in ssdp_methods:
                 if "%s SSDP Alive" % ssdp_method not in enabled_jobs:
