@@ -171,7 +171,7 @@ class blocksEPG():
 
     @property
     def update_frequency(self):
-        return self.config_dict["epg_update_frequency"]
+        return self.config_dict["update_frequency"]
 
     @property
     def xmltv_offset(self):
