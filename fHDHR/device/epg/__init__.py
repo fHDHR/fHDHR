@@ -24,7 +24,7 @@ class EPG():
         self.epg_handling = {}
         self.epg_method_selfadd()
 
-        for epg_method in self.epg_methods:
+        for epg_method in self.valid_epg_methods:
             frequency_seconds = self.epg_handling[epg_method].update_frequency
             if frequency_seconds:
                 self.fhdhr.scheduler.every(frequency_seconds).seconds.do(
