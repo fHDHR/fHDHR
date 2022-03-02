@@ -79,6 +79,11 @@ class Origin():
             return False
         return True
 
+    def has_method(self, method):
+        if checkattr(self.method, "method"):
+            return True
+        return False
+
     @property
     def name(self):
         return self.plugin.name.lower()
@@ -93,10 +98,15 @@ class Origin():
             return self.method.get_channel_stream(chandict, stream_args)
         return None
 
+    def prime_stream(self, tuner_number, stream_args):
+        if checkattr(self.method, "prime_stream"):
+            self.fhdhr.logger.info("Running %s prime_stream method." % self.name)
+            self.method.prime_stream(tuner_number, stream_args)
+
     def close_stream(self, tuner_number, stream_args):
         if checkattr(self.method, "close_stream"):
             self.fhdhr.logger.info("Running %s close_stream method." % self.name)
-            self.method.close_stream()
+            self.method.close_stream(tuner_number, stream_args)
 
     """
     Returns configuration values in the following order

@@ -75,6 +75,11 @@ class SSDP_Handler():
             return False
         return True
 
+    def has_method(self, method):
+        if checkattr(self.method, "method"):
+            return True
+        return False
+
     @property
     def name(self):
         return self.plugin.name.lower()

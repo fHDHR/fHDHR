@@ -102,6 +102,7 @@ class Stream():
         """
 
         self.fhdhr.logger.info("Tuning Stream...")
+        self.stream_obj.origin_plugin.prime_stream(self.tuner.number, self.stream_obj.stream_args)
 
         if self.stream_obj.stream_args["method"] == "direct":
 

@@ -35,7 +35,7 @@ class Origins():
                 origins_info[origin_item]["channel_count"] = len(list(self.fhdhr.device.channels.list[origin_item].keys()))
                 origins_info[origin_item]["stream_method"] = self.fhdhr.origins.origins_dict[origin_item].stream_method
 
-                if checkattr(self.fhdhr.origins.origins_dict[origin_item], "close_stream"):
+                if self.fhdhr.origins.origins_dict[origin_item].has_method("close_stream"):
                     origins_info[origin_item]["close_stream_method"] = True
                 else:
                     origins_info[origin_item]["close_stream_method"] = False
