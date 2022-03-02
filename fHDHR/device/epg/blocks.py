@@ -1,4 +1,5 @@
 import datetime
+import time
 
 
 class blocksEPG():
@@ -11,6 +12,14 @@ class blocksEPG():
         self.channels = channels
         self.origins = origins
         self.origin = origin
+
+    """Functions/properties called During init"""
+
+    @property
+    def name(self):
+        return "blocks"
+
+    """Expected Properties for an EPG"""
 
     def update_epg(self):
         """
@@ -33,10 +42,6 @@ class blocksEPG():
                     programguide[str(chan_obj.number)]["listing"].append(clean_prog_dict)
 
         return programguide
-
-    @property
-    def update_frequency(self):
-        return self.fhdhr.config.dict["epg"]["update_frequency"]
 
     @property
     def timestamps(self):
@@ -153,3 +158,41 @@ class blocksEPG():
             clean_prog_dict["thumbnail"] = "/api/images?method=generate&type=content&message=Unavailable"
 
         return clean_prog_dict
+
+    @property
+    def config_dict(self):
+        return self.fhdhr.config.dict["epg"]
+
+    """
+    Returns configuration values in the following order
+    1) If the plugin manually handles it
+    2) The value we use in the config system
+    """
+
+    @property
+    def update_frequency(self):
+        return self.config_dict["epg_update_frequency"]
+
+    @property
+    def xmltv_offset(self):
+        return self.config_dict["xmltv_offset"]
+
+    @property
+    def epg_update_on_start(self):
+        return self.config_dict["epg_update_on_start"]
+
+    def clear_cache(self):
+        self._epgdict = {}
+        self.fhdhr.db.delete_fhdhr_value("epg_dict", self.name)
+
+    def get_epg(self):
+
+        if len(self._epgdict.keys()):
+            return self._epgdict
+
+        self._epgdict = self.fhdhr.db.get_fhdhr_value("epg_dict", self.name) or {}
+
+    def set_epg(self, sorted_chan_guide):
+        self._epgdict = sorted_chan_guide
+        self.fhdhr.db.set_fhdhr_value("epg_dict", self.name, sorted_chan_guide)
+        self.fhdhr.db.set_fhdhr_value("epg", "update_time", self.name, time.time())

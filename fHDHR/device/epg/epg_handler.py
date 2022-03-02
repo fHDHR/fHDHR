@@ -89,7 +89,7 @@ class EPG_Handler():
 
     @property
     def update_frequency(self):
-        if checkattr(self.method, "update_frequency"):
+        if checkattr(self.method, "epg_update_frequency"):
             return self.method.update_frequency
         return self.config_dict["epg_update_frequency"]
 
