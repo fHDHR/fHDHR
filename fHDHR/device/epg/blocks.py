@@ -35,6 +35,10 @@ class blocksEPG():
         return programguide
 
     @property
+    def update_frequency(self):
+        return self.fhdhr.config.dict["epg"]["update_frequency"]
+
+    @property
     def timestamps(self):
         """
         Generate timestamps for a star and end time for EPG data.
