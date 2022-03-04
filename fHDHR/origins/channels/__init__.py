@@ -79,11 +79,13 @@ class Channels():
 
             if chan_existing:
                 channel_obj = self.find_channel_obj(channel_info["id"], searchkey="origin_id")
-                self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (self.origin.name, channel_info))
+                chan_info = channel_obj.dict
+                self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (self.origin.name, chan_info))
 
             else:
-                self.fhdhr.logger.debug("Creating new %s channel. Info: %s" % (self.origin.name, channel_info))
                 channel_obj = Channel(self.fhdhr, self.id_system, self.origin, origin_id=channel_info["id"])
+                chan_info = channel_obj.dict
+                self.fhdhr.logger.debug("Creating new %s channel. Info: %s" % (self.origin.name, chan_info))
 
             channel_id = channel_obj.dict["id"]
             channel_obj.basics(channel_info)
