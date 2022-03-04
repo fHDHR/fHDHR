@@ -45,13 +45,13 @@ class M3U():
             if origin:
                 if channel == "all":
                     fileName = "channels.m3u"
-                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].list_channel_ids:
-                        channel_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(fhdhr_id, searchkey="id")
+                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
+                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)
                 elif str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
-                    channel_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(channel, searchkey="number")
+                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="number")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
@@ -59,7 +59,7 @@ class M3U():
                         else:
                             return "Channel Disabled"
                 elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("id")]:
-                    channel_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(channel, searchkey="id")
+                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="id")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
@@ -70,7 +70,7 @@ class M3U():
                 fileName = "channels.m3u"
                 for origin in self.fhdhr.origins.list_origins:
                     for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                        channel_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(fhdhr_id, searchkey="id")
+                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)

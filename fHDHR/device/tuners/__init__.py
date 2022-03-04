@@ -9,9 +9,8 @@ class Tuners():
     fHDHR emulated Tuners system.
     """
 
-    def __init__(self, fhdhr, epg, channels, origins):
+    def __init__(self, fhdhr, epg, origins):
         self.fhdhr = fhdhr
-        self.channels = channels
         self.origins = origins
         self.epg = epg
 

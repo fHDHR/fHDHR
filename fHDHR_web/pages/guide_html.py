@@ -119,7 +119,7 @@ class Guide_HTML():
             if channel_dict["chan_match"]:
                 origin = channel_dict["chan_match"]["origin"]
                 fhdhr_id = channel_dict["chan_match"]["fhdhr_id"]
-                chan_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(fhdhr_id, searchkey="id")
+                chan_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                 if chan_obj:
                     channel_dict["chan_match"]["number"] = chan_obj.number
                     channel_dict["chan_match"]["name"] = chan_obj.dict["name"]

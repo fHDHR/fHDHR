@@ -17,9 +17,9 @@ class fHDHR_Device():
         self.fhdhr = fhdhr
         self.fhdhr.logger.debug("Setting Up internal \"Devices\".")
 
-        self.epg = EPG(fhdhr, self.channels, origins)
+        self.epg = EPG(fhdhr, origins)
 
-        self.tuners = Tuners(fhdhr, self.epg, self.channels, origins)
+        self.tuners = Tuners(fhdhr, self.epg, origins)
 
         self.images = imageHandler(fhdhr, self.epg)
 

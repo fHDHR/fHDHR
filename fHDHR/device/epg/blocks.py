@@ -7,9 +7,8 @@ class blocksEPG():
     Blocks EPG Data for Origins missing EPG data.
     """
 
-    def __init__(self, fhdhr, channels, origins, origin):
+    def __init__(self, fhdhr, origins, origin):
         self.fhdhr = fhdhr
-        self.channels = channels
         self.origins = origins
         self.origin = origin
 
@@ -30,8 +29,8 @@ class blocksEPG():
 
         timestamps = self.timestamps
 
-        for fhdhr_id in [x["id"] for x in self.channels.get_channels(self.origin)]:
-            chan_obj = self.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=self.origin)
+        for fhdhr_id in self.fhdhr.origins.origins_dict[self.origin].list_channel_ids:
+            chan_obj = self.fhdhr.origins.origins_dict[self.origin].find_channel_obj(fhdhr_id, searchkey="id")
             if chan_obj:
 
                 if str(chan_obj.number) not in list(programguide.keys()):

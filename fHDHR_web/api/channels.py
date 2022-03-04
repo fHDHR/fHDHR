@@ -163,7 +163,7 @@ class Channels():
         elif method == "scan":
             tags_list = self.fhdhr.scheduler.list_tags()
             if ("%s Channel Scan" % origin) not in tags_list:
-                self.fhdhr.origins.origins_dict[origin].channels.update()
+                self.fhdhr.origins.origins_dict[origin].channels.update_channels()
             else:
                 self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
 

@@ -30,7 +30,7 @@ class Channels_HTML():
 
             channelslist = {}
             for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                channel_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(fhdhr_id, searchkey="id")
+                channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                 if channel_obj:
                     channel_dict = channel_obj.dict.copy()
 

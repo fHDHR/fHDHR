@@ -121,7 +121,7 @@ class StreamManager():
         if not channel_number:
             return chan_obj, {"message": "Not Found", "status_code": 404, "headers": "801 - Missing Channel"}
 
-        chan_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(channel_number, searchkey=None)
+        chan_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel_number, searchkey=None)
         if chan_obj:
             self.fhdhr.logger.debug("Channel information has been determined as: Channel=%s Origin=%s" % (chan_obj.number, chan_obj.origin))
         else:
