@@ -15,7 +15,7 @@ class Index_HTML():
 
     def get(self, *args):
 
-        channel_counts = [len(list(self.fhdhr.device.channels.list[origin].keys())) for origin in list(self.fhdhr.device.channels.list.keys())]
+        channel_counts = [self.fhdhr.origins.origins_dict[origin].channels.count_channels for origin in self.fhdhr.origins.list_origins]
 
         fhdhr_status_dict = {
                             "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),
@@ -39,10 +39,10 @@ class Index_HTML():
         except ZeroDivisionError:
             fhdhr_status_dict["Channels"] = "%s from %s origins." % (sum(channel_counts), len(channel_counts))
 
-        for origin in list(self.fhdhr.device.channels.list.keys()):
+        for origin in self.fhdhr.origins.list_origins:
             tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count(origin)
-            max_tuners = self.fhdhr.origins.origins_dict[origin].tuners
-            fhdhr_status_dict["%s Channel Count" % origin] = len(list(self.fhdhr.device.channels.list[origin].keys()))
+            max_tuners = self.fhdhr.origins.get_origin_property(origin, "tuners")
+            fhdhr_status_dict["%s Channel Count" % origin] = self.fhdhr.origins.origins_dict[origin].channels.count_channels
             fhdhr_status_dict["%s Tuner Usage" % origin] = "%s/%s" % (str(tuners_in_use), str(max_tuners))
 
         fhdhr_status_dict["EPG Methods That Update"] = ", ".join(self.fhdhr.device.epg.epg_methods)

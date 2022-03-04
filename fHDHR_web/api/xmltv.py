@@ -39,10 +39,10 @@ class xmlTV():
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
 
-            if source in self.fhdhr.origins.valid_origins:
+            if source in self.fhdhr.origins.list_origins:
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
-                    chan_obj = self.fhdhr.device.channels.find_channel_obj(epgdict[c]["id"], searchkey="origin_id", origin=source)
+                    chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(epgdict[c]["id"], searchkey="origin_id")
                     if chan_obj:
                         epgdict[chan_obj.number] = epgdict.pop(c)
                         epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
@@ -55,7 +55,7 @@ class xmlTV():
                 for c in list(epgdict.keys()):
                     chan_match = self.fhdhr.device.epg.get_epg_chan_match(source, epgdict[c]["id"])
                     if chan_match:
-                        chan_obj = self.fhdhr.device.channels.find_channel_obj(chan_match["fhdhr_id"], searchkey="id", origin=chan_match["origin"])
+                        chan_obj = self.fhdhr.origins.origins_dict[chan_match["origin"]].find_channel_obj(chan_match["fhdhr_id"], searchkey="id")
                         if chan_obj:
                             epgdict[chan_obj.number] = epgdict.pop(c)
                             epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]

@@ -26,7 +26,7 @@ class Guide_HTML():
         if source not in epg_methods:
             source = self.fhdhr.device.epg.def_method
 
-        origin_methods = self.fhdhr.origins.valid_origins
+        origin_methods = self.fhdhr.origins.list_origins
 
         channelslist = {}
         unmatched_origins = {}
@@ -56,7 +56,7 @@ class Guide_HTML():
         now_playing = whatson_all[channel]["listing"][0]
 
         if source in origin_methods:
-            channel_obj = self.fhdhr.device.channels.find_channel_obj(whatson_all[channel]["id"], searchkey="origin_id", origin=source)
+            channel_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(whatson_all[channel]["id"], searchkey="origin_id")
             if channel_obj:
 
                 channel_dict = {
@@ -69,6 +69,7 @@ class Guide_HTML():
                                 "listing_title": now_playing["title"],
                                 "listing_thumbnail": now_playing["thumbnail"],
                                 "listing_description": now_playing["description"],
+                                "source": source
                                 }
 
                 if now_playing["time_end"]:
@@ -96,6 +97,7 @@ class Guide_HTML():
                         "listing_title": now_playing["title"],
                         "listing_thumbnail": now_playing["thumbnail"],
                         "listing_description": now_playing["description"],
+                        "source": source
                         }
 
         if now_playing["time_end"]:
@@ -115,7 +117,9 @@ class Guide_HTML():
         if source in epg_methods:
             channel_dict["chan_match"] = self.fhdhr.device.epg.get_epg_chan_match(source, whatson_all[channel]["id"])
             if channel_dict["chan_match"]:
-                chan_obj = self.fhdhr.device.channels.find_channel_obj(channel_dict["chan_match"]["fhdhr_id"], searchkey="id", origin=channel_dict["chan_match"]["origin"])
+                origin = channel_dict["chan_match"]["origin"]
+                fhdhr_id = channel_dict["chan_match"]["fhdhr_id"]
+                chan_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(fhdhr_id, searchkey="id")
                 if chan_obj:
                     channel_dict["chan_match"]["number"] = chan_obj.number
                     channel_dict["chan_match"]["name"] = chan_obj.dict["name"]

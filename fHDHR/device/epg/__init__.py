@@ -22,7 +22,7 @@ class EPG():
 
         self.blocks = blocksEPG(self.fhdhr, self.channels, self.origins, None)
         self.epg_handling = {}
-        self.epg_method_selfadd()
+        self.selfadd_plugins()
 
         for epg_method in self.valid_epg_methods:
             frequency_seconds = self.epg_handling[epg_method].update_frequency
@@ -70,11 +70,11 @@ class EPG():
             if epg_method in self.valid_epg_methods:
                 epg_methods.append(epg_method)
 
-            elif epg_method in [origin for origin in list(self.origins.origins_dict.keys())]:
+            elif epg_method in [origin for origin in self.origins.list_origins]:
                 epg_methods.append(epg_method)
 
             elif epg_method in ["origin", "origins"]:
-                epg_methods.extend([origin for origin in list(self.origins.origins_dict.keys())])
+                epg_methods.extend([origin for origin in self.origins.list_origins])
 
         return epg_methods
 
@@ -251,7 +251,7 @@ class EPG():
 
         for c in list(epgdict.keys()):
 
-            if method in [origin for origin in list(self.origins.origins_dict.keys())]:
+            if method in [origin for origin in self.origins.list_origins]:
 
                 chan_obj = self.channels.find_channel_obj(epgdict[c]["id"], searchkey="origin_id", origin=None)
                 if chan_obj:
@@ -353,7 +353,7 @@ class EPG():
 
         return None
 
-    def epg_method_selfadd(self):
+    def selfadd_plugins(self):
         """
         Add EPG methods.
         """
@@ -364,9 +364,9 @@ class EPG():
             plugin = self.fhdhr.plugins.plugins[plugin_name]
             method = plugin.name.lower()
             self.fhdhr.logger.info("Found EPG: %s" % method)
-            self.epg_handling[method] = EPG_Handler(self.fhdhr, plugin)
+            self.epg_handling[method] = EPG_Handler(self.fhdhr, plugin, self.channels)
 
-        for origin in list(self.origins.origins_dict.keys()):
+        for origin in self.origins.list_origins:
 
             if origin.lower() not in list(self.epg_handling.keys()):
                 self.fhdhr.logger.debug("Creating Blocks EPG for %s." % origin)
@@ -409,7 +409,7 @@ class EPG():
                 clean_prog_guide[cnum] = programguide[cnum].copy()
                 clean_prog_guide[cnum]["listing"] = []
 
-            if method in [origin for origin in list(self.origins.origins_dict.keys())]:
+            if method in self.origins.list_origins:
                 chan_obj = self.channels.find_channel_obj(programguide[cnum]["id"], searchkey="origin_id", origin=None)
 
             else:
@@ -482,7 +482,7 @@ class EPG():
         programguide = clean_prog_guide.copy()
 
         # if a stock method, generate Blocks EPG for missing channels
-        if method in [origin for origin in list(self.origins.origins_dict.keys())]:
+        if method in self.origins.list_origins:
 
             timestamps = self.blocks.timestamps
             for fhdhr_id in [x["id"] for x in self.channels.get_channels(method)]:

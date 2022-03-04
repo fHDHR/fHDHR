@@ -18,10 +18,11 @@ class Tuners():
         self.fhdhr.logger.info("Initializing Tuners system")
 
         self.tuners = {}
-        for origin in list(self.origins.origins_dict.keys()):
+        for origin in self.origins.list_origins:
             self.tuners[origin] = {}
 
-            max_tuners = int(self.origins.origins_dict[origin].tuners)
+            max_tuners = int(self.origins.get_origin_property(origin, "tuners"))
+            # TODO dynamically adjust
 
             self.fhdhr.logger.info("Creating %s tuners for %s." % (max_tuners, origin))
 

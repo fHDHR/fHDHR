@@ -52,7 +52,7 @@ class Tuners():
         """All other Tuner API Methods"""
 
         origin = request.args.get('origin', default=None, type=str)
-        if origin and origin not in self.fhdhr.origins.valid_origins:
+        if origin and origin not in self.fhdhr.origins.list_origins:
             response = Response("Not Found", status=404)
             response.headers["X-fHDHR-Error"] = "801 - Unknown Origin"
             self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])

@@ -37,10 +37,10 @@ class Scheduler_HTML():
         unscheduled_job_items = []
         enabled_jobs = [x["name"] for x in jobsdicts]
 
-        origin_methods = self.fhdhr.origins.valid_origins
+        origin_methods = self.fhdhr.origins.list_origins
         for origin in origin_methods:
             if "%s Channel Scan" % origin not in enabled_jobs:
-                chanscan_interval = self.fhdhr.origins.origins_dict[origin].chanscan_interval
+                chanscan_interval = self.fhdhr.origins.get_origin_property(origin, ".chanscan_interval")
                 unscheduled_job_items.append({
                     "name": "%s Channel Scan" % origin,
                     "type": "Channel Scan",

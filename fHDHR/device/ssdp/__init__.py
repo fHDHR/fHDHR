@@ -24,7 +24,7 @@ class SSDPServer():
                 self.setup_ssdp()
                 self.sock.bind((self.bind_address, 1900))
 
-                self.ssdp_method_selfadd()
+                self.selfadd_plugins()
 
                 for ssdp_handler in list(self.ssdp_handling.keys()):
 
@@ -60,7 +60,7 @@ class SSDPServer():
     def methods(self):
         return self.fhdhr.plugins.search_by_type("ssdp")
 
-    def ssdp_method_selfadd(self):
+    def selfadd_plugins(self):
         """
         Add SSDP methods.
         """

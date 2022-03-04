@@ -23,9 +23,9 @@ class StreamManager():
 
         self.alt_stream_handlers = {}
 
-        self.alt_stream_methods_selfadd()
+        self.selfadd_plugins()
 
-    def alt_stream_methods_selfadd(self):
+    def selfadd_plugins(self):
         """
         Import stream methods.
         """
@@ -121,7 +121,7 @@ class StreamManager():
         if not channel_number:
             return chan_obj, {"message": "Not Found", "status_code": 404, "headers": "801 - Missing Channel"}
 
-        chan_obj = self.device.channels.find_channel_obj(channel_number, searchkey=None, origin=origin)
+        chan_obj = self.fhdhr.origins.origins_dict[origin].find_channel_obj(channel_number, searchkey=None)
         if chan_obj:
             self.fhdhr.logger.debug("Channel information has been determined as: Channel=%s Origin=%s" % (chan_obj.number, chan_obj.origin))
         else:
@@ -151,7 +151,7 @@ class StreamManager():
         if stream_method:
             self.fhdhr.logger.debug("Client has specifically requested the %s stream method." % stream_method)
         else:
-            stream_method = self.origins.origins_dict[origin].stream_method
+            stream_method = self.origins.get_origin_property(origin, "stream_method")
             self.fhdhr.logger.debug("Client did not select a stream method. Defaulting to origin %s setting of %s" % (origin, stream_method))
         if stream_method not in self.streaming_methods:
             response_dict = {"message": "Not Found", "status_code": 503, "headers": "806 - Tune Failed: Invalid Stream Method"}
@@ -167,7 +167,7 @@ class StreamManager():
         if transcode_quality:
             self.fhdhr.logger.debug("Client requested transcoding to %s quality." % transcode_quality)
         else:
-            transcode_quality = self.fhdhr.origins.origins_dict[origin].transcode_quality
+            transcode_quality = self.fhdhr.origins.get_origin_property(origin, "transcode_quality")
             self.fhdhr.logger.debug("Client did not select a transcode quality. Defaulting to origin %s setting of %s" % (origin, transcode_quality))
 
         valid_transcode_types = [None, "heavy", "mobile", "internet720", "internet480", "internet360", "internet240"]
@@ -205,10 +205,10 @@ class StreamManager():
     def parse_settings_for_stream(self, origin):
         """Pull Origin specific settings for the stream"""
         settings_dict = {
-                        "origin_quality": self.origins.origins_dict[origin].origin_quality,
-                        "bytes_per_read": self.origins.origins_dict[origin].bytes_per_read,
-                        "buffer_size": self.origins.origins_dict[origin].buffer_size,
-                        "stream_restore_attempts": self.origins.origins_dict[origin].stream_restore_attempts,
+                        "origin_quality": self.origins.get_origin_property(origin, "origin_quality"),
+                        "bytes_per_read": self.origins.get_origin_property(origin, "bytes_per_read"),
+                        "buffer_size": self.origins.get_origin_property(origin, "buffer_size"),
+                        "stream_restore_attempts": self.origins.get_origin_property(origin, "stream_restore_attempts"),
                         }
         stream_settings_string = "Pulling default settings for %s regarding stream handling:"
         for streamkey in list(settings_dict.keys()):

@@ -114,8 +114,8 @@ class Scheduler():
                     self.fhdhr.scheduler.run_from_tag("%s EPG Update" % epg_method)
 
     def startup_channel_scan(self, tags_list):
-        for origin in list(self.fhdhr.origins.origins_dict.keys()):
-            updatechannels = self.fhdhr.origins.origins_dict[origin].chanscan_on_start
+        for origin in self.fhdhr.origins.list_origins:
+            updatechannels = self.fhdhr.origins.get_origin_property(origin, "chanscan_on_start")
             if updatechannels:
                 if ("%s Channel Scan" % origin) in tags_list:
                     self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)

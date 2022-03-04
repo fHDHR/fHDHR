@@ -56,9 +56,9 @@ class Tuners_HTML():
 
                 tuner_status_dict[origin]["status_list"].append(tuner_dict)
 
-        origin_methods = self.fhdhr.origins.valid_origins
-        if len(self.fhdhr.origins.valid_origins):
-            origin = request.args.get('origin', default=self.fhdhr.origins.valid_origins[0], type=str)
+        origin_methods = self.fhdhr.origins.list_origins
+        if self.fhdhr.origins.count_origins:
+            origin = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
             if origin not in origin_methods:
                 origin = origin_methods[0]
         else:
