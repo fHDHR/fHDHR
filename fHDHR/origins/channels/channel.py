@@ -8,9 +8,8 @@ class Channel():
 
     def __init__(self, fhdhr, id_system, origin, origin_id=None, channel_id=None):
         self.fhdhr = fhdhr
-        self.origin = origin
-
         self.id_system = id_system
+        self.origin = origin
 
         if not channel_id:
 
@@ -22,10 +21,10 @@ class Channel():
 
         self.channel_id = channel_id
 
-        self.dict = self.fhdhr.db.get_fhdhr_value(str(channel_id), "dict", self.origin) or self.default_dict
+        self.dict = self.fhdhr.db.get_fhdhr_value(str(channel_id), "dict", self.origin.name) or self.default_dict
         self.verify_dict()
 
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
+        self.save_channel()
 
     @property
     def number(self):
@@ -181,7 +180,7 @@ class Channel():
         if "created" not in list(self.dict.keys()):
             self.dict["created"] = time.time()
 
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
+        self.save_channel()
 
     @property
     def default_dict(self):
@@ -205,7 +204,7 @@ class Channel():
         Set status of a channel value.
         """
 
-        self.fhdhr.logger.debug("Updating %s channel %s." % (self.origin, self.dict["id"]))
+        self.fhdhr.logger.debug("Updating %s channel %s." % (self.origin.name, self.dict["id"]))
         for key in list(updatedict.keys()):
 
             if key == "number":
@@ -232,7 +231,7 @@ class Channel():
             else:
                 self.dict[key] = str(updatedict[key])
 
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin)
+        self.save_channel()
 
     @property
     def generic_image_url(self):
@@ -248,7 +247,7 @@ class Channel():
         The Url of fHDHR stream for the channel.
         """
 
-        return '/api/tuners?method=stream&channel=%s&origin=%s' % (self.dict["id"], self.origin)
+        return '/api/tuners?method=stream&channel=%s&origin=%s' % (self.dict["id"], self.origin.name)
 
     @property
     def api_m3u_url(self):
@@ -256,14 +255,14 @@ class Channel():
         The Url of m3u for the channel.
         """
 
-        return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin)
+        return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin.name)
 
     def set_favorite(self, enablement):
         """
         Set Channel Favorite Status.
         """
 
-        self.fhdhr.logger.debug("Setting %s channel %s Facorite status to %s." % (self.origin, self.dict["id"], enablement))
+        self.fhdhr.logger.debug("Setting %s channel %s Facorite status to %s." % (self.origin.name, self.dict["id"], enablement))
 
         if enablement == "+":
             self.dict["favorite"] = 1
@@ -271,14 +270,14 @@ class Channel():
         elif enablement == "-":
             self.dict["favorite"] = 0
 
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "info", self.dict, self.origin)
+        self.save_channel()
 
     def set_enablement(self, enablement):
         """
         Set Channel Enablement Status.
         """
 
-        self.fhdhr.logger.debug("Setting %s channel %s Enabled status to %s." % (self.origin, self.dict["id"], enablement))
+        self.fhdhr.logger.debug("Setting %s channel %s Enabled status to %s." % (self.origin.name, self.dict["id"], enablement))
 
         if enablement == "disable":
             self.dict["enabled"] = False
@@ -294,7 +293,13 @@ class Channel():
             else:
                 self.dict["enabled"] = True
 
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "info", self.dict, self.origin)
+        self.save_channel()
+
+    def save_channel(self):
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin.name)
+
+    def delete_channel(self):
+        self.fhdhr.db.delete_fhdhr_value(self.dict["id"], "dict", self.origin.name)
 
     def __getattr__(self, name):
         """

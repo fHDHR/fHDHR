@@ -2,7 +2,6 @@
 import fHDHR.exceptions
 from fHDHR.tools import checkattr
 
-from .channels import Channels
 from .epg import EPG
 from .tuners import Tuners
 from .images import imageHandler
@@ -18,11 +17,9 @@ class fHDHR_Device():
         self.fhdhr = fhdhr
         self.fhdhr.logger.debug("Setting Up internal \"Devices\".")
 
-        self.channels = Channels(fhdhr, origins)
+        self.epg = EPG(fhdhr, origins)
 
-        self.epg = EPG(fhdhr, self.channels, origins)
-
-        self.tuners = Tuners(fhdhr, self.epg, self.channels, origins)
+        self.tuners = Tuners(fhdhr, self.epg, origins)
 
         self.images = imageHandler(fhdhr, self.epg)
 
@@ -36,7 +33,6 @@ class fHDHR_Device():
             method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
 
             plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
-            plugin_utils.channels = self.channels
             plugin_utils.epg = self.epg
             plugin_utils.tuners = self.tuners
             plugin_utils.images = self.images

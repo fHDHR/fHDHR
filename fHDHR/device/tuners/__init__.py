@@ -9,19 +9,19 @@ class Tuners():
     fHDHR emulated Tuners system.
     """
 
-    def __init__(self, fhdhr, epg, channels, origins):
+    def __init__(self, fhdhr, epg, origins):
         self.fhdhr = fhdhr
-        self.channels = channels
         self.origins = origins
         self.epg = epg
 
         self.fhdhr.logger.info("Initializing Tuners system")
 
         self.tuners = {}
-        for origin in list(self.origins.origins_dict.keys()):
+        for origin in self.origins.list_origins:
             self.tuners[origin] = {}
 
-            max_tuners = int(self.origins.origins_dict[origin].tuners)
+            max_tuners = int(self.origins.get_origin_property(origin, "tuners"))
+            # TODO dynamically adjust
 
             self.fhdhr.logger.info("Creating %s tuners for %s." % (max_tuners, origin))
 

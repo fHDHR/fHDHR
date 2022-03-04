@@ -15,10 +15,11 @@ class EPG_Handler():
     A wrapper for epg method to maintain consistancy.
     """
 
-    def __init__(self, fhdhr, plugin):
+    def __init__(self, fhdhr, plugin, channels):
         self.fhdhr = fhdhr
         self.plugin = plugin
         self.plugin_utils = self.plugin.plugin_utils
+        self.channels = channels
 
         self._epgdict = {}
 
@@ -46,11 +47,14 @@ class EPG_Handler():
             self.method = EPG_failed()
 
     def setup_config(self):
-        # Set config defaults for method
+        """Set config defaults for method"""
+
         self.fhdhr.config.set_plugin_defaults(self.name, self.default_settings)
+
         for default_setting in list(self.default_settings.keys()):
-            setting_value = eval("self.%s" % default_setting)
-            # Set EPG attributes if missing
+            setting_value = self.get_config_value(default_setting)
+
+            """Set EPG attributes if missing"""
             self.fhdhr.logger.debug("Setting %s EPG Configuration %s=%s" % (self.name, default_setting, setting_value))
 
     @property
@@ -65,9 +69,32 @@ class EPG_Handler():
         default_settings = self.fhdhr.config.get_plugin_defaults(default_settings)
         return default_settings
 
+    def get_default_value(self, setting):
+        default_settings = self.default_settings
+        if setting not in list(default_settings.keys()):
+            return None
+        conf_section = default_settings[setting]["section"]
+        conf_option = default_settings[setting]["option"]
+        return self.fhdhr.config.dict[conf_section][conf_option]
+
     @property
     def config_dict(self):
         return self.fhdhr.config.dict[self.name]
+
+    def get_config_value(self, epg_attr):
+        """
+        Returns configuration values in the following order
+        1) If the plugin manually handles it
+        2) The value we use in the config system
+        """
+
+        if checkattr(self.method, epg_attr):
+            return eval("self.method.%s" % epg_attr)
+
+        if self.config_dict[epg_attr]:
+            return self.config_dict[epg_attr]
+
+        return self.get_default_value(epg_attr)
 
     """Expected Properties for an EPG"""
 
@@ -78,37 +105,13 @@ class EPG_Handler():
         return True
 
     def has_method(self, method):
-        if checkattr(self.method, "method"):
+        if checkattr(self.method, method):
             return True
         return False
 
     @property
     def name(self):
         return self.plugin.name.lower()
-
-    """
-    Returns configuration values in the following order
-    1) If the plugin manually handles it
-    2) The value we use in the config system
-    """
-
-    @property
-    def update_frequency(self):
-        if checkattr(self.method, "epg_update_frequency"):
-            return self.method.update_frequency
-        return self.config_dict["epg_update_frequency"]
-
-    @property
-    def xmltv_offset(self):
-        if checkattr(self.method, "epg_xmltv_offset"):
-            return self.method.xmltv_offset
-        return self.config_dict["xmltv_offset"]
-
-    @property
-    def epg_update_on_start(self):
-        if checkattr(self.method, "epg_update_on_start"):
-            return self.method.epg_update_on_start
-        return self.config_dict["epg_update_on_start"]
 
     def clear_cache(self):
         if checkattr(self.method, "clear_cache"):
@@ -142,3 +145,9 @@ class EPG_Handler():
 
         if checkattr(self.method, name):
             return eval("self.method.%s" % name)
+
+        if checkattr(self.plugin_utils, name):
+            return eval("self.plugin_utils.%s" % name)
+
+        if name in list(self.default_settings.keys()):
+            return self.get_config_value(name)

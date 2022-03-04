@@ -2,6 +2,8 @@
 import fHDHR.exceptions
 from fHDHR.tools import checkattr
 
+from .channels import Channels
+
 
 class Origin_failed():
     def __init__(self):
@@ -13,16 +15,20 @@ class Origin():
     A wrapper for Origins to maintain consistancy.
     """
 
-    def __init__(self, fhdhr, plugin):
+    def __init__(self, fhdhr, plugin, id_system):
         self.fhdhr = fhdhr
         self.plugin = plugin
         self.plugin_utils = self.plugin.plugin_utils
+        self.id_system = id_system
 
         # Attempt to setup Origin Plugin
         self.instatiate_origin()
 
         # Setup Config Options
         self.setup_config()
+
+        # Setup Channels
+        self.channels = Channels(fhdhr, self, id_system)
 
     """Functions/properties called During init"""
 
@@ -42,16 +48,20 @@ class Origin():
             self.method = Origin_failed()
 
     def setup_config(self):
-        # Set config defaults for method
+        """Set config defaults for method"""
+
         self.fhdhr.config.set_plugin_defaults(self.name, self.default_settings)
+
         for default_setting in list(self.default_settings.keys()):
-            setting_value = eval("self.%s" % default_setting)
-            # Set Origin attributes if missing
+            setting_value = self.get_config_value(default_setting)
+
+            """Set Origin attributes if missing"""
             self.fhdhr.logger.debug("Setting %s Origin Configuration %s=%s" % (self.name, default_setting, setting_value))
 
     @property
     def default_settings(self):
-        # Gather Default settings to pass to origins later
+        """Gather Default settings to pass to origins later"""
+
         default_settings = {
             "tuners": {"section": "fhdhr", "option": "default_tuners"},
             "chanscan_on_start": {"section": "fhdhr", "option": "chanscan_on_start"},
@@ -63,13 +73,37 @@ class Origin():
             "buffer_size": {"section": "streaming", "option": "buffer_size"},
             "stream_restore_attempts": {"section": "streaming", "option": "stream_restore_attempts"},
             }
-        # Create Default Config Values and Descriptions for origins
+
+        """Create Default Config Values and Descriptions for origins"""
         default_settings = self.fhdhr.config.get_plugin_defaults(default_settings)
         return default_settings
+
+    def get_default_value(self, setting):
+        default_settings = self.default_settings
+        if setting not in list(default_settings.keys()):
+            return None
+        conf_section = default_settings[setting]["section"]
+        conf_option = default_settings[setting]["option"]
+        return self.fhdhr.config.dict[conf_section][conf_option]
 
     @property
     def config_dict(self):
         return self.fhdhr.config.dict[self.name]
+
+    def get_config_value(self, origin_attr):
+        """
+        Returns configuration values in the following order
+        1) If the plugin manually handles it
+        2) The value we use in the config system
+        """
+
+        if checkattr(self.method, origin_attr):
+            return eval("self.method.%s" % origin_attr)
+
+        if self.config_dict[origin_attr]:
+            return self.config_dict[origin_attr]
+
+        return self.get_default_value(origin_attr)
 
     """Expected Properties for an Origin"""
 
@@ -80,7 +114,7 @@ class Origin():
         return True
 
     def has_method(self, method):
-        if checkattr(self.method, "method"):
+        if checkattr(self.method, method):
             return True
         return False
 
@@ -108,66 +142,6 @@ class Origin():
             self.fhdhr.logger.info("Running %s close_stream method." % self.name)
             self.method.close_stream(tuner_number, stream_args)
 
-    """
-    Returns configuration values in the following order
-    1) If the plugin manually handles it
-    2) The value we use in the config system
-    """
-
-    @property
-    def tuners(self):
-        if checkattr(self.method, "tuners"):
-            return self.method.tuners
-        return self.config_dict["tuners"]
-
-    @property
-    def chanscan_on_start(self):
-        if checkattr(self.method, "chanscan_on_start"):
-            return self.method.chanscan_on_start
-        return self.config_dict["chanscan_on_start"]
-
-    @property
-    def chanscan_interval(self):
-        if checkattr(self.method, "chanscan_interval"):
-            return self.method.chanscan_interval
-        return self.config_dict["chanscan_interval"]
-
-    @property
-    def stream_method(self):
-        if checkattr(self.method, "stream_method"):
-            return self.method.stream_method
-        return self.config_dict["stream_method"]
-
-    @property
-    def origin_quality(self):
-        if checkattr(self.method, "origin_quality"):
-            return self.method.origin_quality
-        return self.config_dict["origin_quality"]
-
-    @property
-    def transcode_quality(self):
-        if checkattr(self.method, "transcode_quality"):
-            return self.method.transcode_quality
-        return self.config_dict["transcode_quality"]
-
-    @property
-    def bytes_per_read(self):
-        if checkattr(self.method, "bytes_per_read"):
-            return self.method.bytes_per_read
-        return self.config_dict["bytes_per_read"]
-
-    @property
-    def buffer_size(self):
-        if checkattr(self.method, "buffer_size"):
-            return self.method.buffer_size
-        return self.config_dict["buffer_size"]
-
-    @property
-    def stream_restore_attempts(self):
-        if checkattr(self.method, "stream_restore_attempts"):
-            return self.method.stream_restore_attempts
-        return self.config_dict["stream_restore_attempts"]
-
     """Dirty Shortcut area"""
 
     def __getattr__(self, name):
@@ -177,3 +151,9 @@ class Origin():
 
         if checkattr(self.method, name):
             return eval("self.method.%s" % name)
+
+        if checkattr(self.plugin_utils, name):
+            return eval("self.plugin_utils.%s" % name)
+
+        if name in list(self.default_settings.keys()):
+            return self.get_config_value(name)

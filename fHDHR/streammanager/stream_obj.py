@@ -35,7 +35,7 @@ class Stream_OBJ():
 
     @property
     def origin_plugin(self):
-        return self.fhdhr.origins.origins_dict[self.origin]
+        return self.fhdhr.origins.get_origin(self.origin)
 
     @property
     def tuner_needed(self):

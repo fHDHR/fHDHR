@@ -2,8 +2,6 @@ from flask import request, redirect, Response
 import urllib.parse
 import json
 
-from fHDHR.tools import checkattr
-
 
 class Origins():
     endpoints = ["/api/origins"]
@@ -27,18 +25,17 @@ class Origins():
         if method == "get":
             origins_info = {}
 
-            for origin_item in self.fhdhr.origins.valid_origins:
+            for origin in self.fhdhr.origins.list_origins:
 
-                origins_info[origin_item] = {}
+                origins_info[origin] = {}
 
-                origins_info[origin_item]["tuners_max"] = self.fhdhr.origins.origins_dict[origin_item].tuners
-                origins_info[origin_item]["channel_count"] = len(list(self.fhdhr.device.channels.list[origin_item].keys()))
-                origins_info[origin_item]["stream_method"] = self.fhdhr.origins.origins_dict[origin_item].stream_method
+                origins_info[origin].update(self.fhdhr.origins.get_origin_conf(origin))
+                origins_info[origin]["channel_count"] = self.fhdhr.origins.origins_dict[origin].channels.count_channels
 
-                if self.fhdhr.origins.origins_dict[origin_item].has_method("close_stream"):
-                    origins_info[origin_item]["close_stream_method"] = True
+                if self.fhdhr.origins.origin_has_method(origin, "close_stream"):
+                    origins_info[origin]["close_stream_method"] = True
                 else:
-                    origins_info[origin_item]["close_stream_method"] = False
+                    origins_info[origin]["close_stream_method"] = False
 
             origins_info_json = json.dumps(origins_info, indent=4)
 

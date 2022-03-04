@@ -26,7 +26,7 @@ class M3U():
 
         if method == "get":
 
-            origin_methods = self.fhdhr.origins.valid_origins
+            origin_methods = self.fhdhr.origins.list_origins
             origin = request.args.get('origin', default=None, type=str)
             if origin and origin not in origin_methods:
                 return "%s Invalid channels origin" % origin
@@ -45,21 +45,21 @@ class M3U():
             if origin:
                 if channel == "all":
                     fileName = "channels.m3u"
-                    for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
-                        channel_obj = self.fhdhr.device.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=origin)
+                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
+                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)
-                elif str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
-                    channel_obj = self.fhdhr.device.channels.find_channel_obj(channel, searchkey="number", origin=origin)
+                elif str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="number")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
                             channel_items.append(channel_obj)
                         else:
                             return "Channel Disabled"
-                elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id", origin)]:
-                    channel_obj = self.fhdhr.device.channels.find_channel_obj(channel, searchkey="id", origin=origin)
+                elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("id")]:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="id")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
@@ -68,14 +68,14 @@ class M3U():
                             return "Channel Disabled"
             elif not origin and channel == "all":
                 fileName = "channels.m3u"
-                for origin in list(self.fhdhr.origins.origins_dict.keys()):
-                    for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
-                        channel_obj = self.fhdhr.device.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=origin)
+                for origin in self.fhdhr.origins.list_origins:
+                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
+                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)
-            elif not origin and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.device.channels.get_channel_list("id")]:
-                channel_obj = self.fhdhr.device.channels.find_channel_obj(channel, searchkey="id", origin=None)
+            elif not origin and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.get_channel_list("id")]:
+                channel_obj = self.fhdhr.origins.channels.find_channel_obj(channel, searchkey="id", origin=None)
                 if channel_obj:
                     fileName = "%s.m3u" % channel_obj.number
                     if channel_obj.enabled:

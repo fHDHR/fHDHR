@@ -24,7 +24,7 @@ class Channels():
         method = request.args.get('method', default=None, type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)
 
-        origin_methods = self.fhdhr.origins.valid_origins
+        origin_methods = self.fhdhr.origins.list_origins
         origin = request.args.get('origin', default=None, type=str)
         if origin and origin not in origin_methods:
             return "%s Invalid channels origin" % origin
@@ -40,8 +40,8 @@ class Channels():
 
                 channels_info[origin_item] = {}
 
-                for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin=origin_item)]:
-                    channel_obj = self.fhdhr.device.channels.list[origin_item][fhdhr_id]
+                for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.channel_list[fhdhr_id]
                     if channel_obj:
                         channel_dict = channel_obj.dict.copy()
                         channel_dict["m3u_url"] = channel_obj.api_m3u_url
@@ -79,18 +79,18 @@ class Channels():
                 channel_method = channel[0]
                 channel_number = channel[1:]
 
-                if str(channel_number) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
+                if str(channel_number) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
                     response = Response("Not Found", status=404)
                     response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
                     self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
                     abort(response)
 
                 if channel_method == "+":
-                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, channel_method, origin)
+                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, channel_method, "number")
                 elif channel_method == "-":
-                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, channel_method, origin)
+                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, channel_method, "number")
                 elif channel_method == "x":
-                    self.fhdhr.device.channels.set_channel_enablement("number", channel_number, "toggle", origin)
+                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, "toggle", "number")
 
             else:
                 self.fhdhr.logger.warning("Unknown favorite command %s" % request.args['favorite'])
@@ -99,8 +99,8 @@ class Channels():
         elif method in ["enable", "disable"]:
             channel = request.args.get('channel', default=None, type=str)
             if channel == "all":
-                self.fhdhr.device.channels.set_channel_enablement_all(method, origin)
-            elif not channel or str(channel) not in [str(x) for x in self.fhdhr.device.channels.get_channel_list("number", origin)]:
+                self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement_all(method)
+            elif not channel or str(channel) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
                 if redirect_url:
                     if "?" in redirect_url:
                         return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
@@ -109,7 +109,7 @@ class Channels():
                 else:
                     return "%s Falied" % method
             else:
-                self.fhdhr.device.channels.set_channel_enablement("number", channel, method, origin)
+                self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel, method, "id")
 
         elif method == "update":
             channel_id = request.form.get('id', None)
@@ -134,7 +134,7 @@ class Channels():
                         updatedict[key] = confvalue
                     elif key in ["favorite", "HD"]:
                         updatedict[key] = int(request.form.get(key))
-            self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict, origin)
+            self.fhdhr.origins.origins_dict[origin].channels.set_channel_status(channel_id, updatedict, "id")
 
         elif method == "modify":
             channels_list = json.loads(request.form.get('channels', []))
@@ -158,19 +158,19 @@ class Channels():
                             updatedict[key] = int(channel[key])
                     else:
                         channel_id = str(channel[key])
-                self.fhdhr.device.channels.set_channel_status("id", channel_id, updatedict, origin)
+                self.fhdhr.origins.origins_dict[origin].channels.set_channel_status(channel_id, updatedict, "id")
 
         elif method == "scan":
             tags_list = self.fhdhr.scheduler.list_tags()
             if ("%s Channel Scan" % origin) not in tags_list:
-                self.fhdhr.device.channels.get_channels(forceupdate=True, origin=origin)
+                self.fhdhr.origins.origins_dict[origin].channels.update_channels()
             else:
                 self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
 
         elif method == "delete":
             fhdhr_id = request.args.get('fhdhr_id', default=None, type=str)
             if fhdhr_id:
-                self.fhdhr.device.channels.delete_channel(fhdhr_id, origin)
+                self.fhdhr.origins.origins_dict[origin].channels.delete_channel(fhdhr_id)
                 self.fhdhr.device.epg.delete_channel(fhdhr_id, origin)
 
         else:

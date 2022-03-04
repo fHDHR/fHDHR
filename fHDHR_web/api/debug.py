@@ -21,10 +21,10 @@ class Debug_JSON():
                     "base_url": base_url,
                     }
 
-        for origin in list(self.fhdhr.origins.origins_dict.keys()):
+        for origin in self.fhdhr.origins.list_origins:
             debugjson[origin] = {
                                 "tuner status": self.fhdhr.device.tuners.status(origin),
-                                "total channels": len(list(self.fhdhr.device.channels.list[origin].keys()))
+                                "total channels": self.fhdhr.origins.origins_dict[origin].channels.count_channels
                                 }
 
         debug_json = json.dumps(debugjson, indent=4)

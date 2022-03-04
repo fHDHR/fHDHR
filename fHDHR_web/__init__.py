@@ -47,7 +47,7 @@ class fHDHR_HTTP_Server():
         self.endpoints_dict["api"] = fHDHR_API(fhdhr)
 
         # Load Plugins before pages so they can override core web pages
-        self.selfadd_web_plugins()
+        self.selfadd_plugins()
 
         self.endpoints_dict["pages"] = fHDHR_Pages(fhdhr)
         self.endpoints_dict["files"] = fHDHR_Files(fhdhr)
@@ -62,7 +62,7 @@ class fHDHR_HTTP_Server():
 
         self.fhdhr.threads["flask"] = threading.Thread(target=self.run)
 
-    def selfadd_web_plugins(self):
+    def selfadd_plugins(self):
         """
         Import web Plugins.
         """

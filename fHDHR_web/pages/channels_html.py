@@ -17,20 +17,20 @@ class Channels_HTML():
 
     def get(self, *args):
 
-        origin_methods = self.fhdhr.origins.valid_origins
-        if len(self.fhdhr.origins.valid_origins):
-            origin = request.args.get('origin', default=self.fhdhr.origins.valid_origins[0], type=str)
+        origin_methods = self.fhdhr.origins.list_origins
+        if self.fhdhr.origins.count_origins:
+            origin = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
             if origin not in origin_methods:
                 origin = origin_methods[0]
 
             channels_dict = {
-                            "Total Channels": len(self.fhdhr.device.channels.get_channels(origin)),
+                            "Total Channels": self.fhdhr.origins.origins_dict[origin].channels.count_channels,
                             "Enabled": 0
                             }
 
             channelslist = {}
-            for fhdhr_id in [x["id"] for x in self.fhdhr.device.channels.get_channels(origin)]:
-                channel_obj = self.fhdhr.device.channels.find_channel_obj(fhdhr_id, searchkey="id", origin=origin)
+            for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
+                channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
                 if channel_obj:
                     channel_dict = channel_obj.dict.copy()
 

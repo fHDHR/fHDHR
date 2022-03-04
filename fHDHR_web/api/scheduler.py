@@ -70,10 +70,10 @@ class Scheduler_API():
                     self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
                         self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.epg.update), job_name).tag("%s EPG Update" % job_name)
 
-            elif job_type == "Channel Scan":
+            elif job_type == "Channel Scan":  # TODO, multiple handlers
                 if job_interval:
                     self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
-                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.channels.get_channels), origin=job_name, forceupdate=True).tag("%s Channel Scan" % job_name)
+                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.origins.origins_dict[job_name].update_channels)).tag("%s Channel Scan" % job_name)
 
             elif job_type == "Versions Update":
                 if job_interval:
@@ -82,8 +82,9 @@ class Scheduler_API():
 
             elif job_type == "SSDP Alive":
                 if job_interval:
-                    self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
-                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.ssdp.do_alive)).tag("SSDP Alive")
+                    max_age = int(self.ssdp_handling[job_name].max_age)
+                    self.fhdhr.scheduler.every(max_age).seconds.do(
+                        self.fhdhr.scheduler.job_wrapper(self.do_alive), [job_name]).tag("%s SSDP Alive" % job_name)
 
         if redirect_url:
             if "?" in redirect_url:

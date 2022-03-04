@@ -15,8 +15,8 @@ class Channel_IDs():
         Get a Channel ID for existing, or assign.
         """
 
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
-        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin) or {} for channel_id in existing_ids]
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin.name) or []
+        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin.name) or {} for channel_id in existing_ids]
         for existing_channel in existing_channel_info:
 
             if existing_channel["origin_id"] == origin_id:
@@ -29,7 +29,7 @@ class Channel_IDs():
         Assign a channel an ID.
         """
 
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin.name) or []
 
         channel_id = None
         while not channel_id:
@@ -39,7 +39,7 @@ class Channel_IDs():
                 channel_id = str(unique_id)
 
         existing_ids.append(channel_id)
-        self.fhdhr.db.set_fhdhr_value("channels", "list", existing_ids, origin)
+        self.fhdhr.db.set_fhdhr_value("channels", "list", existing_ids, origin.name)
 
         return channel_id
 
@@ -48,8 +48,8 @@ class Channel_IDs():
         Get an unused channel number.
         """
 
-        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin) or []
-        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin) or {} for channel_id in existing_ids]
+        existing_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", origin.name) or []
+        existing_channel_info = [self.fhdhr.db.get_fhdhr_value(channel_id, "dict", origin.name) or {} for channel_id in existing_ids]
 
         cnumber = [existing_channel["number"] for existing_channel in existing_channel_info if existing_channel["id"] == channel_id] or None
         if cnumber:

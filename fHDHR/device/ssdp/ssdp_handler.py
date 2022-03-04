@@ -31,8 +31,10 @@ class SSDP_Handler():
 
     def instatiate_ssdp_handler(self):
 
+        self.method = self.plugin.Plugin_OBJ(self.fhdhr, self.plugin_utils)
+
         try:
-            self.method = self.plugin.Plugin_OBJ(self.fhdhr, self.plugin_utils, self.ssdp.broadcast_ip, self.ssdp.max_age)
+            self.method = self.plugin.Plugin_OBJ(self.fhdhr, self.plugin_utils)
 
         except fHDHR.exceptions.SSDPSetupError as exerror:
             error_out = self.fhdhr.logger.lazy_exception(exerror)
@@ -45,11 +47,14 @@ class SSDP_Handler():
             self.method = SSDP_failed()
 
     def setup_config(self):
-        # Set config defaults for method
+        """Set config defaults for method"""
+
         self.fhdhr.config.set_plugin_defaults(self.name, self.default_settings)
+
         for default_setting in list(self.default_settings.keys()):
-            setting_value = eval("self.%s" % default_setting)
-            # Set SSDP attributes if missing
+            setting_value = self.get_config_value(default_setting)
+
+            """Set SSDP attributes if missing"""
             self.fhdhr.logger.debug("Setting %s SSDP Configuration %s=%s" % (self.name, default_setting, setting_value))
 
     @property
@@ -63,9 +68,32 @@ class SSDP_Handler():
         default_settings = self.fhdhr.config.get_plugin_defaults(default_settings)
         return default_settings
 
+    def get_default_value(self, setting):
+        default_settings = self.default_settings
+        if setting not in list(default_settings.keys()):
+            return None
+        conf_section = default_settings[setting]["section"]
+        conf_option = default_settings[setting]["option"]
+        return self.fhdhr.config.dict[conf_section][conf_option]
+
     @property
     def config_dict(self):
         return self.fhdhr.config.dict[self.name]
+
+    def get_config_value(self, ssdp_attr):
+        """
+        Returns configuration values in the following order
+        1) If the plugin manually handles it
+        2) The value we use in the config system
+        """
+
+        if checkattr(self.method, ssdp_attr):
+            return eval("self.method.%s" % ssdp_attr)
+
+        if self.config_dict[ssdp_attr]:
+            return self.config_dict[ssdp_attr]
+
+        return self.get_default_value(ssdp_attr)
 
     """Expected Properties for a SSDP Handler"""
 
@@ -76,7 +104,7 @@ class SSDP_Handler():
         return True
 
     def has_method(self, method):
-        if checkattr(self.method, "method"):
+        if checkattr(self.method, method):
             return True
         return False
 
@@ -94,23 +122,9 @@ class SSDP_Handler():
         if checkattr(self.method, 'on_recv'):
             return self.method.on_recv(headers, cmd, ssdp_handling_list)
 
-    """
-    Returns configuration values in the following order
-    1) If the plugin manually handles it
-    2) The value we use in the config system
-    """
-
     @property
     def enabled(self):
-        if checkattr(self.method, "enabled"):
-            return self.method.enabled
         return self.config_dict["ssdp_enabled"]
-
-    @property
-    def max_age(self):
-        if checkattr(self.method, "max_age"):
-            return self.method.max_age
-        return self.config_dict["ssdp_max_age"]
 
     """Dirty Shortcut area"""
 
@@ -121,3 +135,9 @@ class SSDP_Handler():
 
         if checkattr(self.method, name):
             return eval("self.method.%s" % name)
+
+        if checkattr(self.plugin_utils, name):
+            return eval("self.plugin_utils.%s" % name)
+
+        if name in list(self.default_settings.keys()):
+            return self.get_config_value(name)
