@@ -76,7 +76,7 @@ class Channels():
         for channel_info in channel_dict_list:
 
             chan_existing = False
-            if str(channel_info["id"]) in self.list_channel_ids:
+            if str(channel_info["id"]) in self.create_channel_list("origin_id"):
                 chan_existing = True
 
             if chan_existing:
