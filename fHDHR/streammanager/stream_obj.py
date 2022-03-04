@@ -125,7 +125,7 @@ class Stream_OBJ():
                                  self.stream_args["channel_name"],
                                  self.stream_args["channel_callsign"]))
 
-        stream_info = self.origin_plugin.get_channel_stream(self.chan_dict, self.stream_args)
+        stream_info = self.fhdhr.origins.origins_dict[self.stream_args["origin"]].get_channel_stream(self.chan_dict, self.stream_args)
         if not stream_info:
             raise TunerError("806 - Tune Failed")
 
