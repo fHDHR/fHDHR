@@ -1,6 +1,7 @@
 
 
 from .index_html import Index_HTML
+from .origins_html import Origins_HTML
 from .channels_html import Channels_HTML
 from .guide_html import Guide_HTML
 from .tuners_html import Tuners_HTML
@@ -21,6 +22,7 @@ class fHDHR_Pages():
         self.fhdhr = fhdhr
 
         self.index_html = Index_HTML(fhdhr)
+        self.origins_html = Origins_HTML(fhdhr)
         self.channels_html = Channels_HTML(fhdhr)
         self.channels_editor_html = Channels_Editor_HTML(fhdhr)
         self.channel_delete = Channel_Delete_HTML(fhdhr)

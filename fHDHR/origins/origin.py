@@ -108,6 +108,12 @@ class Origin():
     """Expected Properties for an Origin"""
 
     @property
+    def webpage_dict(self):
+        if checkattr(self.method, "webpage_dict"):
+            return self.method.webpage_dict
+        return {}
+
+    @property
     def setup_success(self):
         if type(self.method).__name__ == "Origin_failed":
             return False
@@ -157,3 +163,6 @@ class Origin():
 
         if name in list(self.default_settings.keys()):
             return self.get_config_value(name)
+
+        if checkattr(self.channels, name):
+            return eval("self.channels.%s" % name)

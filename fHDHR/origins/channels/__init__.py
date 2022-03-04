@@ -38,6 +38,10 @@ class Channels():
         return len(self.list_channel_ids)
 
     @property
+    def count_channels_enabled(self):
+        return len([channel_id for channel_id in self.list_channel_ids if self.channel_list[channel_id].enabled])
+
+    @property
     def list_channel_dicts(self):
         return [self.channel_list[channel_id].dict for channel_id in self.list_channel_ids]
 
