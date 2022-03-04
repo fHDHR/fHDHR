@@ -39,7 +39,9 @@ class Origins():
 
     @property
     def first_origin(self):
-        return self.list_origins[0]
+        if self.count_origins:
+            return self.list_origins[0]
+        return None
 
     def get_origin(self, origin):
         if origin not in self.list_origins:
