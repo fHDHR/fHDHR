@@ -81,16 +81,18 @@ class Channels():
 
             if chan_existing:
                 channel_obj = self.find_channel_obj(channel_info["id"], searchkey="origin_id")
-                chan_info = channel_obj.dict
-                self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (self.origin.name, chan_info))
-
             else:
                 channel_obj = Channel(self.fhdhr, self.id_system, self.origin, origin_id=channel_info["id"])
-                chan_info = channel_obj.dict
-                self.fhdhr.logger.debug("Creating new %s channel. Info: %s" % (self.origin.name, chan_info))
+
+            channel_obj.basics(channel_info)
+            fhdhr_chan_info = channel_obj.dict
+
+            if chan_existing:
+                self.fhdhr.logger.debug("Found Existing %s channel. Info: %s" % (self.origin.name, fhdhr_chan_info))
+            else:
+                self.fhdhr.logger.debug("Creating new %s channel. Info: %s" % (self.origin.name, fhdhr_chan_info))
 
             channel_id = channel_obj.dict["id"]
-            channel_obj.basics(channel_info)
 
             if not chan_existing:
                 self.channel_list[channel_id] = channel_obj
