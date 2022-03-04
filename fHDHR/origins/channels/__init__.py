@@ -117,8 +117,11 @@ class Channels():
         self.fhdhr.logger.info("Checking for %s Channel information stored in the database." % self.origin.name)
         channel_ids = self.fhdhr.db.get_fhdhr_value("channels", "list", self.origin.name) or []
 
-        if len(channel_ids):
-            self.fhdhr.logger.info("Found %s existing channels in the database." % str(len(channel_ids)))
+        if not len(channel_ids):
+            self.fhdhr.logger.info("Found NO existing channels in the database.")
+            return
+
+        self.fhdhr.logger.info("Found %s existing channels in the database." % str(len(channel_ids)))
 
         for channel_id in channel_ids:
             channel_obj = Channel(self.fhdhr, self.id_system, self.origin, channel_id=channel_id)
