@@ -33,7 +33,6 @@ class fHDHR_Device():
             method = self.fhdhr.plugins.plugins[plugin_name].name.lower()
 
             plugin_utils = self.fhdhr.plugins.plugins[plugin_name].plugin_utils
-            plugin_utils.channels = self.channels
             plugin_utils.epg = self.epg
             plugin_utils.tuners = self.tuners
             plugin_utils.images = self.images
