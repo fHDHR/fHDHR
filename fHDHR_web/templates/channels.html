@@ -4,9 +4,6 @@
 
 {% if origin %}
   <h4 style="text-align: center;">{{ origin }} Channels</h4>
-{% else %}
-  <h4 style="text-align: center;">Channels</h4>
-{% endif %}
 
   <p>
     {% for origin in origin_methods %}
@@ -94,4 +91,10 @@
       </tbody>
     </table>
   </div>
+{% else %}
+  <h4 style="text-align: center;">Channels</h4>
+
+  <p>It Looks like you have no origins installed!</p>
+{% endif %}
+
 {% endblock %}

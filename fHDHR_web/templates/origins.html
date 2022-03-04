@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if origin_name %}
+  <h4 style="text-align: center;">{{ origin_name }}</h4>
+
+  <p>
+    {% for origin_item in origin_methods %}
+      <button onclick="location.href='/origins?origin={{ origin_item }}'" type="button">{{ origin_item }}</button>
+    {% endfor %}
+  </p>
+
+  <p>
+    <button onclick="location.href='/channels?origin={{ origin_name }}'" type="button">{{ origin_name }} Channels</button>
+  </p>
+
+  <div class="container">
+    <table class="table-medium center">
+      <tbody>
+        {% for key in list(origin_info_dict.keys()) %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ origin_info_dict[key] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="text-align: center;">{{ origin_name }} Settings</h4>
+
+  <div class="container">
+    <table class="table-medium center">
+      <tbody>
+        {% for key in list(origin_settings_dict.keys()) %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ origin_settings_dict[key] }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if len(list(origin_plugin_dict.keys())) %}
+    <h4 style="text-align: center;">{{ origin_name }} Information</h4>
+
+    <div class="container">
+      <table class="table-medium center">
+        <tbody>
+          {% for key in list(origin_plugin_dict.keys()) %}
+            <tr>
+              <td>{{ key }}</td>
+              <td>{{ origin_plugin_dict[key] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% endif %}
+
+{% else %}
+  <h4 style="text-align: center;">fHDHR Origins</h4>
+
+  <p>It Looks like you have no origins installed!</p>
+
+{% endif %}
+
+
+{% endblock %}
