@@ -277,6 +277,6 @@ class Channels():
 
         # Channel matched, really shouldn't find more than one
         channel_id = searchkey_matches[0]
-        chan_obj = self.get_channel_dict(channel_id)
+        chan_obj = self.get_channel_object(channel_id)
 
         return chan_obj
