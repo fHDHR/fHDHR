@@ -2,7 +2,7 @@
 from fHDHR.tools import checkattr
 from .origin import Origin
 from .channels.chan_ident import Channel_IDs
-from .channels.orign_hunt import Origin_Hunt
+from .channels.origin_hunt import Origin_Hunt
 
 
 class Origins():
