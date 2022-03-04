@@ -43,7 +43,7 @@ class Channels():
 
     @property
     def list_channel_ids(self):
-        return list(self.channel_list.keys())
+        return [str(x) for x in list(self.channel_list.keys())]
 
     def create_channel_list(self, searchkey):
         """
@@ -75,7 +75,9 @@ class Channels():
         chan_scan_start = time.time()
         for channel_info in channel_dict_list:
 
-            chan_existing = channel_info["id"] in self.list_channel_ids
+            chan_existing = False
+            if str(channel_info["id"]) in self.list_channel_ids:
+                chan_existing = True
 
             if chan_existing:
                 channel_obj = self.find_channel_obj(channel_info["id"], searchkey="origin_id")
