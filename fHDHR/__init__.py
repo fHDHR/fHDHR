@@ -2,7 +2,8 @@
 
 from .device import fHDHR_Device
 from .api import fHDHR_API_URLs
-from fHDHR.origins import Origins
+from .origins import Origins
+from .electronicprogramguide import ElectronicProgramGuide
 
 from .streammanager import StreamManager
 
@@ -60,6 +61,8 @@ class fHDHR_OBJ():
         self.fhdhr = fHDHR_INT_OBJ(self, settings, logger, db, plugins, versions, web, scheduler, deps)
 
         self.fhdhr.origins = Origins(self.fhdhr)
+
+        self.fhdhr.electronicprogramguide = ElectronicProgramGuide(self.fhdhr)
 
         self.device = fHDHR_Device(self.fhdhr, self.fhdhr.origins)
 
