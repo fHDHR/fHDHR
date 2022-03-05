@@ -40,12 +40,12 @@ class Scheduler_HTML():
         origin_methods = self.fhdhr.origins.list_origins
         for origin in origin_methods:
             if "%s Channel Scan" % origin not in enabled_jobs:
-                frequency_seconds = self.fhdhr.origins.get_origin_property(origin, ".chanscan_interval")
+                chanscan_interval = self.fhdhr.origins.get_origin_property(origin, ".chanscan_interval")
                 unscheduled_job_items.append({
                     "name": "%s Channel Scan" % origin,
                     "type": "Channel Scan",
-                    "interval": humanized_time(int(frequency_seconds)),
-                    "interval_epoch": frequency_seconds
+                    "interval": humanized_time(chanscan_interval),
+                    "interval_epoch": chanscan_interval
                     })
 
         epg_methods = self.fhdhr.device.epg.valid_epg_methods
@@ -55,7 +55,7 @@ class Scheduler_HTML():
                 unscheduled_job_items.append({
                     "name": "%s EPG Update" % epg_method,
                     "type": "EPG Update",
-                    "interval": humanized_time(int(frequency_seconds)),
+                    "interval": humanized_time(frequency_seconds),
                     "interval_epoch": frequency_seconds
                     })
 
@@ -64,7 +64,7 @@ class Scheduler_HTML():
             unscheduled_job_items.append({
                 "name": "Versions Update",
                 "type": "Versions Update",
-                "interval": humanized_time(int(frequency_seconds)),
+                "interval": humanized_time(frequency_seconds),
                 "interval_epoch": frequency_seconds
                 })
 
@@ -75,7 +75,7 @@ class Scheduler_HTML():
                 unscheduled_job_items.append({
                     "name": "%s SSDP Alive" % ssdp_method,
                     "type": "SSDP Alive",
-                    "interval": humanized_time(int(frequency_seconds)),
+                    "interval": humanized_time(frequency_seconds),
                     "interval_epoch": frequency_seconds
                     })
 
