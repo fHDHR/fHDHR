@@ -37,8 +37,8 @@ class Origins_HTML():
                                     "Channel Count (enabled)": origin.count_channels_enabled,
                                     })
 
-            tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count(origin)
-            max_tuners = self.fhdhr.origins.get_origin_property(origin, "tuners")
+            tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count(origin.name)
+            max_tuners = self.fhdhr.origins.get_origin_property(origin.name, "tuners")
             origin_info_dict["Tuner Usage"] = "%s/%s" % (str(tuners_in_use), str(max_tuners))
 
             for setting in list(origin.default_settings.keys()):
