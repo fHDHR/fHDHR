@@ -31,8 +31,6 @@ class SSDP_Handler():
 
     def instatiate_ssdp_handler(self):
 
-        self.method = self.plugin.Plugin_OBJ(self.fhdhr, self.plugin_utils)
-
         try:
             self.method = self.plugin.Plugin_OBJ(self.fhdhr, self.plugin_utils)
 
