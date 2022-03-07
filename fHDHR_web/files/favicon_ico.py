@@ -9,9 +9,9 @@ class Favicon_ICO():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         return send_from_directory(self.fhdhr.config.internal["paths"]["www_dir"],
                                    'favicon.ico',

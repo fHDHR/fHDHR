@@ -9,17 +9,19 @@ class Tuners():
     endpoints = ["/api/tuners"]
     endpoint_name = "api_tuners"
     endpoint_methods = ["GET", "POST"]
-    endpoint_default_parameters = {
-                                    "method": "status"
+    endpoint_parameters = {
+                            "method": {
+                                    "default": "status"
                                     }
+                            }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="stream", type=str)
 
@@ -51,8 +53,8 @@ class Tuners():
 
         """All other Tuner API Methods"""
 
-        origin = request.args.get('origin', default=None, type=str)
-        if origin and origin not in self.fhdhr.origins.list_origins:
+        origin_name = request.args.get('origin', default=None, type=str)
+        if origin_name and origin_name not in self.fhdhr.origins.list_origins:
             response = Response("Not Found", status=404)
             response.headers["X-fHDHR-Error"] = "801 - Unknown Origin"
             self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
@@ -64,38 +66,38 @@ class Tuners():
 
         if method == "close":
 
-            if not origin:
+            if not origin_name:
                 return "Missing Origin"
 
-            if not tuner_number or str(tuner_number) not in list(self.fhdhr.device.tuners.tuners[origin].keys()):
+            if not tuner_number or str(tuner_number) not in list(self.fhdhr.device.tuners.tuners[origin_name].keys()):
                 return "%s Invalid tuner" % str(tuner_number)
 
             session["tuner_used"] = tuner_number
 
-            tuner = self.fhdhr.device.tuners.tuners[origin][str(tuner_number)]
+            tuner = self.fhdhr.device.tuners.tuners[origin_name][str(tuner_number)]
             tuner.close()
 
         elif method == "scan":
 
-            if not origin:
-                for origin in list(self.fhdhr.device.tuners.tuners.keys()):
+            if not origin_name:
+                for origin_name in list(self.fhdhr.device.tuners.tuners.keys()):
                     if not tuner_number:
-                        tunernum = self.fhdhr.device.tuners.first_available(origin, None)
+                        tunernum = self.fhdhr.device.tuners.first_available(origin_name, None)
                     else:
-                        tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, origin, None)
-                    tuner = self.fhdhr.device.tuners.tuners[origin][str(tunernum)]
-                    tuner.channel_scan(origin=origin, grabbed=False)
+                        tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, origin_name, None)
+                    tuner = self.fhdhr.device.tuners.tuners[origin_name][str(tunernum)]
+                    tuner.channel_scan(origin_name=origin_name, grabbed=False)
             else:
                 if not tuner_number:
-                    tunernum = self.fhdhr.device.tuners.first_available(origin, None)
+                    tunernum = self.fhdhr.device.tuners.first_available(origin_name, None)
                 else:
-                    tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, origin, None)
-                tuner = self.fhdhr.device.tuners.tuners[origin][str(tunernum)]
-                tuner.channel_scan(origin=origin, grabbed=True)
+                    tunernum = self.fhdhr.device.tuners.tuner_grab(tuner_number, origin_name, None)
+                tuner = self.fhdhr.device.tuners.tuners[origin_name][str(tunernum)]
+                tuner.channel_scan(origin_name=origin_name, grabbed=True)
 
         elif method == "status":
 
-            if not origin:
+            if not origin_name:
                 if not tuner_number:
                     tuner_status = self.fhdhr.device.tuners.status()
                 else:
@@ -103,9 +105,9 @@ class Tuners():
             else:
 
                 if not tuner_number:
-                    tuner_status = self.fhdhr.device.tuners.status(origin)
-                elif str(tuner_number) in list(self.fhdhr.device.tuners.tuners[origin].keys()):
-                    tuner_status = self.fhdhr.device.tuners.tuners[origin][str(tuner_number)].get_status()
+                    tuner_status = self.fhdhr.device.tuners.status(origin_name)
+                elif str(tuner_number) in list(self.fhdhr.device.tuners.tuners[origin_name].keys()):
+                    tuner_status = self.fhdhr.device.tuners.tuners[origin_name][str(tuner_number)].get_status()
                 else:
                     tuner_status = ["Invalid Tuner %s" % tuner_number]
 

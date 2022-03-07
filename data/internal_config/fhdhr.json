@@ -69,6 +69,13 @@
                     "config_web": true,
                     "valid_options": "int",
                     "description": "Determines How often to scan for new channels."
+                },
+          "humanized_time_granularity":{
+                    "value": "second",
+                    "config_file": true,
+                    "config_web": true,
+                    "valid_options": "year,day,hour,minute,second",
+                    "description": "Determines the granularity of Humanized Time Output."
                 }
   }
 }

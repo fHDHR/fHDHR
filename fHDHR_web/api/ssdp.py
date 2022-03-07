@@ -7,17 +7,19 @@ class SSDP_API():
     endpoints = ["/api/ssdp"]
     endpoint_name = "api_ssdp"
     endpoint_methods = ["GET", "POST"]
-    endpoint_default_parameters = {
-                                    "method": "get"
+    endpoint_parameters = {
+                            "method": {
+                                    "default": "get"
                                     }
+                            }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default=None, type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)

@@ -476,8 +476,9 @@ class Config():
                 self.dict[section][default_setting] = default_settings[default_setting]["value"]
 
                 # Only Log if the configuration is configurable versus a setting a plugin needs to have
-                if default_settings[default_setting]["config_file"] or default_settings[default_setting]["config_web"]:
+                if default_settings[default_setting]["config_file"]:
                     self.logger.debug("Setting configuration [%s]%s=%s" % (section, default_setting, self.dict[section][default_setting]))
+                    self.write(default_setting, self.dict[section][default_setting], section)
 
             # create conf_option in config defaults section for origin method with default values if missing
             if default_setting not in list(self.conf_default[section].keys()):

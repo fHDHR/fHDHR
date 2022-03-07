@@ -14,25 +14,25 @@ class Tuners_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         tuner_status_dict = {}
 
         tuner_status = self.fhdhr.device.tuners.status()
-        for origin in list(tuner_status.keys()):
-            tuner_status_dict[origin] = {}
-            tuner_status_dict[origin]["scan_count"] = 0
-            tuner_status_dict[origin]["status_list"] = []
-            for tuner in list(tuner_status[origin].keys()):
-                if tuner_status[origin][tuner]["status"] == "Scanning":
-                    tuner_status_dict[origin]["scan_count"] += 1
+        for origin_name in list(tuner_status.keys()):
+            tuner_status_dict[origin_name] = {}
+            tuner_status_dict[origin_name]["scan_count"] = 0
+            tuner_status_dict[origin_name]["status_list"] = []
+            for tuner in list(tuner_status[origin_name].keys()):
+                if tuner_status[origin_name][tuner]["status"] == "Scanning":
+                    tuner_status_dict[origin_name]["scan_count"] += 1
 
                 tuner_dict = {
                               "number": str(tuner),
-                              "status": str(tuner_status[origin][tuner]["status"]),
-                              "origin": "N/A",
+                              "status": str(tuner_status[origin_name][tuner]["status"]),
+                              "origin_name": "N/A",
                               "channel_number": "N/A",
                               "method": "N/A",
                               "running_time": "N/A",
@@ -40,28 +40,28 @@ class Tuners_HTML():
                               "served": "N/A - N/A",
                               }
 
-                if tuner_status[origin][tuner]["status"] in ["Active", "Acquired", "Scanning"]:
-                    tuner_dict["origin"] = tuner_status[origin][tuner]["origin"]
-                    tuner_dict["channel_number"] = tuner_status[origin][tuner]["channel"] or "N/A"
-                    tuner_dict["running_time"] = str(tuner_status[origin][tuner]["running_time"])
+                if tuner_status[origin_name][tuner]["status"] in ["Active", "Acquired", "Scanning"]:
+                    tuner_dict["origin_name"] = tuner_status[origin_name][tuner]["origin_name"]
+                    tuner_dict["channel_number"] = tuner_status[origin_name][tuner]["channel"] or "N/A"
+                    tuner_dict["running_time"] = str(tuner_status[origin_name][tuner]["running_time"])
 
-                if tuner_status[origin][tuner]["status"] in "Active":
-                    tuner_dict["method"] = tuner_status[origin][tuner]["method"]
+                if tuner_status[origin_name][tuner]["status"] in "Active":
+                    tuner_dict["method"] = tuner_status[origin_name][tuner]["method"]
                     tuner_dict["downloaded"] = "%s - %s Chunks" % (
-                        humanized_filesize(tuner_status[origin][tuner]["downloaded_size"]),
-                        tuner_status[origin][tuner]["downloaded_chunks"])
+                        humanized_filesize(tuner_status[origin_name][tuner]["downloaded_size"]),
+                        tuner_status[origin_name][tuner]["downloaded_chunks"])
                     tuner_dict["served"] = "%s - %s Chunks" % (
-                        humanized_filesize(tuner_status[origin][tuner]["served_size"]),
-                        tuner_status[origin][tuner]["served_chunks"])
+                        humanized_filesize(tuner_status[origin_name][tuner]["served_size"]),
+                        tuner_status[origin_name][tuner]["served_chunks"])
 
-                tuner_status_dict[origin]["status_list"].append(tuner_dict)
+                tuner_status_dict[origin_name]["status_list"].append(tuner_dict)
 
         origin_methods = self.fhdhr.origins.list_origins
         if self.fhdhr.origins.count_origins:
-            origin = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
-            if origin not in origin_methods:
-                origin = origin_methods[0]
+            origin_name = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
+            if origin_name not in origin_methods:
+                origin_name = origin_methods[0]
         else:
-            origin = None
+            origin_name = None
 
-        return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, origin=origin, origin_methods=origin_methods, tuner_status_dict=tuner_status_dict, list=list)
+        return render_template('tuners.html', request=request, session=session, fhdhr=self.fhdhr, origin_name=origin_name, origin_methods=origin_methods, tuner_status_dict=tuner_status_dict, list=list)

@@ -17,9 +17,9 @@ class xmlTV():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         if self.fhdhr.config.dict["fhdhr"]["require_auth"]:
             if session["deviceauth"] != self.fhdhr.config.dict["fhdhr"]["device_auth"]:
@@ -55,7 +55,7 @@ class xmlTV():
                 for c in list(epgdict.keys()):
                     chan_match = self.fhdhr.device.epg.get_epg_chan_match(source, epgdict[c]["id"])
                     if chan_match:
-                        chan_obj = self.fhdhr.origins.origins_dict[chan_match["origin"]].find_channel_obj(chan_match["fhdhr_id"], searchkey="id")
+                        chan_obj = self.fhdhr.origins.origins_dict[chan_match["origin_name"]].find_channel_obj(chan_match["fhdhr_channel_id"], searchkey="id")
                         if chan_obj:
                             epgdict[chan_obj.number] = epgdict.pop(c)
                             epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]

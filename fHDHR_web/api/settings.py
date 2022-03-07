@@ -18,9 +18,9 @@ class Settings():
         self.restart_sleep = 5
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)

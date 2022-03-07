@@ -9,52 +9,54 @@ class Channels():
     endpoints = ["/api/channels"]
     endpoint_name = "api_channels"
     endpoint_methods = ["GET", "POST"]
-    endpoint_default_parameters = {
-                                    "method": "get"
+    endpoint_parameters = {
+                            "method": {
+                                    "default": "get"
                                     }
+                            }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default=None, type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)
 
         origin_methods = self.fhdhr.origins.list_origins
-        origin = request.args.get('origin', default=None, type=str)
-        if origin and origin not in origin_methods:
-            return "%s Invalid channels origin" % origin
+        origin_name = request.args.get('origin', default=None, type=str)
+        if origin_name and origin_name not in origin_methods:
+            return "%s Invalid channels origin" % origin_name
 
         if method == "get":
             channels_info = {}
-            if not origin:
+            if not origin_name:
                 origin_list = origin_methods
             else:
-                origin_list = [origin]
+                origin_list = [origin_name]
 
-            for origin_item in origin_list:
+            for origin_name in origin_list:
 
-                channels_info[origin_item] = {}
+                channels_info[origin_name] = {}
 
-                for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.channel_list[fhdhr_id]
+                for fhdhr_channel_id in self.fhdhr.origins.origins_dict[origin_name].channels.list_channel_ids:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.channel_list[fhdhr_channel_id]
                     if channel_obj:
                         channel_dict = channel_obj.dict.copy()
                         channel_dict["m3u_url"] = channel_obj.api_m3u_url
                         channel_dict["stream_url"] = channel_obj.api_stream_url
-                        channels_info[origin_item][channel_obj.number] = channel_dict
+                        channels_info[origin_name][channel_obj.number] = channel_dict
 
                 # Sort the channels
-                sorted_channel_list = channel_sort(list(channels_info[origin_item].keys()))
+                sorted_channel_list = channel_sort(list(channels_info[origin_name].keys()))
                 sorted_chan_guide = []
                 for channel in sorted_channel_list:
-                    sorted_chan_guide.append(channels_info[origin_item][channel])
+                    sorted_chan_guide.append(channels_info[origin_name][channel])
 
-                channels_info[origin_item] = sorted_chan_guide
+                channels_info[origin_name] = sorted_chan_guide
 
             channels_info_json = json.dumps(channels_info, indent=4)
 
@@ -79,18 +81,18 @@ class Channels():
                 channel_method = channel[0]
                 channel_number = channel[1:]
 
-                if str(channel_number) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
+                if str(channel_number) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin_name].channels.create_channel_list("number")]:
                     response = Response("Not Found", status=404)
                     response.headers["X-fHDHR-Error"] = "801 - Unknown Channel"
                     self.fhdhr.logger.error(response.headers["X-fHDHR-Error"])
                     abort(response)
 
                 if channel_method == "+":
-                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, channel_method, "number")
+                    self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_enablement(channel_number, channel_method, "number")
                 elif channel_method == "-":
-                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, channel_method, "number")
+                    self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_enablement(channel_number, channel_method, "number")
                 elif channel_method == "x":
-                    self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel_number, "toggle", "number")
+                    self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_enablement(channel_number, "toggle", "number")
 
             else:
                 self.fhdhr.logger.warning("Unknown favorite command %s" % request.args['favorite'])
@@ -99,8 +101,8 @@ class Channels():
         elif method in ["enable", "disable"]:
             channel = request.args.get('channel', default=None, type=str)
             if channel == "all":
-                self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement_all(method)
-            elif not channel or str(channel) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
+                self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_enablement_all(method)
+            elif not channel or str(channel) not in [str(x) for x in self.fhdhr.origins.origins_dict[origin_name].channels.create_channel_list("number")]:
                 if redirect_url:
                     if "?" in redirect_url:
                         return redirect("%s&retmessage=%s" % (redirect_url, urllib.parse.quote("%s Failed" % method)))
@@ -109,7 +111,7 @@ class Channels():
                 else:
                     return "%s Falied" % method
             else:
-                self.fhdhr.origins.origins_dict[origin].channels.set_channel_enablement(channel, method, "id")
+                self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_enablement(channel, method, "id")
 
         elif method == "update":
             channel_id = request.form.get('id', None)
@@ -134,7 +136,7 @@ class Channels():
                         updatedict[key] = confvalue
                     elif key in ["favorite", "HD"]:
                         updatedict[key] = int(request.form.get(key))
-            self.fhdhr.origins.origins_dict[origin].channels.set_channel_status(channel_id, updatedict, "id")
+            self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_status(channel_id, updatedict, "id")
 
         elif method == "modify":
             channels_list = json.loads(request.form.get('channels', []))
@@ -158,20 +160,16 @@ class Channels():
                             updatedict[key] = int(channel[key])
                     else:
                         channel_id = str(channel[key])
-                self.fhdhr.origins.origins_dict[origin].channels.set_channel_status(channel_id, updatedict, "id")
+                self.fhdhr.origins.origins_dict[origin_name].channels.set_channel_status(channel_id, updatedict, "id")
 
         elif method == "scan":
-            tags_list = self.fhdhr.scheduler.list_tags()
-            if ("%s Channel Scan" % origin) not in tags_list:
-                self.fhdhr.origins.origins_dict[origin].channels.update_channels()
-            else:
-                self.fhdhr.scheduler.run_from_tag("%s Channel Scan" % origin)
+            self.fhdhr.origins.origins_dict[origin_name].channels.run_schedule_scan()
 
         elif method == "delete":
-            fhdhr_id = request.args.get('fhdhr_id', default=None, type=str)
-            if fhdhr_id:
-                self.fhdhr.origins.origins_dict[origin].channels.delete_channel(fhdhr_id)
-                self.fhdhr.device.epg.delete_channel(fhdhr_id, origin)
+            fhdhr_channel_id = request.args.get('fhdhr_channel_id', default=None, type=str)
+            if fhdhr_channel_id:
+                self.fhdhr.origins.origins_dict[origin_name].channels.delete_channel(fhdhr_channel_id)
+                self.fhdhr.device.epg.delete_channel(fhdhr_channel_id, origin_name)
 
         else:
             return "Invalid Method"

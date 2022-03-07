@@ -11,11 +11,11 @@ class Index_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
-        channel_counts = [self.fhdhr.origins.origins_dict[origin].channels.count_channels for origin in self.fhdhr.origins.list_origins]
+        channel_counts = [self.fhdhr.origins.origins_dict[origin_name].channels.count_channels for origin_name in self.fhdhr.origins.list_origins]
 
         fhdhr_status_dict = {
                             "Script Directory": str(self.fhdhr.config.internal["paths"]["script_dir"]),

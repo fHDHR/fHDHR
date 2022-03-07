@@ -28,9 +28,9 @@ class Style_CSS():
                 self.external_style_address = self.fhdhr.config.dict["web_ui"]["theme"]
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         main_output = StringIO()
 

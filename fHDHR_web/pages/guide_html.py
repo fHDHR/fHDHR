@@ -1,7 +1,7 @@
 from flask import request, session, render_template
 import datetime
 
-from fHDHR.tools import channel_sort, humanized_time
+from fHDHR.tools import channel_sort
 
 
 class Guide_HTML():
@@ -15,9 +15,9 @@ class Guide_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         nowtime = datetime.datetime.utcnow().timestamp()
 
@@ -32,25 +32,25 @@ class Guide_HTML():
         unmatched_origins = {}
 
         if not source:
-            return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, origin=source, origin_methods=origin_methods, unmatched_origins=unmatched_origins, list=list)
+            return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, source=source, origin_methods=origin_methods, unmatched_origins=unmatched_origins, list=list)
 
         whatson_all = self.fhdhr.device.epg.whats_on_allchans(source)
 
         sorted_channel_list = channel_sort([x for x in list(whatson_all.keys())])
 
-        for origin in origin_methods:
-            unmatched_origins[origin] = []
-            curr_origin = self.fhdhr.device.epg.get_epg_chan_unmatched(origin, source)
+        for origin_name in origin_methods:
+            unmatched_origins[origin_name] = []
+            curr_origin = self.fhdhr.device.epg.get_epg_chan_unmatched(origin_name, source)
             sorted_unmatched = channel_sort([x["number"] for x in curr_origin])
             for channel_number in sorted_unmatched:
-                unmatched_origins[origin].append([x for x in curr_origin if x["number"] == channel_number][0])
+                unmatched_origins[origin_name].append([x for x in curr_origin if x["number"] == channel_number][0])
 
         for channel in sorted_channel_list:
             channel_dict, channel_number = self.create_channeldict(source, origin_methods, epg_methods, whatson_all, nowtime, channel)
 
             channelslist[channel_number] = channel_dict
 
-        return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, origin=source, origin_methods=origin_methods, unmatched_origins=unmatched_origins, list=list)
+        return render_template('guide.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=channelslist, epg_methods=epg_methods, source=source, origin_methods=origin_methods, unmatched_origins=unmatched_origins, list=list)
 
     def create_channeldict(self, source, origin_methods, epg_methods, whatson_all, nowtime, channel):
         now_playing = whatson_all[channel]["listing"][0]
@@ -73,7 +73,7 @@ class Guide_HTML():
                                 }
 
                 if now_playing["time_end"]:
-                    channel_dict["listing_remaining_time"] = humanized_time(now_playing["time_end"] - nowtime)
+                    channel_dict["listing_remaining_time"] = self.fhdhr.time.humanized_time(now_playing["time_end"] - nowtime)
                 else:
                     channel_dict["listing_remaining_time"] = "N/A"
 
@@ -101,7 +101,7 @@ class Guide_HTML():
                         }
 
         if now_playing["time_end"]:
-            channel_dict["listing_remaining_time"] = humanized_time(now_playing["time_end"] - nowtime)
+            channel_dict["listing_remaining_time"] = self.fhdhr.time.humanized_time(now_playing["time_end"] - nowtime)
         else:
             channel_dict["listing_remaining_time"] = "N/A"
 
@@ -117,9 +117,9 @@ class Guide_HTML():
         if source in epg_methods:
             channel_dict["chan_match"] = self.fhdhr.device.epg.get_epg_chan_match(source, whatson_all[channel]["id"])
             if channel_dict["chan_match"]:
-                origin = channel_dict["chan_match"]["origin"]
-                fhdhr_id = channel_dict["chan_match"]["fhdhr_id"]
-                chan_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
+                origin_name = channel_dict["chan_match"]["origin_name"]
+                fhdhr_channel_id = channel_dict["chan_match"]["fhdhr_channel_id"]
+                chan_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(fhdhr_channel_id, searchkey="id")
                 if chan_obj:
                     channel_dict["chan_match"]["number"] = chan_obj.number
                     channel_dict["chan_match"]["name"] = chan_obj.dict["name"]

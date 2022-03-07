@@ -2,18 +2,18 @@
 
 {% block content %}
 
-{% if origin %}
-  <h4 style="text-align: center;">{{ origin }} Channels</h4>
+{% if origin_name %}
+  <h4 style="text-align: center;">{{ origin_name }} Channels</h4>
 
   <p>
-    {% for origin in origin_methods %}
-      <button onclick="location.href='/channels?origin={{ origin }}'" type="button">{{ origin }}</button>
+    {% for origin_name in origin_methods %}
+      <button onclick="location.href='/channels?origin={{ origin_name }}'" type="button">{{ origin_name }}</button>
     {% endfor %}
   </p>
 
-  {% if origin %}
+  {% if origin_name %}
     <div style="text-align: center;">
-      <button onclick="location.href='/api/tuners?method=scan&origin={{ origin }}&redirect=/channels?origin={{ origin }}'" type="button">Force Channel Update</button>
+      <button onclick="location.href='/api/tuners?method=scan&origin={{ origin_name }}&redirect=/channels?origin={{ origin_name }}'" type="button">Force Channel Update</button>
       <p> Note: This may take some time.</p>
     </div>
     <br>
@@ -32,10 +32,10 @@
     </table>
   </div>
 
-  {% if origin %}
+  {% if origin_name %}
     <br>
     <div style="text-align: center;">
-      <button onclick="location.href='/channels_editor?origin={{ origin }}'" type="button">Edit Channels</button>
+      <button onclick="location.href='/channels_editor?origin={{ origin_name }}'" type="button">Edit Channels</button>
     </div>
     <br>
   {% endif %}

@@ -9,6 +9,7 @@ from .brython import fHDHR_Brython
 from .api import fHDHR_API
 
 from .webplugin import WebPlugin
+from fHDHR.tools import checkattr
 
 
 class fHDHR_HTTP_Server():
@@ -217,51 +218,60 @@ class fHDHR_HTTP_Server():
         Add Endpoints.
         """
 
-        if type(self.endpoints_dict[index_name]).__name__ == "WebPlugin":
-            item_list = [x for x in self.endpoints_dict[index_name].endpoint_directory if self.isapath(x)]
+        endpoint_obj = self.endpoints_dict[index_name]
+
+        if type(endpoint_obj).__name__ == "WebPlugin":
+            item_list = [x for x in endpoint_obj.endpoint_directory if self.isapath(x)]
         else:
-            item_list = [x for x in dir(self.endpoints_dict[index_name]) if self.isapath(x)]
+            item_list = [x for x in dir(endpoint_obj) if self.isapath(x)]
 
-        endpoint_main = self.endpoints_dict[index_name]
-        endpoint_main.fhdhr.version  # dummy line
         for item in item_list:
-            endpoints = eval("endpoint_main.%s.%s" % (item, "endpoints"))
-            if isinstance(endpoints, str):
-                endpoints = [endpoints]
-            handler = eval("endpoint_main.%s" % item)
-            endpoint_name = eval("endpoint_main.%s.%s" % (item, "endpoint_name"))
 
-            try:
-                endpoint_methods = eval("endpoint_main.%s.%s" % (item, "endpoint_methods"))
-            except AttributeError:
+            endpoint_handler = eval("endpoint_obj.%s" % item)
+
+            if checkattr(endpoint_handler, "endpoints"):
+                endpoints = endpoint_handler.endpoints
+                if isinstance(endpoints, str):
+                    endpoints = [endpoints]
+            else:
+                endpoints = [str(type(endpoint_handler).__name__)]
+
+            if checkattr(endpoint_handler, "endpoint_name"):
+                endpoint_name = endpoint_handler.endpoint_name
+            else:
+                endpoint_name = type(endpoint_handler).__name__
+
+            if checkattr(endpoint_handler, "endpoint_methods"):
+                endpoint_methods = endpoint_handler.endpoint_methods
+            else:
                 endpoint_methods = ['GET']
 
-            try:
-                endpoint_access_level = eval("endpoint_main.%s.%s" % (item, "endpoint_access_level"))
-            except AttributeError:
+            if checkattr(endpoint_handler, "endpoint_access_level"):
+                endpoint_access_level = endpoint_handler.endpoint_access_level
+            else:
                 endpoint_access_level = 0
 
-            try:
-                pretty_name = eval("endpoint_main.%s.%s" % (item, "pretty_name"))
-            except AttributeError:
+            if checkattr(endpoint_handler, "pretty_name"):
+                pretty_name = endpoint_handler.pretty_name
+            else:
                 pretty_name = endpoint_name
 
-            try:
-                endpoint_category = eval("endpoint_main.%s.%s" % (item, "endpoint_category"))
-            except AttributeError:
+            if checkattr(endpoint_handler, "endpoint_category"):
+                endpoint_category = endpoint_handler.endpoint_category
+            else:
                 endpoint_category = index_name
 
-            try:
-                endpoint_default_parameters = eval("endpoint_main.%s.%s" % (item, "endpoint_default_parameters"))
-            except AttributeError:
-                endpoint_default_parameters = {}
+            if checkattr(endpoint_handler, "endpoint_parameters"):
+                endpoint_parameters = endpoint_handler.endpoint_parameters
+            else:
+                endpoint_parameters = {}
 
             endpoint_added = True
             try:
                 for endpoint in endpoints:
                     self.add_endpoint(endpoint=endpoint,
                                       endpoint_name=endpoint_name,
-                                      handler=handler,
+                                      handler=endpoint_handler,
                                       methods=endpoint_methods)
 
             except AssertionError:
@@ -280,7 +290,7 @@ class fHDHR_HTTP_Server():
                 self.route_list[endpoint_category][endpoint_name]["endpoints"] = endpoints
                 self.route_list[endpoint_category][endpoint_name]["endpoint_methods"] = endpoint_methods
                 self.route_list[endpoint_category][endpoint_name]["endpoint_access_level"] = endpoint_access_level
-                self.route_list[endpoint_category][endpoint_name]["endpoint_default_parameters"] = endpoint_default_parameters
+                self.route_list[endpoint_category][endpoint_name]["endpoint_parameters"] = endpoint_parameters
                 self.route_list[endpoint_category][endpoint_name]["pretty_name"] = pretty_name
                 self.route_list[endpoint_category][endpoint_name]["endpoint_category"] = endpoint_category
 

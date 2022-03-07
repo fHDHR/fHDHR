@@ -22,16 +22,15 @@ class Origins():
         self.selfadd_origins()
 
         self.fhdhr.logger.debug("Giving Packaged non-origin Origin Plugins access to base origin plugin.")
-
         for plugin_name in list(self.fhdhr.plugins.plugins.keys()):
             plugin = self.fhdhr.plugins.plugins[plugin_name]
-
             if (plugin.manifest["tagged_mod"] and plugin.manifest["tagged_mod_type"] == "origin"):
-                plugin.plugin_utils.origin = self.origins_dict[plugin.manifest["tagged_mod"].lower()]
+                plugin.plugin_utils.origin_obj = self.origins_dict[plugin.manifest["tagged_mod"].lower()]
+                plugin.plugin_utils.origin_name = plugin.plugin_utils.origin_obj.name
 
     @property
     def list_origins(self):
-        return [origin for origin in list(self.origins_dict.keys())]
+        return [origin_name for origin_name in list(self.origins_dict.keys())]
 
     @property
     def count_origins(self):
@@ -43,30 +42,26 @@ class Origins():
             return self.list_origins[0]
         return None
 
-    def get_origin(self, origin):
-        if origin not in self.list_origins:
+    def get_origin_obj(self, origin_name):
+        if origin_name not in self.list_origins:
             return None
-        return self.origins_dict[origin]
+        return self.origins_dict[origin_name]
 
-    def get_origin_conf(self, origin):
+    def get_origin_conf(self, origin_name):
         conf_dict = {}
-        if origin not in self.list_origins:
+        if origin_name not in self.list_origins:
             return conf_dict
-        for conf_key in list(self.origins_dict[origin].default_settings.keys()):
-            conf_dict[conf_key] = self.get_origin_property(origin, conf_key)
-        return conf_dict
+        return self.origins_dict[origin_name].get_origin_conf()
 
-    def get_origin_property(self, origin, origin_attr):
-        if origin not in self.list_origins:
+    def get_origin_property(self, origin_name, origin_attr):
+        if origin_name not in self.list_origins:
             return None
-        if checkattr(self.origins_dict[origin], origin_attr):
-            return eval("self.origins_dict[origin].%s" % origin_attr)
-        return None
+        return self.origins_dict[origin_name].get_origin_property(origin_attr)
 
-    def origin_has_method(self, origin, origin_attr):
-        if origin not in self.list_origins:
+    def origin_has_method(self, origin_name, origin_attr):
+        if origin_name not in self.list_origins:
             return None
-        return self.origins_dict[origin].has_method(origin_attr)
+        return self.origins_dict[origin_name].has_method(origin_attr)
 
     def selfadd_origins(self):
         """

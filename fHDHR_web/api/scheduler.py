@@ -7,23 +7,25 @@ class Scheduler_API():
     endpoints = ["/api/scheduler"]
     endpoint_name = "api_scheduler"
     endpoint_methods = ["GET", "POST"]
-    endpoint_default_parameters = {
-                                    "method": "get"
+    endpoint_parameters = {
+                            "method": {
+                                    "default": "get"
                                     }
+                            }
 
     def __init__(self, fhdhr):
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)
 
         if method == "get":
-            jobsdicts = self.fhdhr.scheduler.list_jobs()
+            jobsdicts = self.fhdhr.scheduler.list_jobs
 
             formatted_jobsdicts = []
             for job_dict in jobsdicts:
@@ -70,10 +72,9 @@ class Scheduler_API():
                     self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
                         self.fhdhr.scheduler.job_wrapper(self.fhdhr.device.epg.update), job_name).tag("%s EPG Update" % job_name)
 
-            elif job_type == "Channel Scan":  # TODO, multiple handlers
+            elif job_type == "Channel Scan":
                 if job_interval:
-                    self.fhdhr.scheduler.every(int(job_interval)).seconds.do(
-                        self.fhdhr.scheduler.job_wrapper(self.fhdhr.origins.origins_dict[job_name].update_channels)).tag("%s Channel Scan" % job_name)
+                    self.fhdhr.origins.origins_dict[job_name].channels.schedule_scan(job_interval)
 
             elif job_type == "Versions Update":
                 if job_interval:

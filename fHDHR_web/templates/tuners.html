@@ -5,13 +5,13 @@
   <h4 style="text-align: center;">fHDHR Streams</h4>
 
   <p>
-    {% for origin in origin_methods %}
-      <button onclick="location.href='/tuners?origin={{ origin }}'" type="button">{{ origin }}</button>
+    {% for origin_name in origin_methods %}
+      <button onclick="location.href='/tuners?origin={{ origin_name }}'" type="button">{{ origin_name }}</button>
     {% endfor %}
   </p>
 
-  {% if origin %}
-    <h4 style="text-align: center;">{{ origin }} Tuners</h4>
+  {% if origin_name %}
+    <h4 style="text-align: center;">{{ origin_name }} Tuners</h4>
   {% else %}
     <h4 style="text-align: center;">Tuners</h4>
   {% endif %}
@@ -30,9 +30,9 @@
           <th>Actions</th>
         </tr>
 
-        {% if origin %}
+        {% if origin_name %}
 
-          {% for tuner_dict in tuner_status_dict[origin]["status_list"] %}
+          {% for tuner_dict in tuner_status_dict[origin_name]["status_list"] %}
             <tr>
               <td>{{ tuner_dict["number"] }}</td>
               <td>{{ tuner_dict["status"] }}</td>
@@ -44,10 +44,10 @@
 
               <td>
                 {% if tuner_dict["status"] != "Inactive" %}
-                  <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Close</button>
+                  <button onclick="location.href='/api/tuners?method=close&tuner={{ tuner_dict["number"] }}&origin={{ origin_name }}&redirect=/tuners'" type="button">Close</button>
                 {% endif %}
-                {% if not tuner_status_dict[origin]["scan_count"] and tuner_dict["status"] == "Inactive" %}
-                  <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin }}&redirect=/tuners'" type="button">Channel Scan</button>
+                {% if not tuner_status_dict[origin_name]["scan_count"] and tuner_dict["status"] == "Inactive" %}
+                  <button onclick="location.href='/api/tuners?method=scan&tuner={{ tuner_dict["number"] }}&origin={{ origin_name }}&redirect=/tuners'" type="button">Channel Scan</button>
                 {% endif %}
               </td>
             </tr>

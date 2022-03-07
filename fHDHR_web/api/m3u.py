@@ -14,9 +14,9 @@ class M3U():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         base_url = request.url_root[:-1]
 
@@ -27,55 +27,55 @@ class M3U():
         if method == "get":
 
             origin_methods = self.fhdhr.origins.list_origins
-            origin = request.args.get('origin', default=None, type=str)
-            if origin and origin not in origin_methods:
-                return "%s Invalid channels origin" % origin
+            origin_name = request.args.get('origin', default=None, type=str)
+            if origin_name and origin_name not in origin_methods:
+                return "%s Invalid channels origin" % origin_name
 
             FORMAT_DESCRIPTOR = "#EXTM3U"
             RECORD_MARKER = "#EXTINF"
 
             fakefile = StringIO()
 
-            xmltvurl = ('%s/api/xmltv?source=%s' % (base_url, origin))
+            xmltvurl = ('%s/api/xmltv?source=%s' % (base_url, origin_name))
 
             fakefile.write("%s url-tvg=\"%s\" x-tvg-url=\"%s\"\n" % (FORMAT_DESCRIPTOR, xmltvurl, xmltvurl))
 
             channel_items = []
 
-            if origin:
+            if origin_name:
                 if channel == "all":
                     fileName = "channels.m3u"
-                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
+                    for fhdhr_channel_id in self.fhdhr.origins.origins_dict[origin_name].channels.list_channel_ids:
+                        channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(fhdhr_channel_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)
-                elif str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("number")]:
-                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="number")
+                elif str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin_name].channels.create_channel_list("number")]:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(channel, searchkey="number")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
                             channel_items.append(channel_obj)
                         else:
                             return "Channel Disabled"
-                elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin].channels.create_channel_list("id")]:
-                    channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel, searchkey="id")
+                elif channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.origins_dict[origin_name].channels.create_channel_list("id")]:
+                    channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(channel, searchkey="id")
                     if channel_obj:
                         fileName = "%s.m3u" % channel_obj.number
                         if channel_obj.enabled:
                             channel_items.append(channel_obj)
                         else:
                             return "Channel Disabled"
-            elif not origin and channel == "all":
+            elif not origin_name and channel == "all":
                 fileName = "channels.m3u"
-                for origin in self.fhdhr.origins.list_origins:
-                    for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                        channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
+                for origin_name in self.fhdhr.origins.list_origins:
+                    for fhdhr_channel_id in self.fhdhr.origins.origins_dict[origin_name].channels.list_channel_ids:
+                        channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(fhdhr_channel_id, searchkey="id")
                         if channel_obj:
                             if channel_obj.enabled:
                                 channel_items.append(channel_obj)
-            elif not origin and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.get_channel_list("id")]:
-                channel_obj = self.fhdhr.origins.channels.find_channel_obj(channel, searchkey="id", origin=None)
+            elif not origin_name and channel != "all" and str(channel) in [str(x) for x in self.fhdhr.origins.get_channel_list("id")]:
+                channel_obj = self.fhdhr.origins.channels.find_channel_obj(channel, searchkey="id", origin_name=None)
                 if channel_obj:
                     fileName = "%s.m3u" % channel_obj.number
                     if channel_obj.enabled:
@@ -107,7 +107,7 @@ class M3U():
                                                     "tvg-name": str(channel_obj.dict['name']),
                                                     "tvg-id": str(channel_obj.number),
                                                     "tvg-logo": logourl,
-                                                    "group-title": channel_obj.origin,
+                                                    "group-title": channel_obj.origin_name,
                                                     "group-titleb": str(channel_obj.dict['name']),
                                                     "stream_url": "%s%s" % (base_url, channel_obj.api_stream_url)
                                                     }

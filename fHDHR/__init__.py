@@ -12,7 +12,7 @@ from fHDHR.tools import checkattr
 
 class fHDHR_INT_OBJ():
 
-    def __init__(self, ext_fhdhr, settings, logger, db, plugins, versions, web, scheduler, deps):
+    def __init__(self, ext_fhdhr, settings, fhdhr_time, logger, db, plugins, versions, web, scheduler, deps):
         """
         An internal catalogue of core methods.
         """
@@ -28,6 +28,7 @@ class fHDHR_INT_OBJ():
         self.web = web
         self.scheduler = scheduler
         self.deps = deps
+        self.time = fhdhr_time
 
         for plugin_name in list(self.plugins.plugins.keys()):
             self.plugins.plugins[plugin_name].plugin_utils.web = self.web
@@ -52,13 +53,13 @@ class fHDHR_INT_OBJ():
 
 class fHDHR_OBJ():
 
-    def __init__(self, settings, logger, db, plugins, versions, web, scheduler, deps):
+    def __init__(self, settings, fhdhr_time, logger, db, plugins, versions, web, scheduler, deps):
         """
         The Core Backend.
         """
 
         logger.info("Initializing fHDHR Core Functions.")
-        self.fhdhr = fHDHR_INT_OBJ(self, settings, logger, db, plugins, versions, web, scheduler, deps)
+        self.fhdhr = fHDHR_INT_OBJ(self, settings, fhdhr_time, logger, db, plugins, versions, web, scheduler, deps)
 
         self.fhdhr.origins = Origins(self.fhdhr)
 

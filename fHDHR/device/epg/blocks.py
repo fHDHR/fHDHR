@@ -7,10 +7,10 @@ class blocksEPG():
     Blocks EPG Data for Origins missing EPG data.
     """
 
-    def __init__(self, fhdhr, origins, origin):
+    def __init__(self, fhdhr, origins, origin_name):
         self.fhdhr = fhdhr
         self.origins = origins
-        self.origin = origin
+        self.origin_name = origin_name
 
     """Functions/properties called During init"""
 
@@ -29,8 +29,8 @@ class blocksEPG():
 
         timestamps = self.timestamps
 
-        for fhdhr_id in self.fhdhr.origins.origins_dict[self.origin].list_channel_ids:
-            chan_obj = self.fhdhr.origins.origins_dict[self.origin].find_channel_obj(fhdhr_id, searchkey="id")
+        for fhdhr_channel_id in self.fhdhr.origins.origins_dict[self.origin_name].list_channel_ids:
+            chan_obj = self.fhdhr.origins.origins_dict[self.origin_name].find_channel_obj(fhdhr_channel_id, searchkey="id")
             if chan_obj:
 
                 if str(chan_obj.number) not in list(programguide.keys()):

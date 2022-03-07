@@ -11,7 +11,27 @@ class Origin_Hunt():
 
     """Channel Searching"""
 
-    def find_channel_obj(self, chan_searchfor, searchkey=None, origin=None):
+    def run_schedule_scan(self, origin_name=None):
+
+        # If not origin, but there's only one origin,
+        # we can safely make an assumption here
+        if not origin_name and self.origins.count_origin == 1:
+            origin_name = self.origins.first_origin
+
+        # Handling for when origin is provided, which is an optimal situation
+        if origin_name:
+
+            # if the origin is invalid, then so is the channel
+            if origin_name not in self.origins.list_origins:
+                return None
+
+            self.origins.origins_dict[origin_name].channels.run_schedule_scan()
+
+        else:
+            for origin_name in self.origins.list_origins:
+                self.origins.origins_dict[origin_name].channels.run_schedule_scan()
+
+    def find_channel_obj(self, chan_searchfor, searchkey=None, origin_name=None):
         """
         Get a channel_obj
         """
@@ -21,92 +41,92 @@ class Origin_Hunt():
         if not chan_searchfor:
             return None
 
-        # If not origin, but there's only one origin,
+        # If not origin_name, but there's only one origin_name,
         # we can safely make an assumption here
-        if not origin and self.origins.count_origin == 1:
-            origin = self.origins.first_origin
+        if not origin_name and self.origins.count_origin == 1:
+            origin_name = self.origins.first_origin
 
-        # Handling for when origin is provided, which is an optimal situation
-        if origin:
+        # Handling for when origin_name is provided, which is an optimal situation
+        if origin_name:
 
-            # if the origin is invalid, then so is the channel
-            if origin not in self.origins.list_origins:
+            # if the origin_name is invalid, then so is the channel
+            if origin_name not in self.origins.list_origins:
                 return None
 
-            return self.origins.origins_dict[origin].channels.find_channel_obj(chan_searchfor, searchkey)
+            return self.origins.origins_dict[origin_name].channels.find_channel_obj(chan_searchfor, searchkey)
 
-        # No provided origin makes searching harder, but not impossible
+        # No provided origin_name makes searching harder, but not impossible
         # this will however select the first possible match, and is not
         # an optimal situation
         else:
             searchkey_matches = []
-            for origin in self.origins.list_origins:
+            for origin_name in self.origins.list_origins:
 
-                channel_obj = self.origins.origins_dict[origin].channels.find_channel_obj(chan_searchfor, searchkey)
+                channel_obj = self.origins.origins_dict[origin_name].channels.find_channel_obj(chan_searchfor, searchkey)
                 if channel_obj:
                     searchkey_matches.extend(channel_obj.dict["id"])
 
             if not len(searchkey_matches):
                 return None
 
-            # Grab first matched channel_id and reverse search the origin
+            # Grab first matched channel_id and reverse search the origin_name
             channel_id = searchkey_matches[0]
-            origins = [origin for origin in self.origins.list_origins if channel_id in self.origins.origins_dict[origin].channels.list_channel_ids]
+            origins = [origin_name for origin_name in self.origins.list_origins if channel_id in self.origins.origins_dict[origin_name].channels.list_channel_ids]
 
             # Hopefully we found an origin
             if not len(origins):
                 return None
-            origin = origins[0]
+            origin_name = origins[0]
 
             # Channel matched, really shouldn't find more than one
-            chan_obj = self.origins.origins_dict[origin].channels.get_channel_object(channel_id)
+            chan_obj = self.origins.origins_dict[origin_name].channels.get_channel_obj(channel_id)
 
             return chan_obj
 
         return chan_obj
 
-    def get_channel_obj(self, keyfind, valfind, origin=None):
+    def get_channel_obj(self, keyfind, valfind, origin_name=None):
         """
         Retrieve channel object by keyfind property.
         """
         # TODO deprecate
-        return self.find_channel_obj(valfind, searchkey=keyfind, origin=origin)
+        return self.find_channel_obj(valfind, searchkey=keyfind, origin_name=origin_name)
 
-    def get_channel_list(self, keyfind, origin=None):
+    def get_channel_list(self, keyfind, origin_name=None):
         """
         Get a list of channels by keyfind property.
         """
 
-        if origin:
+        if origin_name:
 
-            return self.origins.origins_dict[origin].channels.create_channel_list(keyfind)
+            return self.origins.origins_dict[origin_name].channels.create_channel_list(keyfind)
 
         else:
 
             matches = []
-            for origin in self.origins.list_origins:
+            for origin_name in self.origins.list_origins:
 
-                next_match = self.origins.origins_dict[origin].channels.create_channel_list(keyfind)
+                next_match = self.origins.origins_dict[origin_name].channels.create_channel_list(keyfind)
 
                 if len(next_match):
                     matches.append(next_match)
 
             return matches[0]
 
-    def get_channels(self, origin=None, forceupdate=False):
+    def get_channels(self, origin_name=None, forceupdate=False):
         """
-        Pull Channels from origin.
+        Pull Channels from origin_name.
         """
 
-        if not origin:
+        if not origin_name:
             origins_list = self.origins.list_origins
-        elif isinstance(origin, str):
-            origins_list = [origin.lower()]
+        elif isinstance(origin_name, str):
+            origins_list = [origin_name.lower()]
         else:
-            origins_list = origin
+            origins_list = origin_name
 
         return_chan_list = []
-        for origin in origins_list:
-            chan_list = self.origins.origins_dict[origin].channels.get_channels(forceupdate)
+        for origin_name in origins_list:
+            chan_list = self.origins.origins_dict[origin_name].channels.get_channels(forceupdate)
             return_chan_list.extend(chan_list)
         return return_chan_list

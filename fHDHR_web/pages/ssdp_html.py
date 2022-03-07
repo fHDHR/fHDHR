@@ -12,8 +12,8 @@ class SSDP_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         return render_template('ssdp.html', request=request, session=session, fhdhr=self.fhdhr)

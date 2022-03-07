@@ -14,20 +14,20 @@ class Channels_Editor_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         origin_methods = self.fhdhr.origins.list_origins
         if self.fhdhr.origins.count_origins:
 
-            origin = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
-            if origin not in origin_methods:
-                origin = origin_methods[0]
+            origin_name = request.args.get('origin', default=self.fhdhr.origins.first_origin, type=str)
+            if origin_name not in origin_methods:
+                origin_name = origin_methods[0]
 
             channelslist = {}
-            for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-                channel_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
+            for fhdhr_channel_id in self.fhdhr.origins.origins_dict[origin_name].channels.list_channel_ids:
+                channel_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(fhdhr_channel_id, searchkey="id")
                 if channel_obj:
                     channel_dict = channel_obj.dict.copy()
 
@@ -43,7 +43,7 @@ class Channels_Editor_HTML():
             for channel in sorted_channel_list:
                 sorted_chan_guide.append(channelslist[channel])
         else:
-            origin = None
+            origin_name = None
             sorted_chan_guide = []
 
-        return render_template('channels_editor.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=sorted_chan_guide, origin=origin, origin_methods=origin_methods, list=list)
+        return render_template('channels_editor.html', request=request, session=session, fhdhr=self.fhdhr, channelslist=sorted_chan_guide, origin_name=origin_name, origin_methods=origin_methods, list=list)

@@ -69,15 +69,15 @@ class EPG():
             if epg_method in self.valid_epg_methods:
                 epg_methods.append(epg_method)
 
-            elif epg_method in [origin for origin in self.origins.list_origins]:
+            elif epg_method in [origin_name for origin_name in self.origins.list_origins]:
                 epg_methods.append(epg_method)
 
             elif epg_method in ["origin", "origins"]:
-                epg_methods.extend([origin for origin in self.origins.list_origins])
+                epg_methods.extend([origin_name for origin_name in self.origins.list_origins])
 
         return epg_methods
 
-    def delete_channel(self, fhdhr_id, origin):
+    def delete_channel(self, fhdhr_channel_id, origin_name):
         """
         Delete Channel match.
         """
@@ -87,7 +87,7 @@ class EPG():
             epg_chan_matches = self.fhdhr.db.get_fhdhr_value("epg_channels", "list", method) or {}
             for epg_chan_id in list(epg_chan_matches.keys()):
 
-                if epg_chan_matches[epg_chan_id]["epg_chan_id"] == origin and epg_chan_matches[epg_chan_id]["fhdhr_id"] == fhdhr_id:
+                if epg_chan_matches[epg_chan_id]["epg_chan_id"] == origin_name and epg_chan_matches[epg_chan_id]["fhdhr_channel_id"] == fhdhr_channel_id:
                     del epg_chan_matches[epg_chan_id]
 
             self.fhdhr.db.set_fhdhr_value("epg_channels", "list", epg_chan_matches, method)
@@ -104,15 +104,15 @@ class EPG():
 
         return None
 
-    def get_epg_chan_unmatched(self, origin, method):
+    def get_epg_chan_unmatched(self, origin_name, method):
         """
         Get Unmatched Channels.
         """
 
         unmatch_dicts = []
-        origin_matches = [x["fhdhr_id"] for x in self.get_origin_matches(origin, method)]
-        for fhdhr_id in self.fhdhr.origins.origins_dict[origin].channels.list_channel_ids:
-            chan_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(fhdhr_id, searchkey="id")
+        origin_matches = [x["fhdhr_channel_id"] for x in self.get_origin_matches(origin_name, method)]
+        for fhdhr_channel_id in self.fhdhr.origins.origins_dict[origin_name].channels.list_channel_ids:
+            chan_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(fhdhr_channel_id, searchkey="id")
 
             if chan_obj:
 
@@ -125,7 +125,7 @@ class EPG():
 
         return unmatch_dicts
 
-    def get_origin_matches(self, origin, method):
+    def get_origin_matches(self, origin_name, method):
         """
         Get EPG Origin Matches.
         """
@@ -134,20 +134,20 @@ class EPG():
         epg_chan_matches = self.fhdhr.db.get_fhdhr_value("epg_channels", "list", method) or {}
         for epg_chan_id in list(epg_chan_matches.keys()):
 
-            if epg_chan_matches[epg_chan_id]["origin"] == origin:
+            if epg_chan_matches[epg_chan_id]["origin_name"] == origin_name:
                 matches.append(epg_chan_matches[epg_chan_id])
 
         return matches
 
-    def set_epg_chan_match(self, method, epg_chan_id, fhdhr_id, origin):
+    def set_epg_chan_match(self, method, epg_chan_id, fhdhr_channel_id, origin_name):
         """
         Set EPG Channel Match.
         """
 
         epg_chan_matches = self.fhdhr.db.get_fhdhr_value("epg_channels", "list", method) or {}
         epg_chan_matches[epg_chan_id] = {
-                                         "fhdhr_id": fhdhr_id,
-                                         "origin": origin
+                                         "fhdhr_channel_id": fhdhr_channel_id,
+                                         "origin_name": origin_name
                                          }
 
         self.fhdhr.db.set_fhdhr_value("epg_channels", "list", epg_chan_matches, method)
@@ -250,9 +250,9 @@ class EPG():
 
         for c in list(epgdict.keys()):
 
-            if method in [origin for origin in self.origins.list_origins]:
+            if method in [origin_name for origin_name in self.origins.list_origins]:
 
-                chan_obj = self.fhdhr.origins.find_channel_obj(epgdict[c]["id"], searchkey="origin_id", origin=None)
+                chan_obj = self.fhdhr.origins.find_channel_obj(epgdict[c]["id"], searchkey="origin_id", origin_name=None)
                 if chan_obj:
                     channel_number = chan_obj.number
                     epgdict[channel_number] = epgdict.pop(c)
@@ -365,12 +365,12 @@ class EPG():
             self.fhdhr.logger.info("Found EPG: %s" % method)
             self.epg_handling[method] = EPG_Handler(self.fhdhr, plugin, self.origins)
 
-        for origin in self.origins.list_origins:
+        for origin_name in self.origins.list_origins:
 
-            if origin.lower() not in list(self.epg_handling.keys()):
-                self.fhdhr.logger.debug("Creating Blocks EPG for %s." % origin)
-                self.epg_handling[origin.lower()] = blocksEPG(self.fhdhr, self.origins, origin)
-                self.valid_epg_methods.append(origin.lower())
+            if origin_name.lower() not in list(self.epg_handling.keys()):
+                self.fhdhr.logger.debug("Creating Blocks EPG for %s." % origin_name)
+                self.epg_handling[origin_name.lower()] = blocksEPG(self.fhdhr, self.origins, origin_name)
+                self.valid_epg_methods.append(origin_name.lower())
 
     def update(self, method=None):
         """
@@ -409,7 +409,7 @@ class EPG():
                 clean_prog_guide[cnum]["listing"] = []
 
             if method in self.origins.list_origins:
-                chan_obj = self.fhdhr.origins.find_channel_obj(programguide[cnum]["id"], searchkey="origin_id", origin=None)
+                chan_obj = self.fhdhr.origins.find_channel_obj(programguide[cnum]["id"], searchkey="origin_id", origin_name=None)
 
             else:
                 chan_obj = None
@@ -484,9 +484,9 @@ class EPG():
         if method in self.origins.list_origins:
 
             timestamps = self.blocks.timestamps
-            for fhdhr_id in self.fhdhr.origins.origins_dict[method].list_channel_ids:
+            for fhdhr_channel_id in self.fhdhr.origins.origins_dict[method].list_channel_ids:
 
-                chan_obj = self.fhdhr.origins.origins_dict[method].find_channel_obj(fhdhr_id, searchkey="id")
+                chan_obj = self.fhdhr.origins.origins_dict[method].find_channel_obj(fhdhr_channel_id, searchkey="id")
                 if chan_obj:
 
                     if str(chan_obj.number) not in list(programguide.keys()):
