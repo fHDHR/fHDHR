@@ -40,7 +40,11 @@ class Stream_OBJ():
     @property
     def tuner_needed(self):
         """Any reason a tuner might not be needed"""
-        if self.stream_args["method"] == "passthrough":
+        if "method" in list(self.stream_args.keys()):
+            if self.stream_args["method"] == "passthrough":
+                return False
+        default_stream_method = self.origins.get_origin_property(self.origin_name, "stream_method")
+        if default_stream_method == "passthrough":
             return False
         return True
 

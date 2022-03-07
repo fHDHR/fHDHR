@@ -82,7 +82,7 @@ class StreamManager():
 
         # Get Streaming args from request
         streaming_args, response_dict = self.parse_stream_args(request, chan_obj.origin_name)
-        if not len(list(stream_args.keys())):
+        if not len(list(streaming_args.keys())):
             return None, None, response_dict
         stream_args.update(streaming_args)
 
@@ -141,6 +141,7 @@ class StreamManager():
         """Use the passed `request` information to grab the given stream arguments"""
 
         stream_args = {}
+        stream_args.update({"origin_name": origin_name})
 
         self.fhdhr.logger.debug("Parsing URL arguments for stream handling.")
 
@@ -152,15 +153,17 @@ class StreamManager():
         else:
             stream_method = self.origins.get_origin_property(origin_name, "stream_method")
             self.fhdhr.logger.debug("Client did not select a stream method. Defaulting to origin %s setting of %s" % (origin_name, stream_method))
+        stream_args.update({"method": stream_method})
         if stream_method not in self.streaming_methods:
             response_dict = {"message": "Not Found", "status_code": 503, "headers": "806 - Tune Failed: Invalid Stream Method"}
-            return stream_args, response_dict
+            return {}, response_dict
 
         duration = request.args.get('duration', default=0, type=int)
         if duration:
             self.fhdhr.logger.debug("Client requested duration of %s" % self.fhdhr.time.humanized_time(duration))
         else:
             self.fhdhr.logger.debug("Client did not specify a duration to end the stream, stream will run indefinately.")
+        stream_args.update({"duration": duration})
 
         transcode_quality = request.args.get('transcode', default=None, type=str)
         if transcode_quality:
@@ -172,21 +175,15 @@ class StreamManager():
         valid_transcode_types = [None, "heavy", "mobile", "internet720", "internet480", "internet360", "internet240"]
         if transcode_quality not in valid_transcode_types:
             response_dict = {"message": "Not Found", "status_code": 503, "headers": "802 - Unknown Transcode Profile"}
-            return stream_args, response_dict
+            return {}, response_dict
+        stream_args.update({"transcode_quality": transcode_quality})
 
         tuner_number = request.args.get('tuner', default=None, type=str)
         if tuner_number:
             self.fhdhr.logger.debug("Client has specified utilization of %s tuner number %s." % (origin_name, tuner_number))
         else:
             self.fhdhr.logger.debug("Client did not specify a tuner number, automatic selection enabled.")
-
-        stream_args = {
-                        "origin_name": origin_name,
-                        "method": stream_method,
-                        "duration": duration,
-                        "tuner_number": tuner_number,
-                        "transcode_quality": transcode_quality,
-                        }
+        stream_args.update({"tuner_number": tuner_number})
 
         return stream_args, response_dict
 
