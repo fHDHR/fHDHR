@@ -12,9 +12,9 @@ class Versions():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
         redirect_url = request.args.get('redirect', default=None, type=str)
@@ -66,7 +66,7 @@ class Versions():
                             mimetype='application/json')
 
         elif method == "check":
-            tags_list = self.fhdhr.scheduler.list_tags()
+            tags_list = self.fhdhr.scheduler.list_tags
             if ("Versions Update") not in tags_list:
                 self.fhdhr.versions.get_online_versions()
             else:

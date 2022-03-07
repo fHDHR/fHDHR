@@ -2,12 +2,12 @@
 
 {% block content %}
 
-  {% if origin %}
-    <h4 style="text-align: center;">{{ origin }} Channels Editor</h4>
+  {% if origin_name %}
+    <h4 style="text-align: center;">{{ origin_name }} Channels Editor</h4>
 
-    <input type="hidden" id="origin" value="{{ origin }}">
+    <input type="hidden" id="origin_name" value="{{ origin_name }}">
 
-    {% if origin %}
+    {% if origin_name %}
       <div class="container">
         <table class="table-medium center">
           <tbody>
@@ -93,7 +93,7 @@
                   <button type="Submit" id="reset_{{ chan_dict["id"] }}">Reset</button>
                 </form>
 
-                <button onclick="location.href='/channel_delete?fhdhr_id={{ chan_dict["id"] }}&origin={{ origin }}'" type="button">Delete</button>
+                <button onclick="location.href='/channel_delete?fhdhr_channel_id={{ chan_dict["id"] }}&origin={{ origin_name }}'" type="button">Delete</button>
 
               </td>
 

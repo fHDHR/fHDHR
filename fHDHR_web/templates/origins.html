@@ -6,7 +6,7 @@
   <h4 style="text-align: center;">{{ origin_name }}</h4>
 
   <p>
-    {% for origin_item in origin_methods %}
+    {% for origin_item in fhdhr.origins.list_origins %}
       <button onclick="location.href='/origins?origin={{ origin_item }}'" type="button">{{ origin_item }}</button>
     {% endfor %}
   </p>

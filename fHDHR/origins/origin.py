@@ -105,6 +105,17 @@ class Origin():
 
         return self.get_default_value(origin_attr)
 
+    def get_origin_conf(self):
+        conf_dict = {}
+        for conf_key in list(self.default_settings.keys()):
+            conf_dict[conf_key] = self.get_origin_property(conf_key)
+        return conf_dict
+
+    def get_origin_property(self, origin_attr):
+        if checkattr(self, origin_attr):
+            return eval("self.%s" % origin_attr)
+        return None
+
     """Expected Properties for an Origin"""
 
     @property
@@ -149,6 +160,9 @@ class Origin():
             self.method.close_stream(tuner_number, stream_args)
 
     """Dirty Shortcut area"""
+
+    def __call__(self, *args):
+        return self.name
 
     def __getattr__(self, name):
         """

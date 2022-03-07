@@ -13,9 +13,9 @@ class Brython_stdlib():
         self.brython_path = pathlib.Path(self.fhdhr.config.internal["paths"]["fHDHR_web_dir"]).joinpath('brython')
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         return send_from_directory(self.brython_path,
                                    'brython_stdlib.js',

@@ -3,7 +3,7 @@ import urllib.parse
 import json
 import datetime
 
-from fHDHR.tools import humanized_time, channel_sort
+from fHDHR.tools import channel_sort
 
 
 class EPG():
@@ -16,9 +16,9 @@ class EPG():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
 
@@ -60,7 +60,7 @@ class EPG():
 
             for channel in list(sorted_chan_guide.keys()):
                 if sorted_chan_guide[channel]["listing"][0]["time_end"]:
-                    remaining_time = humanized_time(sorted_chan_guide[channel]["listing"][0]["time_end"] - nowtime)
+                    remaining_time = self.fhdhr.time.humanized_time(sorted_chan_guide[channel]["listing"][0]["time_end"] - nowtime)
                 else:
                     remaining_time = "N/A"
 
@@ -97,7 +97,7 @@ class EPG():
                             mimetype='application/json')
 
         elif method == "update":
-            tags_list = self.fhdhr.scheduler.list_tags()
+            tags_list = self.fhdhr.scheduler.list_tags
             if ("%s EPG Update" % source) not in tags_list:
                 self.fhdhr.device.epg.update(source)
             else:
@@ -106,12 +106,12 @@ class EPG():
         elif method == "map":
             channels_list = json.loads(request.form.get('channels', []))
             for channel in channels_list:
-                if channel["fhdhr_id"] in [None, "None"]:
+                if channel["fhdhr_channel_id"] in [None, "None"]:
                     self.fhdhr.device.epg.unset_epg_chan_match(channel["epg_method"], channel["id"])
                 else:
-                    chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(channel["fhdhr_id"], searchkey="id")
+                    chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(channel["fhdhr_channel_id"], searchkey="id")
                     if chan_obj:
-                        self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_id"], chan_obj.origin)
+                        self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_channel_id"], chan_obj.origin_name)
 
         elif method == "clearcache":
             self.fhdhr.device.epg.clear_epg_cache(source)

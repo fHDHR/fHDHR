@@ -12,11 +12,9 @@ class Origins_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
-
-        origin_methods = self.fhdhr.origins.list_origins
+    def handler(self, *args):
 
         origin_name = request.args.get('origin', default=None, type=str)
         if not origin_name:
@@ -25,25 +23,29 @@ class Origins_HTML():
         origin_info_dict = {}
         origin_settings_dict = {}
         origin_plugin_dict = {}
-        origin = None
+        origin_obj = None
 
         if origin_name:
-            origin = self.fhdhr.origins.get_origin(origin_name)
+            origin_obj = self.fhdhr.origins.get_origin_obj(origin_name)
 
-        if origin:
+        if origin_obj:
             origin_info_dict.update({
-                                    "Setup Success": origin.setup_success,
-                                    "Channel Count (total)": origin.count_channels,
-                                    "Channel Count (enabled)": origin.count_channels_enabled,
+                                    "Setup Success": origin_obj.setup_success,
+                                    "Channel Count (total)": origin_obj.count_channels,
+                                    "Channel Count (enabled)": origin_obj.count_channels_enabled,
                                     })
 
-            for setting in list(origin.default_settings.keys()):
-                origin_settings_dict.update({setting: origin.get_config_value(setting)})
+            tuners_in_use = self.fhdhr.device.tuners.inuse_tuner_count(origin_obj.name)
+            max_tuners = self.fhdhr.origins.get_origin_property(origin_obj.name, "tuners")
+            origin_info_dict["Tuner Usage"] = "%s/%s" % (str(tuners_in_use), str(max_tuners))
+
+            for setting in list(origin_obj.default_settings.keys()):
+                origin_settings_dict.update({setting: origin_obj.get_config_value(setting)})
 
             # Pull information from the origin plugin
-            origin_plugin_dict.update(origin.webpage_dict)
+            origin_plugin_dict.update(origin_obj.webpage_dict)
 
         return render_template('origins.html', request=request, session=session, fhdhr=self.fhdhr,
-                               origin_methods=origin_methods, origin=origin, origin_name=origin_name, origin_info_dict=origin_info_dict,
+                               origin_obj=origin_obj, origin_name=origin_name, origin_info_dict=origin_info_dict,
                                origin_plugin_dict=origin_plugin_dict, origin_settings_dict=origin_settings_dict,
                                list=list, len=len)

@@ -4,7 +4,7 @@
 
   <h4 style="text-align: center;">Guide</h4>
 
-  <input type="hidden" id="origin" value="{{ origin }}">
+  <input type="hidden" id="origin_name" value="{{ origin_name }}">
 
   <p>
     {% for epg_method in epg_methods %}
@@ -17,7 +17,7 @@
       <thead>
         <tr>
           <th>Play</th>
-          {% if origin not in origin_methods %}
+          {% if origin_name not in origin_methods %}
             <th>Match</th>
           {% endif %}
           <th>Channel Name</th>
@@ -45,11 +45,11 @@
               {% endif %}
             </td>
 
-            {% if origin not in origin_methods %}
+            {% if origin_name not in origin_methods %}
               <input type="hidden" name="id" class="epg_channels" value="{{ channelslist[chan_number]["id"] }}">
-              <input type="hidden" name="epg_method" class="epg_channels" value="{{ origin }}">
+              <input type="hidden" name="epg_method" class="epg_channels" value="{{ origin_name }}">
               <td>
-                <select name="fhdhr_id" class="epg_channels">
+                <select name="fhdhr_channel_id" class="epg_channels">
                   {% if not channelslist[chan_number]["chan_match"]  %}
                     <option value=None selected>None</option>
                     {% for uorigin in unmatched_origins %}
@@ -58,7 +58,7 @@
                       {% endfor %}
                     {% endfor %}
                   {% else %}
-                    <option value="{{ channelslist[chan_number]["chan_match"]["fhdhr_id"] }}">{{ channelslist[chan_number]["chan_match"]["origin"] }} {{ channelslist[chan_number]["chan_match"]["number"] }} {{ channelslist[chan_number]["chan_match"]["name"] }}</option>
+                    <option value="{{ channelslist[chan_number]["chan_match"]["fhdhr_channel_id"] }}">{{ channelslist[chan_number]["chan_match"]["origin_name"] }} {{ channelslist[chan_number]["chan_match"]["number"] }} {{ channelslist[chan_number]["chan_match"]["name"] }}</option>
                     {% for uorigin in unmatched_origins %}
                       {% for uorigindict in unmatched_origins[uorigin] %}
                         <option value="{{ uorigindict["id"] }}">{{ uorigin }} {{ uorigindict["number"] }} {{ uorigindict["name"] }}</option>

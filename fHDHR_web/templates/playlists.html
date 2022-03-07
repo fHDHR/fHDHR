@@ -13,11 +13,11 @@
           <th>W3U Link</th>
         </tr>
 
-        {% for origin in fhdhr.origins. %}
+        {% for origin_name in fhdhr.origins.origins_dict %}
           <tr>
-            <td> {{ origin }}</td>
-            <td><a href="/api/m3u?method=get&origin={{ origin }}">{{ origin }}</a></td>
-            <td><a href="/api/w3u?method=get&origin={{ origin }}">{{ origin }}</a></td>
+            <td> {{ origin_name }}</td>
+            <td><a href="/api/m3u?method=get&origin={{ origin_name }}">{{ origin_name }}</a></td>
+            <td><a href="/api/w3u?method=get&origin={{ origin_name }}">{{ origin_name }}</a></td>
           </tr>
         {% endfor %}
       </tbody>

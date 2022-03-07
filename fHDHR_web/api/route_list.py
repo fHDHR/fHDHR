@@ -12,9 +12,9 @@ class Route_List():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
 

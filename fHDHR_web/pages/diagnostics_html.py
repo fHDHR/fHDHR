@@ -12,9 +12,9 @@ class Diagnostics_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         base_url = request.url_root[:-1]
 
@@ -27,8 +27,8 @@ class Diagnostics_HTML():
                     if not session["route_list"][route_group][route_item]["name"].startswith("page_"):
                         button_link = session["route_list"][route_group][route_item]["endpoints"][0]
                         parameter_index = 0
-                        for parameter in list(session["route_list"][route_group][route_item]["endpoint_default_parameters"].keys()):
-                            parameter_val = session["route_list"][route_group][route_item]["endpoint_default_parameters"][parameter]
+                        for parameter in list(session["route_list"][route_group][route_item]["endpoint_parameters"].keys()):
+                            parameter_val = session["route_list"][route_group][route_item]["endpoint_parameters"][parameter]["default"]
                             if not parameter_index:
                                 button_link += "?"
                             else:

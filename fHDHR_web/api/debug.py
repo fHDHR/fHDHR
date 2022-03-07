@@ -11,9 +11,9 @@ class Debug_JSON():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         base_url = request.url_root[:-1]
 
@@ -21,10 +21,10 @@ class Debug_JSON():
                     "base_url": base_url,
                     }
 
-        for origin in self.fhdhr.origins.list_origins:
-            debugjson[origin] = {
-                                "tuner status": self.fhdhr.device.tuners.status(origin),
-                                "total channels": self.fhdhr.origins.origins_dict[origin].channels.count_channels
+        for origin_name in self.fhdhr.origins.list_origins:
+            debugjson[origin_name] = {
+                                "tuner status": self.fhdhr.device.tuners.status(origin_name),
+                                "total channels": self.fhdhr.origins.origins_dict[origin_name].channels.count_channels
                                 }
 
         debug_json = json.dumps(debugjson, indent=4)

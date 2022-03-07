@@ -11,11 +11,11 @@ class Channel_Delete_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
-        origin = request.args.get('origin', default=None, type=str)
-        fhdhr_id = request.args.get('fhdhr_id', default=None, type=str)
+        origin_name = request.args.get('origin', default=None, type=str)
+        fhdhr_channel_id = request.args.get('fhdhr_channel_id', default=None, type=str)
 
-        return render_template('channel_delete.html', request=request, session=session, fhdhr=self.fhdhr, fhdhr_id=fhdhr_id, origin=origin)
+        return render_template('channel_delete.html', request=request, session=session, fhdhr=self.fhdhr, fhdhr_channel_id=fhdhr_channel_id, origin_name=origin_name)

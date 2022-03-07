@@ -12,9 +12,9 @@ class Settings_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         web_settings_dict = {}
         for config_section in list(self.fhdhr.config.conf_default.keys()):

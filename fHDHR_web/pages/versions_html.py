@@ -12,9 +12,9 @@ class Versions_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
         version_dict = {}
         for key in list(self.fhdhr.versions.dict.keys()):

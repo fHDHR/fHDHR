@@ -1,5 +1,4 @@
 
-from fHDHR.tools import humanized_time
 from.stream_obj import Stream_OBJ
 
 
@@ -79,10 +78,10 @@ class StreamManager():
         stream_args.update({"channel": chan_obj.number,
                             "channel_name": chan_obj.name,
                             "channel_callsign": chan_obj.callsign,
-                            "origin": chan_obj.origin})
+                            "origin_name": chan_obj.origin_name})
 
         # Get Streaming args from request
-        streaming_args, response_dict = self.parse_stream_args(request, chan_obj.origin)
+        streaming_args, response_dict = self.parse_stream_args(request, chan_obj.origin_name)
         if not len(list(stream_args.keys())):
             return None, None, response_dict
         stream_args.update(streaming_args)
@@ -90,7 +89,7 @@ class StreamManager():
         request_dict = self.parse_request_for_client_info(request, session)
         stream_args.update(request_dict)
 
-        settings_dict = self.parse_settings_for_stream(chan_obj.origin)
+        settings_dict = self.parse_settings_for_stream(chan_obj.origin_name)
         stream_args.update(settings_dict)
 
         stream_obj = self.get_stream_obj(chan_obj, request, session, stream_args)
@@ -105,9 +104,9 @@ class StreamManager():
         chan_obj = None
         response_dict = None
 
-        origin = request.args.get('origin', default=None, type=str)
-        if origin:
-            self.fhdhr.logger.debug("Client has selected %s" % origin)
+        origin_name = request.args.get('origin', default=None, type=str)
+        if origin_name:
+            self.fhdhr.logger.debug("Client has selected %s" % origin_name)
         else:
             self.fhdhr.logger.warning("Clien did not request a specific origin.")
 
@@ -121,14 +120,14 @@ class StreamManager():
         if not channel_number:
             return chan_obj, {"message": "Not Found", "status_code": 404, "headers": "801 - Missing Channel"}
 
-        chan_obj = self.fhdhr.origins.origins_dict[origin].channels.find_channel_obj(channel_number, searchkey=None)
+        chan_obj = self.fhdhr.origins.origins_dict[origin_name].channels.find_channel_obj(channel_number, searchkey=None)
         if chan_obj:
-            self.fhdhr.logger.debug("Channel information has been determined as: Channel=%s Origin=%s" % (chan_obj.number, chan_obj.origin))
+            self.fhdhr.logger.debug("Channel information has been determined as: Channel=%s Origin=%s" % (chan_obj.number, chan_obj.origin_name))
         else:
             self.fhdhr.logger.error("Could not determine Channel.")
 
         if not chan_obj:
-            if not origin:
+            if not origin_name:
                 response_dict = {"message": "Not Found", "status_code": 404, "headers": "801 - Unknown Origin"}
             else:
                 response_dict = {"message": "Not Found", "status_code": 404, "headers": "801 - Unknown Channel"}
@@ -138,7 +137,7 @@ class StreamManager():
 
         return chan_obj, response_dict
 
-    def parse_stream_args(self, request, origin):
+    def parse_stream_args(self, request, origin_name):
         """Use the passed `request` information to grab the given stream arguments"""
 
         stream_args = {}
@@ -151,15 +150,15 @@ class StreamManager():
         if stream_method:
             self.fhdhr.logger.debug("Client has specifically requested the %s stream method." % stream_method)
         else:
-            stream_method = self.origins.get_origin_property(origin, "stream_method")
-            self.fhdhr.logger.debug("Client did not select a stream method. Defaulting to origin %s setting of %s" % (origin, stream_method))
+            stream_method = self.origins.get_origin_property(origin_name, "stream_method")
+            self.fhdhr.logger.debug("Client did not select a stream method. Defaulting to origin %s setting of %s" % (origin_name, stream_method))
         if stream_method not in self.streaming_methods:
             response_dict = {"message": "Not Found", "status_code": 503, "headers": "806 - Tune Failed: Invalid Stream Method"}
             return stream_args, response_dict
 
         duration = request.args.get('duration', default=0, type=int)
         if duration:
-            self.fhdhr.logger.debug("Client requested duration of %s" % humanized_time(duration))
+            self.fhdhr.logger.debug("Client requested duration of %s" % self.fhdhr.time.humanized_time(duration))
         else:
             self.fhdhr.logger.debug("Client did not specify a duration to end the stream, stream will run indefinately.")
 
@@ -167,8 +166,8 @@ class StreamManager():
         if transcode_quality:
             self.fhdhr.logger.debug("Client requested transcoding to %s quality." % transcode_quality)
         else:
-            transcode_quality = self.fhdhr.origins.get_origin_property(origin, "transcode_quality")
-            self.fhdhr.logger.debug("Client did not select a transcode quality. Defaulting to origin %s setting of %s" % (origin, transcode_quality))
+            transcode_quality = self.fhdhr.origins.get_origin_property(origin_name, "transcode_quality")
+            self.fhdhr.logger.debug("Client did not select a transcode quality. Defaulting to origin %s setting of %s" % (origin_name, transcode_quality))
 
         valid_transcode_types = [None, "heavy", "mobile", "internet720", "internet480", "internet360", "internet240"]
         if transcode_quality not in valid_transcode_types:
@@ -177,12 +176,12 @@ class StreamManager():
 
         tuner_number = request.args.get('tuner', default=None, type=str)
         if tuner_number:
-            self.fhdhr.logger.debug("Client has specified utilization of %s tuner number %s." % (origin, tuner_number))
+            self.fhdhr.logger.debug("Client has specified utilization of %s tuner number %s." % (origin_name, tuner_number))
         else:
             self.fhdhr.logger.debug("Client did not specify a tuner number, automatic selection enabled.")
 
         stream_args = {
-                        "origin": origin,
+                        "origin_name": origin_name,
                         "method": stream_method,
                         "duration": duration,
                         "tuner_number": tuner_number,
@@ -202,13 +201,13 @@ class StreamManager():
                         }
         return request_dict
 
-    def parse_settings_for_stream(self, origin):
+    def parse_settings_for_stream(self, origin_name):
         """Pull Origin specific settings for the stream"""
         settings_dict = {
-                        "origin_quality": self.origins.get_origin_property(origin, "origin_quality"),
-                        "bytes_per_read": self.origins.get_origin_property(origin, "bytes_per_read"),
-                        "buffer_size": self.origins.get_origin_property(origin, "buffer_size"),
-                        "stream_restore_attempts": self.origins.get_origin_property(origin, "stream_restore_attempts"),
+                        "origin_quality": self.origins.get_origin_property(origin_name, "origin_quality"),
+                        "bytes_per_read": self.origins.get_origin_property(origin_name, "bytes_per_read"),
+                        "buffer_size": self.origins.get_origin_property(origin_name, "buffer_size"),
+                        "stream_restore_attempts": self.origins.get_origin_property(origin_name, "stream_restore_attempts"),
                         }
         stream_settings_string = "Pulling default settings for %s regarding stream handling:"
         for streamkey in list(settings_dict.keys()):

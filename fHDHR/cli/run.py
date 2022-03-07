@@ -14,6 +14,7 @@ import fHDHR.scheduler
 import fHDHR.web
 import fHDHR.origins
 from fHDHR.db import fHDHRdb
+from fHDHR.time_manager import Time_Manager
 
 ERR_CODE = 1
 ERR_CODE_NO_RESTART = 2
@@ -32,12 +33,12 @@ def build_args_parser(script_dir):
     return parser.parse_args()
 
 
-def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps):
+def run(settings, fhdhr_time, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps):
     """
     Create fHDHR and fHDHH_web objects, and run threads.
     """
 
-    fhdhr = fHDHR_OBJ(settings, logger, db, plugins, versions, web, scheduler, deps)
+    fhdhr = fHDHR_OBJ(settings, fhdhr_time, logger, db, plugins, versions, web, scheduler, deps)
     fhdhrweb = fHDHR_web.fHDHR_HTTP_Server(fhdhr)
 
     versions.sched_init(fhdhr)
@@ -81,7 +82,7 @@ def run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, sch
     return ERR_CODE
 
 
-def start(args, script_dir, fHDHR_web, deps):
+def start(args, script_dir, fhdhr_time, fHDHR_web, deps):
     """
     Get Configuration for fHDHR and start.
     """
@@ -116,6 +117,9 @@ def start(args, script_dir, fHDHR_web, deps):
     # Continue non-core settings setup
     settings.secondary_setup()
 
+    # add config to time manager
+    fhdhr_time.setup(settings, logger)
+
     # Setup Database
     db = fHDHRdb(settings, logger)
 
@@ -130,7 +134,7 @@ def start(args, script_dir, fHDHR_web, deps):
     # Find Plugins and import their default configs
     plugins = fHDHR.plugins.PluginsHandler(settings, logger, db, versions, deps)
 
-    return run(settings, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps)
+    return run(settings, fhdhr_time, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps)
 
 
 def config_setup(args, script_dir, fHDHR_web):
@@ -148,6 +152,8 @@ def main(script_dir, fHDHR_web, deps):
     """
     fHDHR run script entry point.
     """
+
+    fhdhr_time = Time_Manager()
 
     try:
         args = build_args_parser(script_dir)
@@ -171,7 +177,7 @@ def main(script_dir, fHDHR_web, deps):
 
         while True:
 
-            returned_code = start(args, script_dir, fHDHR_web, deps)
+            returned_code = start(args, script_dir, fhdhr_time, fHDHR_web, deps)
             if returned_code not in ["restart"]:
                 return returned_code
 

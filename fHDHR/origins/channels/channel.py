@@ -6,23 +6,23 @@ class Channel():
     fHDHR Channel Object.
     """
 
-    def __init__(self, fhdhr, id_system, origin, origin_id=None, channel_id=None):
+    def __init__(self, fhdhr, id_system, origin_obj, origin_id=None, channel_id=None):
         self.fhdhr = fhdhr
         self.id_system = id_system
-        self._origin = origin
-        self.origin = origin.name
+        self.origin_obj = origin_obj
+        self.origin_name = origin_obj.name
 
         if not channel_id:
 
             if origin_id:
-                channel_id = id_system.get(origin_id, origin)
+                channel_id = id_system.get(origin_id, self.origin_obj)
 
             else:
-                channel_id = id_system.assign(origin)
+                channel_id = id_system.assign(self.origin_obj)
 
         self.channel_id = channel_id
 
-        self.dict = self.fhdhr.db.get_fhdhr_value(str(channel_id), "dict", self._origin.name) or self.default_dict
+        self.dict = self.fhdhr.db.get_fhdhr_value(str(channel_id), "dict", self.origin_name) or self.default_dict
         self.verify_dict()
 
         self.save_channel()
@@ -142,10 +142,10 @@ class Channel():
             self.dict["tags"] = self.dict["origin_tags"]
 
         if "number" not in list(channel_info.keys()):
-            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin)
+            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin_obj)
 
         elif not channel_info["number"]:
-            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin)
+            channel_info["number"] = self.id_system.get_number(channel_info["id"], self.origin_obj)
 
         self.dict["origin_number"] = str(channel_info["number"])
         if not self.dict["number"]:
@@ -205,7 +205,7 @@ class Channel():
         Set status of a channel value.
         """
 
-        self.fhdhr.logger.debug("Updating %s channel %s." % (self._origin.name, self.dict["id"]))
+        self.fhdhr.logger.debug("Updating %s channel %s." % (self.origin_name, self.dict["id"]))
         for key in list(updatedict.keys()):
 
             if key == "number":
@@ -248,7 +248,7 @@ class Channel():
         The Url of fHDHR stream for the channel.
         """
 
-        return '/api/tuners?method=stream&channel=%s&origin=%s' % (self.dict["id"], self._origin.name)
+        return '/api/tuners?method=stream&channel=%s&origin=%s' % (self.dict["id"], self.origin_name)
 
     @property
     def api_m3u_url(self):
@@ -256,14 +256,22 @@ class Channel():
         The Url of m3u for the channel.
         """
 
-        return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self._origin.name)
+        return '/api/m3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin_name)
+
+    @property
+    def api_w3u_url(self):
+        """
+        The Url of w3u for the channel.
+        """
+
+        return '/api/w3u?method=get&channel=%s&origin=%s' % (self.dict["id"], self.origin_name)
 
     def set_favorite(self, enablement):
         """
         Set Channel Favorite Status.
         """
 
-        self.fhdhr.logger.debug("Setting %s channel %s Facorite status to %s." % (self._origin.name, self.dict["id"], enablement))
+        self.fhdhr.logger.debug("Setting %s channel %s Facorite status to %s." % (self.origin_name, self.dict["id"], enablement))
 
         if enablement == "+":
             self.dict["favorite"] = 1
@@ -278,7 +286,7 @@ class Channel():
         Set Channel Enablement Status.
         """
 
-        self.fhdhr.logger.debug("Setting %s channel %s Enabled status to %s." % (self._origin.name, self.dict["id"], enablement))
+        self.fhdhr.logger.debug("Setting %s channel %s Enabled status to %s." % (self.origin_name, self.dict["id"], enablement))
 
         if enablement == "disable":
             self.dict["enabled"] = False
@@ -297,10 +305,10 @@ class Channel():
         self.save_channel()
 
     def save_channel(self):
-        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self._origin.name)
+        self.fhdhr.db.set_fhdhr_value(self.dict["id"], "dict", self.dict, self.origin_name)
 
     def delete_channel(self):
-        self.fhdhr.db.delete_fhdhr_value(self.dict["id"], "dict", self._origin.name)
+        self.fhdhr.db.delete_fhdhr_value(self.dict["id"], "dict", self.origin_name)
 
     def __getattr__(self, name):
         """

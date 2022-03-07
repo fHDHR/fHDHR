@@ -30,12 +30,12 @@ class Stream_OBJ():
         return self.chan_obj.dict
 
     @property
-    def origin(self):
-        return self.chan_obj.origin
+    def origin_name(self):
+        return self.chan_obj.origin_name
 
     @property
     def origin_plugin(self):
-        return self.fhdhr.origins.get_origin(self.origin)
+        return self.fhdhr.origins.get_origin_obj(self.origin_name)
 
     @property
     def tuner_needed(self):
@@ -71,7 +71,7 @@ class Stream_OBJ():
     def log_stream_request_info(self):
 
         self.fhdhr.logger.info("Client has requested stream for %s." %
-                               "%s channel %s %s %s" % (self.chan_obj.origin,
+                               "%s channel %s %s %s" % (self.chan_obj.origin_name,
                                                         self.chan_obj.number,
                                                         self.chan_obj.name,
                                                         self.chan_obj.callsign))
@@ -99,12 +99,12 @@ class Stream_OBJ():
         self.fhdhr.logger.info("Attempting to Select an available tuner for this stream.")
 
         if not self.stream_args["tuner_number"]:
-            tunernum = self.device.tuners.first_available(self.chan_obj.origin, self.chan_obj.number)
+            tunernum = self.device.tuners.first_available(self.chan_obj.origin_name, self.chan_obj.number)
         else:
-            tunernum = self.device.tuners.tuner_grab(self.stream_args["tuner_number"], self.chan_obj.origin, self.chan_obj.number)
+            tunernum = self.device.tuners.tuner_grab(self.stream_args["tuner_number"], self.chan_obj.origin_name, self.chan_obj.number)
 
-        self.tuner = self.device.tuners.tuners[self.chan_obj.origin][str(tunernum)]
-        self.fhdhr.logger.info("%s Tuner #%s to be used for stream." % (self.chan_obj.origin, tunernum))
+        self.tuner = self.device.tuners.tuners[self.chan_obj.origin_name][str(tunernum)]
+        self.fhdhr.logger.info("%s Tuner #%s to be used for stream." % (self.chan_obj.origin_name, tunernum))
 
         self.fhdhr.logger.info("Preparing Stream...")
 
@@ -121,11 +121,11 @@ class Stream_OBJ():
 
         # Pull Stream Info from Origin Plugin
         self.fhdhr.logger.debug("Attempting to gather stream information for %s channel %s %s %s." %
-                                (self.stream_args["origin"], self.stream_args["channel"],
+                                (self.stream_args["origin_name"], self.stream_args["channel"],
                                  self.stream_args["channel_name"],
                                  self.stream_args["channel_callsign"]))
 
-        stream_info = self.fhdhr.origins.origins_dict[self.stream_args["origin"]].get_channel_stream(self.chan_dict, self.stream_args)
+        stream_info = self.fhdhr.origins.origins_dict[self.stream_args["origin_name"]].get_channel_stream(self.chan_dict, self.stream_args)
         if not stream_info:
             raise TunerError("806 - Tune Failed")
 

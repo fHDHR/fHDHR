@@ -1,7 +1,4 @@
 from flask import request, render_template, session
-import time
-
-from fHDHR.tools import humanized_time
 
 
 class Scheduler_HTML():
@@ -14,69 +11,12 @@ class Scheduler_HTML():
         self.fhdhr = fhdhr
 
     def __call__(self, *args):
-        return self.get(*args)
+        return self.handler(*args)
 
-    def get(self, *args):
+    def handler(self, *args):
 
-        jobsdicts = self.fhdhr.scheduler.list_jobs()
-        formatted_jobsdicts = []
-        nowtime = time.time()
-        for job_dict in jobsdicts:
-            job_dict_copy = job_dict.copy()
-            for run_item in ["last_run", "next_run"]:
-                if job_dict_copy[run_item]:
-                    job_dict_copy[run_item] = job_dict_copy[run_item].timestamp()
-                    if job_dict_copy[run_item] > nowtime:
-                        job_dict_copy[run_item] = humanized_time(job_dict_copy[run_item] - nowtime)
-                    else:
-                        job_dict_copy[run_item] = humanized_time(nowtime - job_dict_copy[run_item])
-                else:
-                    job_dict_copy[run_item] = "Never"
-            formatted_jobsdicts.append(job_dict_copy)
+        formatted_jobsdicts = self.fhdhr.scheduler.list_jobs_humanized
+        unscheduled_job_items = self.fhdhr.scheduler.unscheduled_jobs
 
-        unscheduled_job_items = []
-        enabled_jobs = [x["name"] for x in jobsdicts]
-
-        origin_methods = self.fhdhr.origins.list_origins
-        for origin in origin_methods:
-            if "%s Channel Scan" % origin not in enabled_jobs:
-                chanscan_interval = self.fhdhr.origins.get_origin_property(origin, ".chanscan_interval")
-                unscheduled_job_items.append({
-                    "name": "%s Channel Scan" % origin,
-                    "type": "Channel Scan",
-                    "interval": humanized_time(chanscan_interval),
-                    "interval_epoch": chanscan_interval
-                    })
-
-        epg_methods = self.fhdhr.device.epg.valid_epg_methods
-        for epg_method in epg_methods:
-            if "%s EPG Update" % epg_method not in enabled_jobs:
-                frequency_seconds = self.fhdhr.device.epg.epg_handling[epg_method].update_frequency
-                unscheduled_job_items.append({
-                    "name": "%s EPG Update" % epg_method,
-                    "type": "EPG Update",
-                    "interval": humanized_time(frequency_seconds),
-                    "interval_epoch": frequency_seconds
-                    })
-
-        if "Versions Update" not in enabled_jobs:
-            frequency_seconds = self.fhdhr.config.dict["fhdhr"]["versions_check_interval"]
-            unscheduled_job_items.append({
-                "name": "Versions Update",
-                "type": "Versions Update",
-                "interval": humanized_time(frequency_seconds),
-                "interval_epoch": frequency_seconds
-                })
-
-        ssdp_methods = list(self.fhdhr.device.ssdp.ssdp_handling.keys())
-        for ssdp_method in ssdp_methods:
-            if "%s SSDP Alive" % ssdp_method not in enabled_jobs:
-                frequency_seconds = self.fhdhr.device.ssdp.ssdp_handling[ssdp_method].max_age
-                unscheduled_job_items.append({
-                    "name": "%s SSDP Alive" % ssdp_method,
-                    "type": "SSDP Alive",
-                    "interval": humanized_time(frequency_seconds),
-                    "interval_epoch": frequency_seconds
-                    })
-
-        return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr, jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)
+        return render_template('scheduler.html', request=request, session=session, fhdhr=self.fhdhr,
+                               jobsdicts=formatted_jobsdicts, unscheduled_job_items=unscheduled_job_items)
