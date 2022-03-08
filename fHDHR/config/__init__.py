@@ -252,7 +252,7 @@ class Config():
         Check config value is prepped correctly.
         """
 
-        if not confvalue:
+        if isinstance(confvalue, type(None)):
             confvalue = None
 
         elif key == "xmltv_offset":
@@ -260,6 +260,9 @@ class Config():
 
         elif str(confvalue) in [0, "0"]:
             confvalue = 0
+
+        elif not confvalue:
+            confvalue = None
 
         elif isint(confvalue):
             confvalue = int(confvalue)
