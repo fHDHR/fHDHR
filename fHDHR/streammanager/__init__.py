@@ -108,7 +108,7 @@ class StreamManager():
         if origin_name:
             self.fhdhr.logger.debug("Client has selected %s" % origin_name)
         else:
-            self.fhdhr.logger.warning("Clien did not request a specific origin.")
+            self.fhdhr.logger.warning("Client did not request a specific origin.")
 
         channel_number = request.args.get('channel', None, type=str)
         if channel_number:
