@@ -17,6 +17,7 @@ class WebPlugin():
         self.fhdhr = fhdhr
         self.plugin = plugin
         self.plugin_utils = self.plugin.plugin_utils
+        self.plugin.plugin_utils.origin = None  # TODO real fix
 
         # Attempt to setup Web Plugin
         self.instatiate_web_plugin()
