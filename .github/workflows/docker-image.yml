@@ -18,6 +18,7 @@ jobs:
       env:
         DOCKER_USER: ${{secrets.DOCKER_USER}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_ORG: ${{secrets.DOCKER_ORG}}
       run: | 
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     
@@ -31,10 +32,10 @@ jobs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
     
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/fdhdr:latest --tag ${{secrets.DOCKER_USER}}/fdhdr:${{ env.VERSION }}
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_ORG}}/fhdhr:latest --tag ${{secrets.DOCKER_ORG}}/fhdhr:${{ env.VERSION }}
     
     - name: Docker Push Latest
-      run: docker push ${{secrets.DOCKER_USER}}/fdhdr:latest
+      run: docker push ${{secrets.DOCKER_ORG}}/fhdhr:latest
 
     - name: Docker Push Version
-      run: docker push ${{secrets.DOCKER_USER}}/fdhdr:${{ env.VERSION }}
+      run: docker push ${{secrets.DOCKER_ORG}}/fhdhr:${{ env.VERSION }}
