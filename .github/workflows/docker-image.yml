@@ -1,0 +1,40 @@
+name: Docker Image
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: | 
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    
+    - name: Get Version
+      run: |
+        VERSION="$(cat version.json | grep '"fHDHR"')"
+        VERSION="$(cut -d':' -f2 <<< $VERSION)"
+        VERSION="$(cut -d',' -f1 <<< $VERSION)"
+        VERSION="$(cut -d'"' -f2 <<< $VERSION)"
+
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+    
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/fdhdr:latest --tag ${{secrets.DOCKER_USER}}/fdhdr:${{ env.VERSION }}
+    
+    - name: Docker Push Latest
+      run: docker push ${{secrets.DOCKER_USER}}/fdhdr:latest
+
+    - name: Docker Push Version
+      run: docker push ${{secrets.DOCKER_USER}}/fdhdr:${{ env.VERSION }}
