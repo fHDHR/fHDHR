@@ -13,10 +13,16 @@ def epg_chan_map(event):
 
 
 def epg_chan_map_postform(chanlist):
-    source = document["source"].value
+    source = document.query.getvalue('source')
+    if source is None:
+        sources = document.select('.channel_btn,.guide_btn')
+        if len(sources) == 1:
+            source = sources[0].text
+        else:
+            source = None
     postForm = document.createElement('form')
     postForm.method = "POST"
-    postForm.action = "/api/epg?method=map&redirect=/guide?source=%s" % source
+    postForm.action = f"/api/epg?method=map&redirect=/guide?{"source=%s" % source if source else ""}"
     postForm.setRequestHeader = "('Content-Type', 'application/json')"
 
     postData = document.createElement('input')

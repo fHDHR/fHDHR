@@ -8,7 +8,7 @@
 
   <p>
     {% for epg_method in epg_methods %}
-      <button onclick="location.href='/guide?source={{ epg_method }}'" type="button">{{ epg_method }}</button>
+      <button class="guide_btn" onclick="location.href='/guide?source={{ epg_method }}'" data-channel="{{ epg_method }}" type="button">{{ epg_method }}</button>
     {% endfor %}
   </p>
 
