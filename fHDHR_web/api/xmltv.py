@@ -39,17 +39,21 @@ class xmlTV():
 
             epgdict = self.fhdhr.device.epg.get_epg(source)
 
+            def set_epgdict(epgdict, chan_obj):
+                epgdict[chan_obj.number] = epgdict.pop(c)
+                epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
+                epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
+                epgdict[chan_obj.number]["number"] = chan_obj.number
+                epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
+                epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+                epgdict[chan_obj.number]["listings"] = chan_obj.listings
+
             if source in self.fhdhr.origins.list_origins:
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
                     chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(epgdict[c]["id"], searchkey="origin_id")
                     if chan_obj:
-                        epgdict[chan_obj.number] = epgdict.pop(c)
-                        epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
-                        epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
-                        epgdict[chan_obj.number]["number"] = chan_obj.number
-                        epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
-                        epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+                        set_epgdict(epgdict, chan_obj)
             else:
                 epgdict = epgdict.copy()
                 for c in list(epgdict.keys()):
@@ -57,12 +61,7 @@ class xmlTV():
                     if chan_match:
                         chan_obj = self.fhdhr.origins.origins_dict[chan_match["origin_name"]].find_channel_obj(chan_match["fhdhr_channel_id"], searchkey="id")
                         if chan_obj:
-                            epgdict[chan_obj.number] = epgdict.pop(c)
-                            epgdict[chan_obj.number]["name"] = chan_obj.dict["name"]
-                            epgdict[chan_obj.number]["callsign"] = chan_obj.dict["callsign"]
-                            epgdict[chan_obj.number]["number"] = chan_obj.number
-                            epgdict[chan_obj.number]["id"] = chan_obj.dict["id"]
-                            epgdict[chan_obj.number]["thumbnail"] = chan_obj.thumbnail
+                            set_epgdict(epgdict, chan_obj)
 
             xmltv_xml = self.create_xmltv(base_url, epgdict, source)
 
@@ -109,7 +108,7 @@ class xmlTV():
 
     def timestamp_to_datetime(self, time_start, time_end, source):
         xmltvtimetamps = {}
-        source_offset = self.fhdhr.device.epg.epg_handling[source].xmltv_offset
+        source_offset = self.fhdhr.device.epg.epg_handling[source].xmltv_offset or "+0000"
         for time_item, time_value in zip(["time_start", "time_end"], [time_start, time_end]):
             timestampval = datetime.datetime.fromtimestamp(time_value).strftime('%Y%m%d%H%M%S')
             xmltvtimetamps[time_item] = "%s %s" % (timestampval, source_offset)

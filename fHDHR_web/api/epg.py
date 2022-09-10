@@ -21,7 +21,6 @@ class EPG():
     def handler(self, *args):
 
         method = request.args.get('method', default="get", type=str)
-
         source = request.args.get('source', default=self.fhdhr.device.epg.def_method, type=str)
         if source not in self.fhdhr.device.epg.valid_epg_methods:
             return "%s Invalid epg method" % source
@@ -109,8 +108,10 @@ class EPG():
                 if channel["fhdhr_channel_id"] in [None, "None"]:
                     self.fhdhr.device.epg.unset_epg_chan_match(channel["epg_method"], channel["id"])
                 else:
-                    chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(channel["fhdhr_channel_id"], searchkey="id")
-                    if chan_obj:
+                    chan_obj = None
+                    if "fhdhr_channel_id" in channel:
+                        chan_obj = self.fhdhr.origins.origins_dict[source].find_channel_obj(channel["fhdhr_channel_id"], searchkey="id")
+                    if chan_obj is not None:
                         self.fhdhr.device.epg.set_epg_chan_match(channel["epg_method"], channel["id"], channel["fhdhr_channel_id"], chan_obj.origin_name)
 
         elif method == "clearcache":

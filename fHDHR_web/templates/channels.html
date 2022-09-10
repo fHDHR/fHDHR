@@ -7,7 +7,7 @@
 
   <p>
     {% for origin_name in origin_methods %}
-      <button onclick="location.href='/channels?origin={{ origin_name }}'" type="button">{{ origin_name }}</button>
+      <button class="channel_btn" onclick="location.href='/channels?origin={{ origin_name }}'" data-channel="{{ origin_name }}" type="button">{{ origin_name }}</button>
     {% endfor %}
   </p>
 
