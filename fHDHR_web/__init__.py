@@ -57,9 +57,12 @@ class fHDHR_HTTP_Server():
             self.fhdhr.logger.info("Loading HTTP %s Endpoints." % endpoint_type)
             self.add_endpoints(endpoint_type)
 
+        # self.fhdhr.app.before_first_request(self.before_first_request)  # deprecated
+        # self.before_first_request_triggered = False
+        # self.fhdhr.app.before_request_funcs = ([(None, self.before_first_request())])
+
         self.fhdhr.app.before_request(self.before_request)
         self.fhdhr.app.after_request(self.after_request)
-        self.fhdhr.app.before_first_request(self.before_first_request)
 
         self.fhdhr.threads["flask"] = threading.Thread(target=self.run)
 
@@ -102,7 +105,9 @@ class fHDHR_HTTP_Server():
         Handling before a first request can be handled.
         """
 
-        self.fhdhr.logger.info("HTTP Server Online.")
+        if not self.before_first_request_triggered:
+            self.tdarr_inform.logger.info("HTTP Server Online.")
+            self.before_first_request_triggered = True
 
     def before_request(self):
         """
