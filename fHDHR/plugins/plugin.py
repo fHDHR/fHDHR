@@ -1,5 +1,5 @@
 import os
-import imp
+import importlib
 
 from .plugin_utils import Plugin_Utils
 from fHDHR.tools import checkattr
@@ -20,13 +20,12 @@ class Plugin():
         self.plugin_name = plugin_name
         self.modname = os.path.basename(plugin_path)
         self.path = plugin_path
-        self.module_type = imp.PKG_DIRECTORY
         self.multi_plugin = (self.plugin_name != self.modname)
         self.default_conf = plugin_conf
         self.manifest = plugin_manifest
 
         if self.multi_plugin:
-            self.plugin_dict_name = "%s_%s" % (plugin_name, self.modname)
+            self.plugin_dict_name = "%s.%s" % (plugin_name, self.modname)
 
         else:
             self.plugin_dict_name = plugin_name
@@ -73,8 +72,7 @@ class Plugin():
         Load the plugin.
         """
 
-        description = ('', '', self.module_type)
-        mod = imp.load_module(self.plugin_dict_name, None, self.path, description)
+        mod = importlib.import_module('plugins.'+self.plugin_dict_name)
         return mod
 
     @property
