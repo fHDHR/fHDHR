@@ -26,7 +26,8 @@ class PluginsHandler():
 
         self.load_plugins()
 
-        versions.register_plugins(self)
+        if self.versions:
+            versions.register_plugins(self)
 
         self.setup()
 
@@ -120,11 +121,12 @@ class PluginsHandler():
 
                     self.logger.info("Checking For %s Plugin Requirements file." % plugin_manifest["name"])
 
-                    requirements_txt = os.path.join(abspath, 'requirements.txt')
-                    if os.path.isfile(requirements_txt):
-                        self.logger.info("Installing %s Plugin Requirements from %s" % (plugin_manifest["name"], requirements_txt))
-                        plugin_reqs = self.deps.get_requirements(requirements_txt)
-                        self.deps.check_requirements(plugin_reqs)
+                    if self.deps:
+                        requirements_txt = os.path.join(abspath, 'requirements.txt')
+                        if os.path.isfile(requirements_txt):
+                            self.logger.info("Installing %s Plugin Requirements from %s" % (plugin_manifest["name"], requirements_txt))
+                            plugin_reqs = self.deps.get_requirements(requirements_txt)
+                            self.deps.check_requirements(plugin_reqs)
 
     def load_plugins(self):
         """
