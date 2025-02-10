@@ -88,7 +88,7 @@ def start(args, script_dir, fhdhr_time, fHDHR_web, deps):
     """
 
     try:
-        settings = fHDHR.config.Config(args, script_dir)
+        settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
     except fHDHR.exceptions.ConfigurationError as exerror:
         print(exerror)
         return ERR_CODE_NO_RESTART
@@ -137,13 +137,16 @@ def start(args, script_dir, fhdhr_time, fHDHR_web, deps):
     return run(settings, fhdhr_time, logger, db, script_dir, fHDHR_web, plugins, versions, web, scheduler, deps)
 
 
-def config_setup(args, script_dir, fHDHR_web):
+def config_setup(args, script_dir, logger, fHDHR_web):
     """
     Setup Config file.
     """
 
     settings = fHDHR.config.Config(args, script_dir, fHDHR_web)
-    fHDHR.plugins.PluginsHandler(settings)
+    db = None
+    versions = None
+    deps = None
+    fHDHR.plugins.PluginsHandler(settings, logger, db, versions, deps)
     settings.setup_user_config()
     return ERR_CODE
 
@@ -154,6 +157,8 @@ def main(script_dir, fHDHR_web, deps):
     """
 
     fhdhr_time = Time_Manager()
+
+    logger = fHDHR.logger.PrintLogger()
 
     try:
         args = build_args_parser(script_dir)
@@ -173,7 +178,7 @@ def main(script_dir, fHDHR_web, deps):
             return ERR_CODE
 
         if args.setup:
-            return config_setup(args, script_dir, fHDHR_web)
+            return config_setup(args, script_dir, logger, fHDHR_web)
 
         while True:
 

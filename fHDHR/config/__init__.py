@@ -13,7 +13,7 @@ class Config():
     Methods for maintaining the Config.
     """
 
-    def __init__(self, args, script_dir):
+    def __init__(self, args, script_dir, fHDHR_web):
 
         self.internal = {}
         self.conf_default = {}

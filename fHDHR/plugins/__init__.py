@@ -26,7 +26,8 @@ class PluginsHandler():
 
         self.load_plugins()
 
-        versions.register_plugins(self)
+        if self.versions:
+            versions.register_plugins(self)
 
         self.setup()
 

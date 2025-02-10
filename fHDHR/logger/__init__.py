@@ -349,3 +349,27 @@ class Logger():
 
         elif checkattr(self.logger, name.lower()):
             return eval("self.logger.%s" % name.lower())
+
+
+class PrintLogger:
+    """
+    The logging System for fortimaker.
+    """
+
+    def __init__(self):
+        pass
+
+    def debug(self, message):
+        print(message)
+
+    def info(self, message):
+        print(message)
+
+    def warning(self, message):
+        print(message)
+
+    def warn(self, message):
+        return self.warning(message)
+
+    def error(self, message):
+        print(message)
